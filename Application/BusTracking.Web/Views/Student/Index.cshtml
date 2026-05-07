@@ -1,4 +1,4 @@
-@* @* @* ── Student/Index ───────────────────────────────────────── *@
+@* ── Student/Index ───────────────────────────────────────── *@
 @model BusTracking.Common.DTOs.Common.PagedResult<BusTracking.Common.DTOs.Student.StudentListDto>
 @{
     ViewData["Title"] = "Students"; ViewData["Breadcrumb"] = "Students";
@@ -36,7 +36,16 @@
                             <td><code>@s.StudentCode</code></td>
                             <td class="fw-semibold">@s.FullName</td>
                             <td>@(s.Standard ?? "–")</td>
-                            <td>@(s.BusNumber ?? < span class= "text-muted" > Unassigned </ span >)</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(s.BusNumber))
+                                {
+                                    @s.BusNumber
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Unassigned</span>
+                                }
+                            </td>
                             <td>@(s.StopName ?? "–")</td>
                             <td><span class="badge @(s.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">@(s.IsActive ? "Active" : "Inactive")</span></td>
                             <td class="text-end">
@@ -67,4 +76,3 @@
         }
     </div>
 </div>
- *@ *@
