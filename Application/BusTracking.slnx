@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="BusTracking.API/BusTracking.API.csproj" />
+  <Project Path="BusTracking.Common/BusTracking.Common.csproj" />
+  <Project Path="BusTracking.Web/BusTracking.Web.csproj" />
+</Solution>
