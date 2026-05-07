@@ -1,0 +1,40 @@
+@* ── Bus/Create ──────────────────────────────────────────── *@
+@model BusTracking.Common.DTOs.Bus.CreateBusDto
+@{
+    ViewData["Title"] = "Add Bus"; ViewData["Breadcrumb"] = "Buses / Add";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+                <i class="bi bi-bus-front me-2 text-primary"></i>Add New Bus
+            </div>
+            <div class="card-body p-4">
+                <div asp-validation-summary="All" class="alert alert-danger py-2"></div>
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label asp-for="BusName" class="form-label fw-semibold">Bus Name <span class="text-danger">*</span></label>
+                        <input asp-for="BusName" class="form-control" placeholder="e.g. Red Falcon" />
+                        <span asp-validation-for="BusName" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="BusNumber" class="form-label fw-semibold">Bus Number / Plate <span class="text-danger">*</span></label>
+                        <input asp-for="BusNumber" class="form-control" placeholder="e.g. MH-01-AB-1234" />
+                        <span asp-validation-for="BusNumber" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Capacity" class="form-label fw-semibold">Capacity (seats)</label>
+                        <input asp-for="Capacity" type="number" class="form-control" placeholder="e.g. 40" min="1" />
+                        <span asp-validation-for="Capacity" class="text-danger small"></span>
+                    </div>
+                    <div class="d-flex gap-2 pt-2">
+                        <button type="submit" class="btn btn-primary px-4">Save Bus</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

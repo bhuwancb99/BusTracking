@@ -1,0 +1,82 @@
+@model List<BusTracking.Common.DTOs.Availability.AvailabilityDto>
+@using BusTracking.Common.Enums
+@{
+    ViewData["Title"] = "Manage Availability"; ViewData["Breadcrumb"] = "Availability";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-calendar-check me-2 text-info"></i>Student Availability</h4>
+</div>
+
+<div class="row g-4">
+    <!-- Add new availability -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">Mark Unavailability</div>
+            <div class="card-body p-4">
+                <form asp-action="SetAvailability" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="StudentId" value="@ViewBag.StudentId" />
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Reason</label>
+                        <select name="AvailabilityType" class="form-select">
+                            <option value="OnLeave">On Leave</option>
+                            <option value="NotGoingToSchool">Not Going to School</option>
+                            <option value="ParentPickup">Parent Pickup</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">From Date <span class="text-danger">*</span></label>
+                        <input type="date" name="FromDate" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">To Date <span class="text-danger">*</span></label>
+                        <input type="date" name="ToDate" class="form-control" min="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">Remarks</label>
+                        <textarea name="Remarks" class="form-control" rows="2" placeholder="Optional note…"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Existing availability list -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">Upcoming / Active Unavailability</div>
+            <div class="card-body p-4">
+                @if (Model is null || Model.Count == 0)
+                {
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-calendar-check fs-1 d-block mb-2"></i>
+                        No upcoming unavailability records.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                                <tr><th>Reason</th><th>From</th><th>To</th><th>Remarks</th></tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var a in Model)
+                                {
+                                    <tr>
+                                        <td><span class="badge bg-warning-subtle text-warning px-2 py-1">@a.AvailabilityType</span></td>
+                                        <td>@a.FromDate</td>
+                                        <td>@a.ToDate</td>
+                                        <td class="text-muted small">@(a.Remarks ?? "–")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
