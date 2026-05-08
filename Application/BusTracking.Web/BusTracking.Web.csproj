@@ -20,11 +20,6 @@
 	<ItemGroup>
 	  <Folder Include="Areas\" />
 	  <Folder Include="Models\" />
-	  <Folder Include="Views\Driver\" />
-	  <Folder Include="Views\Feedback\" />
-	  <Folder Include="Views\Notification\" />
-	  <Folder Include="Views\Parent\" />
-	  <Folder Include="Views\Route\" />
 	</ItemGroup>
 
 </Project>

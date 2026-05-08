@@ -1,0 +1,112 @@
+@model List<BusTracking.Common.DTOs.Trip.StudentTripStatusDto>
+@{
+    ViewData["Title"] = "Track Bus"; ViewData["Breadcrumb"] = "Track My Bus";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-geo-alt me-2 text-danger"></i>Live Bus Tracking</h4>
+    <span class="text-muted small" id="lastUpdated">Updating every 10s…</span>
+</div>
+
+<div class="row g-4">
+    <!-- Map -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                <span class="fw-semibold"><i class="bi bi-map me-2"></i>Live Location</span>
+                @if (ViewBag.Location is BusTracking.Common.DTOs.Trip.BusLocationDto loc)
+                {
+                    <span class="badge bg-success-subtle text-success">
+                        <i class="bi bi-circle-fill me-1" style="font-size:.5rem"></i>Live
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary-subtle text-secondary">No data yet</span>
+                }
+            </div>
+            <div class="card-body p-0">
+                <!-- Leaflet map -->
+                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+                <div id="busMap" data-trip-id="@ViewBag.TripId" style="height:460px;border-radius:0 0 10px 10px"></div>
+            </div>
+        </div>
+
+        @if (ViewBag.Location is BusTracking.Common.DTOs.Trip.BusLocationDto location)
+        {
+            <div class="card border-0 shadow-sm mt-3">
+                <div class="card-body py-3 px-4">
+                    <div class="row text-center g-3">
+                        <div class="col">
+                            <div class="text-muted small mb-1">Latitude</div>
+                            <strong>@location.Latitude</strong>
+                        </div>
+                        <div class="col">
+                            <div class="text-muted small mb-1">Longitude</div>
+                            <strong>@location.Longitude</strong>
+                        </div>
+                        <div class="col">
+                            <div class="text-muted small mb-1">Speed</div>
+                            <strong>@(location.Speed.HasValue ? $"{location.Speed:0} km/h" : "–")</strong>
+                        </div>
+                        <div class="col">
+                            <div class="text-muted small mb-1">Last Ping</div>
+                            <strong>@location.RecordedAt.ToString("hh:mm:ss tt")</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Student list -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+                <i class="bi bi-people me-2 text-primary"></i>Students on Trip
+            </div>
+            <div class="card-body p-0" style="max-height:520px;overflow-y:auto">
+                @if (Model is null || Model.Count == 0)
+                {
+                    <div class="text-center text-muted py-5 px-3">
+                        <i class="bi bi-mortarboard fs-1 d-block mb-2"></i>No students on this trip.
+                    </div>
+                }
+                else
+                {
+                    @foreach (var s in Model.OrderBy(x => x.StopOrder).ThenBy(x => x.StudentName))
+                    {
+                        var (dotColor, statusLabel) = s.BoardingStatus switch
+                        {
+                            "PickedUp" => ("bg-success", "Picked Up"),
+                            "NoShow" => ("bg-danger", "No Show"),
+                            "OnLeave" => ("bg-warning", "On Leave"),
+                            _ => ("bg-secondary", "Pending")
+                        };
+
+                        <div class="d-flex align-items-center gap-3 p-3 border-bottom"
+                             id="student-row-@s.StudentId">
+                            <span class="badge rounded-pill @dotColor" style="width:10px;height:10px;padding:0"></span>
+                            <div class="flex-grow-1 min-width-0">
+                                <div class="fw-semibold small text-truncate">@s.StudentName</div>
+                                <div class="text-muted" style="font-size:.72rem">
+                                    <i class="bi bi-geo-alt me-1"></i>@s.StopName
+                                </div>
+                            </div>
+                            <span class="badge @(s.BoardingStatus == "PickedUp" ? "bg-success-subtle text-success"
+                                                : s.BoardingStatus == "NoShow" ? "bg-danger-subtle text-danger"
+                                                : s.BoardingStatus == "OnLeave" ? "bg-warning-subtle text-warning"
+                                                : "bg-secondary-subtle text-secondary") boarding-status small">
+                                @statusLabel
+                            </span>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+}

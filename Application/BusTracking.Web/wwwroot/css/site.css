@@ -1,31 +1,376 @@
-html {
-  font-size: 14px;
+/* ================================================================
+   BUS TRACKING SYSTEM – site.css
+   ================================================================ */
+
+:root {
+    --sidebar-width: 240px;
+    --sidebar-bg: #1a2035;
+    --sidebar-hover: #2a3150;
+    --sidebar-active: #3d5af1;
+    --sidebar-text: #c8cfdd;
+    --sidebar-text-active: #ffffff;
+    --topbar-height: 56px;
+    --brand-primary: #3d5af1;
+    --brand-secondary: #e94560;
+    --radius: 10px;
+    --shadow: 0 2px 12px rgba(0,0,0,.08);
 }
 
-@media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
-}
-
-.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-}
-
-html {
-  position: relative;
-  min-height: 100%;
+/* ── Reset / base ─────────────────────────────────────────── */
+*, *::before, *::after {
+    box-sizing: border-box;
 }
 
 body {
-  margin-bottom: 60px;
+    margin: 0;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: #f4f6fb;
+    color: #2d3748;
+    min-height: 100vh;
 }
 
-.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
-  color: var(--bs-secondary-color);
-  text-align: end;
+/* ── Sidebar ──────────────────────────────────────────────── */
+.sidebar {
+    width: var(--sidebar-width);
+    min-height: 100vh;
+    background: var(--sidebar-bg);
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 1000;
+    transition: width .25s ease, transform .25s ease;
+    display: flex;
+    flex-direction: column;
 }
 
-.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
-  text-align: start;
+    .sidebar.collapsed {
+        width: 64px;
+    }
+
+        .sidebar.collapsed .sidebar-link span {
+            display: none;
+        }
+
+        .sidebar.collapsed .sidebar-brand span {
+            display: none;
+        }
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 18px;
+    color: #fff;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: .3px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+}
+
+    .sidebar-brand i {
+        font-size: 1.4rem;
+        color: var(--brand-primary);
+    }
+
+.sidebar-nav {
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+}
+
+.sidebar-item {
+    margin: 2px 8px;
+    border-radius: 8px;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: .9rem;
+    transition: background .18s, color .18s;
+}
+
+    .sidebar-link i {
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+
+    .sidebar-link:hover {
+        background: var(--sidebar-hover);
+        color: #fff;
+    }
+
+.sidebar-item.active .sidebar-link {
+    background: var(--brand-primary);
+    color: #fff;
+}
+
+.sidebar-footer {
+    padding: 10px 8px 16px;
+    border-top: 1px solid rgba(255,255,255,.07);
+    margin-top: auto;
+}
+
+/* ── Main wrapper ─────────────────────────────────────────── */
+.main-wrapper {
+    min-width: 0;
+    transition: margin-left .25s ease;
+}
+
+/* ── Top navbar ───────────────────────────────────────────── */
+.top-navbar {
+    height: var(--topbar-height);
+    background: #fff;
+    border-bottom: 1px solid #e9ecf0;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 500;
+    box-shadow: 0 1px 4px rgba(0,0,0,.05);
+}
+
+.sidebar-toggle {
+    color: #6b7280;
+    padding: 4px 8px;
+}
+
+    .sidebar-toggle:hover {
+        color: var(--brand-primary);
+    }
+
+/* ── Content ──────────────────────────────────────────────── */
+.content-area {
+    padding: 24px;
+    min-height: calc(100vh - var(--topbar-height) - 40px);
+}
+
+/* ── Auth page ────────────────────────────────────────────── */
+.auth-page {
+    background: linear-gradient(135deg, #1a2035 0%, #3d5af1 100%);
+}
+
+.auth-card {
+    border-radius: 16px !important;
+}
+
+.auth-logo {
+    background: rgba(61,90,241,.12);
+    display: inline-flex;
+    padding: 16px;
+    border-radius: 50%;
+}
+
+/* ── Cards ────────────────────────────────────────────────── */
+.card {
+    border-radius: var(--radius) !important;
+}
+
+.card-header {
+    font-size: .95rem;
+}
+
+/* ── Stat cards ───────────────────────────────────────────── */
+.stat-card {
+    border-radius: 12px !important;
+    transition: transform .2s, box-shadow .2s;
+}
+
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 24px rgba(0,0,0,.1) !important;
+    }
+
+.stat-value {
+    font-size: 2.2rem;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+}
+
+/* ── Tables ───────────────────────────────────────────────── */
+.table th {
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+.table-hover tbody tr:hover {
+    background: #f8faff;
+}
+
+/* ── Badges ───────────────────────────────────────────────── */
+.badge {
+    font-weight: 500;
+    letter-spacing: .2px;
+}
+
+/* ── Forms ────────────────────────────────────────────────── */
+.form-control:focus, .form-select:focus {
+    border-color: var(--brand-primary);
+    box-shadow: 0 0 0 3px rgba(61,90,241,.15);
+}
+
+.form-label {
+    font-size: .875rem;
+    margin-bottom: 5px;
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.btn {
+    border-radius: 7px;
+    font-size: .875rem;
+}
+
+.btn-primary {
+    background: var(--brand-primary);
+    border-color: var(--brand-primary);
+}
+
+    .btn-primary:hover {
+        background: #2d47d6;
+        border-color: #2d47d6;
+    }
+
+/* ── Map container ────────────────────────────────────────── */
+#busMap {
+    width: 100%;
+    height: 480px;
+    border-radius: var(--radius);
+    border: 1px solid #dee2e6;
+}
+
+/* ── Notification badge ───────────────────────────────────── */
+.notif-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: var(--brand-secondary);
+    color: #fff;
+    font-size: .65rem;
+    padding: 1px 5px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+}
+
+/* ── Pagination ───────────────────────────────────────────── */
+.page-link {
+    color: var(--brand-primary);
+    border-radius: 6px !important;
+    margin: 0 2px;
+}
+
+.page-item.active .page-link {
+    background: var(--brand-primary);
+    border-color: var(--brand-primary);
+}
+
+/* ── Timeline (stop list) ─────────────────────────────────── */
+.stop-timeline {
+    position: relative;
+    padding-left: 28px;
+}
+
+    .stop-timeline::before {
+        content: '';
+        position: absolute;
+        left: 10px;
+        top: 8px;
+        bottom: 8px;
+        width: 2px;
+        background: #dee2e6;
+    }
+
+.stop-item {
+    position: relative;
+    padding: 8px 0;
+}
+
+.stop-dot {
+    position: absolute;
+    left: -23px;
+    top: 12px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid var(--brand-primary);
+}
+
+.stop-item:first-child .stop-dot {
+    background: #28a745;
+    border-color: #28a745;
+}
+
+.stop-item:last-child .stop-dot {
+    background: var(--brand-secondary);
+    border-color: var(--brand-secondary);
+}
+
+/* ── Status colors ────────────────────────────────────────── */
+.status-pickedup {
+    color: #28a745;
+}
+
+.status-noshow {
+    color: #dc3545;
+}
+
+.status-onleave {
+    color: #fd7e14;
+}
+
+.status-pending {
+    color: #6c757d;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: 0;
+        transform: translateX(-100%);
+    }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+    .content-area {
+        padding: 16px;
+    }
+
+    .main-wrapper {
+        margin-left: 0 !important;
+    }
+}
+
+/* ── Scrollbar ────────────────────────────────────────────── */
+.sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,.15);
+    border-radius: 2px;
 }

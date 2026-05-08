@@ -1,0 +1,50 @@
+﻿@model BusTracking.Common.DTOs.Parent.ParentListDto
+@{
+    ViewData["Title"] = "Parent Details"; ViewData["Breadcrumb"] = "Parents / Details";
+}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between">
+                <span class="fw-semibold"><i class="bi bi-people me-2 text-info"></i>Parent Profile</span>
+                <div class="d-flex gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model?.UserId" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i>Edit</a>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                @if (Model is not null)
+                {
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr><th class="text-muted small w-35">Full Name</th><td class="fw-semibold">@Model.FullName</td></tr>
+                            <tr><th class="text-muted small">Email</th><td>@Model.Email</td></tr>
+                            <tr><th class="text-muted small">Phone</th><td>@(Model.PhoneNumber ?? "–")</td></tr>
+                            <tr>
+                                <th class="text-muted small">Status</th>
+                                <td><span class="badge @(Model.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">@(Model.IsActive ? "Active" : "Inactive")</span></td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted small">Children</th>
+                                <td>
+                                    @if (Model.KidNames.Count == 0)
+                                    {
+                                        <span class="text-muted">None linked</span>
+                                    }
+                                    else
+                                    {
+                                        foreach (var kid in Model.KidNames)
+                                        {
+
+                                            <span class="badge bg-info-subtle text-info me-1 mb-1">@kid</span>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+</div>

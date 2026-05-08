@@ -1,0 +1,90 @@
+@model BusTracking.Common.DTOs.Bus.BusDetailDto
+@{
+    ViewData["Title"] = "Bus Details"; ViewData["Breadcrumb"] = "Buses / Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-bus-front me-2 text-primary"></i>@Model?.BusName</h4>
+    <div class="d-flex gap-2">
+        <a asp-action="Edit" asp-route-id="@Model?.BusId" class="btn btn-sm btn-outline-warning">
+            <i class="bi bi-pencil me-1"></i>Edit
+        </a>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+    </div>
+</div>
+
+@if (Model is not null)
+{
+    <div class="row g-4">
+        <!-- Bus info -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">Bus Information</div>
+                <div class="card-body p-4">
+                    <table class="table table-borderless mb-0">
+                        <tr><th class="text-muted small w-40">Bus Name</th><td class="fw-semibold">@Model.BusName</td></tr>
+                        <tr>
+                            <th class="text-muted small">Bus Number</th>
+                            <td><span class="badge bg-primary-subtle text-primary px-2 py-1">@Model.BusNumber</span></td>
+                        </tr>
+                        <tr><th class="text-muted small">Route</th><td>@(Model.RouteName ?? "–")</td></tr>
+                        <tr><th class="text-muted small">Capacity</th><td>@(Model.Capacity?.ToString() ?? "–")</td></tr>
+                        <tr>
+                            <th class="text-muted small">Students</th>
+                            <td><span class="badge bg-info-subtle text-info">@Model.StudentCount enrolled</span></td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted small">Status</th>
+                            <td><span class="badge @(Model.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">@(Model.IsActive ? "Active" : "Inactive")</span></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            @if (Model.DriverName is not null)
+            {
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+                        <i class="bi bi-person-video2 me-2 text-success"></i>Assigned Driver
+                    </div>
+                    <div class="card-body p-4 d-flex align-items-center gap-3">
+                        <div class="avatar-circle bg-success-subtle text-success" style="width:44px;height:44px;font-size:1rem">
+                            @Model.DriverName.ToInitials()
+                        </div>
+                        <div>
+                            <div class="fw-semibold">@Model.DriverName</div>
+                            <div class="text-muted small">@Model.DriverPhone</div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Placeholder for student list (requires additional service call; shown here as a note) -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+                    <i class="bi bi-mortarboard me-2 text-info"></i>Enrolled Students
+                    <span class="badge bg-info-subtle text-info ms-2">@Model.StudentCount</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-muted small d-flex align-items-center gap-2">
+                        <i class="bi bi-info-circle text-primary"></i>
+                        Go to the <a asp-controller="Student" asp-action="Index">Students</a> page to view and manage individual student assignments.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>    .avatar-circle {
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        flex-shrink: 0;
+    }</style>

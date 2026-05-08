@@ -1,0 +1,73 @@
+﻿@* ── Parent/Create.cshtml ──────────────────────────────────────────── *@
+@model BusTracking.Common.DTOs.Parent.CreateParentDto
+@{
+    ViewData["Title"] = "Add Parent"; ViewData["Breadcrumb"] = "Parents / Add";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+                <i class="bi bi-person-plus me-2 text-info"></i>Add New Parent
+            </div>
+            <div class="card-body p-4">
+                <div asp-validation-summary="All" class="alert alert-danger py-2"></div>
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                            <input asp-for="FullName" class="form-control" placeholder="Parent full name" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="parent@email.com" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number</label>
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="+91 98765 43210" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Link Student Codes</label>
+                            <div id="studentCodesContainer">
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text"><i class="bi bi-mortarboard"></i></span>
+                                    <input type="text" name="StudentCodes" class="form-control" placeholder="e.g. STD-001" />
+                                    <button type="button" class="btn btn-outline-primary btn-add-code"><i class="bi bi-plus"></i></button>
+                                </div>
+                            </div>
+                            <small class="text-muted">Add student roll numbers to link this parent to their children.</small>
+                        </div>
+                    </div>
+                    <div class="alert alert-info py-2 mt-3 small">
+                        <i class="bi bi-info-circle me-1"></i>A temporary password will be sent to the parent's email.
+                    </div>
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check2 me-1"></i>Save Parent</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.querySelectorAll('.btn-add-code').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const container = document.getElementById('studentCodesContainer');
+                const div = document.createElement('div');
+                div.className = 'input-group mb-2';
+                div.innerHTML = `<span class="input-group-text"><i class="bi bi-mortarboard"></i></span>
+                    <input type="text" name="StudentCodes" class="form-control" placeholder="e.g. STD-002"/>
+                    <button type="button" class="btn btn-outline-danger btn-remove-code"><i class="bi bi-dash"></i></button>`;
+                div.querySelector('.btn-remove-code').addEventListener('click', () => div.remove());
+                container.appendChild(div);
+            });
+        });
+    </script>
+}

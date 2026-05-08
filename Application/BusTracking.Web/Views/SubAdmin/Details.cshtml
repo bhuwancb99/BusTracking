@@ -1,0 +1,48 @@
+@* ── SubAdmin/Details.cshtml ─────────────────────────────────────────── *@
+@model BusTracking.Common.DTOs.SubAdmin.SubAdminListDto
+@{
+    ViewData["Title"] = "Coordinator Details"; ViewData["Breadcrumb"] = "Bus Coordinators / Details";
+}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between">
+                <span class="fw-semibold"><i class="bi bi-person-badge me-2 text-warning"></i>Coordinator Details</span>
+                <div class="d-flex gap-2">
+                    <a asp-action="Edit" asp-route-id="@Model?.UserId" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil me-1"></i>Edit</a>
+                    <a asp-action="Index" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left me-1"></i>Back</a>
+                </div>
+            </div>
+            <div class="card-body p-4">
+                @if (Model is not null)
+                {
+                    <table class="table table-borderless mb-4">
+                        <tr><th class="text-muted small w-35">Name</th><td class="fw-semibold">@Model.FullName</td></tr>
+                        <tr><th class="text-muted small">Email</th><td>@Model.Email</td></tr>
+                        <tr><th class="text-muted small">Phone</th><td>@(Model.PhoneNumber ?? "–")</td></tr>
+                        <tr><th class="text-muted small">Created</th><td>@Model.CreatedAt.ToString("dd MMM yyyy")</td></tr>
+                        <tr>
+                            <th class="text-muted small">Status</th>
+                            <td><span class="badge @(Model.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">@(Model.IsActive ? "Active" : "Inactive")</span></td>
+                        </tr>
+                    </table>
+                    <h6 class="fw-semibold mb-3">Assigned Permissions</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        @if (Model.Permissions.Count == 0)
+                        {
+                            <span class="text-muted small">No permissions assigned.</span>
+                        }
+                        else
+                        {
+                            foreach (var p in Model.Permissions)
+                            {
+
+                                <span class="badge bg-primary-subtle text-primary px-2 py-1">@p</span>
+                            }
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

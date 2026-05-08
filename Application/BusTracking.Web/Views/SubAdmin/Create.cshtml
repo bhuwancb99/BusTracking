@@ -1,0 +1,100 @@
+@* ── SubAdmin/Create.cshtml ──────────────────────────────────────────── *@
+@model BusTracking.Common.DTOs.SubAdmin.CreateSubAdminDto
+@{
+    ViewData["Title"] = "Add Coordinator"; ViewData["Breadcrumb"] = "Bus Coordinators / Add";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+                <i class="bi bi-person-badge me-2 text-warning"></i>Add Bus Coordinator
+            </div>
+            <div class="card-body p-4">
+                <div asp-validation-summary="All" class="alert alert-danger py-2"></div>
+                <form asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                            <input asp-for="FullName" class="form-control" placeholder="Coordinator full name" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Email" class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                            <input asp-for="Email" type="email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone</label>
+                            <input asp-for="PhoneNumber" class="form-control" />
+                        </div>
+                    </div>
+
+                    <!-- Permission checkboxes grouped by module -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold mb-3">Assign Permissions</label>
+                        @{
+                            var permGroups = new Dictionary<string, List<(int id, string key, string label)>>
+                            {
+                                ["Dashboard"] = [(1, "dashboard.view", "View Dashboard")],
+                                ["Sub-Admins"] = [(2, "subadmin.view", "View"), (3, "subadmin.add", "Add"), (4, "subadmin.edit", "Edit"), (5, "subadmin.delete", "Delete")],
+                                ["Routes"] = [(6, "route.view", "View"), (7, "route.add", "Add"), (8, "route.edit", "Edit"), (9, "route.delete", "Delete")],
+                                ["Buses"] = [(10, "bus.view", "View"), (11, "bus.add", "Add"), (12, "bus.edit", "Edit"), (13, "bus.delete", "Delete"), (14, "bus.track", "Track")],
+                                ["Drivers"] = [(15, "driver.view", "View"), (16, "driver.add", "Add"), (17, "driver.edit", "Edit"), (18, "driver.delete", "Delete"), (19, "driver.track", "Track")],
+                                ["Parents"] = [(20, "parent.view", "View"), (21, "parent.add", "Add"), (22, "parent.edit", "Edit"), (23, "parent.delete", "Delete")],
+                                ["Students"] = [(24, "student.view", "View"), (25, "student.add", "Add"), (26, "student.edit", "Edit"), (27, "student.delete", "Delete"), (28, "student.assignbus", "Assign Bus")],
+                                ["Notifications"] = [(29, "notification.manage", "Manage Notifications")],
+                                ["Help & Support"] = [(30, "helpsupport.view", "View"), (31, "helpsupport.manage", "Manage")],
+                            };
+                        }
+                        <div class="row g-3">
+                            @foreach (var (module, perms) in permGroups)
+                            {
+                                <div class="col-md-6">
+                                    <div class="border rounded p-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="fw-semibold small text-uppercase text-muted">@module</span>
+                                            <button type="button" class="btn btn-link btn-sm p-0 text-primary btn-select-all" data-module="@module">All</button>
+                                        </div>
+                                        @foreach (var (id, key, label) in perms)
+                                        {
+                                            <div class="form-check">
+                                                <input class="form-check-input perm-check-@module.Replace(" ", "_")"
+                                                       type="checkbox" name="PermissionIds" value="@id" id="perm_@id" />
+                                                <label class="form-check-label small" for="perm_@id">@label</label>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info py-2 small">
+                        <i class="bi bi-info-circle me-1"></i>A temporary password will be emailed to the coordinator.
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning px-4"><i class="bi bi-check2 me-1"></i>Create Coordinator</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.querySelectorAll('.btn-select-all').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const module = this.dataset.module.replace(/ /g,'_');
+                const checks = document.querySelectorAll(`.perm-check-${module}`);
+                const allChecked = [...checks].every(c => c.checked);
+                checks.forEach(c => c.checked = !allChecked);
+                this.textContent = allChecked ? 'All' : 'None';
+            });
+        });
+    </script>
+}
