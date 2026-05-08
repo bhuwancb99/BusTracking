@@ -1,0 +1,64 @@
+@model BusTracking.Common.DTOs.Dashboard.DashboardSummaryDto
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-0">Welcome back, Super Admin 👋</h4>
+        <p class="text-muted small mb-0">@DateTime.Now.ToString("dddd, dd MMMM yyyy")</p>
+    </div>
+</div>
+
+@if (Model is not null)
+{
+    <!-- Stats row -->
+    <div class="row g-3 mb-4">
+        @{
+            var cards = new[]
+            {
+                (Model.TotalBuses.ToString(),           "Buses",            "bi-bus-front-fill",    "text-primary",   "Bus",      "SuperAdmin"),
+                (Model.TotalDrivers.ToString(),         "Drivers",          "bi-person-video2",     "text-success",   "Driver",   "SuperAdmin"),
+                (Model.TotalBusCoordinators.ToString(), "Coordinators",     "bi-person-badge",      "text-warning",   "SubAdmin", "SuperAdmin"),
+                (Model.TotalParents.ToString(),         "Parents",          "bi-people-fill",       "text-info",      "Parent",   "SuperAdmin"),
+                (Model.TotalStudents.ToString(),        "Students",         "bi-mortarboard-fill",  "text-secondary", "Student",  "SuperAdmin"),
+                (Model.ActiveTrips.ToString(),          "Active Trips",     "bi-geo-alt-fill",      "text-danger",    "",         ""),
+            };
+        }
+        @foreach (var (val, lbl, icon, color, c, area) in cards)
+        {
+            <div class="col-6 col-md-4 col-xl-2">
+                <div class="card stat-card border-0 shadow-sm h-100">
+                    <div class="card-body text-center py-4">
+                        <i class="bi @icon @color mb-2 d-block" style="font-size:2rem"></i>
+                        <div class="fw-bold fs-2">@val</div>
+                        <div class="text-muted small">@lbl</div>
+                    </div>
+                    @if (!string.IsNullOrEmpty(c))
+                    {
+                        <div class="card-footer bg-transparent border-0 text-center pb-3">
+                            <a asp-area="@area" asp-controller="@c" asp-action="Index" class="btn btn-sm btn-outline-secondary">View</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+            <i class="bi bi-lightning-charge me-2 text-warning"></i>Quick Actions
+        </div>
+        <div class="card-body px-4 pb-4">
+            <div class="d-flex flex-wrap gap-2">
+                <a asp-area="SuperAdmin" asp-controller="SubAdmin" asp-action="Create" class="btn btn-outline-warning"><i class="bi bi-plus me-1"></i>Add Coordinator</a>
+                <a asp-area="SuperAdmin" asp-controller="Driver" asp-action="Create" class="btn btn-outline-success"><i class="bi bi-plus me-1"></i>Add Driver</a>
+                <a asp-area="SuperAdmin" asp-controller="Student" asp-action="Create" class="btn btn-outline-info"><i class="bi bi-plus me-1"></i>Add Student</a>
+                <a asp-area="SuperAdmin" asp-controller="Parent" asp-action="Create" class="btn btn-outline-primary"><i class="bi bi-plus me-1"></i>Add Parent</a>
+                <a asp-area="SuperAdmin" asp-controller="Bus" asp-action="Create" class="btn btn-outline-primary"><i class="bi bi-plus me-1"></i>Add Bus</a>
+                <a asp-area="SuperAdmin" asp-controller="Route" asp-action="Create" class="btn btn-outline-secondary"><i class="bi bi-plus me-1"></i>Add Route</a>
+            </div>
+        </div>
+    </div>
+}

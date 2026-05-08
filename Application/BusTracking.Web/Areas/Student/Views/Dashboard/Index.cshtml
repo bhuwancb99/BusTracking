@@ -1,0 +1,37 @@
+@* Student/Dashboard/Index.cshtml *@
+@{
+    ViewData["Title"] = "Student Dashboard";
+}
+<div class="mb-4">
+    <h4 class="fw-bold mb-0">Welcome, @User.Identity?.Name?.Split(' ').FirstOrDefault() ?? "Student" 👋</h4>
+    <p class="text-muted small">@DateTime.Now.ToString("dddd, dd MMMM yyyy")</p>
+</div>
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100 text-center p-4">
+            <i class="bi bi-geo-alt-fill text-danger fs-1 mb-3"></i>
+            <h6 class="fw-semibold">Track My Bus</h6>
+            <p class="text-muted small">See where your bus is right now.</p>
+            <a asp-area="Student" asp-controller="Tracking" asp-action="Track" asp-route-tripId="0"
+               class="btn btn-danger btn-sm mt-auto">Open Map</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100 text-center p-4">
+            <i class="bi bi-calendar-check-fill text-secondary fs-1 mb-3"></i>
+            <h6 class="fw-semibold">My Availability</h6>
+            <p class="text-muted small">Mark your leave or absence days.</p>
+            <a asp-area="Student" asp-controller="Home" asp-action="Availability"
+               class="btn btn-secondary btn-sm mt-auto text-white">Manage</a>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100 text-center p-4">
+            <i class="bi bi-headset text-primary fs-1 mb-3"></i>
+            <h6 class="fw-semibold">Help & Support</h6>
+            <p class="text-muted small">Have a question? Contact us.</p>
+            <a asp-area="Student" asp-controller="Feedback" asp-action="Submit"
+               class="btn btn-outline-primary btn-sm mt-auto">Contact Us</a>
+        </div>
+    </div>
+</div>

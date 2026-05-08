@@ -1,5 +1,9 @@
 using BusTracking.Common;
+using BusTracking.Common.Data;
+using BusTracking.Common.Entities;
+using BusTracking.Common.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,11 +32,12 @@ builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
+
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseExceptionHandler("/Auth/AccessDenied");
     app.UseHsts();
 }
 
@@ -44,8 +49,11 @@ app.UseAuthorization();
 app.UseAuthentication();
 app.MapStaticAssets();
 
-app.MapControllerRoute(
-    name: "default",
+app.MapControllerRoute(name: "areas",
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
+
+app.MapControllerRoute(name: "default",
     pattern: "{controller=Auth}/{action=Login}/{id?}");
 
 app.Run();
+

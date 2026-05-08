@@ -1,0 +1,49 @@
+@* Parent/Tracking/Track.cshtml - reuses shared tracking view *@
+@model List<BusTracking.Common.DTOs.Trip.StudentTripStatusDto>
+@{
+    ViewData["Title"] = "Track Bus";
+}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-geo-alt me-2 text-danger"></i>Live Bus Tracking</h4>
+    <span class="text-muted small" id="lastUpdated">Updates every 10s</span>
+</div>
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 px-4 fw-semibold"><i class="bi bi-map me-2"></i>Live Location</div>
+            <div class="card-body p-0">
+                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+                <div id="busMap" data-trip-id="@ViewBag.TripId" style="height:460px;border-radius:0 0 10px 10px"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-mortarboard me-2 text-primary"></i>Students</div>
+            <div class="card-body p-0" style="max-height:480px;overflow-y:auto">
+                @if (Model is null || Model.Count == 0)
+                {
+                    <div class="text-center text-muted py-4 px-3"><i class="bi bi-mortarboard fs-1 d-block mb-2"></i>No student data.</div>
+                }
+                else
+                {
+                    @foreach (var s in Model)
+                    {
+                        var css = s.BoardingStatus switch { "PickedUp" => "bg-success", "NoShow" => "bg-danger", "OnLeave" => "bg-warning", _ => "bg-secondary" };
+                        <div class="d-flex align-items-center gap-3 p-3 border-bottom">
+                            <span class="badge rounded-pill @css" style="width:10px;height:10px;padding:0"></span>
+                            <div class="flex-grow-1">
+                                <div class="fw-semibold small">@s.StudentName</div>
+                                <div class="text-muted" style="font-size:.72rem"><i class="bi bi-geo-alt me-1"></i>@s.StopName</div>
+                            </div>
+                            <span class="badge @(s.BoardingStatus == "PickedUp" ? "bg-success-subtle text-success" : s.BoardingStatus == "NoShow" ? "bg-danger-subtle text-danger" : "bg-secondary-subtle text-secondary") small">@s.BoardingStatus</span>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+}
