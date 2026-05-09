@@ -3,14 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BusTracking.Web.Controllers;
 
-public class BaseController : Controller
+public abstract class BaseController : Controller
 {
     protected int CurrentUserId =>
-        int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
+        int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : 0;
 
     protected string CurrentUserRole =>
-        User.FindFirstValue(ClaimTypes.Role) ?? "";
-
-    protected string CurrentUserEmail =>
-        User.FindFirstValue(ClaimTypes.Email) ?? "";
+        User.FindFirstValue(ClaimTypes.Role) ?? string.Empty;
 }

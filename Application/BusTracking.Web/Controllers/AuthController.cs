@@ -1,3 +1,4 @@
+using BusTracking.Common.DTOs;
 using BusTracking.Common.DTOs.Auth;
 using BusTracking.Common.Interfaces;
 using Microsoft.AspNetCore.Authentication;
@@ -8,24 +9,29 @@ using System.Security.Claims;
 
 namespace BusTracking.Web.Controllers;
 
-public class AuthController : BaseController
+public class AuthController : Controller
 {
     private readonly IAuthService _auth;
     public AuthController(IAuthService auth) => _auth = auth;
 
-    // ── Login ────────────────────────────────────────────────────────
-    [HttpGet]
-    public IActionResult Login(string? returnUrl = null)
-    {
-        if (User.Identity?.IsAuthenticated == true)
-            return RedirectToDashboard(User.FindFirstValue(ClaimTypes.Role) ?? "");
+    private int CurrentUserId =>
+        int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var id) ? id : 0;
 
-        ViewBag.ReturnUrl = returnUrl;
-        return View();
+    // ── GET /Auth/Login ──────────────────────────────────────────────
+    [HttpGet]
+    public IActionResult Login()
+    {
+        // Already logged in → go straight to their area dashboard.
+        // Do NOT read ReturnUrl here — that is what causes the loop.
+        if (User.Identity?.IsAuthenticated == true)
+            return DashboardRedirect(User.FindFirstValue(ClaimTypes.Role));
+
+        return View(new LoginDto());
     }
 
+    // ── POST /Auth/Login ─────────────────────────────────────────────
     [HttpPost, ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginDto model, string? returnUrl = null)
+    public async Task<IActionResult> Login(LoginDto model)
     {
         if (!ModelState.IsValid) return View(model);
 
@@ -36,76 +42,69 @@ public class AuthController : BaseController
             return View(model);
         }
 
-        // Build cookie claims
+        // Sign in
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, result.Data!.UserId.ToString()),
             new(ClaimTypes.Email,          result.Data.Email),
             new(ClaimTypes.Name,           result.Data.FullName),
             new(ClaimTypes.Role,           result.Data.Role),
-            new("JwtToken",                result.Data.Token)
         };
 
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        var principal = new ClaimsPrincipal(identity);
-
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(new ClaimsIdentity(claims,
+                CookieAuthenticationDefaults.AuthenticationScheme)),
             new AuthenticationProperties
             {
                 IsPersistent = true,
-                ExpiresUtc = result.Data.Expiry
+                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8),
+                AllowRefresh = true
             });
 
-        // Return to requested URL if valid, else role-based area
-        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-            return Redirect(returnUrl);
-
-        return RedirectToDashboard(result.Data.Role);
+        // Always redirect to role dashboard — never follow ReturnUrl
+        // (ReturnUrl from cookie auth is /Auth/Login which loops)
+        return DashboardRedirect(result.Data.Role);
     }
 
-    // ── Logout ───────────────────────────────────────────────────────
-    [Authorize, HttpPost, ValidateAntiForgeryToken]
+    // ── POST /Auth/Logout ────────────────────────────────────────────
+    [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
         return RedirectToAction(nameof(Login));
     }
 
-    // ── Forgot Password ──────────────────────────────────────────────
-    [HttpGet]
-    public IActionResult ForgotPassword() => View();
+    // ── GET /Auth/ForgotPassword ─────────────────────────────────────
+    [HttpGet] public IActionResult ForgotPassword() => View();
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> ForgotPassword(ForgotPasswordDto model)
     {
         if (!ModelState.IsValid) return View(model);
-        var result = await _auth.ForgotPasswordAsync(model);
-        TempData["Message"] = result.Message;
+        var r = await _auth.ForgotPasswordAsync(model);
+        TempData["Message"] = r.Message;
         return RedirectToAction(nameof(ForgotPasswordConfirmation));
     }
 
-    [HttpGet]
-    public IActionResult ForgotPasswordConfirmation() => View();
+    [HttpGet] public IActionResult ForgotPasswordConfirmation() => View();
 
-    // ── Reset Password ───────────────────────────────────────────────
+    // ── GET /Auth/ResetPassword ──────────────────────────────────────
     [HttpGet]
     public IActionResult ResetPassword(string token)
-    {
-        ViewBag.Token = token;
-        return View(new ResetPasswordDto { Token = token });
-    }
+        => View(new ResetPasswordDto { Token = token });
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> ResetPassword(ResetPasswordDto model)
     {
         if (!ModelState.IsValid) return View(model);
-        var result = await _auth.ResetPasswordAsync(model);
-        if (!result.Success) { ModelState.AddModelError("", result.Message); return View(model); }
-        TempData["SuccessMessage"] = result.Message;
+        var r = await _auth.ResetPasswordAsync(model);
+        if (!r.Success) { ModelState.AddModelError("", r.Message); return View(model); }
+        TempData["SuccessMessage"] = r.Message;
         return RedirectToAction(nameof(Login));
     }
 
-    // ── Change Password ──────────────────────────────────────────────
+    // ── Change Password (any logged-in role) ─────────────────────────
     [Authorize, HttpGet]
     public IActionResult ChangePassword() => View();
 
@@ -113,22 +112,25 @@ public class AuthController : BaseController
     public async Task<IActionResult> ChangePassword(ChangePasswordDto model)
     {
         if (!ModelState.IsValid) return View(model);
-        var result = await _auth.ChangePasswordAsync(CurrentUserId, model);
-        if (!result.Success) { ModelState.AddModelError("", result.Message); return View(model); }
-        TempData["SuccessMessage"] = "Password changed successfully.";
+        var r = await _auth.ChangePasswordAsync(CurrentUserId, model);
+        if (!r.Success) { ModelState.AddModelError("", r.Message); return View(model); }
+        TempData["SuccessMessage"] = "Password changed.";
         return RedirectToAction("Index", "Profile");
     }
 
     // ── Access Denied ────────────────────────────────────────────────
-    public IActionResult AccessDenied() => View();
+    [HttpGet] public IActionResult AccessDenied() => View();
 
-    // ── Role → Area redirect helper ──────────────────────────────────
-    private IActionResult RedirectToDashboard(string role) => role switch
+    // ── Helper: role → absolute area path ───────────────────────────
+    // Use absolute path strings — safest way to redirect into an Area
+    // from a non-area controller. RedirectToAction({ area=... }) can
+    // generate wrong URLs depending on current route context.
+    private IActionResult DashboardRedirect(string? role) => role switch
     {
-        "SuperAdmin" => RedirectToAction("Index", "Dashboard", new { area = "SuperAdmin" }),
-        "BusCoordinator" => RedirectToAction("Index", "Dashboard", new { area = "BusCoordinator" }),
-        "Parent" => RedirectToAction("Index", "Dashboard", new { area = "Parent" }),
-        "Student" => RedirectToAction("Index", "Dashboard", new { area = "Student" }),
+        "SuperAdmin" => Redirect("/SuperAdmin/Dashboard/Index"),
+        "BusCoordinator" => Redirect("/BusCoordinator/Dashboard/Index"),
+        "Parent" => Redirect("/Parent/Dashboard/Index"),
+        "Student" => Redirect("/Student/Dashboard/Index"),
         _ => RedirectToAction(nameof(Login))
     };
 }
