@@ -612,5 +612,8 @@ CREATE NONCLUSTERED INDEX IX_Feedbacks_Status     ON Feedbacks (Status, CreatedA
 CREATE NONCLUSTERED INDEX IX_Notifications_Read   ON Notifications (RecipientUserId, IsRead);
 GO
 
+INSERT INTO Users VALUES(1,'Super Admin','admin@bustracking.com','','$2a$12$gRiCpH9Cj4ztBpZsTgntH.BM2d/G9mO6VmcbIKD7gRdkk4vT3PpoW',
+'$2a$12$gRiCpH9Cj4ztBpZsTgntH.','',1,1,'',GETDATE(),GETDATE(),1)
+
 PRINT 'BusTrackingDB created successfully with all tables, views, stored procedures, and indexes.';
 GO

@@ -1,0 +1,106 @@
+@* ════════════════════════════════════════════════════════════
+   Driver/Index.cshtml
+   ════════════════════════════════════════════════════════════ *@
+@model BusTracking.Common.DTOs.Common.PagedResult<BusTracking.Common.DTOs.Driver.DriverListDto>
+@{
+    ViewData["Title"] = "Drivers"; ViewData["Breadcrumb"] = "Drivers";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-person-video2 me-2 text-success"></i>Drivers</h4>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Add Driver</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form asp-action="Index" method="get" class="d-flex gap-2 mb-3">
+            <input type="text" name="search" value="@ViewBag.Search" class="form-control"
+                   style="max-width:300px" placeholder="Search name or email…" />
+            <button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+            @if (!string.IsNullOrEmpty(ViewBag.Search as string))
+            {
+                <a asp-action="Index" class="btn btn-outline-danger"><i class="bi bi-x"></i></a>
+            }
+        </form>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Bus</th>
+                        <th>License</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model?.Items.Count == 0)
+                    {
+                        <tr><td colspan="8" class="text-center text-muted py-4"><i class="bi bi-person-slash d-block fs-2 mb-2"></i>No drivers found.</td></tr>
+                    }
+
+                    @foreach (var (d, i) in (Model?.Items ?? []).Select((x, i) => (x, i + 1 + (Model!.PageNumber - 1) * Model.PageSize)))
+                    {
+                        <tr>
+                            <td class="text-muted small">@i</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="avatar-circle bg-success-subtle text-success">
+                                        @d.FullName.ToInitials()
+                                    </div>
+                                    <span class="fw-semibold">@d.FullName</span>
+                                </div>
+                            </td>
+                            <td class="text-muted small">@d.Email</td>
+                            <td>@(d.PhoneNumber ?? "–")</td>
+                            <td>
+                                @if (d.BusNumber is not null)
+                                {
+                                    <span class="badge bg-primary-subtle text-primary">@d.BusNumber</span>
+                                }
+                                else
+                                {
+
+                                    <span class="text-muted small">Unassigned</span>
+                                }
+                            </td>
+                            <td class="small">@(d.LicenseNumber ?? "–")</td>
+                            <td>
+                                <span class="badge @(d.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">
+                                    @(d.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@d.UserId" class="btn btn-sm btn-outline-info me-1"><i class="bi bi-eye"></i></a>
+                                <a asp-action="Edit" asp-route-id="@d.UserId" class="btn btn-sm btn-outline-warning me-1"><i class="bi bi-pencil"></i></a>
+                                <form asp-action="Delete" asp-route-id="@d.UserId" method="post" class="d-inline"
+                                      onsubmit="return confirm('Delete driver @d.FullName?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <partial name="_Pagination" model="Model" />
+    </div>
+</div>
+
+<style>    .avatar-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .75rem;
+        font-weight: 700;
+        flex-shrink: 0;
+    }</style>

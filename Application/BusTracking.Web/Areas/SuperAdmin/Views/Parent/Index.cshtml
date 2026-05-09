@@ -1,0 +1,71 @@
+@* ── Parent/Index.cshtml ────────────────────────────────────────────── *@
+@model BusTracking.Common.DTOs.Common.PagedResult<BusTracking.Common.DTOs.Parent.ParentListDto>
+@{
+    ViewData["Title"] = "Parents"; ViewData["Breadcrumb"] = "Parents";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-people me-2 text-info"></i>Parents</h4>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Add Parent</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form asp-action="Index" method="get" class="d-flex gap-2 mb-3">
+            <input type="text" name="search" value="@ViewBag.Search" class="form-control" style="max-width:300px" placeholder="Search name or email…" />
+            <button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
+            @if (!string.IsNullOrEmpty(ViewBag.Search as string))
+            {
+                <a asp-action="Index" class="btn btn-outline-danger"><i class="bi bi-x"></i></a>
+            }
+        </form>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Children</th><th>Status</th><th class="text-end">Actions</th></tr>
+                </thead>
+                <tbody>
+                    @if (Model?.Items.Count == 0)
+                    {
+                        <tr><td colspan="7" class="text-center text-muted py-4"><i class="bi bi-people fs-2 d-block mb-2"></i>No parents found.</td></tr>
+                    }
+
+                    @foreach (var (p, i) in (Model?.Items ?? []).Select((x, i) => (x, i + 1 + (Model!.PageNumber - 1) * Model.PageSize)))
+                    {
+                        <tr>
+                            <td class="text-muted small">@i</td>
+                            <td class="fw-semibold">@p.FullName</td>
+                            <td class="text-muted small">@p.Email</td>
+                            <td>@(p.PhoneNumber ?? "–")</td>
+                            <td>
+                                @if (p.KidNames.Count == 0)
+                                {
+                                    <span class="text-muted small">–</span>
+                                }
+                                else
+                                {
+                                    foreach (var kid in p.KidNames)
+                                    {
+
+                                        <span class="badge bg-secondary-subtle text-secondary me-1">@kid</span>
+                                    }
+                                }
+                            </td>
+                            <td><span class="badge @(p.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">@(p.IsActive ? "Active" : "Inactive")</span></td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@p.UserId" class="btn btn-sm btn-outline-info me-1"><i class="bi bi-eye"></i></a>
+                                <a asp-action="Edit" asp-route-id="@p.UserId" class="btn btn-sm btn-outline-warning me-1"><i class="bi bi-pencil"></i></a>
+                                <form asp-action="Delete" asp-route-id="@p.UserId" method="post" class="d-inline"
+                                      onsubmit="return confirm('Delete parent @p.FullName?')">
+                                    @Html.AntiForgeryToken()
+                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <partial name="_Pagination" model="Model" />
+    </div>
+</div>

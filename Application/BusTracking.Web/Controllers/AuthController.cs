@@ -1,4 +1,4 @@
-﻿using BusTracking.Common.DTOs.Auth;
+using BusTracking.Common.DTOs.Auth;
 using BusTracking.Common.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -6,38 +6,38 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
-namespace BusTracking.Web.Controllers
+namespace BusTracking.Web.Controllers;
+
+public class AuthController : BaseController
 {
-    public class AuthController : BaseController
+    private readonly IAuthService _auth;
+    public AuthController(IAuthService auth) => _auth = auth;
+
+    // ── Login ────────────────────────────────────────────────────────
+    [HttpGet]
+    public IActionResult Login(string? returnUrl = null)
     {
-        private readonly IAuthService _auth;
-        public AuthController(IAuthService auth) => _auth = auth;
+        if (User.Identity?.IsAuthenticated == true)
+            return RedirectToDashboard(User.FindFirstValue(ClaimTypes.Role) ?? "");
 
-        // GET /Auth/Login
-        [HttpGet]
-        public IActionResult Login(string? returnUrl = null)
+        ViewBag.ReturnUrl = returnUrl;
+        return View();
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Login(LoginDto model, string? returnUrl = null)
+    {
+        if (!ModelState.IsValid) return View(model);
+
+        var result = await _auth.LoginAsync(model);
+        if (!result.Success)
         {
-            if (User.Identity?.IsAuthenticated == true)
-                return RedirectToAction("Index", "Dashboard");
-
-            ViewBag.ReturnUrl = returnUrl;
-            return View();
+            ModelState.AddModelError("", result.Message);
+            return View(model);
         }
 
-        // POST /Auth/Login
-        [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginDto model, string? returnUrl = null)
-        {
-            if (!ModelState.IsValid) return View(model);
-
-            var result = await _auth.LoginAsync(model);
-            if (!result.Success)
-            {
-                ModelState.AddModelError("", result.Message);
-                return View(model);
-            }
-
-            var claims = new List<Claim>
+        // Build cookie claims
+        var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, result.Data!.UserId.ToString()),
             new(ClaimTypes.Email,          result.Data.Email),
@@ -46,78 +46,89 @@ namespace BusTracking.Web.Controllers
             new("JwtToken",                result.Data.Token)
         };
 
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
+        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
 
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
-                new AuthenticationProperties { IsPersistent = true, ExpiresUtc = result.Data.Expiry });
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
+            new AuthenticationProperties
+            {
+                IsPersistent = true,
+                ExpiresUtc = result.Data.Expiry
+            });
 
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                return Redirect(returnUrl);
+        // Return to requested URL if valid, else role-based area
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            return Redirect(returnUrl);
 
-            return RedirectToAction("Index", "Dashboard");
-        }
-
-        // GET /Auth/ForgotPassword
-        [HttpGet]
-        public IActionResult ForgotPassword() => View();
-
-        // POST /Auth/ForgotPassword
-        [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForgotPassword(ForgotPasswordDto model)
-        {
-            if (!ModelState.IsValid) return View(model);
-            var result = await _auth.ForgotPasswordAsync(model);
-            TempData["Message"] = result.Message;
-            return RedirectToAction(nameof(ForgotPasswordConfirmation));
-        }
-
-        // GET /Auth/ForgotPasswordConfirmation
-        public IActionResult ForgotPasswordConfirmation() => View();
-
-        // GET /Auth/ResetPassword
-        [HttpGet]
-        public IActionResult ResetPassword(string token)
-        {
-            ViewBag.Token = token;
-            return View();
-        }
-
-        // POST /Auth/ResetPassword
-        [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResetPassword(ResetPasswordDto model)
-        {
-            if (!ModelState.IsValid) return View(model);
-            var result = await _auth.ResetPasswordAsync(model);
-            if (!result.Success) { ModelState.AddModelError("", result.Message); return View(model); }
-            TempData["SuccessMessage"] = result.Message;
-            return RedirectToAction(nameof(Login));
-        }
-
-        // POST /Auth/Logout
-        [Authorize]
-        public async Task<IActionResult> Logout()
-        {
-            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            return RedirectToAction(nameof(Login));
-        }
-
-        // GET /Auth/AccessDenied
-        public IActionResult AccessDenied() => View();
-
-        // GET /Auth/ChangePassword
-        [Authorize]
-        public IActionResult ChangePassword() => View();
-
-        // POST /Auth/ChangePassword
-        [Authorize, HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePassword(ChangePasswordDto model)
-        {
-            if (!ModelState.IsValid) return View(model);
-            var result = await _auth.ChangePasswordAsync(CurrentUserId, model);
-            if (!result.Success) { ModelState.AddModelError("", result.Message); return View(model); }
-            TempData["SuccessMessage"] = "Password changed successfully.";
-            return RedirectToAction("Index", "Profile");
-        }
+        return RedirectToDashboard(result.Data.Role);
     }
+
+    // ── Logout ───────────────────────────────────────────────────────
+    [Authorize, HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Logout()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+        return RedirectToAction(nameof(Login));
+    }
+
+    // ── Forgot Password ──────────────────────────────────────────────
+    [HttpGet]
+    public IActionResult ForgotPassword() => View();
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> ForgotPassword(ForgotPasswordDto model)
+    {
+        if (!ModelState.IsValid) return View(model);
+        var result = await _auth.ForgotPasswordAsync(model);
+        TempData["Message"] = result.Message;
+        return RedirectToAction(nameof(ForgotPasswordConfirmation));
+    }
+
+    [HttpGet]
+    public IActionResult ForgotPasswordConfirmation() => View();
+
+    // ── Reset Password ───────────────────────────────────────────────
+    [HttpGet]
+    public IActionResult ResetPassword(string token)
+    {
+        ViewBag.Token = token;
+        return View(new ResetPasswordDto { Token = token });
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetPassword(ResetPasswordDto model)
+    {
+        if (!ModelState.IsValid) return View(model);
+        var result = await _auth.ResetPasswordAsync(model);
+        if (!result.Success) { ModelState.AddModelError("", result.Message); return View(model); }
+        TempData["SuccessMessage"] = result.Message;
+        return RedirectToAction(nameof(Login));
+    }
+
+    // ── Change Password ──────────────────────────────────────────────
+    [Authorize, HttpGet]
+    public IActionResult ChangePassword() => View();
+
+    [Authorize, HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> ChangePassword(ChangePasswordDto model)
+    {
+        if (!ModelState.IsValid) return View(model);
+        var result = await _auth.ChangePasswordAsync(CurrentUserId, model);
+        if (!result.Success) { ModelState.AddModelError("", result.Message); return View(model); }
+        TempData["SuccessMessage"] = "Password changed successfully.";
+        return RedirectToAction("Index", "Profile");
+    }
+
+    // ── Access Denied ────────────────────────────────────────────────
+    public IActionResult AccessDenied() => View();
+
+    // ── Role → Area redirect helper ──────────────────────────────────
+    private IActionResult RedirectToDashboard(string role) => role switch
+    {
+        "SuperAdmin" => RedirectToAction("Index", "Dashboard", new { area = "SuperAdmin" }),
+        "BusCoordinator" => RedirectToAction("Index", "Dashboard", new { area = "BusCoordinator" }),
+        "Parent" => RedirectToAction("Index", "Dashboard", new { area = "Parent" }),
+        "Student" => RedirectToAction("Index", "Dashboard", new { area = "Student" }),
+        _ => RedirectToAction(nameof(Login))
+    };
 }

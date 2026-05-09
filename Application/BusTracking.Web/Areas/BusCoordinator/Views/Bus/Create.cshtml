@@ -1,0 +1,21 @@
+@model BusTracking.Common.DTOs.Bus.CreateBusDto
+@{
+    ViewData["Title"] = "Add Bus";
+}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-bus-front me-2 text-primary"></i>Add Bus</div>
+            <div class="card-body p-4">
+                <div asp-validation-summary="All" class="alert alert-danger py-2"></div>
+                <form asp-area="BusCoordinator" asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3"><label asp-for="BusName" class="form-label fw-semibold">Bus Name <span class="text-danger">*</span></label><input asp-for="BusName" class="form-control" /><span asp-validation-for="BusName" class="text-danger small"></span></div>
+                    <div class="mb-3"><label asp-for="BusNumber" class="form-label fw-semibold">Bus Number <span class="text-danger">*</span></label><input asp-for="BusNumber" class="form-control" /><span asp-validation-for="BusNumber" class="text-danger small"></span></div>
+                    <div class="mb-3"><label asp-for="Capacity" class="form-label fw-semibold">Capacity</label><input asp-for="Capacity" type="number" class="form-control" min="1" /></div>
+                    <div class="d-flex gap-2 mt-3"><button type="submit" class="btn btn-primary px-4">Save</button><a asp-area="BusCoordinator" asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a></div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

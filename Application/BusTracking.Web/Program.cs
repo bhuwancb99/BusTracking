@@ -32,7 +32,7 @@ builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
-
+//await SeedSuperAdminAsync(app);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -57,3 +57,29 @@ app.MapControllerRoute(name: "default",
 
 app.Run();
 
+//static async Task SeedSuperAdminAsync(WebApplication app)
+//{
+//    using var scope = app.Services.CreateScope();
+//    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+//    var pwd = scope.ServiceProvider.GetRequiredService<IPasswordService>();
+//    if (await db.Users.AnyAsync()) return;
+//    var cfg = app.Configuration;
+//    var email = cfg["Seed:SuperAdminEmail"] ?? "admin@bustracking.com";
+//    var pass = cfg["Seed:SuperAdminPassword"] ?? "Admin@123";
+//    var name = cfg["Seed:SuperAdminName"] ?? "Super Admin";
+//    var role = await db.Roles.FirstOrDefaultAsync(r => r.RoleName == "SuperAdmin");
+//    if (role is null) return;
+//    var (hash, salt) = pwd.HashPassword(pass);
+//    db.Users.Add(new User
+//    {
+//        RoleId = role.RoleId,
+//        FullName = name,
+//        Email = email,
+//        PasswordHash = hash,
+//        PasswordSalt = salt,
+//        IsEmailVerified = true,
+//        IsActive = true
+//    });
+//    await db.SaveChangesAsync();
+//    app.Logger.LogInformation("SuperAdmin seeded: {Email} / {Pass}", email, pass);
+//}
