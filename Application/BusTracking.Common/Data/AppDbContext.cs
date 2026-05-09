@@ -40,6 +40,7 @@ namespace BusTracking.Common.Data
             modelBuilder.Entity<StudentDetail>().ToTable("Students");
             modelBuilder.Entity<ParentDetail>().ToTable("Parents");
             modelBuilder.Entity<DriverDetail>().ToTable("DriverDetails");
+            modelBuilder.Entity<StudentAvailability>().ToTable("StudentAvailabilities");
 
             // ── Unique constraints ───────────────────────────────────────
             modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();

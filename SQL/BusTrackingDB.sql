@@ -243,7 +243,7 @@ GO
 -- 13. STUDENT AVAILABILITY
 --     (Student or Parent marks leave / not going / parent-pick)
 -- ============================================================
-CREATE TABLE StudentAvailability (
+CREATE TABLE StudentAvailabilities (
     AvailabilityId   INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
     StudentId        INT           NOT NULL REFERENCES Students(StudentId),
     AvailabilityType NVARCHAR(50)  NOT NULL,   -- OnLeave | NotGoingToSchool | ParentPickup
@@ -534,7 +534,7 @@ BEGIN
     LEFT JOIN StudentTripStatus sts
            ON sts.TripId    = bt.TripId
           AND sts.StudentId = s.StudentId
-    LEFT JOIN StudentAvailability sa
+    LEFT JOIN StudentAvailabilities sa
            ON sa.StudentId        = s.StudentId
           AND @TripDate BETWEEN sa.FromDate AND sa.ToDate
     WHERE bt.TripId  = @TripId
@@ -607,13 +607,13 @@ CREATE NONCLUSTERED INDEX IX_Stops_RouteId        ON Stops (RouteId, StopOrder);
 CREATE NONCLUSTERED INDEX IX_BusTrips_BusDate     ON BusTrips (BusId, TripDate, TripType);
 CREATE NONCLUSTERED INDEX IX_TripStopEvents_Trip  ON TripStopEvents (TripId, StopId);
 CREATE NONCLUSTERED INDEX IX_StudentTripStatus    ON StudentTripStatus (TripId, StudentId);
-CREATE NONCLUSTERED INDEX IX_Availability_Student ON StudentAvailability (StudentId, FromDate, ToDate);
+CREATE NONCLUSTERED INDEX IX_Availability_Student ON StudentAvailabilities (StudentId, FromDate, ToDate);
 CREATE NONCLUSTERED INDEX IX_Feedbacks_Status     ON Feedbacks (Status, CreatedAt DESC);
 CREATE NONCLUSTERED INDEX IX_Notifications_Read   ON Notifications (RecipientUserId, IsRead);
 GO
 
-INSERT INTO Users VALUES(1,'Super Admin','admin@bustracking.com','','$2a$12$gRiCpH9Cj4ztBpZsTgntH.BM2d/G9mO6VmcbIKD7gRdkk4vT3PpoW',
-'$2a$12$gRiCpH9Cj4ztBpZsTgntH.','',1,1,'',GETDATE(),GETDATE(),1)
+INSERT INTO Users VALUES(1,'Super Admin','admin@bustracking.com',NULL,'$2a$12$gRiCpH9Cj4ztBpZsTgntH.BM2d/G9mO6VmcbIKD7gRdkk4vT3PpoW',
+'$2a$12$gRiCpH9Cj4ztBpZsTgntH.',NULL,1,1,GETDATE(),GETDATE(),GETDATE(),1)
 
 PRINT 'BusTrackingDB created successfully with all tables, views, stored procedures, and indexes.';
 GO
