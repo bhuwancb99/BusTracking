@@ -1,6 +1,8 @@
 ﻿using BusTracking.Common.Data;
+using BusTracking.Common.DTOs.Assign;
 using BusTracking.Common.DTOs.Common;
 using BusTracking.Common.DTOs.Driver;
+using BusTracking.Common.DTOs.User;
 using BusTracking.Common.Entities;
 using BusTracking.Common.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -9,137 +11,67 @@ namespace BusTracking.Common.Services
 {
     public class DriverService : IDriverService
     {
-        private readonly AppDbContext _db;
-        private readonly IPasswordService _pwd;
-        private readonly IEmailService _email;
+        private readonly AppDbContext _db; private readonly IPasswordService _pwd; private readonly IEmailService _email;
+        public DriverService(AppDbContext db, IPasswordService pwd, IEmailService email) { _db = db; _pwd = pwd; _email = email; }
 
-        public DriverService(AppDbContext db, IPasswordService pwd, IEmailService email)
-        { _db = db; _pwd = pwd; _email = email; }
-
-        public async Task<ApiResponse<PagedResult<DriverListDto>>> GetAllAsync(int page, int pageSize, string? search)
+        public async Task<ApiResponse<PagedResult<DriverListDto>>> GetAllAsync(int page, int pageSize, string? search, string? status)
         {
             var roleId = await _db.Roles.Where(r => r.RoleName == "Driver").Select(r => r.RoleId).FirstAsync();
-            var q = _db.Users
-                .Include(u => u.DriverDetail).ThenInclude(d => d!.Bus)
-                .Where(u => u.RoleId == roleId);
-
-            if (!string.IsNullOrWhiteSpace(search))
-                q = q.Where(u => u.FullName.Contains(search) || u.Email.Contains(search));
-
+            var q = _db.Users.Include(u => u.DriverDetail).ThenInclude(d => d!.Bus).Where(u => u.RoleId == roleId);
+            if (!string.IsNullOrWhiteSpace(search)) q = q.Where(u => u.FullName.Contains(search) || u.Email.Contains(search));
+            if (status == "Active") q = q.Where(u => u.IsActive);
+            else if (status == "Inactive") q = q.Where(u => !u.IsActive);
             var total = await q.CountAsync();
-            var items = await q.OrderBy(u => u.FullName)
-                .Skip((page - 1) * pageSize).Take(pageSize)
-                .Select(u => new DriverListDto
-                {
-                    UserId = u.UserId,
-                    FullName = u.FullName,
-                    Email = u.Email,
-                    PhoneNumber = u.PhoneNumber,
-                    BusNumber = u.DriverDetail != null && u.DriverDetail.Bus != null ? u.DriverDetail.Bus.BusNumber : null,
-                    BusName = u.DriverDetail != null && u.DriverDetail.Bus != null ? u.DriverDetail.Bus.BusName : null,
-                    LicenseNumber = u.DriverDetail != null ? u.DriverDetail.LicenseNumber : null,
-                    IsActive = u.IsActive
-                }).ToListAsync();
-
-            return ApiResponse<PagedResult<DriverListDto>>.Ok(new PagedResult<DriverListDto>
-            { Items = items, TotalCount = total, PageNumber = page, PageSize = pageSize });
+            var items = await q.OrderBy(u => u.FullName).Skip((page - 1) * pageSize).Take(pageSize)
+                .Select(u => new DriverListDto { UserId = u.UserId, FullName = u.FullName, Email = u.Email, PhoneNumber = u.PhoneNumber, BusId = u.DriverDetail != null ? u.DriverDetail.BusId : null, BusName = u.DriverDetail != null && u.DriverDetail.Bus != null ? u.DriverDetail.Bus.BusName : null, BusNumber = u.DriverDetail != null && u.DriverDetail.Bus != null ? u.DriverDetail.Bus.BusNumber : null, LicenseNumber = u.DriverDetail != null ? u.DriverDetail.LicenseNumber : null, LicenseExpiry = u.DriverDetail != null && u.DriverDetail.LicenseExpiry != null ? u.DriverDetail.LicenseExpiry.Value.ToString("yyyy-MM-dd") : null, IsActive = u.IsActive }).ToListAsync();
+            return ApiResponse<PagedResult<DriverListDto>>.Ok(new PagedResult<DriverListDto> { Items = items, TotalCount = total, PageNumber = page, PageSize = pageSize });
         }
-
         public async Task<ApiResponse<DriverListDto>> GetByIdAsync(int userId)
         {
-            var u = await _db.Users
-                .Include(x => x.DriverDetail).ThenInclude(d => d!.Bus)
-                .FirstOrDefaultAsync(x => x.UserId == userId);
-            if (u is null) return ApiResponse<DriverListDto>.Fail("Driver not found.");
-
-            return ApiResponse<DriverListDto>.Ok(new DriverListDto
-            {
-                UserId = u.UserId,
-                FullName = u.FullName,
-                Email = u.Email,
-                PhoneNumber = u.PhoneNumber,
-                BusNumber = u.DriverDetail?.Bus?.BusNumber,
-                BusName = u.DriverDetail?.Bus?.BusName,
-                LicenseNumber = u.DriverDetail?.LicenseNumber,
-                IsActive = u.IsActive
-            });
+            var u = await _db.Users.Include(x => x.DriverDetail).ThenInclude(d => d!.Bus).FirstOrDefaultAsync(x => x.UserId == userId);
+            if (u is null) return ApiResponse<DriverListDto>.Fail("Not found.");
+            return ApiResponse<DriverListDto>.Ok(new DriverListDto { UserId = u.UserId, FullName = u.FullName, Email = u.Email, PhoneNumber = u.PhoneNumber, BusId = u.DriverDetail?.BusId, BusName = u.DriverDetail?.Bus?.BusName, BusNumber = u.DriverDetail?.Bus?.BusNumber, LicenseNumber = u.DriverDetail?.LicenseNumber, LicenseExpiry = u.DriverDetail?.LicenseExpiry?.ToString("yyyy-MM-dd"), IsActive = u.IsActive });
         }
-
-        public async Task<ApiResponse<bool>> CreateAsync(CreateDriverDto dto, int createdBy)
+        public async Task<ApiResponse<CreatedUserResultDto>> CreateAsync(CreateDriverDto dto, int createdBy)
         {
-            if (await _db.Users.AnyAsync(u => u.Email == dto.Email))
-                return ApiResponse<bool>.Fail("Email already in use.");
-
+            if (await _db.Users.AnyAsync(u => u.Email == dto.Email)) return ApiResponse<CreatedUserResultDto>.Fail("Email already in use.");
             var roleId = await _db.Roles.Where(r => r.RoleName == "Driver").Select(r => r.RoleId).FirstAsync();
             var password = _pwd.GenerateRandomPassword();
             var (hash, salt) = _pwd.HashPassword(password);
-
-            var user = new User
-            {
-                RoleId = roleId,
-                FullName = dto.FullName,
-                Email = dto.Email,
-                PhoneNumber = dto.PhoneNumber,
-                PasswordHash = hash,
-                PasswordSalt = salt,
-                CreatedBy = createdBy
-            };
-            _db.Users.Add(user);
+            var user = new User { RoleId = roleId, FullName = dto.FullName, Email = dto.Email, PhoneNumber = dto.PhoneNumber, PasswordHash = hash, PasswordSalt = salt, CreatedBy = createdBy };
+            _db.Users.Add(user); await _db.SaveChangesAsync();
+            _db.DriverDetails.Add(new DriverDetail { UserId = user.UserId, LicenseNumber = dto.LicenseNumber, LicenseExpiry = dto.LicenseExpiry is not null ? DateOnly.Parse(dto.LicenseExpiry) : null, BusId = dto.BusId });
             await _db.SaveChangesAsync();
-
-            _db.DriverDetails.Add(new DriverDetail
-            {
-                UserId = user.UserId,
-                LicenseNumber = dto.LicenseNumber,
-                LicenseExpiry = dto.LicenseExpiry is not null ? DateOnly.Parse(dto.LicenseExpiry) : null,
-                BusId = dto.BusId
-            });
-            await _db.SaveChangesAsync();
-
-            await _email.SendAsync(dto.Email, "Your Driver Account - Bus Tracking",
-                $"<p>Hi {dto.FullName},</p><p>Your driver account has been created.<br/>Email: {dto.Email}<br/>Password: <b>{password}</b></p><p>Use the mobile app to start tracking.</p>");
-
-            return ApiResponse<bool>.Ok(true, "Driver created.");
+            if (dto.SendEmail) await _email.SendAsync(dto.Email, "Your Driver Account", $"<p>Hi {dto.FullName},</p><p>Email: {dto.Email}<br/>Password: <b>{password}</b></p>");
+            return ApiResponse<CreatedUserResultDto>.Ok(new CreatedUserResultDto { UserId = user.UserId, FullName = dto.FullName, Email = dto.Email, PlainPassword = password, Role = "Driver" });
         }
-
         public async Task<ApiResponse<bool>> UpdateAsync(int userId, UpdateDriverDto dto)
         {
-            var user = await _db.Users.Include(u => u.DriverDetail).FirstOrDefaultAsync(u => u.UserId == userId);
-            if (user is null) return ApiResponse<bool>.Fail("Driver not found.");
-
-            user.FullName = dto.FullName;
-            user.PhoneNumber = dto.PhoneNumber;
-            user.UpdatedAt = DateTime.UtcNow;
-
-            if (user.DriverDetail is not null)
-            {
-                user.DriverDetail.LicenseNumber = dto.LicenseNumber;
-                user.DriverDetail.LicenseExpiry = dto.LicenseExpiry is not null ? DateOnly.Parse(dto.LicenseExpiry) : null;
-                user.DriverDetail.BusId = dto.BusId;
-                user.DriverDetail.UpdatedAt = DateTime.UtcNow;
-            }
-            await _db.SaveChangesAsync();
-            return ApiResponse<bool>.Ok(true, "Driver updated.");
+            var u = await _db.Users.Include(x => x.DriverDetail).FirstOrDefaultAsync(x => x.UserId == userId);
+            if (u is null) return ApiResponse<bool>.Fail("Not found.");
+            u.FullName = dto.FullName; u.PhoneNumber = dto.PhoneNumber; u.IsActive = dto.IsActive; u.UpdatedAt = DateTime.UtcNow;
+            if (u.DriverDetail is not null)
+            { u.DriverDetail.LicenseNumber = dto.LicenseNumber; u.DriverDetail.LicenseExpiry = dto.LicenseExpiry is not null ? DateOnly.Parse(dto.LicenseExpiry) : null; u.DriverDetail.BusId = dto.BusId; u.DriverDetail.UpdatedAt = DateTime.UtcNow; }
+            await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Updated.");
         }
-
         public async Task<ApiResponse<bool>> DeleteAsync(int userId)
+        { var u = await _db.Users.FindAsync(userId); if (u is null) return ApiResponse<bool>.Fail("Not found."); u.IsActive = false; u.UpdatedAt = DateTime.UtcNow; await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Marked inactive."); }
+        public async Task<ApiResponse<bool>> ToggleActiveAsync(int userId)
+        { var u = await _db.Users.FindAsync(userId); if (u is null) return ApiResponse<bool>.Fail("Not found."); u.IsActive = !u.IsActive; u.UpdatedAt = DateTime.UtcNow; await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, u.IsActive ? "Activated." : "Deactivated."); }
+        public async Task<ApiResponse<bool>> AssignBusAsync(AssignBusToDriverDto dto)
         {
-            var user = await _db.Users.FindAsync(userId);
-            if (user is null) return ApiResponse<bool>.Fail("Driver not found.");
-            user.IsActive = false;
-            user.UpdatedAt = DateTime.UtcNow;
-            await _db.SaveChangesAsync();
-            return ApiResponse<bool>.Ok(true, "Driver deleted.");
+            var d = await _db.DriverDetails.FirstOrDefaultAsync(x => x.UserId == dto.DriverUserId); if (d is null) return ApiResponse<bool>.Fail("Driver not found.");
+            var prev = await _db.DriverDetails.FirstOrDefaultAsync(x => x.BusId == dto.BusId && x.UserId != dto.DriverUserId);
+            if (prev is not null) { prev.BusId = null; prev.UpdatedAt = DateTime.UtcNow; }
+            d.BusId = dto.BusId; d.UpdatedAt = DateTime.UtcNow; await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Bus assigned.");
         }
-
-        public async Task<ApiResponse<bool>> AssignBusAsync(int driverUserId, int busId)
+        public async Task<ApiResponse<List<DriverDropdownDto>>> GetDropdownAsync(string? search)
         {
-            var detail = await _db.DriverDetails.FirstOrDefaultAsync(d => d.UserId == driverUserId);
-            if (detail is null) return ApiResponse<bool>.Fail("Driver not found.");
-            detail.BusId = busId;
-            detail.UpdatedAt = DateTime.UtcNow;
-            await _db.SaveChangesAsync();
-            return ApiResponse<bool>.Ok(true, "Bus assigned to driver.");
+            var roleId = await _db.Roles.Where(r => r.RoleName == "Driver").Select(r => r.RoleId).FirstAsync();
+            var q = _db.Users.Where(u => u.RoleId == roleId && u.IsActive);
+            if (!string.IsNullOrWhiteSpace(search)) q = q.Where(u => u.FullName.Contains(search) || u.Email.Contains(search));
+            var list = await q.OrderBy(u => u.FullName).Take(20).Select(u => new DriverDropdownDto { UserId = u.UserId, Display = u.FullName + " (" + u.Email + ")" }).ToListAsync();
+            return ApiResponse<List<DriverDropdownDto>>.Ok(list);
         }
     }
 }

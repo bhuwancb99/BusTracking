@@ -1,0 +1,83 @@
+@* ── _CreatedUserCard.cshtml ──────────────────────────────────────────
+   Displayed after successful user creation.
+   Usage: TempData["CreatedUser"] = JsonSerializer.Serialize(createdUserResultDto)
+*@
+@using System.Text.Json
+
+@{
+    var json = TempData["CreatedUser"] as string;
+    BusTracking.Common.DTOs.User.CreatedUserResultDto? created = null;
+    if (!string.IsNullOrEmpty(json))
+    {
+        try { created = JsonSerializer.Deserialize<BusTracking.Common.DTOs.User.CreatedUserResultDto>(json); } catch { }
+    }
+}
+
+@if (created is not null)
+{
+    <div class="alert alert-success border-0 shadow-sm mb-4" id="createdUserCard">
+        <div class="d-flex align-items-center gap-2 mb-2">
+            <i class="bi bi-person-check-fill fs-4 text-success"></i>
+            <strong>@created.Role created successfully!</strong>
+        </div>
+        <div class="row g-2 mt-1">
+            <div class="col-md-6">
+                <div class="bg-white rounded p-3 border">
+                    <div class="text-muted small mb-1">Full Name</div>
+                    <div class="fw-semibold">@created.FullName</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="bg-white rounded p-3 border">
+                    <div class="text-muted small mb-1">Username (Email)</div>
+                    <div class="fw-semibold">@created.Email</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="bg-white rounded p-3 border">
+                    <div class="text-muted small mb-1">Password</div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-semibold font-monospace" id="pwdDisplay" style="letter-spacing:2px">••••••••••••</span>
+                        <input type="hidden" id="pwdValue" value="@created.PlainPassword" />
+                        <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" id="pwdToggle" title="Show/hide password">
+                            <i class="bi bi-eye" id="pwdEye"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary py-0 px-2" onclick="copyPwd()" title="Copy password">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="bg-white rounded p-3 border">
+                    <div class="text-muted small mb-1">Role</div>
+                    <span class="badge bg-primary-subtle text-primary px-3 py-2">@created.Role</span>
+                </div>
+            </div>
+        </div>
+        <div class="text-muted small mt-2">
+            <i class="bi bi-info-circle me-1"></i>
+            Save these credentials — the password will not be shown again.
+        </div>
+    </div>
+    <script>
+        (function(){
+            var showing = false;
+            var btn  = document.getElementById('pwdToggle');
+            var disp = document.getElementById('pwdDisplay');
+            var val  = document.getElementById('pwdValue');
+            var eye  = document.getElementById('pwdEye');
+            if(btn) btn.addEventListener('click', function(){
+                showing = !showing;
+                disp.textContent = showing ? val.value : '••••••••••••';
+                eye.className = showing ? 'bi bi-eye-slash' : 'bi bi-eye';
+            });
+        })();
+        function copyPwd(){
+            var val = document.getElementById('pwdValue').value;
+            navigator.clipboard.writeText(val).then(function(){
+                busTrack.showToast('Password copied!','success');
+            });
+        }
+    </script>
+}

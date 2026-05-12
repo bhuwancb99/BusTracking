@@ -4,6 +4,8 @@ using System.Text.Json;
 
 namespace BusTracking.API.Middleware
 {
+
+    // ─── Global exception handler ─────────────────────────────────────────
     public class ExceptionMiddleware
     {
         private readonly RequestDelegate _next;
@@ -30,12 +32,12 @@ namespace BusTracking.API.Middleware
         }
     }
 
-    // ─── Request logging middleware ───────────────────────────────────────
     public class RequestLoggingMiddleware
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<RequestLoggingMiddleware> _logger;
 
+        // ─── Request logging middleware ───────────────────────────────────────
         public RequestLoggingMiddleware(RequestDelegate next, ILogger<RequestLoggingMiddleware> logger)
         { _next = next; _logger = logger; }
 

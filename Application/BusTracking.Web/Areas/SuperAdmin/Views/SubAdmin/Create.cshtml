@@ -1,18 +1,49 @@
-@* ── SubAdmin/Create.cshtml ──────────────────────────────────────────── *@
 @model BusTracking.Common.DTOs.SubAdmin.CreateSubAdminDto
 @{
-    ViewData["Title"] = "Add Coordinator"; ViewData["Breadcrumb"] = "Bus Coordinators / Add";
+    ViewData["Title"] = "Add Coordinator";
+}
+
+@{
+    var created = TempData["CreatedUser"] as string;
+    BusTracking.Common.DTOs.User.CreatedUserResultDto? newUser = null;
+    if (!string.IsNullOrEmpty(created))
+        newUser = System.Text.Json.JsonSerializer.Deserialize<BusTracking.Common.DTOs.User.CreatedUserResultDto>(created);
+}
+
+@if (newUser is not null)
+{
+    <div class="alert alert-success border-0 shadow-sm mb-4">
+        <h6 class="fw-bold mb-3"><i class="bi bi-check-circle-fill me-2"></i>Coordinator Created Successfully</h6>
+        <div class="row g-2">
+            <div class="col-md-4"><div class="bg-white rounded p-3 border"><div class="text-muted small mb-1">Full Name</div><div class="fw-semibold">@newUser.FullName</div></div></div>
+            <div class="col-md-4"><div class="bg-white rounded p-3 border"><div class="text-muted small mb-1">Role</div><div><span class="badge bg-warning-subtle text-warning">@newUser.Role</span></div></div></div>
+            <div class="col-md-4"><div class="bg-white rounded p-3 border"><div class="text-muted small mb-1">Username (Email)</div><div class="fw-semibold">@newUser.Email</div></div></div>
+            <div class="col-12">
+                <div class="bg-white rounded p-3 border">
+                    <div class="text-muted small mb-1">Password</div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span id="pwdDisplay" class="fw-semibold font-monospace">••••••••••••</span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="togglePwd()"><i class="bi bi-eye" id="pwdEye"></i></button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="copyPwd()"><i class="bi bi-clipboard me-1"></i>Copy</button>
+                    </div>
+                    <input type="hidden" id="pwdValue" value="@newUser.PlainPassword" />
+                </div>
+            </div>
+        </div>
+        <p class="mt-2 mb-0 small text-muted"><i class="bi bi-exclamation-triangle me-1"></i>Save this password — it won't be shown again.</p>
+    </div>
 }
 
 <div class="row justify-content-center">
-    <div class="col-lg-8">
+    <div class="col-lg-9">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
-                <i class="bi bi-person-badge me-2 text-warning"></i>Add Bus Coordinator
-            </div>
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-person-badge me-2 text-warning"></i>Add Bus Coordinator</div>
             <div class="card-body p-4">
-                <div asp-validation-summary="All" class="alert alert-danger py-2"></div>
-                <form asp-action="Create" method="post">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="alert alert-danger py-2 border-0"></div>
+                }
+                <form asp-area="SuperAdmin" asp-action="Create" method="post" id="createForm">
                     @Html.AntiForgeryToken()
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">
@@ -22,46 +53,48 @@
                         </div>
                         <div class="col-md-6">
                             <label asp-for="Email" class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
-                            <input asp-for="Email" type="email" class="form-control" />
+                            <input asp-for="Email" type="email" class="form-control" placeholder="coordinator@email.com" />
                             <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6">
-                            <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone</label>
-                            <input asp-for="PhoneNumber" class="form-control" />
+                            <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number</label>
+                            <input asp-for="PhoneNumber" class="form-control" placeholder="+91 98765 43210" />
                         </div>
                     </div>
 
-                    <!-- Permission checkboxes grouped by module -->
                     <div class="mb-4">
-                        <label class="form-label fw-semibold mb-3">Assign Permissions</label>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="fw-semibold">Assign Permissions</span>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="btnSelectAll">Select All</button>
+                        </div>
                         @{
                             var permGroups = new Dictionary<string, List<(int id, string key, string label)>>
                             {
                                 ["Dashboard"] = [(1, "dashboard.view", "View Dashboard")],
-                                ["Sub-Admins"] = [(2, "subadmin.view", "View"), (3, "subadmin.add", "Add"), (4, "subadmin.edit", "Edit"), (5, "subadmin.delete", "Delete")],
                                 ["Routes"] = [(6, "route.view", "View"), (7, "route.add", "Add"), (8, "route.edit", "Edit"), (9, "route.delete", "Delete")],
                                 ["Buses"] = [(10, "bus.view", "View"), (11, "bus.add", "Add"), (12, "bus.edit", "Edit"), (13, "bus.delete", "Delete"), (14, "bus.track", "Track")],
                                 ["Drivers"] = [(15, "driver.view", "View"), (16, "driver.add", "Add"), (17, "driver.edit", "Edit"), (18, "driver.delete", "Delete"), (19, "driver.track", "Track")],
                                 ["Parents"] = [(20, "parent.view", "View"), (21, "parent.add", "Add"), (22, "parent.edit", "Edit"), (23, "parent.delete", "Delete")],
                                 ["Students"] = [(24, "student.view", "View"), (25, "student.add", "Add"), (26, "student.edit", "Edit"), (27, "student.delete", "Delete"), (28, "student.assignbus", "Assign Bus")],
-                                ["Notifications"] = [(29, "notification.manage", "Manage Notifications")],
+                                ["Notifications"] = [(29, "notification.manage", "Manage")],
                                 ["Help & Support"] = [(30, "helpsupport.view", "View"), (31, "helpsupport.manage", "Manage")],
                             };
                         }
                         <div class="row g-3">
                             @foreach (var (module, perms) in permGroups)
                             {
+                                var modKey = module.Replace(" ", "_").Replace("&", "");
                                 <div class="col-md-6">
                                     <div class="border rounded p-3">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="fw-semibold small text-uppercase text-muted">@module</span>
-                                            <button type="button" class="btn btn-link btn-sm p-0 text-primary btn-select-all" data-module="@module">All</button>
+                                            <button type="button" class="btn btn-link btn-sm p-0 text-primary btn-module-all" data-mod="@modKey">All</button>
                                         </div>
                                         @foreach (var (id, key, label) in perms)
                                         {
                                             <div class="form-check">
-                                                <input class="form-check-input perm-check-@module.Replace(" ", "_")"
-                                                       type="checkbox" name="PermissionIds" value="@id" id="perm_@id" />
+                                                <input class="form-check-input perm-@modKey" type="checkbox"
+                                                       name="PermissionIds" value="@id" id="perm_@id" />
                                                 <label class="form-check-label small" for="perm_@id">@label</label>
                                             </div>
                                         }
@@ -71,12 +104,17 @@
                         </div>
                     </div>
 
-                    <div class="alert alert-info py-2 small">
-                        <i class="bi bi-info-circle me-1"></i>A temporary password will be emailed to the coordinator.
+                    <div class="form-check form-switch mb-4">
+                        <input asp-for="SendEmail" class="form-check-input" type="checkbox" role="switch" id="sendEmailChk" />
+                        <label class="form-check-label" for="sendEmailChk">
+                            <i class="bi bi-envelope me-1"></i>Send welcome email with credentials
+                            <span class="badge bg-secondary-subtle text-secondary ms-1">Optional</span>
+                        </label>
                     </div>
+
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-warning px-4"><i class="bi bi-check2 me-1"></i>Create Coordinator</button>
-                        <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                        <a asp-area="SuperAdmin" asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
                     </div>
                 </form>
             </div>
@@ -87,14 +125,25 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        document.querySelectorAll('.btn-select-all').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const module = this.dataset.module.replace(/ /g,'_');
-                const checks = document.querySelectorAll(`.perm-check-${module}`);
-                const allChecked = [...checks].every(c => c.checked);
-                checks.forEach(c => c.checked = !allChecked);
-                this.textContent = allChecked ? 'All' : 'None';
+        const vs=document.getElementById('valSummary');
+        if(vs&&vs.querySelector('li,span:not(:empty)'))vs.style.display='';
+        document.getElementById('createForm').addEventListener('submit',()=>{if(vs)vs.style.display='';});
+        document.querySelectorAll('.btn-module-all').forEach(btn=>{
+            btn.addEventListener('click',function(){
+                const cls=`.perm-${this.dataset.mod}`;
+                const checks=[...document.querySelectorAll(cls)];
+                const all=checks.every(c=>c.checked);
+                checks.forEach(c=>c.checked=!all);
+                this.textContent=all?'All':'None';
             });
         });
+        document.getElementById('btnSelectAll').addEventListener('click',function(){
+            const checks=[...document.querySelectorAll('input[name="PermissionIds"]')];
+            const all=checks.every(c=>c.checked);
+            checks.forEach(c=>c.checked=!all);
+            this.textContent=all?'Select All':'Deselect All';
+        });
+        function togglePwd(){const el=document.getElementById('pwdDisplay');const val=document.getElementById('pwdValue').value;const ic=document.getElementById('pwdEye');if(el.textContent.includes('•')){el.textContent=val;ic.className='bi bi-eye-slash';}else{el.textContent='••••••••••••';ic.className='bi bi-eye';}}
+        function copyPwd(){navigator.clipboard.writeText(document.getElementById('pwdValue').value);busTrack.showToast('Password copied!','success');}
     </script>
 }

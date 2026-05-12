@@ -3,84 +3,93 @@
    ════════════════════════════════════════════════════════════ *@
 @model BusTracking.Common.DTOs.Common.PagedResult<BusTracking.Common.DTOs.Driver.DriverListDto>
 @{
-    ViewData["Title"] = "Drivers"; ViewData["Breadcrumb"] = "Drivers";
+    ViewData["Title"] = "Drivers";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="fw-bold mb-0"><i class="bi bi-person-video2 me-2 text-success"></i>Drivers</h4>
-    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Add Driver</a>
+    <a asp-area="SuperAdmin" asp-controller="Driver" asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Add Driver</a>
+</div>
+
+<!-- Status filter -->
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body py-2 px-4 d-flex align-items-center gap-4 flex-wrap">
+        <span class="fw-semibold small text-muted">Filter:</span>
+        <form asp-area="SuperAdmin" asp-action="Index" method="get" class="d-flex align-items-center gap-3 flex-wrap flex-grow-1">
+            <div class="d-flex gap-3">
+                @foreach (var s in new[] { ("Active", "Active"), ("Inactive", "Inactive"), ("", "Both") })
+                {
+                    <div class="form-check mb-0">
+                        <input class="form-check-input" type="radio" name="status" value="@s.Item1" id="st_@s.Item1"
+                        @(ViewBag.Status as string == s.Item1 ? "checked" : "") onchange="this.form.submit()" />
+                        <label class="form-check-label small" for="st_@s.Item1">@s.Item2</label>
+                    </div>
+                }
+            </div>
+            <input type="text" name="search" value="@ViewBag.Search" class="form-control form-control-sm ms-auto" style="max-width:260px" placeholder="Search name or email…" />
+            <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-search"></i></button>
+            @if (!string.IsNullOrEmpty(ViewBag.Search as string))
+            {
+                <a asp-area="SuperAdmin" asp-action="Index" asp-route-status="@ViewBag.Status" class="btn btn-sm btn-outline-danger"><i class="bi bi-x"></i></a>
+            }
+        </form>
+    </div>
 </div>
 
 <div class="card border-0 shadow-sm">
-    <div class="card-body p-4">
-        <form asp-action="Index" method="get" class="d-flex gap-2 mb-3">
-            <input type="text" name="search" value="@ViewBag.Search" class="form-control"
-                   style="max-width:300px" placeholder="Search name or email…" />
-            <button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
-            @if (!string.IsNullOrEmpty(ViewBag.Search as string))
-            {
-                <a asp-action="Index" class="btn btn-outline-danger"><i class="bi bi-x"></i></a>
-            }
-        </form>
-
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover align-middle">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>Bus</th>
-                        <th>License</th>
-                        <th>Status</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
+                    <tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Bus</th><th>License</th><th>Expiry</th><th>Status</th><th class="text-end pe-4">Actions</th></tr>
                 </thead>
                 <tbody>
                     @if (Model?.Items.Count == 0)
                     {
-                        <tr><td colspan="8" class="text-center text-muted py-4"><i class="bi bi-person-slash d-block fs-2 mb-2"></i>No drivers found.</td></tr>
+                        <tr><td colspan="9" class="text-center text-muted py-5"><i class="bi bi-person-slash fs-1 d-block mb-2"></i>No drivers found.</td></tr>
                     }
-
                     @foreach (var (d, i) in (Model?.Items ?? []).Select((x, i) => (x, i + 1 + (Model!.PageNumber - 1) * Model.PageSize)))
                     {
-                        <tr>
-                            <td class="text-muted small">@i</td>
+                        <tr id="row-driver-@d.UserId">
+                            <td class="ps-3 text-muted small">@i</td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <div class="avatar-circle bg-success-subtle text-success">
-                                        @d.FullName.ToInitials()
-                                    </div>
+                                    <div class="avatar-sm bg-success-subtle text-success">@d.FullName.ToInitials()</div>
                                     <span class="fw-semibold">@d.FullName</span>
                                 </div>
                             </td>
                             <td class="text-muted small">@d.Email</td>
-                            <td>@(d.PhoneNumber ?? "–")</td>
+                            <td class="small">@(d.PhoneNumber ?? "–")</td>
                             <td>
-                                @if (d.BusNumber is not null)
+                                @if (d.BusName is not null)
                                 {
-                                    <span class="badge bg-primary-subtle text-primary">@d.BusNumber</span>
+                                    <span class="badge bg-primary-subtle text-primary">@d.BusNumber</span><span class="ms-1 small">@d.BusName</span>
                                 }
                                 else
                                 {
 
-                                    <span class="text-muted small">Unassigned</span>
+                                    <span class="text-muted small">–</span>
                                 }
                             </td>
                             <td class="small">@(d.LicenseNumber ?? "–")</td>
+                            <td class="small">@(d.LicenseExpiry ?? "–")</td>
                             <td>
                                 <span class="badge @(d.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">
                                     @(d.IsActive ? "Active" : "Inactive")
                                 </span>
                             </td>
-                            <td class="text-end">
-                                <a asp-action="Details" asp-route-id="@d.UserId" class="btn btn-sm btn-outline-info me-1"><i class="bi bi-eye"></i></a>
-                                <a asp-action="Edit" asp-route-id="@d.UserId" class="btn btn-sm btn-outline-warning me-1"><i class="bi bi-pencil"></i></a>
-                                <form asp-action="Delete" asp-route-id="@d.UserId" method="post" class="d-inline"
-                                      onsubmit="return confirm('Delete driver @d.FullName?')">
+                            <td class="text-end pe-3">
+                                <a asp-area="SuperAdmin" asp-action="Details" asp-route-id="@d.UserId" class="btn btn-sm btn-outline-info me-1" title="View"><i class="bi bi-eye"></i></a>
+                                <a asp-area="SuperAdmin" asp-action="Edit" asp-route-id="@d.UserId" class="btn btn-sm btn-outline-warning me-1" title="Edit"><i class="bi bi-pencil"></i></a>
+                                <button class="btn btn-sm @(d.IsActive ? "btn-outline-secondary" : "btn-outline-success") me-1 btn-toggle"
+                                        data-id="@d.UserId" data-url="/SuperAdmin/Driver/Toggle"
+                                        title="@(d.IsActive ? "Deactivate" : "Activate")">
+                                    <i class="bi @(d.IsActive ? "bi-toggle-on" : "bi-toggle-off")"></i>
+                                </button>
+                                <form asp-area="SuperAdmin" asp-action="Delete" asp-route-id="@d.UserId" method="post" class="d-inline"
+                                      onsubmit="return confirm('Mark @d.FullName as inactive?')">
                                     @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                    <button class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
                                 </form>
                             </td>
                         </tr>
@@ -88,19 +97,22 @@
                 </tbody>
             </table>
         </div>
-
-        <partial name="_Pagination" model="Model" />
+        <div class="px-4 py-2"><partial name="_Pagination" model="Model" /></div>
     </div>
 </div>
 
-<style>    .avatar-circle {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: .75rem;
-        font-weight: 700;
-        flex-shrink: 0;
-    }</style>
+@section Scripts {
+    <script>
+        document.querySelectorAll('.btn-toggle').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const id  = this.dataset.id;
+                const url = this.dataset.url;
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                const res = await fetch(`${url}?id=${id}`, {method:'POST',headers:{'RequestVerificationToken':token||''}});
+                const data = await res.json();
+                if (data.success) { busTrack.showToast(data.message,'success'); setTimeout(()=>location.reload(),700); }
+                else busTrack.showToast(data.message,'danger');
+            });
+        });
+    </script>
+}

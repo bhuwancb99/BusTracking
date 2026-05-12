@@ -6,5 +6,6 @@
         public string Email { get; set; } = "";
         public string? PhoneNumber { get; set; }
         public List<int> PermissionIds { get; set; } = [];
+        public bool SendEmail { get; set; } = false;
     }
 }

@@ -22,8 +22,8 @@ public class BusController : Controller
     private readonly IBusService _bus;
     private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
     public BusController(IBusService b) => _bus = b;
-    public async Task<IActionResult> Index(int page = 1, string? search = null)
-    { ViewBag.Search = search; var r = await _bus.GetAllAsync(page, 10, search); return View(r.Data); }
+    public async Task<IActionResult> Index(int page = 1, string? search = null, string? status = "Active")
+    { ViewBag.Search = search; ViewBag.Status = status; var r = await _bus.GetAllAsync(page, 10, search, status); return View(r.Data); }
     [HttpGet] public IActionResult Create() => View();
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateBusDto m)
@@ -54,8 +54,8 @@ public class StudentController : Controller
     private readonly IStudentService _s;
     private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
     public StudentController(IStudentService s) => _s = s;
-    public async Task<IActionResult> Index(int page = 1, string? search = null)
-    { ViewBag.Search = search; var r = await _s.GetAllAsync(page, 10, search); return View(r.Data); }
+    public async Task<IActionResult> Index(int page = 1, string? search = null, string? status = "Active")
+    { ViewBag.Search = search; ViewBag.Status = status; var r = await _s.GetAllAsync(page, 10, search, status); return View(r.Data); }
     [HttpGet] public IActionResult Create() => View();
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CreateStudentDto m)

@@ -7,6 +7,6 @@
         public string Email { get; set; } = "";
         public string? PhoneNumber { get; set; }
         public bool IsActive { get; set; }
-        public List<string> KidNames { get; set; } = [];
+        public List<LinkedStudentDto> Students { get; set; } = [];
     }
 }

@@ -5,12 +5,12 @@
 @model dynamic
 
 @{
-    int currentPage  = (int)(Model?.PageNumber   ?? 1);
-    int totalPages   = (int)(Model?.TotalPages   ?? 1);
-    int totalCount   = (int)(Model?.TotalCount   ?? 0);
-    int pageSize     = (int)(Model?.PageSize     ?? 10);
-    string action    = (string)(ViewContext.RouteData.Values["action"] ?? "Index");
-    var pageNums     = PaginationHelper.GetPageNumbers(currentPage, totalPages);
+    int currentPage = (int)(Model?.PageNumber ?? 1);
+    int totalPages = (int)(Model?.TotalPages ?? 1);
+    int totalCount = (int)(Model?.TotalCount ?? 0);
+    int pageSize = (int)(Model?.PageSize ?? 10);
+    string action = (string)(ViewContext.RouteData.Values["action"] ?? "Index");
+    var pageNums = PaginationHelper.GetPageNumbers(currentPage, totalPages);
 }
 
 @if (totalPages > 1)

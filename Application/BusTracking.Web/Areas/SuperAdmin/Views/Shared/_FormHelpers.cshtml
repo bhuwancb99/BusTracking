@@ -1,0 +1,33 @@
+@* ── _FormHelpers.cshtml ─────────────────────────────────────────────
+   Shared partials used across all Create/Edit forms
+*@
+
+@* PASSWORD FIELD with eye-toggle *@
+@* Usage: <partial name="_PasswordField" model='new PasswordFieldModel { Id="pwd", Label="Password" }' /> *@
+
+@* VALIDATION SUMMARY - hidden by default, shown only on error *@
+<div id="val-summary" class="alert alert-danger py-2 mb-3" style="display:none">
+    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+    <span id="val-summary-text"></span>
+    <div asp-validation-summary="ModelOnly" class="d-none" id="val-summary-inner"></div>
+</div>
+
+<script>
+    // Show validation summary only if there are errors
+    (function(){
+        var inner = document.getElementById('val-summary-inner');
+        if (inner && inner.querySelectorAll('li').length > 0) {
+            var summary = document.getElementById('val-summary');
+            var text    = document.getElementById('val-summary-text');
+            if (summary) summary.style.display = 'flex';
+            if (text) text.textContent = inner.querySelector('li')?.textContent ?? 'Please fix the errors below.';
+        }
+        // Also watch field-level errors
+        document.querySelectorAll('[data-valmsg-for]').forEach(function(el){
+            if (el.textContent.trim().length > 0) {
+                var s = document.getElementById('val-summary');
+                if (s) s.style.display = 'flex';
+            }
+        });
+    })();
+</script>

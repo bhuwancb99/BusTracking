@@ -13,15 +13,10 @@ public static class CommonServiceExtensions
     /// Registers DbContext + all shared services.
     /// Call from both BusTracking.Web and BusTracking.API Program.cs.
     /// </summary>
-    public static IServiceCollection AddCommonServices(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddCommonServices(this IServiceCollection services, IConfiguration configuration)
     {
         // ── EF Core (SQL Server — uses manual DB, no migrations) ──────
-        services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(
-                configuration.GetConnectionString("DefaultConnection"),
-                sql => sql.EnableRetryOnFailure(3)));
+        services.AddDbContext<AppDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), sql => sql.EnableRetryOnFailure(3)));
 
         // ── Infrastructure ────────────────────────────────────────────
         services.AddScoped<IJwtService, JwtService>();
@@ -41,6 +36,13 @@ public static class CommonServiceExtensions
         services.AddScoped<ITripService, TripService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IFeedbackService, FeedbackService>();
+
+        // Extended services
+        services.AddScoped<IStudentSearchService, StudentSearchService>();
+        services.AddScoped<IDriverExtService, DriverExtService>();
+        services.AddScoped<IStudentExtService, StudentExtService>();
+        services.AddScoped<IParentExtService, ParentExtService>();
+        services.AddScoped<ISubAdminExtService, SubAdminExtService>();
 
         return services;
     }

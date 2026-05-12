@@ -6,85 +6,150 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="fw-bold mb-0"><i class="bi bi-bus-front me-2 text-primary"></i>@Model?.BusName</h4>
     <div class="d-flex gap-2">
-        <a asp-action="Edit" asp-route-id="@Model?.BusId" class="btn btn-sm btn-outline-warning">
-            <i class="bi bi-pencil me-1"></i>Edit
-        </a>
-        <a asp-action="Index" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-arrow-left me-1"></i>Back
-        </a>
+        <a asp-area="SuperAdmin" asp-action="Edit" asp-route-id="@Model?.BusId" class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil me-1"></i>Edit</a>
+        <a asp-area="SuperAdmin" asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
     </div>
 </div>
 
 @if (Model is not null)
 {
     <div class="row g-4">
-        <!-- Bus info -->
         <div class="col-lg-5">
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">Bus Information</div>
                 <div class="card-body p-4">
-                    <table class="table table-borderless mb-0">
-                        <tr><th class="text-muted small w-40">Bus Name</th><td class="fw-semibold">@Model.BusName</td></tr>
+                    <table class="table table-borderless small mb-0">
+                        <tr><th class="text-muted w-40">Bus Name</th><td class="fw-semibold">@Model.BusName</td></tr>
+                        <tr><th class="text-muted">Number</th><td><span class="badge bg-primary-subtle text-primary px-2">@Model.BusNumber</span></td></tr>
+                        <tr><th class="text-muted">Route</th><td>@(Model.RouteName ?? "–")</td></tr>
+                        <tr><th class="text-muted">Capacity</th><td>@(Model.Capacity?.ToString() ?? "–")</td></tr>
+                        <tr><th class="text-muted">Students</th><td><span class="badge bg-info-subtle text-info">@Model.StudentCount enrolled</span></td></tr>
                         <tr>
-                            <th class="text-muted small">Bus Number</th>
-                            <td><span class="badge bg-primary-subtle text-primary px-2 py-1">@Model.BusNumber</span></td>
-                        </tr>
-                        <tr><th class="text-muted small">Route</th><td>@(Model.RouteName ?? "–")</td></tr>
-                        <tr><th class="text-muted small">Capacity</th><td>@(Model.Capacity?.ToString() ?? "–")</td></tr>
-                        <tr>
-                            <th class="text-muted small">Students</th>
-                            <td><span class="badge bg-info-subtle text-info">@Model.StudentCount enrolled</span></td>
-                        </tr>
-                        <tr>
-                            <th class="text-muted small">Status</th>
+                            <th class="text-muted">Status</th>
                             <td><span class="badge @(Model.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">@(Model.IsActive ? "Active" : "Inactive")</span></td>
                         </tr>
                     </table>
                 </div>
             </div>
 
-            @if (Model.DriverName is not null)
-            {
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
-                        <i class="bi bi-person-video2 me-2 text-success"></i>Assigned Driver
-                    </div>
-                    <div class="card-body p-4 d-flex align-items-center gap-3">
-                        <div class="avatar-circle bg-success-subtle text-success" style="width:44px;height:44px;font-size:1rem">
-                            @Model.DriverName.ToInitials()
+            <!-- Assigned Driver -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-person-video2 me-2 text-success"></i>Assigned Driver</div>
+                <div class="card-body p-4">
+                    @if (Model.DriverName is not null)
+                    {
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="p-2 bg-success-subtle rounded-circle"><i class="bi bi-person-video2 text-success fs-5"></i></div>
+                            <div>
+                                <div class="fw-semibold">@Model.DriverName</div>
+                                <div class="text-muted small">@Model.DriverPhone</div>
+                            </div>
                         </div>
-                        <div>
-                            <div class="fw-semibold">@Model.DriverName</div>
-                            <div class="text-muted small">@Model.DriverPhone</div>
+                    }
+                    else
+                    {
+
+                        <div class="text-muted small mb-3">No driver assigned.</div>
+                    }
+                    <hr class="my-3" />
+                    <div class="fw-semibold small mb-2">Quick Assign Driver</div>
+                    <div class="d-flex gap-2">
+                        <div class="position-relative flex-grow-1">
+                            <input type="text" id="driverSearch" class="form-control form-control-sm" placeholder="Type driver name…" autocomplete="off" />
+                            <div id="driverSug" class="dropdown-menu w-100 shadow-sm"></div>
                         </div>
+                        <button class="btn btn-sm btn-success" id="btnAssignDriver"><i class="bi bi-check2"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" id="btnRemoveDriver" title="Remove driver"><i class="bi bi-x"></i></button>
                     </div>
                 </div>
-            }
+            </div>
         </div>
 
-        <!-- Placeholder for student list (requires additional service call; shown here as a note) -->
         <div class="col-lg-7">
+            <!-- Assign Student to Bus -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
-                    <i class="bi bi-mortarboard me-2 text-info"></i>Enrolled Students
-                    <span class="badge bg-info-subtle text-info ms-2">@Model.StudentCount</span>
+                    <i class="bi bi-mortarboard me-2 text-info"></i>Assign Students
+                    <span class="badge bg-info-subtle text-info ms-2">@Model.StudentCount enrolled</span>
                 </div>
                 <div class="card-body p-4">
-                    <div class="text-muted small d-flex align-items-center gap-2">
-                        <i class="bi bi-info-circle text-primary"></i>
-                        Go to the <a asp-controller="Student" asp-action="Index">Students</a> page to view and manage individual student assignments.
+                    <p class="text-muted small">Search and assign a student to this bus.</p>
+                    <div class="d-flex gap-2 mb-3">
+                        <div class="position-relative flex-grow-1">
+                            <input type="text" id="studentSearch" class="form-control form-control-sm" placeholder="Type student name or code…" autocomplete="off" />
+                            <div id="studentSug" class="dropdown-menu w-100 shadow-sm"></div>
+                        </div>
+                        <button class="btn btn-sm btn-info text-white" id="btnAssignStudent"><i class="bi bi-plus me-1"></i>Assign</button>
                     </div>
+                    <p class="text-muted small mt-3">
+                        <i class="bi bi-info-circle me-1"></i>
+                        To view all enrolled students, go to the
+                        <a asp-area="SuperAdmin" asp-controller="Student" asp-action="Index">Students</a> page and filter by this bus.
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 }
 
-<style>    .avatar-circle {
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        flex-shrink: 0;
-    }</style>
+@section Scripts {
+    <script>
+        const busId = @Model?.BusId;
+        const token = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+
+        // ── Driver autocomplete ───────────────────────────────────────────────
+        let selDriverId = null, t1;
+        document.getElementById('driverSearch').addEventListener('input', function() {
+            clearTimeout(t1); const q = this.value.trim();
+            if (q.length < 1) { hideDrv(); return; }
+            t1 = setTimeout(() => fetchDrivers(q), 250);
+        });
+        document.addEventListener('click', e => { if (!e.target.closest('#driverSearch,#driverSug')) hideDrv(); });
+        async function fetchDrivers(q) {
+            const data = await (await fetch(`/SuperAdmin/Bus/SearchDrivers?q=${encodeURIComponent(q)}`)).json();
+            const box = document.getElementById('driverSug'); box.innerHTML = '';
+            data.forEach(d => { const a = document.createElement('a'); a.className='dropdown-item'; a.href='#'; a.textContent=d.display;
+                a.addEventListener('click', e => { e.preventDefault(); selDriverId=d.userId; document.getElementById('driverSearch').value=d.display; hideDrv(); }); box.appendChild(a); });
+            if (data.length) box.classList.add('show');
+        }
+        function hideDrv() { document.getElementById('driverSug').classList.remove('show'); }
+
+        document.getElementById('btnAssignDriver').addEventListener('click', async () => {
+            if (!selDriverId) { busTrack.showToast('Select a driver first','warning'); return; }
+            const res = await fetch('/SuperAdmin/Bus/AssignDriver', { method:'POST', headers:{'Content-Type':'application/json','RequestVerificationToken':token()}, body:JSON.stringify({busId,driverUserId:selDriverId}) });
+            const data = await res.json(); busTrack.showToast(data.message, data.success?'success':'danger');
+            if (data.success) setTimeout(()=>location.reload(),800);
+        });
+        document.getElementById('btnRemoveDriver').addEventListener('click', async () => {
+            if (!confirm('Remove driver from this bus?')) return;
+            const res = await fetch('/SuperAdmin/Bus/AssignDriver', { method:'POST', headers:{'Content-Type':'application/json','RequestVerificationToken':token()}, body:JSON.stringify({busId,driverUserId:null}) });
+            const data = await res.json(); busTrack.showToast(data.message, data.success?'success':'danger');
+            if (data.success) setTimeout(()=>location.reload(),800);
+        });
+
+        // ── Student autocomplete ──────────────────────────────────────────────
+        let selStudentId = null, t2;
+        document.getElementById('studentSearch').addEventListener('input', function() {
+            clearTimeout(t2); const q = this.value.trim();
+            if (q.length < 1) { hideStu(); return; }
+            t2 = setTimeout(() => fetchStudents(q), 250);
+        });
+        document.addEventListener('click', e => { if (!e.target.closest('#studentSearch,#studentSug')) hideStu(); });
+        async function fetchStudents(q) {
+            const data = await (await fetch(`/SuperAdmin/Student/Search?q=${encodeURIComponent(q)}`)).json();
+            const box = document.getElementById('studentSug'); box.innerHTML = '';
+            data.forEach(s => { const a = document.createElement('a'); a.className='dropdown-item d-flex gap-2'; a.href='#';
+                a.innerHTML=`<code class="small">${s.studentCode}</code><span>${s.fullName}</span>`;
+                a.addEventListener('click', e => { e.preventDefault(); selStudentId=s.studentId; document.getElementById('studentSearch').value=`${s.fullName} (${s.studentCode})`; hideStu(); }); box.appendChild(a); });
+            if (data.length) box.classList.add('show');
+        }
+        function hideStu() { document.getElementById('studentSug').classList.remove('show'); }
+
+        document.getElementById('btnAssignStudent').addEventListener('click', async () => {
+            if (!selStudentId) { busTrack.showToast('Select a student first','warning'); return; }
+            const res = await fetch('/SuperAdmin/Bus/AssignStudent', { method:'POST', headers:{'Content-Type':'application/json','RequestVerificationToken':token()}, body:JSON.stringify({busId,studentId:selStudentId}) });
+            const data = await res.json(); busTrack.showToast(data.message, data.success?'success':'danger');
+            if (data.success) { selStudentId=null; document.getElementById('studentSearch').value=''; }
+        });
+    </script>
+}

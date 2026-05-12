@@ -1,10 +1,6 @@
-@using System.Security.Claims
 @model BusTracking.Common.DTOs.Route.RouteDetailDto
 @{
     ViewData["Title"] = "Route Details"; ViewData["Breadcrumb"] = "Routes / Details";
-    string? role = string.Empty;
-    if (User.Identity?.IsAuthenticated == true)
-        role = User?.FindFirstValue(ClaimTypes.Role);
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -148,7 +144,7 @@
                 latitude:    parseFloat(document.getElementById('stopLat').value) || null,
                 longitude:   parseFloat(document.getElementById('stopLng').value) || null
             };
-            const result = await busTrack.post('/@role/Route/AddStop', data);
+            const result = await busTrack.post('/Route/AddStop', data);
             if (result.success) {
                 busTrack.showToast('Stop added. Refreshing…', 'success');
                 setTimeout(() => location.reload(), 800);
@@ -161,7 +157,7 @@
             btn.addEventListener('click', async function () {
                 if (!confirm('Remove this stop?')) return;
                 const stopId = this.dataset.stopId;
-                const result = await busTrack.post(`/@role/Route/DeleteStop?stopId=${stopId}`, {});
+                const result = await busTrack.post(`/Route/DeleteStop?stopId=${stopId}`, {});
                 if (result.success) {
                     document.getElementById(`stop-${stopId}`)?.remove();
                     busTrack.showToast('Stop removed.', 'success');

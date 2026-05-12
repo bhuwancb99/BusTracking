@@ -24,4 +24,5 @@ namespace BusTracking.Common.Services
             return new string(bytes.Select(b => chars[b % chars.Length]).ToArray());
         }
     }
+
 }

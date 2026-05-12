@@ -374,3 +374,76 @@ body {
     background: rgba(255,255,255,.15);
     border-radius: 2px;
 }
+
+/* ── Avatars ──────────────────────────────────────────────── */
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.avatar-xl {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+/* ── Autocomplete dropdown ────────────────────────────────── */
+.dropdown-menu.show {
+    display: block;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 1055;
+}
+
+.dropdown-menu .dropdown-item {
+    cursor: pointer;
+    font-size: .875rem;
+}
+
+    .dropdown-menu .dropdown-item:hover {
+        background: #f0f4ff;
+    }
+
+/* ── Status filter bar ────────────────────────────────────── */
+.form-check-input:checked + .form-check-label {
+    font-weight: 600;
+}
+
+/* ── Validation summary hidden by default ─────────────────── */
+#valSummary:empty, #valSummary ul:empty {
+    display: none !important;
+}
+
+/* ── Password monospace ───────────────────────────────────── */
+.font-monospace {
+    font-family: 'Courier New', monospace;
+    letter-spacing: .05em;
+}
+
+/* ── Validation summary — hide when empty (safety net) ───────
+   ASP.NET Core renders the div even with no errors.
+   Hide it when the inner <ul> has no <li> children.          */
+.validation-summary-valid {
+    display: none !important;
+}
+
+.validation-summary-errors ul:empty {
+    display: none !important;
+}
+
+.validation-summary-errors:not(:has(li)) {
+    display: none !important;
+}

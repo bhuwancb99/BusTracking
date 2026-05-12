@@ -8,5 +8,6 @@
         public string? Standard { get; set; }
         public int? BusId { get; set; }
         public int? StopId { get; set; }
+        public bool SendEmail { get; set; } = false;
     }
 }

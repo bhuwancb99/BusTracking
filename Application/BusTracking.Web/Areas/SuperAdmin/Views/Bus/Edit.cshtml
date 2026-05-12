@@ -3,35 +3,109 @@
     ViewData["Title"] = "Edit Bus"; ViewData["Breadcrumb"] = "Buses / Edit";
 }
 <div class="row justify-content-center">
-    <div class="col-md-7 col-lg-6">
+    <div class="col-lg-8">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
-                <i class="bi bi-pencil me-2 text-warning"></i>Edit Bus
-            </div>
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-pencil me-2 text-warning"></i>Edit Bus</div>
             <div class="card-body p-4">
-                <div asp-validation-summary="All" class="alert alert-danger py-2"></div>
-                <form asp-action="Edit" asp-route-id="@ViewBag.BusId" method="post">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="alert alert-danger py-2 border-0"></div>
+                }
+                <form asp-area="SuperAdmin" asp-action="Edit" asp-route-id="@ViewBag.BusId" method="post" id="editForm">
                     @Html.AntiForgeryToken()
-                    <div class="mb-3">
-                        <label asp-for="BusName" class="form-label fw-semibold">Bus Name <span class="text-danger">*</span></label>
-                        <input asp-for="BusName" class="form-control" />
-                        <span asp-validation-for="BusName" class="text-danger small"></span>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="BusName" class="form-label fw-semibold">Bus Name <span class="text-danger">*</span></label>
+                            <input asp-for="BusName" class="form-control" />
+                            <span asp-validation-for="BusName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="BusNumber" class="form-label fw-semibold">Bus Number <span class="text-danger">*</span></label>
+                            <input asp-for="BusNumber" class="form-control" />
+                            <span asp-validation-for="BusNumber" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Capacity" class="form-label fw-semibold">Capacity (seats)</label>
+                            <input asp-for="Capacity" type="number" min="1" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Assign Driver</label>
+                            <div class="position-relative">
+                                <input type="text" id="driverSearch" class="form-control"
+                                       value="@(Model.DriverUserId.HasValue ? $"Driver ID: {Model.DriverUserId}" : "")"
+                                       placeholder="Type driver name…" autocomplete="off" />
+                                <input type="hidden" asp-for="DriverUserId" id="driverIdInput" />
+                                <div id="driverSuggestions" class="dropdown-menu w-100 shadow-sm"></div>
+                            </div>
+                            <div id="driverSelected" class="mt-1">
+                                @if (Model.DriverUserId.HasValue)
+                                {
+                                    <span class="badge bg-success-subtle text-success"><i class="bi bi-person-video2 me-1"></i>Driver ID: @Model.DriverUserId</span>
+                                }
+                            </div>
+                            @if (Model.DriverUserId.HasValue)
+                            {
+                                <button type="button" class="btn btn-sm btn-link text-danger p-0 mt-1" onclick="clearDriver()"><i class="bi bi-x-circle me-1"></i>Remove driver</button>
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Status</label>
+                            <div class="d-flex gap-3 mt-1">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="IsActive" value="true" id="isActiveTrue" @(Model.IsActive ? "checked" : "") />
+                                    <label class="form-check-label text-success fw-semibold" for="isActiveTrue"><i class="bi bi-check-circle me-1"></i>Active</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="IsActive" value="false" id="isActiveFalse" @(!Model.IsActive ? "checked" : "") />
+                                    <label class="form-check-label text-danger fw-semibold" for="isActiveFalse"><i class="bi bi-x-circle me-1"></i>Inactive</label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <label asp-for="BusNumber" class="form-label fw-semibold">Bus Number / Plate <span class="text-danger">*</span></label>
-                        <input asp-for="BusNumber" class="form-control" />
-                        <span asp-validation-for="BusNumber" class="text-danger small"></span>
-                    </div>
-                    <div class="mb-3">
-                        <label asp-for="Capacity" class="form-label fw-semibold">Capacity</label>
-                        <input asp-for="Capacity" type="number" class="form-control" min="1" />
-                    </div>
-                    <div class="d-flex gap-2 pt-2">
-                        <button type="submit" class="btn btn-warning px-4">Update Bus</button>
-                        <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-warning px-4"><i class="bi bi-check2 me-1"></i>Update Bus</button>
+                        <a asp-area="SuperAdmin" asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const vs=document.getElementById('valSummary');
+        if(vs&&vs.querySelector('li,span:not(:empty)'))vs.style.display='';
+        document.getElementById('editForm').addEventListener('submit',()=>{if(vs)vs.style.display='';});
+
+        let t;
+        document.getElementById('driverSearch').addEventListener('input',function(){
+            clearTimeout(t);const q=this.value.trim();
+            if(q.length<1){hideSug();return;}
+            t=setTimeout(()=>fetchDrivers(q),250);
+        });
+        document.addEventListener('click',e=>{if(!e.target.closest('#driverSearch,#driverSuggestions'))hideSug();});
+        async function fetchDrivers(q){
+            const res=await fetch(`/SuperAdmin/Bus/SearchDrivers?q=${encodeURIComponent(q)}`);
+            const data=await res.json();
+            const box=document.getElementById('driverSuggestions');
+            box.innerHTML='';
+            data.forEach(d=>{const a=document.createElement('a');a.className='dropdown-item';a.href='#';a.textContent=d.display;
+                a.addEventListener('click',e=>{e.preventDefault();selectDriver(d);});box.appendChild(a);});
+            if(data.length)box.classList.add('show');
+        }
+        function selectDriver(d){
+            document.getElementById('driverIdInput').value=d.userId;
+            document.getElementById('driverSearch').value=d.display;
+            document.getElementById('driverSelected').innerHTML=`<span class="badge bg-success-subtle text-success"><i class="bi bi-person-video2 me-1"></i>${d.display}</span>`;
+            hideSug();
+        }
+        function hideSug(){document.getElementById('driverSuggestions').classList.remove('show');}
+        function clearDriver(){
+            document.getElementById('driverIdInput').value='';
+            document.getElementById('driverSearch').value='';
+            document.getElementById('driverSelected').innerHTML='<span class="text-muted small">No driver assigned</span>';
+        }
+    </script>
+}

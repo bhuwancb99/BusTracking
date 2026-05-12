@@ -6,8 +6,8 @@
     'use strict';
 
     // ── Sidebar toggle ───────────────────────────────────────────
-    const sidebar = document.getElementById('sidebar');
-    const toggleBtn = document.getElementById('sidebarToggle');
+    const sidebar       = document.getElementById('sidebar');
+    const toggleBtn     = document.getElementById('sidebarToggle');
     const COLLAPSED_KEY = 'sidebar_collapsed';
 
     function applySidebarState() {
@@ -54,10 +54,10 @@
     document.querySelectorAll('[data-toggle-password]').forEach(btn => {
         btn.addEventListener('click', () => {
             const targetId = btn.dataset.togglePassword;
-            const input = document.getElementById(targetId);
-            const icon = btn.querySelector('i');
+            const input    = document.getElementById(targetId);
+            const icon     = btn.querySelector('i');
             if (!input) return;
-            input.type = input.type === 'password' ? 'text' : 'password';
+            input.type     = input.type === 'password' ? 'text' : 'password';
             if (icon) {
                 icon.className = input.type === 'password'
                     ? 'bi bi-eye' : 'bi bi-eye-slash';
@@ -69,7 +69,7 @@
     window.busTrack = {
         post: async function (url, data) {
             const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-            const res = await fetch(url, {
+            const res   = await fetch(url, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -92,7 +92,7 @@
                 })();
 
             const colors = { success: 'bg-success', danger: 'bg-danger', warning: 'bg-warning', info: 'bg-info' };
-            const toast = document.createElement('div');
+            const toast  = document.createElement('div');
             toast.className = `toast align-items-center text-white ${colors[type] || 'bg-secondary'} border-0`;
             toast.setAttribute('role', 'alert');
             toast.innerHTML = `
@@ -123,7 +123,7 @@
     const mapEl = document.getElementById('busMap');
     if (mapEl && typeof L !== 'undefined') {
         const tripId = mapEl.dataset.tripId;
-        const map = L.map('busMap').setView([20.5937, 78.9629], 13);
+        const map    = L.map('busMap').setView([20.5937, 78.9629], 13);
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '© OpenStreetMap contributors'
@@ -141,7 +141,7 @@
         async function refreshLocation() {
             if (!tripId) return;
             try {
-                const res = await fetch(`/api/location/${tripId}/latest`);
+                const res  = await fetch(`/api/location/${tripId}/latest`);
                 const data = await res.json();
                 if (data.success && data.data) {
                     const { latitude, longitude } = data.data;
@@ -167,10 +167,10 @@
     // ── Boarding status update (driver trip page) ────────────────
     document.querySelectorAll('.btn-boarding').forEach(btn => {
         btn.addEventListener('click', async function () {
-            const tripId = this.dataset.tripId;
+            const tripId    = this.dataset.tripId;
             const studentId = this.dataset.studentId;
-            const stopId = this.dataset.stopId;
-            const status = this.dataset.status;
+            const stopId    = this.dataset.stopId;
+            const status    = this.dataset.status;
 
             const result = await busTrack.post(
                 `/api/trips/${tripId}/boarding`,

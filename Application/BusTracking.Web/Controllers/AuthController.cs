@@ -1,4 +1,3 @@
-using BusTracking.Common.DTOs;
 using BusTracking.Common.DTOs.Auth;
 using BusTracking.Common.Interfaces;
 using Microsoft.AspNetCore.Authentication;

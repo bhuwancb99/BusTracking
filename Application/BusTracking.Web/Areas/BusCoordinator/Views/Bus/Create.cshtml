@@ -7,7 +7,10 @@
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-bus-front me-2 text-primary"></i>Add Bus</div>
             <div class="card-body p-4">
-                <div asp-validation-summary="All" class="alert alert-danger py-2"></div>
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="alert alert-danger py-2 border-0"></div>
+                }
                 <form asp-area="BusCoordinator" asp-action="Create" method="post">
                     @Html.AntiForgeryToken()
                     <div class="mb-3"><label asp-for="BusName" class="form-label fw-semibold">Bus Name <span class="text-danger">*</span></label><input asp-for="BusName" class="form-control" /><span asp-validation-for="BusName" class="text-danger small"></span></div>
