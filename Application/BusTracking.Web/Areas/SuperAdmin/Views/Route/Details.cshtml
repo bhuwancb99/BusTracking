@@ -144,7 +144,7 @@
                 latitude:    parseFloat(document.getElementById('stopLat').value) || null,
                 longitude:   parseFloat(document.getElementById('stopLng').value) || null
             };
-            const result = await busTrack.post('/Route/AddStop', data);
+            const result = await busTrack.post('/SuperAdmin/Route/AddStop', data);
             if (result.success) {
                 busTrack.showToast('Stop added. Refreshing…', 'success');
                 setTimeout(() => location.reload(), 800);
@@ -157,7 +157,7 @@
             btn.addEventListener('click', async function () {
                 if (!confirm('Remove this stop?')) return;
                 const stopId = this.dataset.stopId;
-                const result = await busTrack.post(`/Route/DeleteStop?stopId=${stopId}`, {});
+                const result = await busTrack.post(`/SuperAdmin/Route/DeleteStop?stopId=${stopId}`, {});
                 if (result.success) {
                     document.getElementById(`stop-${stopId}`)?.remove();
                     busTrack.showToast('Stop removed.', 'success');
