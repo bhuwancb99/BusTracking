@@ -4,36 +4,6 @@
     ViewData["Title"] = "Add Parent";
 }
 
-@{
-    var created = TempData["CreatedUser"] as string;
-    BusTracking.Common.DTOs.User.CreatedUserResultDto? newUser = null;
-    if (!string.IsNullOrEmpty(created))
-        newUser = System.Text.Json.JsonSerializer.Deserialize<BusTracking.Common.DTOs.User.CreatedUserResultDto>(created);
-}
-
-@if (newUser is not null)
-{
-    <div class="alert alert-success border-0 shadow-sm mb-4">
-        <h6 class="fw-bold mb-3"><i class="bi bi-check-circle-fill me-2"></i>Parent Created Successfully</h6>
-        <div class="row g-2">
-            <div class="col-md-4"><div class="bg-white rounded p-3 border"><div class="text-muted small mb-1">Full Name</div><div class="fw-semibold">@newUser.FullName</div></div></div>
-            <div class="col-md-4"><div class="bg-white rounded p-3 border"><div class="text-muted small mb-1">Username (Email)</div><div class="fw-semibold">@newUser.Email</div></div></div>
-            <div class="col-md-4">
-                <div class="bg-white rounded p-3 border">
-                    <div class="text-muted small mb-1">Password</div>
-                    <div class="d-flex align-items-center gap-2">
-                        <span id="pwdDisplay" class="fw-semibold font-monospace">••••••••••••</span>
-                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="togglePwd()"><i class="bi bi-eye" id="pwdEye"></i></button>
-                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="copyPwd()"><i class="bi bi-clipboard"></i></button>
-                    </div>
-                    <input type="hidden" id="pwdValue" value="@newUser.PlainPassword" />
-                </div>
-            </div>
-        </div>
-        <p class="mt-2 mb-0 small text-muted"><i class="bi bi-exclamation-triangle me-1"></i>Save this password — it won't be shown again.</p>
-    </div>
-}
-
 <div class="row justify-content-center">
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm">
@@ -150,7 +120,5 @@
             document.getElementById(`chip-${id}`)?.remove();
             document.getElementById(`sinp-${id}`)?.remove();
         }
-        function togglePwd(){const el=document.getElementById('pwdDisplay');const val=document.getElementById('pwdValue').value;const ic=document.getElementById('pwdEye');if(el.textContent.includes('•')){el.textContent=val;ic.className='bi bi-eye-slash';}else{el.textContent='••••••••••••';ic.className='bi bi-eye';}}
-        function copyPwd(){navigator.clipboard.writeText(document.getElementById('pwdValue').value);busTrack.showToast('Password copied!','success');}
     </script>
 }

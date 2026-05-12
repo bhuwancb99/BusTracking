@@ -11,7 +11,7 @@
             return AllowedImageExtensions.Contains(ext) && fileSize <= MaxFileSizeBytes;
         }
 
-        public static string GetProfileImagePath(string? profileImageUrl, string defaultImage = "/images/default-avatar.png")
+        public static string GetProfileImagePath(string? profileImageUrl, string defaultImage = "/Images/avatar.svg")
             => string.IsNullOrEmpty(profileImageUrl) ? defaultImage : profileImageUrl;
     }
 }

@@ -3,6 +3,37 @@
     ViewData["Title"] = "Students";
 }
 
+@{
+    var created = TempData["CreatedUser"] as string;
+    BusTracking.Common.DTOs.User.CreatedUserResultDto? newUser = null;
+    if (!string.IsNullOrEmpty(created))
+        newUser = System.Text.Json.JsonSerializer.Deserialize<BusTracking.Common.DTOs.User.CreatedUserResultDto>(created);
+}
+
+@if (newUser is not null)
+{
+    <div class="alert alert-success border-0 shadow-sm mb-4">
+        @* <h6 class="fw-bold mb-3"><i class="bi bi-check-circle-fill me-2"></i>Student Created Successfully</h6> *@
+        <div class="row g-2">
+            <div class="col-md-4"><div class="bg-white rounded p-3 border"><div class="text-muted small mb-1">Full Name</div><div class="fw-semibold">@newUser.FullName</div></div></div>
+            <div class="col-md-4"><div class="bg-white rounded p-3 border"><div class="text-muted small mb-1">Role</div><div><span class="badge bg-info-subtle text-info">@newUser.Role</span></div></div></div>
+            <div class="col-md-4"><div class="bg-white rounded p-3 border"><div class="text-muted small mb-1">Username (Email)</div><div class="fw-semibold">@newUser.Email</div></div></div>
+            <div class="col-12">
+                <div class="bg-white rounded p-3 border">
+                    <div class="text-muted small mb-1">Password</div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span id="pwdDisplay" class="fw-semibold font-monospace">••••••••••••</span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="togglePwd()"><i class="bi bi-eye" id="pwdEye"></i></button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="copyPwd()"><i class="bi bi-clipboard"></i> Copy</button>
+                    </div>
+                    <input type="hidden" id="pwdValue" value="@newUser.PlainPassword" />
+                </div>
+            </div>
+        </div>
+        @* <p class="mt-2 mb-0 small text-muted"><i class="bi bi-exclamation-triangle me-1"></i>Save this password now — it won't be shown again.</p> *@
+    </div>
+}
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="fw-bold mb-0"><i class="bi bi-mortarboard me-2 text-info"></i>Students</h4>
     <a asp-area="SuperAdmin" asp-controller="Student" asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Add Student</a>
@@ -94,5 +125,7 @@
                 if (data.success) setTimeout(()=>location.reload(),700);
             });
         });
+        function togglePwd(){const el=document.getElementById('pwdDisplay');const val=document.getElementById('pwdValue').value;const ic=document.getElementById('pwdEye');if(el.textContent.includes('•')){el.textContent=val;ic.className='bi bi-eye-slash';}else{el.textContent='••••••••••••';ic.className='bi bi-eye';}}
+        function copyPwd(){navigator.clipboard.writeText(document.getElementById('pwdValue').value);busTrack.showToast('Password copied!','success');}
     </script>
 }

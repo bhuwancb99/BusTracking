@@ -4,6 +4,7 @@ using BusTracking.Common.Entities;
 using BusTracking.Common.Interfaces;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,6 +44,12 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+//var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "Images");
+//app.UseStaticFiles(new StaticFileOptions
+//{
+//    FileProvider = new PhysicalFileProvider(imagePath),
+//    RequestPath = "/Images"
+//});
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
