@@ -139,8 +139,9 @@ public class StudentController : Controller
 {
     private readonly IStudentService _student;
     private readonly IBusService _bus;
+    private readonly IRouteService _route;
     private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
-    public StudentController(IStudentService s, IBusService b) { _student = s; _bus = b; }
+    public StudentController(IStudentService s, IBusService b, IRouteService r) { _student = s; _bus = b; _route = r; }
 
     public async Task<IActionResult> Index(int page = 1, string? search = null, string? status = "Active")
     { ViewBag.Search = search; ViewBag.Status = status; return View(await _student.GetAllAsync(page, 10, search, status).D()); }
@@ -192,6 +193,10 @@ public class StudentController : Controller
     [HttpGet]
     public async Task<IActionResult> Search(string? q)
     { var r = await _student.SearchAsync(q); return Json(r.Data); }
+
+    [HttpGet]
+    public async Task<IActionResult> SearchStops(int busId)
+    { var r = await _route.GetStopsByBusAsync(busId); return Json(r.Data); }
 
     public async Task<IActionResult> Availability(int studentId)
     { var r = await _student.GetAvailabilitiesAsync(studentId); ViewBag.StudentId = studentId; return View(r.Data); }

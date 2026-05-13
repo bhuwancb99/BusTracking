@@ -32,6 +32,19 @@
                         <tr><th class="text-muted">Phone</th><td>@(Model.PhoneNumber ?? "–")</td></tr>
                         <tr><th class="text-muted">Created</th><td>@Model.CreatedAt.ToString("dd MMM yyyy")</td></tr>
                         <tr><th class="text-muted">Permissions</th><td><span class="badge bg-primary-subtle text-primary">@Model.Permissions.Count</span></td></tr>
+                        <!-- ── PASSWORD ROW ─────────────────────── -->
+                        <tr>
+                            <th class="text-muted">Password</th>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span id="pwdMask" class="font-monospace">••••••••••</span>
+                                    <span id="pwdReal" class="font-monospace d-none text-danger small">(Reset in Edit)</span>
+                                    <button type="button" class="btn btn-sm btn-link p-0 text-muted" id="btnTogglePwd">
+                                        <i class="bi bi-eye" id="pwdEyeIcon"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
                     </table>
                 </div>
             </div>
@@ -48,11 +61,9 @@
                     }
                     else
                     {
-                    
                         var grouped = Model.Permissions
                             .GroupBy(p => p.Split('.')[0])
                             .ToDictionary(g => g.Key, g => g.ToList());
-                    
                         <div class="row g-3">
                             @foreach (var (module, perms) in grouped)
                             {
@@ -72,4 +83,18 @@
             </div>
         </div>
     </div>
+}
+
+@section Scripts {
+    <script>
+        document.getElementById('btnTogglePwd').addEventListener('click', function() {
+            const mask = document.getElementById('pwdMask');
+            const real = document.getElementById('pwdReal');
+            const icon = document.getElementById('pwdEyeIcon');
+            const hidden = mask.classList.contains('d-none');
+            mask.classList.toggle('d-none', !hidden);
+            real.classList.toggle('d-none', hidden);
+            icon.className = hidden ? 'bi bi-eye-slash' : 'bi bi-eye';
+        });
+    </script>
 }
