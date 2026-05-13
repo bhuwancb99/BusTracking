@@ -28,6 +28,20 @@
                         <tr><th class="text-muted">Email</th><td>@Model.Email</td></tr>
                         <tr><th class="text-muted">Phone</th><td>@(Model.PhoneNumber ?? "–")</td></tr>
                         <tr><th class="text-muted">Children</th><td><span class="badge bg-secondary-subtle text-secondary">@Model.Students.Count</span></td></tr>
+                        <!-- ── PASSWORD ROW ─────────────────────── -->
+                        <tr>
+                            <th class="text-muted">Password</th>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span id="pwdMask" class="font-monospace">••••••••••</span>
+                                    <span id="pwdReal" class="font-monospace d-none text-danger small">(Reset in Edit)</span>
+                                    <button type="button" class="btn btn-sm btn-link p-0 text-muted" id="btnTogglePwd">
+                                        <i class="bi bi-eye" id="pwdEyeIcon"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+
                     </table>
                 </div>
             </div>
@@ -78,3 +92,19 @@
         </div>
     </div>
 }
+
+@section Scripts {
+    <script>
+        // ── Password toggle ───────────────────────────────────────────
+        document.getElementById('btnTogglePwd').addEventListener('click', function() {
+            const mask = document.getElementById('pwdMask');
+            const real = document.getElementById('pwdReal');
+            const icon = document.getElementById('pwdEyeIcon');
+            const hidden = mask.classList.contains('d-none');
+            mask.classList.toggle('d-none', !hidden);
+            real.classList.toggle('d-none', hidden);
+            icon.className = hidden ? 'bi bi-eye-slash' : 'bi bi-eye';
+        });
+    </script>
+}
+

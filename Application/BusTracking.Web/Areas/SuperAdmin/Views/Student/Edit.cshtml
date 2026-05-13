@@ -6,7 +6,9 @@
 <div class="row justify-content-center">
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-pencil me-2 text-warning"></i>Edit Student</div>
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+                <i class="bi bi-pencil me-2 text-warning"></i>Edit Student
+            </div>
             <div class="card-body p-4">
                 @if (!ViewData.ModelState.IsValid)
                 {
@@ -33,6 +35,7 @@
                             <label asp-for="Standard" class="form-label fw-semibold">Class / Standard</label>
                             <input asp-for="Standard" class="form-control" />
                         </div>
+
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Assign Bus</label>
                             <div class="position-relative">
@@ -45,28 +48,49 @@
                             <div id="busSelected" class="mt-1">
                                 @if (Model.BusId.HasValue)
                                 {
-                                    <span class="badge bg-primary-subtle text-primary"><i class="bi bi-bus-front me-1"></i>Bus ID: @Model.BusId</span>
+                                    <span class="badge bg-primary-subtle text-primary">
+                                        <i class="bi bi-bus-front me-1"></i>Bus ID: @Model.BusId
+                                    </span>
+                                    <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-2" onclick="clearBus()">
+                                        <i class="bi bi-x-circle me-1"></i>Remove
+                                    </button>
                                 }
                             </div>
-                            @if (Model.BusId.HasValue)
-                            {
-                                <button type="button" class="btn btn-sm btn-link text-danger p-0 mt-1" onclick="clearBus()"><i class="bi bi-x-circle me-1"></i>Remove</button>
-                            }
                         </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="StopId" class="form-label fw-semibold">Assign Stop</label>
+                            <select asp-for="StopId" id="stopSelect" class="form-select" disabled>
+                                <option value="">-- Select a bus first --</option>
+                                @if (Model.StopId.HasValue)
+                                {
+                                    <option value="@Model.StopId" selected>Current Stop (ID: @Model.StopId)</option>
+                                }
+                            </select>
+                            <small class="text-muted">Select a bus above to load its stops.</small>
+                        </div>
+
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Status</label>
                             <div class="d-flex gap-3 mt-1">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="IsActive" value="true" id="isActiveTrue" @(Model.IsActive ? "checked" : "") />
-                                    <label class="form-check-label text-success fw-semibold" for="isActiveTrue"><i class="bi bi-check-circle me-1"></i>Active</label>
+                                    <input class="form-check-input" type="radio" name="IsActive" value="true"
+                                           id="isActiveTrue" @(Model.IsActive ? "checked" : "") />
+                                    <label class="form-check-label text-success fw-semibold" for="isActiveTrue">
+                                        <i class="bi bi-check-circle me-1"></i>Active
+                                    </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="IsActive" value="false" id="isActiveFalse" @(!Model.IsActive ? "checked" : "") />
-                                    <label class="form-check-label text-danger fw-semibold" for="isActiveFalse"><i class="bi bi-x-circle me-1"></i>Inactive</label>
+                                    <input class="form-check-input" type="radio" name="IsActive" value="false"
+                                           id="isActiveFalse" @(!Model.IsActive ? "checked" : "") />
+                                    <label class="form-check-label text-danger fw-semibold" for="isActiveFalse">
+                                        <i class="bi bi-x-circle me-1"></i>Inactive
+                                    </label>
                                 </div>
                             </div>
                         </div>
                     </div>
+
                     <div class="d-flex gap-2 mt-4">
                         <button type="submit" class="btn btn-warning px-4"><i class="bi bi-check2 me-1"></i>Update Student</button>
                         <a asp-area="SuperAdmin" asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
@@ -80,15 +104,83 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        const vs=document.getElementById('valSummary');
-        if(vs&&vs.querySelector('li,span:not(:empty)'))vs.style.display='';
-        document.getElementById('editForm').addEventListener('submit',()=>{if(vs)vs.style.display='';});
-        let t;
-        document.getElementById('busSearch').addEventListener('input',function(){clearTimeout(t);const q=this.value.trim();if(q.length<1){hideSug();return;}t=setTimeout(()=>fetchBuses(q),250);});
-        document.addEventListener('click',e=>{if(!e.target.closest('#busSearch,#busSuggestions'))hideSug();});
-        async function fetchBuses(q){const res=await fetch(`/SuperAdmin/Student/SearchBuses?q=${encodeURIComponent(q)}`);const data=await res.json();const box=document.getElementById('busSuggestions');box.innerHTML='';data.forEach(b=>{const a=document.createElement('a');a.className='dropdown-item';a.href='#';a.textContent=b.display;a.addEventListener('click',e=>{e.preventDefault();selectBus(b);});box.appendChild(a);});if(data.length)box.classList.add('show');}
-        function selectBus(b){document.getElementById('busIdInput').value=b.busId;document.getElementById('busSearch').value=b.display;document.getElementById('busSelected').innerHTML=`<span class="badge bg-primary-subtle text-primary"><i class="bi bi-bus-front me-1"></i>${b.display}</span>`;hideSug();}
-        function hideSug(){document.getElementById('busSuggestions').classList.remove('show');}
-        function clearBus(){document.getElementById('busIdInput').value='';document.getElementById('busSearch').value='';document.getElementById('busSelected').innerHTML='<span class="text-muted small">No bus</span>';}
+        // ── Bus autocomplete ─────────────────────────────
+        let busTimer;
+        const currentBusId = @(Model?.BusId?.ToString() ?? "null");
+        const currentStopId = @(Model?.StopId?.ToString() ?? "null");
+
+        document.getElementById('busSearch').addEventListener('input', function () {
+            clearTimeout(busTimer);
+            const q = this.value.trim();
+            if (q.length < 1) { hideBusSug(); return; }
+            busTimer = setTimeout(() => fetchBuses(q), 250);
+        });
+        document.addEventListener('click', e => {
+            if (!e.target.closest('#busSearch,#busSuggestions')) hideBusSug();
+        });
+        async function fetchBuses(q) {
+            const data = await (await fetch(`/SuperAdmin/Student/SearchBuses?q=${encodeURIComponent(q)}`)).json();
+            const box  = document.getElementById('busSuggestions');
+            box.innerHTML = '';
+            data.forEach(b => {
+                const a = document.createElement('a');
+                a.className = 'dropdown-item'; a.href = '#'; a.textContent = b.display;
+                a.addEventListener('click', e => {
+                    e.preventDefault();
+                    document.getElementById('busIdInput').value = b.busId;
+                    document.getElementById('busSearch').value  = b.display;
+                    document.getElementById('busSelected').innerHTML =
+                        `<span class="badge bg-primary-subtle text-primary"><i class="bi bi-bus-front me-1"></i>${b.display}</span>
+                         <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-2" onclick="clearBus()"><i class="bi bi-x-circle me-1"></i>Remove</button>`;
+                    hideBusSug();
+                    loadStops(b.busId);
+                });
+                box.appendChild(a);
+            });
+            if (data.length) box.classList.add('show');
+        }
+        function hideBusSug() { document.getElementById('busSuggestions').classList.remove('show'); }
+        function clearBus() {
+            document.getElementById('busIdInput').value = '';
+            document.getElementById('busSearch').value  = '';
+            document.getElementById('busSelected').innerHTML = '';
+            // Reset stop dropdown
+            const sel = document.getElementById('stopSelect');
+            sel.innerHTML = '<option value="">-- Select a bus first --</option>';
+            sel.disabled  = true;
+            document.querySelector('input[name="StopId"]')?.setAttribute('value', '');
+        }
+
+        // ── Stop dropdown loader ─────────────────────────
+        async function loadStops(busId) {
+            const sel = document.getElementById('stopSelect');
+            sel.innerHTML = '<option value="">-- Loading stops… --</option>';
+            sel.disabled  = false;
+            try {
+                const data = await (await fetch(`/SuperAdmin/Student/SearchStops?busId=${busId}`)).json();
+                sel.innerHTML = '<option value="">-- Select a stop (optional) --</option>';
+                if (!data.length) {
+                    sel.innerHTML = '<option value="">No stops on this route</option>';
+                    sel.disabled  = true;
+                    return;
+                }
+                data.forEach(s => {
+                    const opt  = document.createElement('option');
+                    opt.value  = s.stopId;
+                    opt.textContent = `${s.stopName}  (Stop #${s.stopOrder})`;
+                    sel.appendChild(opt);
+                });
+                // Pre-select current stop
+                if (currentStopId) sel.value = currentStopId;
+            } catch {
+                sel.innerHTML = '<option value="">Error loading stops</option>';
+            }
+        }
+
+        // On page load — if bus already assigned, load its stops
+        if (currentBusId) {
+            document.getElementById('stopSelect').disabled = false;
+            loadStops(currentBusId);
+        }
     </script>
 }
