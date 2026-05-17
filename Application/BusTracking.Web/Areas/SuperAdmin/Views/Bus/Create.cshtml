@@ -1,13 +1,15 @@
 @* ── Bus/Create ──────────────────────────────────────────── *@
 @model BusTracking.Common.DTOs.Bus.CreateBusDto
 @{
-    ViewData["Title"] = "Add Bus"; ViewData["Breadcrumb"] = "Buses / Add";
+    ViewData["Title"] = "Add Bus";
 }
 
 <div class="row justify-content-center">
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-bus-front me-2 text-primary"></i>Add New Bus</div>
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+                <i class="bi bi-bus-front me-2 text-primary"></i>Add New Bus
+            </div>
             <div class="card-body p-4">
                 @if (!ViewData.ModelState.IsValid)
                 {
@@ -16,32 +18,67 @@
                 <form asp-area="SuperAdmin" asp-action="Create" method="post" id="createForm">
                     @Html.AntiForgeryToken()
                     <div class="row g-3">
+
                         <div class="col-md-6">
                             <label asp-for="BusName" class="form-label fw-semibold">Bus Name <span class="text-danger">*</span></label>
                             <input asp-for="BusName" class="form-control" placeholder="e.g. Red Falcon" />
                             <span asp-validation-for="BusName" class="text-danger small"></span>
                         </div>
+
                         <div class="col-md-6">
                             <label asp-for="BusNumber" class="form-label fw-semibold">Bus Number / Plate <span class="text-danger">*</span></label>
                             <input asp-for="BusNumber" class="form-control" placeholder="e.g. MH-01-AB-1234" />
                             <span asp-validation-for="BusNumber" class="text-danger small"></span>
                         </div>
+
                         <div class="col-md-6">
                             <label asp-for="Capacity" class="form-label fw-semibold">Capacity (seats)</label>
                             <input asp-for="Capacity" type="number" min="1" class="form-control" placeholder="e.g. 40" />
                         </div>
+
+                        <!-- ── Route dropdown (required for stop assignment) ── -->
+                        <div class="col-md-6">
+                            <label asp-for="RouteId" class="form-label fw-semibold">
+                                Assign Route <span class="text-danger">*</span>
+                                <small class="text-muted fw-normal ms-1">(required for stop assignment)</small>
+                            </label>
+                            <select asp-for="RouteId" class="form-select" id="routeSelect"
+                                    asp-items="@(ViewBag.Routes as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])">
+                                <option value="">-- Select a Route --</option>
+                            </select>
+                            <span asp-validation-for="RouteId" class="text-danger small"></span>
+                            <div id="routeStopsPreview" class="mt-2 d-none">
+                                <small class="text-muted">
+                                    <i class="bi bi-info-circle me-1"></i>
+                                    Route selected — students can be assigned to stops on this route.
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- ── Driver autocomplete ── -->
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Assign Driver (optional)</label>
                             <div class="position-relative">
-                                <input type="text" id="driverSearch" class="form-control" placeholder="Type driver name…" autocomplete="off" />
+                                <input type="text" id="driverSearch" class="form-control"
+                                       placeholder="Type driver name…" autocomplete="off" />
                                 <input type="hidden" asp-for="DriverUserId" id="driverIdInput" />
                                 <div id="driverSuggestions" class="dropdown-menu w-100 shadow-sm"></div>
                             </div>
                             <div id="driverSelected" class="mt-1 small text-muted"></div>
                         </div>
+
                     </div>
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check2 me-1"></i>Save Bus</button>
+
+                    <div class="alert alert-info border-0 py-2 mt-3 small">
+                        <i class="bi bi-lightbulb me-1"></i>
+                        <strong>Important:</strong> Assigning a Route to the bus enables stop selection when
+                        assigning students to this bus.
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check2 me-1"></i>Save Bus
+                        </button>
                         <a asp-area="SuperAdmin" asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
                     </div>
                 </form>
@@ -53,32 +90,44 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        const vs=document.getElementById('valSummary');
-        if(vs&&vs.querySelector('li,span:not(:empty)'))vs.style.display='';
-        document.getElementById('createForm').addEventListener('submit',()=>{if(vs)vs.style.display='';});
-        let t;
-        document.getElementById('driverSearch').addEventListener('input',function(){
-            clearTimeout(t);const q=this.value.trim();
-            if(q.length<1){hideSug();return;}
-            t=setTimeout(()=>fetchDrivers(q),250);
+        // Show route selected hint
+        document.getElementById('routeSelect').addEventListener('change', function () {
+            const preview = document.getElementById('routeStopsPreview');
+            preview.classList.toggle('d-none', !this.value);
         });
-        document.addEventListener('click',e=>{if(!e.target.closest('#driverSearch,#driverSuggestions'))hideSug();});
-        async function fetchDrivers(q){
-            const res=await fetch(`/SuperAdmin/Bus/SearchDrivers?q=${encodeURIComponent(q)}`);
-            const data=await res.json();
-            const box=document.getElementById('driverSuggestions');
-            box.innerHTML='';
-            data.forEach(d=>{const a=document.createElement('a');a.className='dropdown-item';a.href='#';a.textContent=d.display;
-                a.addEventListener('click',e=>{e.preventDefault();selectDriver(d);});box.appendChild(a);});
-            if(data.length)box.classList.add('show');
+
+        // Driver autocomplete
+        let t;
+        document.getElementById('driverSearch').addEventListener('input', function () {
+            clearTimeout(t); const q = this.value.trim();
+            if (q.length < 1) { hideSug(); return; }
+            t = setTimeout(() => fetchDrivers(q), 250);
+        });
+        document.addEventListener('click', e => {
+            if (!e.target.closest('#driverSearch,#driverSuggestions')) hideSug();
+        });
+        async function fetchDrivers(q) {
+            const data = await (await fetch(`/SuperAdmin/Bus/SearchDrivers?q=${encodeURIComponent(q)}`)).json();
+            const box  = document.getElementById('driverSuggestions');
+            box.innerHTML = '';
+            data.forEach(d => {
+                const a = document.createElement('a');
+                a.className = 'dropdown-item'; a.href = '#'; a.textContent = d.display;
+                a.addEventListener('click', e => { e.preventDefault(); selectDriver(d); });
+                box.appendChild(a);
+            });
+            if (data.length) box.classList.add('show');
         }
-        function selectDriver(d){
-            document.getElementById('driverIdInput').value=d.userId;
-            document.getElementById('driverSearch').value=d.display;
-            document.getElementById('driverSelected').innerHTML=`<span class="badge bg-success-subtle text-success"><i class="bi bi-person-video2 me-1"></i>${d.display}</span>`;
+        function selectDriver(d) {
+            document.getElementById('driverIdInput').value = d.userId;
+            document.getElementById('driverSearch').value  = d.display;
+            document.getElementById('driverSelected').innerHTML =
+                `<span class="badge bg-success-subtle text-success">
+                     <i class="bi bi-person-video2 me-1"></i>${d.display}
+                 </span>`;
             hideSug();
         }
-        function hideSug(){document.getElementById('driverSuggestions').classList.remove('show');}
+        function hideSug() { document.getElementById('driverSuggestions').classList.remove('show'); }
     </script>
 }
 

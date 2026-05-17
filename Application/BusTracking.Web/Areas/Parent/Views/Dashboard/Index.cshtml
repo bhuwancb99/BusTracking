@@ -1,37 +1,223 @@
-@* Parent/Dashboard/Index.cshtml *@
+@using System.Security.Claims
 @{
     ViewData["Title"] = "Parent Dashboard";
+    var userName = User.FindFirstValue(ClaimTypes.Name) ?? "Parent";
+    var firstName = userName.Split(' ').FirstOrDefault() ?? "Parent";
 }
-<div class="mb-4">
-    <h4 class="fw-bold mb-0">Welcome, @User.Identity?.Name?.Split(' ').FirstOrDefault()</h4>
-    <p class="text-muted small">@DateTime.Now.ToString("dddd, dd MMMM yyyy")</p>
-</div>
-<div class="row g-3">
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100 text-center p-4">
-            <i class="bi bi-geo-alt-fill text-danger fs-1 mb-3"></i>
-            <h6 class="fw-semibold">Track Bus</h6>
-            <p class="text-muted small">See where your child's bus is right now.</p>
-            <a asp-area="Parent" asp-controller="Tracking" asp-action="Track" asp-route-tripId="0"
-               class="btn btn-danger btn-sm mt-auto">Open Map</a>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100 text-center p-4">
-            <i class="bi bi-calendar-check-fill text-info fs-1 mb-3"></i>
-            <h6 class="fw-semibold">Manage Availability</h6>
-            <p class="text-muted small">Mark leave, holiday or parent pickup days.</p>
-            <a asp-area="Parent" asp-controller="Home" asp-action="Availability" asp-route-studentId="0"
-               class="btn btn-info btn-sm mt-auto text-white">Manage</a>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100 text-center p-4">
-            <i class="bi bi-headset text-secondary fs-1 mb-3"></i>
-            <h6 class="fw-semibold">Help & Support</h6>
-            <p class="text-muted small">Submit an inquiry or complaint.</p>
-            <a asp-area="Parent" asp-controller="Feedback" asp-action="Submit"
-               class="btn btn-outline-secondary btn-sm mt-auto">Contact Us</a>
-        </div>
+
+<!-- Welcome header -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-0">Welcome back, @firstName 👋</h4>
+        <p class="text-muted small mb-0">@DateTime.Now.ToString("dddd, dd MMMM yyyy")</p>
     </div>
 </div>
+
+<!-- Quick action cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center p-4">
+                <div class="rounded-circle bg-danger-subtle d-inline-flex align-items-center
+                    justify-content-center mb-3" style="width:56px;height:56px">
+                    <i class="bi bi-geo-alt-fill text-danger fs-4"></i>
+                </div>
+                <h6 class="fw-semibold mb-1">Track Bus</h6>
+                <p class="text-muted small mb-3">See where your child's bus is right now.</p>
+                <a asp-area="Parent" asp-controller="Tracking" asp-action="Track"
+                   asp-route-tripId="0" class="btn btn-danger btn-sm px-4">
+                    <i class="bi bi-map me-1"></i>Open Map
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center p-4">
+                <div class="rounded-circle bg-info-subtle d-inline-flex align-items-center
+                    justify-content-center mb-3" style="width:56px;height:56px">
+                    <i class="bi bi-calendar-check-fill text-info fs-4"></i>
+                </div>
+                <h6 class="fw-semibold mb-1">Manage Availability</h6>
+                <p class="text-muted small mb-3">Mark leave, holiday or parent pickup days.</p>
+                <a asp-area="Parent" asp-controller="Home" asp-action="Availability"
+                   asp-route-studentId="0" class="btn btn-info btn-sm px-4 text-white">
+                    <i class="bi bi-calendar-plus me-1"></i>Manage
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body text-center p-4">
+                <div class="rounded-circle bg-secondary-subtle d-inline-flex align-items-center
+                    justify-content-center mb-3" style="width:56px;height:56px">
+                    <i class="bi bi-headset text-secondary fs-4"></i>
+                </div>
+                <h6 class="fw-semibold mb-1">Help & Support</h6>
+                <p class="text-muted small mb-3">Have a question or concern? Contact us.</p>
+                <a asp-area="Parent" asp-controller="Feedback" asp-action="Submit"
+                   class="btn btn-outline-secondary btn-sm px-4">
+                    <i class="bi bi-send me-1"></i>Contact Us
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     CHANGE 4: Children card section
+     Fetched via AJAX from /api/parent/children
+     Displayed as Bootstrap cards with name, code, bus, stop
+     ═══════════════════════════════════════════════════════════ -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+        <span class="fw-semibold"><i class="bi bi-mortarboard me-2 text-info"></i>My Children</span>
+        <span class="badge bg-info-subtle text-info" id="childrenCount">Loading…</span>
+    </div>
+    <div class="card-body p-4">
+        <div id="childrenCards" class="row g-3">
+            <!-- Skeleton loaders -->
+            @for (int s = 0; s < 2; s++)
+            {
+                <div class="col-md-6 col-xl-4 skeleton-card">
+                    <div class="card border-0 bg-light h-100">
+                        <div class="card-body p-4">
+                            <div class="placeholder-glow">
+                                <span class="placeholder col-6 mb-2 d-block"></span>
+                                <span class="placeholder col-4 mb-3 d-block"></span>
+                                <span class="placeholder col-8 mb-1 d-block"></span>
+                                <span class="placeholder col-5 d-block"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div id="noChildrenMsg" class="text-center text-muted py-4 d-none">
+            <i class="bi bi-mortarboard fs-1 d-block mb-2"></i>
+            No children linked to your account yet.<br />
+            <small>Please contact the school administrator.</small>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // CHANGE 4 — load children cards on page load
+        (async function loadChildren() {
+            try {
+                const res  = await fetch('/Parent/Home/MyChildren');
+                const data = await res.json();
+
+                // Remove skeletons
+                document.querySelectorAll('.skeleton-card').forEach(el => el.remove());
+
+                const container = document.getElementById('childrenCards');
+                const noMsg     = document.getElementById('noChildrenMsg');
+                const badge     = document.getElementById('childrenCount');
+
+                if (!data || data.length === 0) {
+                    noMsg.classList.remove('d-none');
+                    badge.textContent = '0';
+                    return;
+                }
+
+                badge.textContent = data.length + (data.length === 1 ? ' child' : ' children');
+
+                data.forEach(child => {
+                    const busHtml = child.busNumber
+                        ? `<span class="badge bg-primary-subtle text-primary me-1">
+                               <i class="bi bi-bus-front me-1"></i>${child.busNumber}
+                           </span>`
+                        : `<span class="text-muted small">No bus assigned</span>`;
+
+                    const stopHtml = child.stopName
+                        ? `<span class="badge bg-secondary-subtle text-secondary">
+                               <i class="bi bi-geo-alt me-1"></i>${child.stopName}
+                           </span>`
+                        : '';
+
+                    const statusCss = child.isActive
+                        ? 'bg-success-subtle text-success'
+                        : 'bg-danger-subtle text-danger';
+
+                    const initials = child.fullName
+                        .split(' ').filter(Boolean)
+                        .map(p => p[0]).slice(0,2).join('').toUpperCase();
+
+                    const card = document.createElement('div');
+                    card.className = 'col-md-6 col-xl-4';
+                    card.innerHTML = `
+        <div class="card border-0 shadow-sm h-100 child-card">
+            <div class="card-body p-4">
+                <!-- Avatar + name -->
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <div class="rounded-circle bg-info-subtle text-info d-flex align-items-center
+                                justify-content-center fw-bold"
+                         style="width:48px;height:48px;font-size:1.1rem;flex-shrink:0">
+                        ${initials}
+                    </div>
+                    <div>
+                        <div class="fw-bold">${child.fullName}</div>
+                        <code class="small text-muted">${child.studentCode}</code>
+                    </div>
+                    <span class="badge ${statusCss} ms-auto">
+                        ${child.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                </div>
+
+                <!-- Details grid -->
+                <div class="small">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-book text-muted" style="width:16px"></i>
+                        <span class="text-muted">Class:</span>
+                        <span class="fw-semibold">${child.standard || '–'}</span>
+                    </div>
+                    <div class="d-flex align-items-start gap-2 mb-2">
+                        <i class="bi bi-bus-front text-muted mt-1" style="width:16px"></i>
+                        <span class="text-muted">Bus:</span>
+                        <div>${busHtml}</div>
+                    </div>
+                    ${child.stopName ? `
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-geo-alt text-muted" style="width:16px"></i>
+                        <span class="text-muted">Stop:</span>
+                        <div>${stopHtml}</div>
+                    </div>` : ''}
+                </div>
+            </div>
+            <!-- Card footer actions -->
+            <div class="card-footer bg-transparent border-top-0 pt-0 pb-3 px-4 d-flex gap-2">
+                <a href="/Parent/Tracking/Track?tripId=0"
+                   class="btn btn-sm btn-outline-danger flex-grow-1">
+                    <i class="bi bi-geo-alt me-1"></i>Track
+                </a>
+                <a href="/Parent/Home/Availability?studentId=${child.studentId}"
+                   class="btn btn-sm btn-outline-info flex-grow-1">
+                    <i class="bi bi-calendar-check me-1"></i>Leave
+                </a>
+            </div>
+        </div>`;
+                    container.appendChild(card);
+                });
+            } catch (err) {
+                document.querySelectorAll('.skeleton-card').forEach(el => el.remove());
+                document.getElementById('noChildrenMsg').classList.remove('d-none');
+                document.getElementById('childrenCount').textContent = 'Error';
+                console.error('Failed to load children:', err);
+            }
+        })();
+    </script>
+
+    <style>
+        .child-card {
+            transition: transform .15s, box-shadow .15s;
+        }
+
+            .child-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.1) !important;
+            }
+    </style>
+}

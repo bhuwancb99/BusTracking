@@ -1,0 +1,124 @@
+﻿@model BusTracking.Common.DTOs.Common.PagedResult<BusTracking.Common.DTOs.Driver.DriverListDto>
+@{
+    ViewData["Title"] = "Drivers";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-person-video2 me-2 text-success"></i>Drivers</h4>
+    <a asp-area="BusCoordinator" asp-controller="Driver" asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i>Add Driver
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body py-2 px-4 d-flex align-items-center gap-4 flex-wrap">
+        <span class="fw-semibold small text-muted">Filter:</span>
+        <form asp-area="BusCoordinator" asp-action="Index" method="get"
+              class="d-flex align-items-center gap-3 flex-wrap flex-grow-1">
+            <div class="d-flex gap-3">
+                @foreach (var s in new[] { ("Active", "Active"), ("Inactive", "Inactive"), ("", "Both") })
+                {
+                    <div class="form-check mb-0">
+                        <input class="form-check-input" type="radio" name="status"
+                               value="@s.Item1" id="st_@s.Item1"
+                        @((ViewBag.Status as string) == s.Item1 ? "checked" : "")
+                               onchange="this.form.submit()" />
+                        <label class="form-check-label small" for="st_@s.Item1">@s.Item2</label>
+                    </div>
+                }
+            </div>
+            <input type="text" name="search" value="@ViewBag.Search"
+                   class="form-control form-control-sm ms-auto" style="max-width:260px"
+                   placeholder="Search name or email…" />
+            <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-search"></i></button>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-3">#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Bus</th>
+                        <th>License</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model?.Items.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                <i class="bi bi-person-slash fs-1 d-block mb-2"></i>No drivers found.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var (d, i) in (Model?.Items ?? []).Select((x, i) => (x, i + 1 + (Model!.PageNumber - 1) * Model.PageSize)))
+                    {
+                        <tr>
+                            <td class="ps-3 text-muted small">@i</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="avatar-sm bg-success-subtle text-success">@d.FullName.ToInitials()</div>
+                                    <span class="fw-semibold">@d.FullName</span>
+                                </div>
+                            </td>
+                            <td class="text-muted small">@d.Email</td>
+                            <td class="small">@(d.PhoneNumber ?? "–")</td>
+                            <td>
+                                @if (d.BusName is not null)
+                                {
+                                    <span class="badge bg-primary-subtle text-primary">@d.BusNumber</span>
+                                }
+                                else
+                                {
+
+                                    <span class="text-muted small">–</span>
+                                }
+                            </td>
+                            <td class="small">@(d.LicenseNumber ?? "–")</td>
+                            <td>
+                                <span class="badge @(d.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">
+                                    @(d.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </td>
+                            <td class="text-end pe-3">
+                                <a asp-area="BusCoordinator" asp-action="Details" asp-route-id="@d.UserId"
+                                   class="btn btn-sm btn-outline-info me-1"><i class="bi bi-eye"></i></a>
+                                <a asp-area="BusCoordinator" asp-action="Edit" asp-route-id="@d.UserId"
+                                   class="btn btn-sm btn-outline-warning me-1"><i class="bi bi-pencil"></i></a>
+                                <button class="btn btn-sm @(d.IsActive ? "btn-outline-secondary" : "btn-outline-success") btn-toggle"
+                                        data-id="@d.UserId" data-url="/BusCoordinator/Driver/Toggle">
+                                    <i class="bi @(d.IsActive ? "bi-toggle-on" : "bi-toggle-off")"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="px-4 py-2"><partial name="_Pagination" model="Model" /></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.btn-toggle').forEach(btn=>{
+            btn.addEventListener('click',async function(){
+                const token=document.querySelector('input[name="__RequestVerificationToken"]')?.value||'';
+                const res=await fetch(`${this.dataset.url}?id=${this.dataset.id}`,
+                    {method:'POST',headers:{'RequestVerificationToken':token}});
+                const data=await res.json();
+                busTrack.showToast(data.message,data.success?'success':'danger');
+                if(data.success)setTimeout(()=>location.reload(),700);
+            });
+        });
+    </script>
+}

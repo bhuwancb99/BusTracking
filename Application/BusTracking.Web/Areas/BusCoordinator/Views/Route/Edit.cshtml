@@ -1,0 +1,52 @@
+@* ── Route/Edit.cshtml ──────────────────────────────────────────────── *@
+@model BusTracking.Common.DTOs.Route.UpdateRouteDto
+@{
+    ViewData["Title"] = "Edit Route"; ViewData["Breadcrumb"] = "Routes / Edit";
+}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-pencil me-2 text-warning"></i>Edit Route</div>
+            <div class="card-body p-4">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="alert alert-danger py-2 border-0"></div>
+                }
+                <form asp-action="Edit" asp-route-id="@ViewBag.RouteId" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label asp-for="RouteName" class="form-label fw-semibold">Route Name <span class="text-danger">*</span></label>
+                            <input asp-for="RouteName" class="form-control" />
+                            <span asp-validation-for="RouteName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4">
+                            <label asp-for="RouteCode" class="form-label fw-semibold">Route Code <span class="text-danger">*</span></label>
+                            <input asp-for="RouteCode" class="form-control" />
+                            <span asp-validation-for="RouteCode" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="MorningTime" class="form-label fw-semibold">Morning Departure</label>
+                            <input asp-for="MorningTime" type="time" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="EveningTime" class="form-label fw-semibold">Evening Departure</label>
+                            <input asp-for="EveningTime" type="time" class="form-control" />
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-warning px-4">Update Route</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

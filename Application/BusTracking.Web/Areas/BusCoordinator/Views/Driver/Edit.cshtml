@@ -1,0 +1,133 @@
+@* ── Driver/Edit.cshtml ──────────────────────────────────── *@
+@model BusTracking.Common.DTOs.Driver.UpdateDriverDto
+@{
+    ViewData["Title"] = "Edit Driver";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+                <i class="bi bi-pencil me-2 text-warning"></i>Edit Driver
+            </div>
+            <div class="card-body p-4">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="alert alert-danger py-2 border-0"></div>
+                }
+                <form asp-area="BusCoordinator" asp-action="Edit" asp-route-id="@ViewBag.DriverId" method="post" id="editForm">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                            <input asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number</label>
+                            <input asp-for="PhoneNumber" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LicenseNumber" class="form-label fw-semibold">License Number</label>
+                            <input asp-for="LicenseNumber" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LicenseExpiry" class="form-label fw-semibold">License Expiry</label>
+                            <input asp-for="LicenseExpiry" type="date" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Assign Bus</label>
+                            <div class="position-relative">
+                                <input type="text" id="busSearch" class="form-control" placeholder="Type bus name or number…" autocomplete="off"
+                                       value="@(Model.BusId.HasValue ? $"Bus ID: {Model.BusId}" : "")" />
+                                <input type="hidden" asp-for="BusId" id="busIdInput" />
+                                <div id="busSuggestions" class="dropdown-menu w-100 shadow-sm"></div>
+                            </div>
+                            <div id="busSelected" class="mt-1">
+                                @if (Model.BusId.HasValue)
+                                {
+                                    <span class="badge bg-primary-subtle text-primary"><i class="bi bi-bus-front me-1"></i>Bus assigned (ID: @Model.BusId)</span>
+                                }
+                            </div>
+                            @if (Model.BusId.HasValue)
+                            {
+                                <button type="button" class="btn btn-sm btn-link text-danger p-0 mt-1" onclick="clearBus()">
+                                    <i class="bi bi-x-circle me-1"></i>Remove bus assignment
+                                </button>
+                            }
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Status</label>
+                            <div class="d-flex gap-3 mt-1">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="IsActive" value="true" id="isActiveTrue"
+                                    @(Model.IsActive ? "checked" : "") />
+                                    <label class="form-check-label text-success fw-semibold" for="isActiveTrue">
+                                        <i class="bi bi-check-circle me-1"></i>Active
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="IsActive" value="false" id="isActiveFalse"
+                                    @(!Model.IsActive ? "checked" : "") />
+                                    <label class="form-check-label text-danger fw-semibold" for="isActiveFalse">
+                                        <i class="bi bi-x-circle me-1"></i>Inactive
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-warning px-4"><i class="bi bi-check2 me-1"></i>Update Driver</button>
+                        <a asp-area="BusCoordinator" asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const vs = document.getElementById('valSummary');
+        if (vs && vs.querySelector('li,span:not(:empty)')) vs.style.display='';
+        document.getElementById('editForm').addEventListener('submit',()=>{ if(vs) vs.style.display=''; });
+
+        let t;
+        document.getElementById('busSearch').addEventListener('input', function() {
+            clearTimeout(t);
+            const q = this.value.trim();
+            if (q.length < 1) { hideSug(); return; }
+            t = setTimeout(() => fetchBuses(q), 250);
+        });
+        document.addEventListener('click', e => { if (!e.target.closest('#busSearch,#busSuggestions')) hideSug(); });
+
+        async function fetchBuses(q) {
+            const res  = await fetch(`/BusCoordinator/Driver/SearchBuses?q=${encodeURIComponent(q)}`);
+            const data = await res.json();
+            const box  = document.getElementById('busSuggestions');
+            box.innerHTML = '';
+            if (!data.length) { hideSug(); return; }
+            data.forEach(b => {
+                const item = document.createElement('a');
+                item.className = 'dropdown-item'; item.href='#';
+                item.textContent = b.display;
+                item.addEventListener('click', e => { e.preventDefault(); selectBus(b); });
+                box.appendChild(item);
+            });
+            box.classList.add('show');
+        }
+        function selectBus(b) {
+            document.getElementById('busIdInput').value = b.busId;
+            document.getElementById('busSearch').value  = b.display;
+            document.getElementById('busSelected').innerHTML = `<span class="badge bg-primary-subtle text-primary"><i class="bi bi-bus-front me-1"></i>${b.display}</span>`;
+            hideSug();
+        }
+        function hideSug() { document.getElementById('busSuggestions').classList.remove('show'); }
+        function clearBus() {
+            document.getElementById('busIdInput').value = '';
+            document.getElementById('busSearch').value  = '';
+            document.getElementById('busSelected').innerHTML = '<span class="text-muted small">No bus assigned</span>';
+        }
+    </script>
+}

@@ -1,0 +1,132 @@
+@model BusTracking.Common.DTOs.Parent.UpdateParentDto
+@{
+    ViewData["Title"] = "Edit Parent";
+}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-pencil me-2 text-warning"></i>Edit Parent</div>
+            <div class="card-body p-4">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="alert alert-danger py-2 border-0"></div>
+                }
+                <form asp-area="BusCoordinator" asp-action="Edit" asp-route-id="@ViewBag.ParentId" method="post" id="editForm">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                            <input asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number</label>
+                            <input asp-for="PhoneNumber" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Status</label>
+                            <div class="d-flex gap-3 mt-1">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="IsActive" value="true" id="isActiveTrue" @(Model.IsActive ? "checked" : "") />
+                                    <label class="form-check-label text-success fw-semibold" for="isActiveTrue"><i class="bi bi-check-circle me-1"></i>Active</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="IsActive" value="false" id="isActiveFalse" @(!Model.IsActive ? "checked" : "") />
+                                    <label class="form-check-label text-danger fw-semibold" for="isActiveFalse"><i class="bi bi-x-circle me-1"></i>Inactive</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+                    <div class="fw-semibold mb-1">Linked Students</div>
+                    <p class="text-muted small mb-2">Current students are pre-selected. Search to add more or remove existing ones.</p>
+
+                    <!-- Search box -->
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <input type="text" id="studentSearch" class="form-control" placeholder="Type student name or code…" autocomplete="off" />
+                            <span class="input-group-text bg-light"><i class="bi bi-search text-muted"></i></span>
+                        </div>
+                        <div id="studentSuggestions" class="dropdown-menu w-100 shadow-sm"></div>
+                    </div>
+
+                    <!-- Selected student chips -->
+                    <div id="selectedStudents" class="d-flex flex-wrap gap-2 mb-3">
+                        @foreach (var code in Model.StudentCodes)
+                        {
+                            <span class="badge bg-info-subtle text-info px-3 py-2 d-flex align-items-center gap-2 chip-student" data-code="@code">
+                                <i class="bi bi-mortarboard"></i>
+                                <span>@code</span>
+                                <button type="button" class="btn btn-sm p-0 ms-1 text-danger" onclick="removeStudent(this)">
+                                    <i class="bi bi-x-circle"></i>
+                                </button>
+                                <input type="hidden" name="StudentCodes" value="@code" />
+                            </span>
+                        }
+                    </div>
+                    <div id="studentInputs"></div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-warning px-4"><i class="bi bi-check2 me-1"></i>Update Parent</button>
+                        <a asp-area="BusCoordinator" asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const vs=document.getElementById('valSummary');
+        if(vs&&vs.querySelector('li,span:not(:empty)'))vs.style.display='';
+        document.getElementById('editForm').addEventListener('submit',()=>{if(vs)vs.style.display='';});
+
+        // Track existing codes
+        const existingCodes = new Set(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.StudentCodes)));
+
+        let t;
+        document.getElementById('studentSearch').addEventListener('input',function(){
+            clearTimeout(t);const q=this.value.trim();
+            if(q.length<1){hideSug();return;}
+            t=setTimeout(()=>searchStudents(q),250);
+        });
+        document.addEventListener('click',e=>{if(!e.target.closest('#studentSearch,#studentSuggestions'))hideSug();});
+
+        async function searchStudents(q){
+            const res=await fetch(`/BusCoordinator/Parent/SearchStudents?q=${encodeURIComponent(q)}`);
+            const data=await res.json();
+            const box=document.getElementById('studentSuggestions');
+            box.innerHTML='';
+            if(!data.length){const li=document.createElement('div');li.className='dropdown-item text-muted';li.textContent='No students found';box.appendChild(li);box.classList.add('show');return;}
+            data.forEach(s=>{
+                const already=existingCodes.has(s.studentCode);
+                const a=document.createElement('a');
+                a.className='dropdown-item d-flex align-items-center gap-2'+(already?' text-muted':'');
+                a.href='#';
+                a.innerHTML=`<code class="small">${s.studentCode}</code><span>${s.fullName}</span>${s.standard?`<span class="badge bg-secondary-subtle text-secondary ms-auto">${s.standard}</span>`:''} ${already?'<span class="badge bg-success-subtle text-success">Added</span>':''}`;
+                if(!already) a.addEventListener('click',e=>{e.preventDefault();addStudent(s);document.getElementById('studentSearch').value='';hideSug();});
+                box.appendChild(a);
+            });
+            box.classList.add('show');
+        }
+        function hideSug(){document.getElementById('studentSuggestions').classList.remove('show');}
+
+        function addStudent(s){
+            if(existingCodes.has(s.studentCode))return;
+            existingCodes.add(s.studentCode);
+            const chip=document.createElement('span');
+            chip.className='badge bg-info-subtle text-info px-3 py-2 d-flex align-items-center gap-2 chip-student';
+            chip.dataset.code=s.studentCode;
+            chip.innerHTML=`<i class="bi bi-mortarboard"></i><span>${s.fullName} <code class="bg-transparent">${s.studentCode}</code></span><button type="button" class="btn btn-sm p-0 ms-1 text-danger" onclick="removeStudent(this)"><i class="bi bi-x-circle"></i></button><input type="hidden" name="StudentCodes" value="${s.studentCode}"/>`;
+            document.getElementById('selectedStudents').appendChild(chip);
+        }
+        function removeStudent(btn){
+            const chip=btn.closest('.chip-student');
+            existingCodes.delete(chip.dataset.code);
+            chip.remove();
+        }
+    </script>
+}

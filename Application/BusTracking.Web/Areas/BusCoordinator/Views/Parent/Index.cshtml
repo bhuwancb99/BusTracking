@@ -1,0 +1,141 @@
+@* ── Parent/Index.cshtml ────────────────────────────────────────────── *@
+@model BusTracking.Common.DTOs.Common.PagedResult<BusTracking.Common.DTOs.Parent.ParentListDto>
+@{
+    ViewData["Title"] = "Parents";
+}
+
+@{
+    var created = TempData["CreatedUser"] as string;
+    BusTracking.Common.DTOs.User.CreatedUserResultDto? newUser = null;
+    if (!string.IsNullOrEmpty(created))
+        newUser = System.Text.Json.JsonSerializer.Deserialize<BusTracking.Common.DTOs.User.CreatedUserResultDto>(created);
+}
+
+@if (newUser is not null)
+{
+    <div class="alert alert-success border-0 shadow-sm mb-4">
+        @* <h6 class="fw-bold mb-3"><i class="bi bi-check-circle-fill me-2"></i>Parent Created Successfully</h6> *@
+        <div class="row g-2">
+            <div class="col-md-4"><div class="bg-white rounded p-3 border"><div class="text-muted small mb-1">Full Name</div><div class="fw-semibold">@newUser.FullName</div></div></div>
+            <div class="col-md-4"><div class="bg-white rounded p-3 border"><div class="text-muted small mb-1">Username (Email)</div><div class="fw-semibold">@newUser.Email</div></div></div>
+            <div class="col-md-4">
+                <div class="bg-white rounded p-3 border">
+                    <div class="text-muted small mb-1">Password</div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span id="pwdDisplay" class="fw-semibold font-monospace">••••••••••••</span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="togglePwd()"><i class="bi bi-eye" id="pwdEye"></i></button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="copyPwd()"><i class="bi bi-clipboard"></i></button>
+                    </div>
+                    <input type="hidden" id="pwdValue" value="@newUser.PlainPassword" />
+                </div>
+            </div>
+        </div>
+        @* <p class="mt-2 mb-0 small text-muted"><i class="bi bi-exclamation-triangle me-1"></i>Save this password — it won't be shown again.</p> *@
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-people me-2 text-info"></i>Parents</h4>
+    <a asp-area="BusCoordinator" asp-controller="Parent" asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Add Parent</a>
+</div>
+
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body py-2 px-4 d-flex align-items-center gap-4 flex-wrap">
+        <span class="fw-semibold small text-muted">Filter:</span>
+        <form asp-area="BusCoordinator" asp-action="Index" method="get" class="d-flex align-items-center gap-3 flex-wrap flex-grow-1">
+            <div class="d-flex gap-3">
+                @foreach (var s in new[] { ("Active", "Active"), ("Inactive", "Inactive"), ("", "Both") })
+                {
+                    <div class="form-check mb-0">
+                        <input class="form-check-input" type="radio" name="status" value="@s.Item1" id="st_@s.Item1"
+                        @((ViewBag.Status as string) == s.Item1 ? "checked" : "") onchange="this.form.submit()" />
+                        <label class="form-check-label small" for="st_@s.Item1">@s.Item2</label>
+                    </div>
+                }
+            </div>
+            <input type="text" name="search" value="@ViewBag.Search" class="form-control form-control-sm ms-auto"
+                   style="max-width:260px" placeholder="Search name or email…" />
+            <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-search"></i></button>
+            @if (!string.IsNullOrEmpty(ViewBag.Search as string))
+            {
+                <a asp-area="BusCoordinator" asp-action="Index" asp-route-status="@ViewBag.Status" class="btn btn-sm btn-outline-danger"><i class="bi bi-x"></i></a>
+            }
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr><th class="ps-3">#</th><th>Name</th><th>Email</th><th>Phone</th><th>Children</th><th>Status</th><th class="text-end pe-4">Actions</th></tr>
+                </thead>
+                <tbody>
+                    @if (Model?.Items.Count == 0)
+                    {
+                        <tr><td colspan="7" class="text-center text-muted py-5"><i class="bi bi-people fs-1 d-block mb-2"></i>No parents found.</td></tr>
+                    }
+                    @foreach (var (p, i) in (Model?.Items ?? []).Select((x, i) => (x, i + 1 + (Model!.PageNumber - 1) * Model.PageSize)))
+                    {
+                        <tr>
+                            <td class="ps-3 text-muted small">@i</td>
+                            <td class="fw-semibold">@p.FullName</td>
+                            <td class="text-muted small">@p.Email</td>
+                            <td class="small">@(p.PhoneNumber ?? "–")</td>
+                            <td style="max-width:200px">
+                                @if (p.Students.Count == 0)
+                                {
+                                    <span class="text-muted small">None linked</span>
+                                }
+                                else
+                                {
+                                    @foreach (var s in p.Students)
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary me-1 mb-1">@s.FullName</span>
+                                    }
+                                }
+                            </td>
+                            <td>
+                                <span class="badge @(p.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">
+                                    @(p.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </td>
+                            <td class="text-end pe-3">
+                                <a asp-area="BusCoordinator" asp-action="Details" asp-route-id="@p.UserId" class="btn btn-sm btn-outline-info me-1"><i class="bi bi-eye"></i></a>
+                                <a asp-area="BusCoordinator" asp-action="Edit" asp-route-id="@p.UserId" class="btn btn-sm btn-outline-warning me-1"><i class="bi bi-pencil"></i></a>
+                                <button class="btn btn-sm @(p.IsActive ? "btn-outline-secondary" : "btn-outline-success") me-1 btn-toggle"
+                                        data-id="@p.UserId" data-url="/BusCoordinator/Parent/Toggle"
+                                        title="@(p.IsActive ? "Deactivate" : "Activate")">
+                                    <i class="bi @(p.IsActive ? "bi-toggle-on" : "bi-toggle-off")"></i>
+                                </button>
+                                <form asp-area="BusCoordinator" asp-action="Delete" asp-route-id="@p.UserId" method="post" class="d-inline"
+                                      onsubmit="return confirm('Mark @p.FullName as inactive?')">
+                                    @Html.AntiForgeryToken()
+                                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="px-4 py-2"><partial name="_Pagination" model="Model" /></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.btn-toggle').forEach(btn=>{
+            btn.addEventListener('click',async function(){
+                const token=document.querySelector('input[name="__RequestVerificationToken"]')?.value||'';
+                const res=await fetch(`${this.dataset.url}?id=${this.dataset.id}`,{method:'POST',headers:{'RequestVerificationToken':token}});
+                const data=await res.json();
+                busTrack.showToast(data.message,data.success?'success':'danger');
+                if(data.success)setTimeout(()=>location.reload(),700);
+            });
+        });
+        function togglePwd(){const el=document.getElementById('pwdDisplay');const val=document.getElementById('pwdValue').value;const ic=document.getElementById('pwdEye');if(el.textContent.includes('•')){el.textContent=val;ic.className='bi bi-eye-slash';}else{el.textContent='••••••••••••';ic.className='bi bi-eye';}}
+        function copyPwd(){navigator.clipboard.writeText(document.getElementById('pwdValue').value);busTrack.showToast('Password copied!','success');}
+    </script>
+}
