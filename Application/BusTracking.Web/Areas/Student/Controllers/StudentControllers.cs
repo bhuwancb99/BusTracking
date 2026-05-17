@@ -20,12 +20,7 @@ public class HomeController : Controller
     private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
     public HomeController(IStudentService s) => _s = s;
     public async Task<IActionResult> Availability()
-    {
-        var r = await _s.GetAvailabilitiesAsync(UserId);
-        ViewBag.StudentId = UserId;
-        return View(r.Data);
-    }
-
+    { var r = await _s.GetAvailabilitiesAsync(UserId); ViewBag.StudentId = UserId; return View(r.Data); }
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> SetAvailability(CreateAvailabilityDto m)
     {
@@ -42,11 +37,8 @@ public class TrackingController : Controller
     public TrackingController(ITripService t) => _trip = t;
     public async Task<IActionResult> Track(int tripId = 0)
     {
-        var s = await _trip.GetTripStudentsAsync(tripId);
-        var l = await _trip.GetLatestLocationAsync(tripId);
-        ViewBag.TripId = tripId;
-        ViewBag.Location = l.Data;
-        return View(s.Data);
+        var s = await _trip.GetTripStudentsAsync(tripId); var l = await _trip.GetLatestLocationAsync(tripId);
+        ViewBag.TripId = tripId; ViewBag.Location = l.Data; return View(s.Data);
     }
 }
 
@@ -60,15 +52,8 @@ public class FeedbackController : Controller
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Submit(CreateFeedbackDto m)
     {
-        if (!ModelState.IsValid)
-            return View(m);
-        var r = await _fb.CreateAsync(m, UserId);
-        if (!r.Success)
-        {
-            ModelState.AddModelError("", r.Message);
-            return View(m);
-        }
-        TempData["SuccessMessage"] = r.Message;
-        return RedirectToAction(nameof(Submit));
+        if (!ModelState.IsValid) return View(m); var r = await _fb.CreateAsync(m, UserId);
+        if (!r.Success) { ModelState.AddModelError("", r.Message); return View(m); }
+        TempData["SuccessMessage"] = r.Message; return RedirectToAction(nameof(Submit));
     }
 }
