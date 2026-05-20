@@ -99,6 +99,17 @@
                 </li>
             }
 
+            @* Trips *@
+            @if (true || fallback)
+            {
+                <li class="sidebar-item @(ctrl == "Trip" ? "active" : "")">
+                    <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="Trip" asp-action="Index">
+                        <i class="bi bi-bus-front"></i><span>Trips</span>
+                    </a>
+                </li>
+            }
+
+
             @* Notifications *@
             @if (showNotif || fallback)
             {

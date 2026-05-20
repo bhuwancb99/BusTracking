@@ -1,0 +1,193 @@
+﻿@model BusTracking.Common.DTOs.Trip.CreateTripDto
+@{
+    ViewData["Title"] = "Create Trip";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+                <i class="bi bi-plus-circle me-2 text-primary"></i>Create New Trip
+            </div>
+            <div class="card-body p-4">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="alert alert-danger py-2 border-0"></div>
+                }
+
+                <div class="alert alert-info border-0 py-2 small mb-4">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Creating a trip will <strong>automatically</strong> add all students assigned to the
+                    selected bus and all stops on the route. You can then manage boarding status per student.
+                </div>
+
+                <form asp-area="BusCoordinator" asp-controller="Trip" asp-action="Create"
+                      method="post" id="createTripForm">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3">
+
+                        <!-- Trip Date -->
+                        <div class="col-md-6">
+                            <label asp-for="TripDate" class="form-label fw-semibold">
+                                Trip Date <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="TripDate" type="date" class="form-control"
+                                   min="@DateTime.Today.AddDays(-7).ToString("yyyy-MM-dd")"
+                                   max="@DateTime.Today.AddDays(30).ToString("yyyy-MM-dd")" />
+                            <span asp-validation-for="TripDate" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Trip Type -->
+                        <div class="col-md-6">
+                            <label asp-for="TripType" class="form-label fw-semibold">
+                                Trip Type <span class="text-danger">*</span>
+                            </label>
+                            <div class="d-flex gap-3 mt-1">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" asp-for="TripType"
+                                           value="Morning" id="typeMorning"
+                                    @* @(Model.TripType=="Morning"?"checked":"") *@ />
+                                    <label class="form-check-label fw-semibold" for="typeMorning"
+                                           style="color:#e65100">
+                                        <i class="bi bi-sunrise me-1"></i>Morning
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" asp-for="TripType"
+                                           value="Evening" id="typeEvening"
+                                    @* @(Model.TripType=="Evening"?"checked":"") *@ />
+                                    <label class="form-check-label fw-semibold" for="typeEvening"
+                                           style="color:#3949ab">
+                                        <i class="bi bi-sunset me-1"></i>Evening
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bus selector -->
+                        <div class="col-md-12">
+                            <label asp-for="BusId" class="form-label fw-semibold">
+                                Bus <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="BusId" id="busSelect" class="form-select"
+                                    asp-items="@(ViewBag.Buses as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])">
+                                <option value="">-- Select a Bus --</option>
+                            </select>
+                            <span asp-validation-for="BusId" class="text-danger small"></span>
+                            <!-- Bus info preview -->
+                            <div id="busInfoPreview" class="mt-2 d-none">
+                                <div class="p-2 bg-light rounded small d-flex gap-3" id="busInfoBox"></div>
+                            </div>
+                        </div>
+
+                        <!-- Driver selector — auto-filtered by bus assignment -->
+                        <div class="col-md-6">
+                            <label asp-for="DriverId" class="form-label fw-semibold">
+                                Driver <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="DriverId" id="driverSelect" class="form-select"
+                                    asp-items="@(ViewBag.Drivers as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])">
+                                <option value="">-- Select a Driver --</option>
+                            </select>
+                            <span asp-validation-for="DriverId" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Route selector — auto-filled from bus -->
+                        <div class="col-md-6">
+                            <label asp-for="RouteId" class="form-label fw-semibold">
+                                Route <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="RouteId" id="routeSelect" class="form-select"
+                                    asp-items="@(ViewBag.Routes as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])">
+                                <option value="">-- Select a Route --</option>
+                            </select>
+                            <span asp-validation-for="RouteId" class="text-danger small"></span>
+                            <small id="routeHint" class="text-muted d-none">
+                                <i class="bi bi-check-circle text-success me-1"></i>
+                                Auto-filled from bus assignment.
+                            </small>
+                        </div>
+
+                        <!-- Stops preview (loaded after bus selected) -->
+                        <div class="col-12" id="stopsPreview" style="display:none">
+                            <label class="form-label fw-semibold text-muted small">
+                                <i class="bi bi-signpost-split me-1"></i>Stops on this route
+                                (will be auto-added to trip)
+                            </label>
+                            <div id="stopsPreviewList" class="d-flex flex-wrap gap-2"></div>
+                        </div>
+
+                        <!-- Students preview -->
+                        <div class="col-12" id="studentsPreview" style="display:none">
+                            <label class="form-label fw-semibold text-muted small">
+                                <i class="bi bi-mortarboard me-1"></i>Students on this bus
+                                (will be auto-added to trip)
+                            </label>
+                            <div id="studentsPreviewList" class="d-flex flex-wrap gap-2"></div>
+                        </div>
+
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check2 me-1"></i>Create Trip
+                        </button>
+                        <a asp-area="BusCoordinator" asp-controller="Trip" asp-action="Index"
+                           class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // When bus changes — auto-fill route + driver + show preview
+        document.getElementById('busSelect').addEventListener('change', async function () {
+            const busId = this.value;
+            if (!busId) {
+                document.getElementById('busInfoPreview').classList.add('d-none');
+                document.getElementById('stopsPreview').style.display = 'none';
+                document.getElementById('studentsPreview').style.display = 'none';
+                return;
+            }
+
+            // Load stops
+            const stops = await (await fetch(`/BusCoordinator/Trip/StopsForBus?busId=${busId}`)).json();
+            const stopsBox = document.getElementById('stopsPreviewList');
+            stopsBox.innerHTML = '';
+            if (stops.length) {
+                stops.forEach(s => {
+                    stopsBox.innerHTML +=
+                        `<span class="badge rounded-pill px-3 py-2"
+                               style="background:#e8f0fe;color:#1a73e8;font-size:.8rem">
+                             <i class="bi bi-geo-alt me-1"></i>
+                             #${s.stopOrder} ${s.stopName}
+                         </span>`;
+                });
+                document.getElementById('stopsPreview').style.display = 'block';
+
+                // Auto-select route from first stop's routeId
+                // The bus already has RouteId — select it in dropdown
+                const sel = document.getElementById('routeSelect');
+                // We'll get the route from selected bus option text
+                // Better: fetch bus details to get RouteId
+                try {
+                    const buses = @Html.Raw(System.Text.Json.JsonSerializer.Serialize((ViewBag.Buses as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? []).Select(b => new { value = b.Value, text = b.Text })));
+                } catch {}
+            } else {
+                document.getElementById('stopsPreview').style.display = 'none';
+                busTrack.showToast('⚠ This bus has no route assigned. Assign a route to the bus first.', 'warning');
+            }
+
+            // Show bus info badge
+            const opt = this.options[this.selectedIndex];
+            document.getElementById('busInfoBox').innerHTML =
+                `<span><i class="bi bi-bus-front text-primary me-1"></i><strong>${opt.text}</strong></span>
+                 <span class="text-muted">${stops.length} stop${stops.length!==1?'s':''} on route</span>`;
+            document.getElementById('busInfoPreview').classList.remove('d-none');
+        });
+    </script>
+}

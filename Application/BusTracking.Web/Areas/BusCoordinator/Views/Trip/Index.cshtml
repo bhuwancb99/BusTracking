@@ -1,0 +1,200 @@
+﻿@model BusTracking.Common.DTOs.Common.PagedResult<BusTracking.Common.DTOs.Trip.TripListDto>
+@{
+    ViewData["Title"] = "Trip Management";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">
+        <i class="bi bi-bus-front me-2 text-primary"></i>Trip Management
+    </h4>
+    <a asp-area="BusCoordinator" asp-controller="Trip" asp-action="Create"
+       class="btn btn-primary px-4">
+        <i class="bi bi-plus-circle me-1"></i>Create Trip
+    </a>
+</div>
+
+<!-- Filter bar -->
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body py-3 px-4">
+        <form asp-area="BusCoordinator" asp-controller="Trip" asp-action="Index"
+              method="get" class="d-flex align-items-center gap-3 flex-wrap">
+            <span class="fw-semibold small text-muted">Status:</span>
+            @foreach (var s in new[] { ("", "All"), ("Scheduled", "Scheduled"), ("InProgress", "In Progress"), ("Completed", "Completed"), ("Cancelled", "Cancelled") })
+            {
+                <div class="form-check form-check-inline mb-0">
+                    <input class="form-check-input" type="radio" name="status"
+                           value="@s.Item1" id="st_@s.Item1"
+                    @((ViewBag.Status as string) == s.Item1 ? "checked" : "")
+                           onchange="this.form.submit()" />
+                    <label class="form-check-label small" for="st_@s.Item1">@s.Item2</label>
+                </div>
+            }
+            <input type="hidden" name="busId" value="@ViewBag.BusId" />
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0" style="table-layout:fixed;min-width:900px">
+                <colgroup>
+                    <col style="width:60px" />
+                    <col style="width:130px" />
+                    <col style="width:110px" />
+                    <col style="width:160px" />
+                    <col style="width:160px" />
+                    <col style="width:90px" />
+                    <col style="width:110px" />
+                    <col style="width:130px" />
+                    <col style="width:120px" />
+                </colgroup>
+                <thead style="background:#f8f9fc">
+                    <tr style="border-bottom:2px solid #e9ecef">
+                        <th class="ps-3 py-3 small text-uppercase text-muted fw-semibold">#</th>
+                        <th class="py-3 small text-uppercase text-muted fw-semibold">Date</th>
+                        <th class="py-3 small text-uppercase text-muted fw-semibold">Type</th>
+                        <th class="py-3 small text-uppercase text-muted fw-semibold">Bus</th>
+                        <th class="py-3 small text-uppercase text-muted fw-semibold">Driver</th>
+                        <th class="py-3 small text-uppercase text-muted fw-semibold">Route</th>
+                        <th class="py-3 small text-uppercase text-muted fw-semibold">Status</th>
+                        <th class="py-3 small text-uppercase text-muted fw-semibold">Started</th>
+                        <th class="py-3 small text-uppercase text-muted fw-semibold text-end pe-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var filterStatus = ViewBag.Status as string ?? "";
+                        var items = (Model?.Items ?? [])
+                            .Where(t => string.IsNullOrEmpty(filterStatus) || t.Status == filterStatus)
+                            .ToList();
+                    }
+                    @if (!items.Any())
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-5">
+                                <i class="bi bi-calendar-x d-block mb-2" style="font-size:2.5rem"></i>
+                                No trips found. <a asp-area="BusCoordinator" asp-controller="Trip"
+                                                   asp-action="Create">Create one now</a>.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var (t, i) in items.Select((x, i) => (x, i + 1)))
+                    {
+                        var statusStyle = t.Status switch
+                        {
+                            "Scheduled" => "background:#e8f0fe;color:#1a73e8",
+                            "InProgress" => "background:#e6f4ea;color:#1e8e3e",
+                            "Completed" => "background:#f1f3f4;color:#5f6368",
+                            "Cancelled" => "background:#fce8e6;color:#c5221f",
+                            _ => "background:#f1f3f4;color:#5f6368"
+                        };
+                        var statusIcon = t.Status switch
+                        {
+                            "Scheduled" => "bi-clock",
+                            "InProgress" => "bi-geo-alt-fill",
+                            "Completed" => "bi-check-circle",
+                            "Cancelled" => "bi-x-circle",
+                            _ => "bi-circle"
+                        };
+                        <tr style="border-bottom:1px solid #f0f0f0">
+                            <td class="ps-3 text-muted small">@t.TripId</td>
+                            <td class="fw-semibold small">@t.TripDate</td>
+                            <td>
+                                <span class="badge rounded-pill px-2"
+                                      style="@(t.TripType == "Morning"
+                                                                                                        ? "background:#fff3e0;color:#e65100"
+                                                                                                        : "background:#e8eaf6;color:#3949ab");font-size:.75rem">
+                                    <i class="bi @(t.TripType == "Morning" ? "bi-sunrise" : "bi-sunset") me-1"></i>
+                                    @t.TripType
+                                </span>
+                            </td>
+                            <td class="small fw-semibold text-truncate" title="@t.BusNumber">@t.BusNumber</td>
+                            <td class="small text-truncate" title="@t.DriverName">@t.DriverName</td>
+                            <td class="small text-truncate" title="@t.RouteName">@t.RouteName</td>
+                            <td>
+                                <span class="badge rounded-pill px-3 py-2"
+                                      style="@statusStyle;font-size:.73rem">
+                                    <i class="bi @statusIcon me-1"></i>@t.Status
+                                </span>
+                            </td>
+                            <td class="small text-muted">
+                                @(t.StartedAt?.ToString("HH:mm") ?? "–")
+                            </td>
+                            <td class="text-end pe-3">
+                                <div class="d-flex justify-content-end gap-1 flex-nowrap">
+                                    <!-- View details -->
+                                    <a asp-area="BusCoordinator" asp-action="Details" asp-route-id="@t.TripId"
+                                       class="btn btn-sm btn-outline-info"
+                                       style="width:32px;height:32px;padding:0;line-height:30px;text-align:center"
+                                       title="Details"><i class="bi bi-eye"></i></a>
+
+                                    <!-- Start (Scheduled only) -->
+                                    @if (t.Status == "Scheduled")
+                                    {
+                                        <form asp-area="BusCoordinator" asp-action="Start"
+                                              asp-route-id="@t.TripId" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button class="btn btn-sm btn-outline-success"
+                                                    style="width:32px;height:32px;padding:0;line-height:30px;text-align:center"
+                                                    title="Start Trip">
+                                                <i class="bi bi-play-fill"></i>
+                                            </button>
+                                        </form>
+                                    }
+
+                                    <!-- End (InProgress only) -->
+                                    @if (t.Status == "InProgress")
+                                    {
+                                        <form asp-area="BusCoordinator" asp-action="End"
+                                              asp-route-id="@t.TripId" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button class="btn btn-sm btn-success"
+                                                    style="width:32px;height:32px;padding:0;line-height:30px;text-align:center"
+                                                    title="End Trip">
+                                                <i class="bi bi-stop-fill"></i>
+                                            </button>
+                                        </form>
+                                    }
+
+                                    <!-- Cancel (Scheduled/InProgress) -->
+                                    @if (t.Status is "Scheduled" or "InProgress")
+                                    {
+                                        <form asp-area="BusCoordinator" asp-action="Cancel"
+                                              asp-route-id="@t.TripId" method="post" class="d-inline"
+                                              onsubmit="return confirm('Cancel this trip?')">
+                                            @Html.AntiForgeryToken()
+                                            <button class="btn btn-sm btn-outline-warning"
+                                                    style="width:32px;height:32px;padding:0;line-height:30px;text-align:center"
+                                                    title="Cancel">
+                                                <i class="bi bi-x-lg"></i>
+                                            </button>
+                                        </form>
+                                    }
+
+                                    <!-- Delete (not InProgress) -->
+                                    @if (t.Status != "InProgress")
+                                    {
+                                        <form asp-area="BusCoordinator" asp-action="Delete"
+                                              asp-route-id="@t.TripId" method="post" class="d-inline"
+                                              onsubmit="return confirm('Delete trip #@t.TripId?')">
+                                            @Html.AntiForgeryToken()
+                                            <button class="btn btn-sm btn-outline-danger"
+                                                    style="width:32px;height:32px;padding:0;line-height:30px;text-align:center"
+                                                    title="Delete">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="px-4 py-3 border-top">
+            <partial name="_Pagination" model="Model" />
+        </div>
+    </div>
+</div>
