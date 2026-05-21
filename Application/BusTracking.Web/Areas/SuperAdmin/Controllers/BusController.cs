@@ -18,7 +18,7 @@
         {
             ViewBag.Search = search;
             ViewBag.Status = status;
-            return View(await _bus.GetAllAsync(page, 10, search, status));
+            return View(await _bus.GetAllAsync(page, 10, search, status).D());
         }
 
         public async Task<IActionResult> Details(int id)
@@ -146,5 +146,9 @@
             var r = await _driver.GetDropdownAsync(q);
             return Json(r.Data);
         }
+    }
+    internal static class X
+    {
+        internal static async Task<T> D<T>(this Task<BusTracking.Common.DTOs.Common.ApiResponse<T>> t) => (await t).Data!;
     }
 }

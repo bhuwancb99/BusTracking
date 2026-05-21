@@ -10,7 +10,7 @@
         public async Task<IActionResult> Index(int page = 1, string? search = null)
         {
             ViewBag.Search = search;
-            return View(await _route.GetAllAsync(page, 10, search));
+            return View(await _route.GetAllAsync(page, 10, search).D());
         }
         public async Task<IActionResult> Details(int id)
         {

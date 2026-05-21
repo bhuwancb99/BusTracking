@@ -12,7 +12,7 @@
         public async Task<IActionResult> Index(int page = 1, string? status = null)
         {
             ViewBag.Status = status;
-            return View(await _fb.GetAllAsync(page, 10, status));
+            return View(await _fb.GetAllAsync(page, 10, status).D());
         }
 
         [HttpPost, ValidateAntiForgeryToken]

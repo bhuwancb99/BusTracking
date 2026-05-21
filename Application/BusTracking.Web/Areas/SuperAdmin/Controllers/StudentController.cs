@@ -20,7 +20,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
         {
             ViewBag.Search = search;
             ViewBag.Status = status;
-            return View(await _student.GetAllAsync(page, 10, search, status));
+            return View(await _student.GetAllAsync(page, 10, search, status).D());
         }
 
         public async Task<IActionResult> Details(int id)
