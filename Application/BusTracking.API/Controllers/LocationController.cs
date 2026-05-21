@@ -1,12 +1,4 @@
-﻿using BusTracking.Common.Data;
-using BusTracking.Common.DTOs.Common;
-using BusTracking.Common.DTOs.Trip;
-using BusTracking.Common.Entities;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-namespace BusTracking.API.Controllers
+﻿namespace BusTracking.API.Controllers
 {
     [Authorize(Roles = "Driver"), Route("api/[controller]")]
     public class LocationController : ApiBaseController

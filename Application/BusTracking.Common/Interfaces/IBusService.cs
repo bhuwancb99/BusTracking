@@ -1,8 +1,4 @@
-﻿using BusTracking.Common.DTOs.Assign;
-using BusTracking.Common.DTOs.Bus;
-using BusTracking.Common.DTOs.Common;
-
-namespace BusTracking.Common.Interfaces
+﻿namespace BusTracking.Common.Interfaces
 {
     public interface IBusService
     {

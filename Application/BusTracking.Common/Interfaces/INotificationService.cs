@@ -1,7 +1,4 @@
-﻿using BusTracking.Common.DTOs.Common;
-using BusTracking.Common.DTOs.Notification;
-
-namespace BusTracking.Common.Interfaces
+﻿namespace BusTracking.Common.Interfaces
 {
     public interface INotificationService
     {

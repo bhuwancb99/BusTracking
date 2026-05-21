@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace BusTracking.Common.Helpers
+﻿namespace BusTracking.Common.Helpers
 {
     public class FutureDateAttribute : ValidationAttribute
     {

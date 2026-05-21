@@ -1,6 +1,4 @@
-﻿using BusTracking.Common.Enums;
-
-namespace BusTracking.Common.DTOs.Availability
+﻿namespace BusTracking.Common.DTOs.Availability
 {
     public class CreateAvailabilityDto
     {

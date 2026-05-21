@@ -1,6 +1,4 @@
-﻿using BusTracking.Common.Enums;
-
-namespace BusTracking.Common.Models
+﻿namespace BusTracking.Common.Models
 {
     public class AlertModel
     {

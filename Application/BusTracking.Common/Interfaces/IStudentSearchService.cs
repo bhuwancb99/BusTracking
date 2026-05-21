@@ -1,6 +1,4 @@
-﻿using BusTracking.Common.DTOs.Student;
-
-namespace BusTracking.Common.Interfaces
+﻿namespace BusTracking.Common.Interfaces
 {
     public interface IStudentSearchService
     {

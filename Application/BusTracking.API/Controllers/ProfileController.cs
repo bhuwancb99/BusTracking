@@ -1,9 +1,4 @@
-﻿using BusTracking.Common.DTOs.User;
-using BusTracking.Common.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-
-namespace BusTracking.API.Controllers
+﻿namespace BusTracking.API.Controllers
 {
     [Authorize, Route("api/[controller]")]
     public class ProfileController : ApiBaseController

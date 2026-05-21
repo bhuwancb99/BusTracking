@@ -1,12 +1,4 @@
-﻿using BusTracking.Common.Data;
-using BusTracking.Common.DTOs.Common;
-using BusTracking.Common.Entities;
-using BusTracking.Common.Enums;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-namespace BusTracking.API.Controllers
+﻿namespace BusTracking.API.Controllers
 {
     [Authorize(Roles = "Driver"), Route("api/trips/{tripId}/boarding")]
     public class BoardingController : ApiBaseController

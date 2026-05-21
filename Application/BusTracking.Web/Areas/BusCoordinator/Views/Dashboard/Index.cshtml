@@ -14,8 +14,10 @@
     <div class="card border-0 shadow-sm">
         <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-lightning-charge me-2 text-warning"></i>Quick Actions</div>
         <div class="card-body px-4 pb-4 d-flex flex-wrap gap-2">
+            <a asp-area="BusCoordinator" asp-controller="Trip" asp-action="Create" class="btn btn-outline-primary"><i class="bi bi-play-circle me-1"></i>Create Trip</a>
+            <a asp-area="BusCoordinator" asp-controller="Trip" asp-action="Index" class="btn btn-outline-info"><i class="bi bi-list me-1"></i>View Trips</a>
             <a asp-area="BusCoordinator" asp-controller="Student" asp-action="Create" class="btn btn-outline-info"><i class="bi bi-plus me-1"></i>Add Student</a>
-            <a asp-area="BusCoordinator" asp-controller="Bus" asp-action="Create" class="btn btn-outline-primary"><i class="bi bi-plus me-1"></i>Add Bus</a>
+            <a asp-area="BusCoordinator" asp-controller="Bus" asp-action="Create" class="btn btn-outline-secondary"><i class="bi bi-plus me-1"></i>Add Bus</a>
             <a asp-area="BusCoordinator" asp-controller="Feedback" asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-headset me-1"></i>View Support</a>
         </div>
     </div>

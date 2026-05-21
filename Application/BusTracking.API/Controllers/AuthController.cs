@@ -1,9 +1,4 @@
-﻿using BusTracking.Common.DTOs.Auth;
-using BusTracking.Common.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-
-namespace BusTracking.API.Controllers
+﻿namespace BusTracking.API.Controllers
 {
     [Route("api/[controller]")]
     public class AuthController : ApiBaseController

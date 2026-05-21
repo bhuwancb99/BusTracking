@@ -1,9 +1,4 @@
-﻿using BusTracking.Common.Interfaces;
-using MailKit.Net.Smtp;
-using Microsoft.Extensions.Configuration;
-using MimeKit;
-
-namespace BusTracking.Common.Services
+﻿namespace BusTracking.Common.Services
 {
     public class EmailService : IEmailService
     {

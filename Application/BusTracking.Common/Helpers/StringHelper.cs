@@ -4,13 +4,15 @@
     {
         public static string Truncate(this string? value, int maxLength, string suffix = "…")
         {
-            if (string.IsNullOrEmpty(value)) return string.Empty;
+            if (string.IsNullOrEmpty(value)) 
+                return string.Empty;
             return value.Length <= maxLength ? value : value[..maxLength] + suffix;
         }
 
         public static string ToInitials(this string? fullName)
         {
-            if (string.IsNullOrWhiteSpace(fullName)) return "?";
+            if (string.IsNullOrWhiteSpace(fullName)) 
+                return "?";
             var parts = fullName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
             return parts.Length == 1
                 ? parts[0][..Math.Min(2, parts[0].Length)].ToUpper()
@@ -19,7 +21,8 @@
 
         public static string MaskEmail(this string email)
         {
-            if (string.IsNullOrEmpty(email)) return email;
+            if (string.IsNullOrEmpty(email))
+                return email;
             var at = email.IndexOf('@');
             if (at <= 1) return email;
             return $"{email[0]}***{email[(at - 1)..]}";

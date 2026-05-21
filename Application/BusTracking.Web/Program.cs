@@ -1,11 +1,3 @@
-using BusTracking.Common;
-using BusTracking.Common.Data;
-using BusTracking.Common.Entities;
-using BusTracking.Common.Interfaces;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.FileProviders;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Shared services from Common library ──────────────────────────────
@@ -33,8 +25,6 @@ builder.Services.AddAuthorization();
 builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
-
-//await SeedSuperAdminAsync(app);
 
 // Never use exception handler or HTTPS redirect in development
 if (!app.Environment.IsDevelopment())
@@ -65,46 +55,3 @@ app.MapControllerRoute(
     pattern: "{controller=Auth}/{action=Login}/{id?}");
 
 app.Run();
-
-// ── Seed SuperAdmin ───────────────────────────────────────────────────
-static async Task SeedSuperAdminAsync(WebApplication app)
-{
-    try
-    {
-        using var scope = app.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var pwd = scope.ServiceProvider.GetRequiredService<IPasswordService>();
-
-        if (await db.Users.AnyAsync()) return;
-
-        var cfg = app.Configuration;
-        var email = cfg["Seed:SuperAdminEmail"] ?? "admin@bustracking.com";
-        var pass = cfg["Seed:SuperAdminPassword"] ?? "Admin@123";
-        var name = cfg["Seed:SuperAdminName"] ?? "Super Admin";
-
-        var role = await db.Roles.FirstOrDefaultAsync(r => r.RoleName == "SuperAdmin");
-        if (role is null)
-        {
-            app.Logger.LogWarning("SuperAdmin role not found — run BusTrackingApp_Database.sql first.");
-            return;
-        }
-
-        var (hash, salt) = pwd.HashPassword(pass);
-        db.Users.Add(new User
-        {
-            RoleId = role.RoleId,
-            FullName = name,
-            Email = email,
-            PasswordHash = hash,
-            PasswordSalt = salt,
-            IsEmailVerified = true,
-            IsActive = true
-        });
-        await db.SaveChangesAsync();
-        app.Logger.LogInformation("SuperAdmin seeded → {Email} / {Pass}", email, pass);
-    }
-    catch (Exception ex)
-    {
-        app.Logger.LogError(ex, "Seed failed — check DB connection.");
-    }
-}

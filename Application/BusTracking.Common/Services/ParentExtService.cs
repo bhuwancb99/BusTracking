@@ -1,12 +1,4 @@
-﻿using BusTracking.Common.Data;
-using BusTracking.Common.DTOs.Common;
-using BusTracking.Common.DTOs.Parent;
-using BusTracking.Common.DTOs.User;
-using BusTracking.Common.Entities;
-using BusTracking.Common.Interfaces;
-using Microsoft.EntityFrameworkCore;
-
-namespace BusTracking.Common.Services
+﻿namespace BusTracking.Common.Services
 {
     public class ParentExtService : IParentExtService
     {

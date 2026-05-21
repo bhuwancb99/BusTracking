@@ -1,10 +1,4 @@
-﻿using BusTracking.Common.DTOs.Trip;
-using BusTracking.Common.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-
-namespace BusTracking.Web.Areas.SuperAdmin.Controllers
+﻿namespace BusTracking.Web.Areas.SuperAdmin.Controllers
 {
     [Area("SuperAdmin"), Authorize(Roles = "SuperAdmin")]
     public class TripController : Controller
@@ -23,7 +17,6 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             _route = route;
         }
 
-        // ── Index: list all trips ────────────────────────────────────
         public async Task<IActionResult> Index(int page = 1, string? busId = null, string? status = null)
         {
             ViewBag.BusId = busId;
@@ -33,7 +26,6 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             return View(r.Data);
         }
 
-        // ── Create form ──────────────────────────────────────────────
         [HttpGet]
         public async Task<IActionResult> Create()
         {
@@ -64,7 +56,6 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             return RedirectToAction(nameof(Details), new { id = r.Data?.TripId });
         }
 
-        // ── Details: trip overview + students + stops ────────────────
         public async Task<IActionResult> Details(int id)
         {
             var tripR = await _trip.GetByIdAsync(id);
@@ -77,7 +68,6 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             return View(tripR.Data);
         }
 
-        // ── Start trip ───────────────────────────────────────────────
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Start(int id)
         {
@@ -86,7 +76,6 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             return RedirectToAction(nameof(Details), new { id });
         }
 
-        // ── End trip ─────────────────────────────────────────────────
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> End(int id)
         {
@@ -95,7 +84,6 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             return RedirectToAction(nameof(Details), new { id });
         }
 
-        // ── Cancel trip ──────────────────────────────────────────────
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Cancel(int id)
         {
@@ -104,7 +92,6 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ── Delete trip ──────────────────────────────────────────────
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
@@ -113,7 +100,6 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ── Mark stop reached (AJAX) ─────────────────────────────────
         [HttpPost]
         public async Task<IActionResult> ReachStop(int tripId, int stopId)
         {
@@ -121,7 +107,6 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             return Json(new { r.Success, r.Message });
         }
 
-        // ── Update student boarding (AJAX) ───────────────────────────
         [HttpPost]
         public async Task<IActionResult> UpdateBoarding([FromBody] UpdateBoardingRequest req)
         {
@@ -129,7 +114,6 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             return Json(new { r.Success, r.Message });
         }
 
-        // ── Simulate GPS ping (AJAX) — for testing without MAUI ──────
         [HttpPost]
         public async Task<IActionResult> SimulateGps([FromBody] LocationPingDto dto)
         {
@@ -138,7 +122,6 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             return Json(new { r.Success, r.Message });
         }
 
-        // ── Get latest location (AJAX) ───────────────────────────────
         [HttpGet]
         public async Task<IActionResult> LatestLocation(int tripId)
         {
@@ -146,7 +129,6 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             return Json(new { success = r.Success, data = r.Data });
         }
 
-        // ── Get stops for bus route (AJAX) ───────────────────────────
         [HttpGet]
         public async Task<IActionResult> StopsForBus(int busId)
         {
@@ -154,7 +136,6 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             return Json(r.Data ?? []);
         }
 
-        // ── Get drivers for bus (AJAX) ───────────────────────────────
         [HttpGet]
         public async Task<IActionResult> SearchDrivers(string? q)
         {
@@ -162,7 +143,6 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             return Json(r.Data ?? []);
         }
 
-        // ── Dropdown loader ──────────────────────────────────────────
         private async Task LoadDropdowns()
         {
             var buses = await _bus.GetAllAsync(1, 100, null, "Active");

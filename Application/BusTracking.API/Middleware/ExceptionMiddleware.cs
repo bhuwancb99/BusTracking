@@ -1,8 +1,4 @@
-﻿using BusTracking.Common.DTOs.Common;
-using System.Net;
-using System.Text.Json;
-
-namespace BusTracking.API.Middleware
+﻿namespace BusTracking.API.Middleware
 {
 
     // ─── Global exception handler ─────────────────────────────────────────

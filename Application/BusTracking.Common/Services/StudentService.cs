@@ -1,14 +1,4 @@
-﻿using BusTracking.Common.Data;
-using BusTracking.Common.DTOs.Assign;
-using BusTracking.Common.DTOs.Availability;
-using BusTracking.Common.DTOs.Common;
-using BusTracking.Common.DTOs.Student;
-using BusTracking.Common.DTOs.User;
-using BusTracking.Common.Entities;
-using BusTracking.Common.Interfaces;
-using Microsoft.EntityFrameworkCore;
-
-namespace BusTracking.Common.Services
+﻿namespace BusTracking.Common.Services
 {
     public class StudentService : IStudentService
     {

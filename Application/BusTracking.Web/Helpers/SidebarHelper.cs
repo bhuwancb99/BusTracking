@@ -1,7 +1,3 @@
-using BusTracking.Common.Helpers;
-using BusTracking.Common.Models;
-using System.Security.Claims;
-
 namespace BusTracking.Web.Helpers;
 
 // ─── Sidebar menu builder ─────────────────────────────────────────────
@@ -30,6 +26,7 @@ public static class SidebarHelper
         new() { Label = "Drivers",        Icon = "bi-person-video2",  Controller = "Driver",     Action = "Index" },
         new() { Label = "Parents",        Icon = "bi-people",         Controller = "Parent",     Action = "Index" },
         new() { Label = "Students",       Icon = "bi-mortarboard",    Controller = "Student",    Action = "Index" },
+        new() { Label = "Trips",          Icon = "bi-mortarboard",    Controller = "Trip",       Action = "Index" },
         new() { Label = "Help & Support", Icon = "bi-headset",        Controller = "Feedback",   Action = "Index" },
     ];
 
@@ -45,6 +42,7 @@ public static class SidebarHelper
             new() { Label = "Drivers",    Icon = "bi-person-video2", Controller = "Driver",    Action = "Index" },
             new() { Label = "Parents",    Icon = "bi-people",        Controller = "Parent",    Action = "Index" },
             new() { Label = "Students",   Icon = "bi-mortarboard",   Controller = "Student",   Action = "Index" },
+            new() { Label = "Trips",      Icon = "bi-mortarboard",   Controller = "Trip",      Action = "Index" },
             new() { Label = "Support",    Icon = "bi-headset",       Controller = "Feedback",  Action = "Index" },
         ];
     }

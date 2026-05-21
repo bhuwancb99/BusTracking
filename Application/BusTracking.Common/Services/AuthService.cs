@@ -1,11 +1,4 @@
-﻿using BusTracking.Common.Data;
-using BusTracking.Common.DTOs.Auth;
-using BusTracking.Common.DTOs.Common;
-using BusTracking.Common.Entities;
-using BusTracking.Common.Interfaces;
-using Microsoft.EntityFrameworkCore;
-
-namespace BusTracking.Common.Services
+﻿namespace BusTracking.Common.Services
 {
     public class AuthService : IAuthService
     {
@@ -15,7 +8,12 @@ namespace BusTracking.Common.Services
         private readonly IEmailService _email;
 
         public AuthService(AppDbContext db, IJwtService jwt, IPasswordService pwd, IEmailService email)
-        { _db = db; _jwt = jwt; _pwd = pwd; _email = email; }
+        { 
+            _db = db;
+            _jwt = jwt; 
+            _pwd = pwd;
+            _email = email;
+        }
 
         public async Task<ApiResponse<LoginResponseDto>> LoginAsync(LoginDto dto)
         {

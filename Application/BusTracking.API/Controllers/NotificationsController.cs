@@ -1,13 +1,4 @@
-﻿using BusTracking.Common.Data;
-using BusTracking.Common.DTOs.Common;
-using BusTracking.Common.Entities;
-using BusTracking.Common.Enums;
-using BusTracking.Common.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-namespace BusTracking.API.Controllers
+﻿namespace BusTracking.API.Controllers
 {
     [Authorize, Route("api/[controller]")]
     public class NotificationsController : ApiBaseController

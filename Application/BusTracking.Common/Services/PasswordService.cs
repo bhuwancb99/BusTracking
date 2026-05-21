@@ -1,7 +1,4 @@
-﻿using BusTracking.Common.Interfaces;
-using System.Security.Cryptography;
-
-namespace BusTracking.Common.Services
+﻿namespace BusTracking.Common.Services
 {
     public class PasswordService : IPasswordService
     {

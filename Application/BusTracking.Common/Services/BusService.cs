@@ -1,12 +1,4 @@
-﻿using BusTracking.Common.Data;
-using BusTracking.Common.DTOs.Assign;
-using BusTracking.Common.DTOs.Bus;
-using BusTracking.Common.DTOs.Common;
-using BusTracking.Common.Entities;
-using BusTracking.Common.Interfaces;
-using Microsoft.EntityFrameworkCore;
-
-namespace BusTracking.Common.Services
+﻿namespace BusTracking.Common.Services
 {
     public class BusService : IBusService
     {
@@ -21,19 +13,61 @@ namespace BusTracking.Common.Services
             else if (status == "Inactive") q = q.Where(b => !b.IsActive);
             var total = await q.CountAsync();
             var items = await q.OrderBy(b => b.BusName).Skip((page - 1) * pageSize).Take(pageSize)
-                .Select(b => new BusListDto { BusId = b.BusId, BusName = b.BusName, BusNumber = b.BusNumber, RouteId = b.RouteId, RouteName = b.Route != null ? b.Route.RouteName : null, DriverUserId = b.Driver != null ? b.Driver.UserId : (int?)null, DriverName = b.Driver != null ? b.Driver.User.FullName : null, DriverPhone = b.Driver != null ? b.Driver.User.PhoneNumber : null, Capacity = b.Capacity, StudentCount = b.Students.Count, IsActive = b.IsActive }).ToListAsync();
-            return ApiResponse<PagedResult<BusListDto>>.Ok(new PagedResult<BusListDto> { Items = items, TotalCount = total, PageNumber = page, PageSize = pageSize });
+                .Select(b => new BusListDto
+                {
+                    BusId = b.BusId,
+                    BusName = b.BusName,
+                    BusNumber = b.BusNumber,
+                    RouteId = b.RouteId,
+                    RouteName = b.Route != null ? b.Route.RouteName : null,
+                    DriverUserId = b.Driver != null ? b.Driver.UserId : (int?)null,
+                    DriverName = b.Driver != null ? b.Driver.User.FullName : null,
+                    DriverPhone = b.Driver != null ? b.Driver.User.PhoneNumber : null,
+                    Capacity = b.Capacity,
+                    StudentCount = b.Students.Count,
+                    IsActive = b.IsActive
+                }).ToListAsync();
+            return ApiResponse<PagedResult<BusListDto>>.Ok(new PagedResult<BusListDto>
+            {
+                Items = items,
+                TotalCount = total,
+                PageNumber = page,
+                PageSize = pageSize
+            });
         }
+
         public async Task<ApiResponse<BusListDto>> GetByIdAsync(int busId)
         {
             var b = await _db.Buses.Include(x => x.Route).Include(x => x.Driver).ThenInclude(d => d!.User).Include(x => x.Students).FirstOrDefaultAsync(x => x.BusId == busId);
-            if (b is null) return ApiResponse<BusListDto>.Fail("Not found.");
-            return ApiResponse<BusListDto>.Ok(new BusListDto { BusId = b.BusId, BusName = b.BusName, BusNumber = b.BusNumber, RouteId = b.RouteId, RouteName = b.Route?.RouteName, DriverUserId = b.Driver?.UserId, DriverName = b.Driver?.User.FullName, DriverPhone = b.Driver?.User.PhoneNumber, Capacity = b.Capacity, StudentCount = b.Students.Count, IsActive = b.IsActive });
+            if (b is null)
+                return ApiResponse<BusListDto>.Fail("Not found.");
+            return ApiResponse<BusListDto>.Ok(new BusListDto
+            {
+                BusId = b.BusId,
+                BusName = b.BusName,
+                BusNumber = b.BusNumber,
+                RouteId = b.RouteId,
+                RouteName = b.Route?.RouteName,
+                DriverUserId = b.Driver?.UserId,
+                DriverName = b.Driver?.User.FullName,
+                DriverPhone = b.Driver?.User.PhoneNumber,
+                Capacity = b.Capacity,
+                StudentCount = b.Students.Count,
+                IsActive = b.IsActive
+            });
         }
         public async Task<ApiResponse<bool>> CreateAsync(CreateBusDto dto, int createdBy)
         {
-            if (await _db.Buses.AnyAsync(b => b.BusNumber == dto.BusNumber)) return ApiResponse<bool>.Fail("Bus number exists.");
-            var bus = new Bus { BusName = dto.BusName, BusNumber = dto.BusNumber, RouteId = dto.RouteId, Capacity = dto.Capacity, CreatedBy = createdBy };
+            if (await _db.Buses.AnyAsync(b => b.BusNumber == dto.BusNumber))
+                return ApiResponse<bool>.Fail("Bus number exists.");
+            var bus = new Bus
+            {
+                BusName = dto.BusName,
+                BusNumber = dto.BusNumber,
+                RouteId = dto.RouteId,
+                Capacity = dto.Capacity,
+                CreatedBy = createdBy
+            };
             _db.Buses.Add(bus); await _db.SaveChangesAsync();
             if (dto.DriverUserId.HasValue)
             {
@@ -44,9 +78,17 @@ namespace BusTracking.Common.Services
         }
         public async Task<ApiResponse<bool>> UpdateAsync(int busId, UpdateBusDto dto)
         {
-            var bus = await _db.Buses.FindAsync(busId); if (bus is null) return ApiResponse<bool>.Fail("Not found.");
-            if (await _db.Buses.AnyAsync(b => b.BusNumber == dto.BusNumber && b.BusId != busId)) return ApiResponse<bool>.Fail("Bus number in use.");
-            bus.BusName = dto.BusName; bus.BusNumber = dto.BusNumber; bus.RouteId = dto.RouteId; bus.Capacity = dto.Capacity; bus.IsActive = dto.IsActive; bus.UpdatedAt = DateTime.UtcNow;
+            var bus = await _db.Buses.FindAsync(busId);
+            if (bus is null)
+                return ApiResponse<bool>.Fail("Not found.");
+            if (await _db.Buses.AnyAsync(b => b.BusNumber == dto.BusNumber && b.BusId != busId))
+                return ApiResponse<bool>.Fail("Bus number in use.");
+            bus.BusName = dto.BusName;
+            bus.BusNumber = dto.BusNumber;
+            bus.RouteId = dto.RouteId;
+            bus.Capacity = dto.Capacity;
+            bus.IsActive = dto.IsActive;
+            bus.UpdatedAt = DateTime.UtcNow;
             // Handle driver assignment change
             if (dto.DriverUserId.HasValue)
             {
@@ -65,9 +107,27 @@ namespace BusTracking.Common.Services
             await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Bus updated.");
         }
         public async Task<ApiResponse<bool>> DeleteAsync(int busId)
-        { var b = await _db.Buses.FindAsync(busId); if (b is null) return ApiResponse<bool>.Fail("Not found."); b.IsActive = false; b.UpdatedAt = DateTime.UtcNow; await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Marked inactive."); }
+        {
+            var b = await _db.Buses.FindAsync(busId);
+            if (b is null)
+                return ApiResponse<bool>.Fail("Not found.");
+            b.IsActive = false;
+            b.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return ApiResponse<bool>.Ok(true, "Marked inactive.");
+        }
+
         public async Task<ApiResponse<bool>> ToggleActiveAsync(int busId)
-        { var b = await _db.Buses.FindAsync(busId); if (b is null) return ApiResponse<bool>.Fail("Not found."); b.IsActive = !b.IsActive; b.UpdatedAt = DateTime.UtcNow; await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, b.IsActive ? "Activated." : "Deactivated."); }
+        {
+            var b = await _db.Buses.FindAsync(busId);
+            if (b is null)
+                return ApiResponse<bool>.Fail("Not found.");
+            b.IsActive = !b.IsActive;
+            b.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return ApiResponse<bool>.Ok(true, b.IsActive ? "Activated." : "Deactivated.");
+        }
+
         public async Task<ApiResponse<bool>> AssignDriverAsync(AssignDriverToBusDto dto)
         {
             var prev = await _db.DriverDetails.FirstOrDefaultAsync(d => d.BusId == dto.BusId);
@@ -77,9 +137,27 @@ namespace BusTracking.Common.Services
             await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Driver assigned.");
         }
         public async Task<ApiResponse<bool>> AssignStudentAsync(int busId, int studentId)
-        { var s = await _db.Students.FindAsync(studentId); if (s is null) return ApiResponse<bool>.Fail("Student not found."); s.BusId = busId; s.UpdatedAt = DateTime.UtcNow; await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Assigned."); }
+        {
+            var s = await _db.Students.FindAsync(studentId);
+            if (s is null)
+                return ApiResponse<bool>.Fail("Student not found.");
+            s.BusId = busId;
+            s.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return ApiResponse<bool>.Ok(true, "Assigned.");
+        }
+
         public async Task<ApiResponse<bool>> RemoveStudentAsync(int busId, int studentId)
-        { var s = await _db.Students.FindAsync(studentId); if (s is null) return ApiResponse<bool>.Fail("Not found."); s.BusId = null; s.UpdatedAt = DateTime.UtcNow; await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Removed."); }
+        {
+            var s = await _db.Students.FindAsync(studentId);
+            if (s is null)
+                return ApiResponse<bool>.Fail("Not found.");
+            s.BusId = null;
+            s.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return ApiResponse<bool>.Ok(true, "Removed.");
+        }
+
         public async Task<ApiResponse<List<BusDropdownDto>>> GetDropdownAsync(string? search)
         {
             var q = _db.Buses.Where(b => b.IsActive);

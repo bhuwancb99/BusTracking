@@ -1,10 +1,4 @@
-﻿using BusTracking.Common.DTOs.Trip;
-using BusTracking.Common.Interfaces;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
-
-namespace BusTracking.Web.Areas.BusCoordinator.Controllers
+﻿namespace BusTracking.Web.Areas.BusCoordinator.Controllers
 {
     [Area("BusCoordinator"), Authorize(Roles = "BusCoordinator")]
     public class TripController : Controller

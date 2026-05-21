@@ -1,7 +1,4 @@
-﻿using BusTracking.Common.Enums;
-using BusTracking.Common.Models;
-
-namespace BusTracking.Web.Helpers
+﻿namespace BusTracking.Web.Helpers
 {
     public static class AlertHelper
     {

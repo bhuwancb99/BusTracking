@@ -1,7 +1,4 @@
-﻿using BusTracking.Common.Entities;
-using Microsoft.EntityFrameworkCore;
-
-namespace BusTracking.Common.Data;
+﻿namespace BusTracking.Common.Data;
 
 public class AppDbContext : DbContext
 {

@@ -1,7 +1,4 @@
-﻿using BusTracking.Common.DTOs.Auth;
-using BusTracking.Common.DTOs.Common;
-
-namespace BusTracking.Common.Interfaces
+﻿namespace BusTracking.Common.Interfaces
 {
     public interface IAuthService
     {

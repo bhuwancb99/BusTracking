@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace BusTracking.Common.DTOs.Student
+﻿namespace BusTracking.Common.DTOs.Student
 {
     public class UpdateStudentExtDto
     {

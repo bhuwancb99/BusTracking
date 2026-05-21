@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace BusTracking.Common.Entities
+﻿namespace BusTracking.Common.Entities
 {
     public class AuditLog
     {

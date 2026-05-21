@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
-namespace BusTracking.Common.Entities
+﻿namespace BusTracking.Common.Entities
 {
     public class DriverDetail
     {

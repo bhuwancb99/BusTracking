@@ -1,11 +1,4 @@
-﻿using BusTracking.Common.Data;
-using BusTracking.Common.Interfaces;
-using BusTracking.Common.Services;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace BusTracking.Common;
+﻿namespace BusTracking.Common;
 
 public static class CommonServiceExtensions
 {

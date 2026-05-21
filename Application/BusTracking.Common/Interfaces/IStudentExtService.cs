@@ -1,8 +1,4 @@
-﻿using BusTracking.Common.DTOs.Common;
-using BusTracking.Common.DTOs.Student;
-using BusTracking.Common.DTOs.User;
-
-namespace BusTracking.Common.Interfaces
+﻿namespace BusTracking.Common.Interfaces
 {
     public interface IStudentExtService
     {

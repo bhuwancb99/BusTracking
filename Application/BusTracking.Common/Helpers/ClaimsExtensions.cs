@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-
-namespace BusTracking.Common.Helpers
+﻿namespace BusTracking.Common.Helpers
 {
     public static class ClaimsExtensions
     {
