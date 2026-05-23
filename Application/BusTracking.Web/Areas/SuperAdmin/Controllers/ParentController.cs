@@ -97,5 +97,19 @@
             var r = await _student.SearchAsync(q);
             return Json(r.Data);
         }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(int id)
+        {
+            var r = await _parent.ResetPasswordAsync(id);
+            return Json(new
+            {
+                r.Success,
+                r.Message,
+                password = r.Data?.PlainPassword,
+                fullName = r.Data?.FullName,
+                email = r.Data?.Email
+            });
+        }
     }
 }

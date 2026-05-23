@@ -85,5 +85,19 @@
             var r = await _sa.ToggleActiveAsync(id);
             return Json(new { r.Success, r.Message });
         }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(int id)
+        {
+            var r = await _sa.ResetPasswordAsync(id);
+            return Json(new
+            {
+                r.Success,
+                r.Message,
+                password = r.Data?.PlainPassword,
+                fullName = r.Data?.FullName,
+                email = r.Data?.Email
+            });
+        }
     }
 }

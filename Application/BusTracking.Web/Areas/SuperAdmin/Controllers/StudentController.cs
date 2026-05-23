@@ -151,5 +151,19 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             TempData[r.Success ? "SuccessMessage" : "ErrorMessage"] = r.Message;
             return RedirectToAction(nameof(Availability), new { studentId = m.StudentId });
         }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(int id)
+        {
+            var r = await _student.ResetPasswordAsync(id);
+            return Json(new
+            {
+                r.Success,
+                r.Message,
+                password = r.Data?.PlainPassword,
+                fullName = r.Data?.FullName,
+                email = r.Data?.Email
+            });
+        }
     }
 }

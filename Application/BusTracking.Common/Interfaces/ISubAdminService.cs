@@ -8,5 +8,6 @@
         Task<ApiResponse<bool>> UpdateAsync(int userId, UpdateSubAdminDto dto);
         Task<ApiResponse<bool>> DeleteAsync(int userId);
         Task<ApiResponse<bool>> ToggleActiveAsync(int userId);
+        Task<ApiResponse<CreatedUserResultDto>> ResetPasswordAsync(int userId);
     }
 }

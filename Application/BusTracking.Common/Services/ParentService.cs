@@ -2,8 +2,15 @@
 {
     public class ParentService : IParentService
     {
-        private readonly AppDbContext _db; private readonly IPasswordService _pwd; private readonly IEmailService _email;
-        public ParentService(AppDbContext db, IPasswordService pwd, IEmailService email) { _db = db; _pwd = pwd; _email = email; }
+        private readonly AppDbContext _db;
+        private readonly IPasswordService _pwd;
+        private readonly IEmailService _email;
+        public ParentService(AppDbContext db, IPasswordService pwd, IEmailService email)
+        {
+            _db = db;
+            _pwd = pwd;
+            _email = email;
+        }
 
         public async Task<ApiResponse<PagedResult<ParentListDto>>> GetAllAsync(int page, int pageSize, string? search, string? status)
         {
@@ -20,15 +27,44 @@
                     Email = p.User.Email,
                     PhoneNumber = p.User.PhoneNumber,
                     IsActive = p.User.IsActive,
-                    Students = p.ParentStudents.Select(ps => new LinkedStudentDto { StudentId = ps.Student.StudentId, StudentCode = ps.Student.StudentCode, FullName = ps.Student.User.FullName, Standard = ps.Student.Standard, BusNumber = ps.Student.Bus != null ? ps.Student.Bus.BusNumber : null }).ToList()
+                    Students = p.ParentStudents.Select(ps => new LinkedStudentDto
+                    {
+                        StudentId = ps.Student.StudentId,
+                        StudentCode = ps.Student.StudentCode,
+                        FullName = ps.Student.User.FullName,
+                        Standard = ps.Student.Standard,
+                        BusNumber = ps.Student.Bus != null ? ps.Student.Bus.BusNumber : null
+                    }).ToList()
                 }).ToListAsync();
-            return ApiResponse<PagedResult<ParentListDto>>.Ok(new PagedResult<ParentListDto> { Items = items, TotalCount = total, PageNumber = page, PageSize = pageSize });
+            return ApiResponse<PagedResult<ParentListDto>>.Ok(new PagedResult<ParentListDto>
+            {
+                Items = items,
+                TotalCount = total,
+                PageNumber = page,
+                PageSize = pageSize
+            });
         }
         public async Task<ApiResponse<ParentListDto>> GetByIdAsync(int userId)
         {
             var p = await _db.Parents.Include(x => x.User).Include(x => x.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.User).Include(x => x.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.Bus).FirstOrDefaultAsync(x => x.UserId == userId);
-            if (p is null) return ApiResponse<ParentListDto>.Fail("Not found.");
-            return ApiResponse<ParentListDto>.Ok(new ParentListDto { UserId = p.UserId, FullName = p.User.FullName, Email = p.User.Email, PhoneNumber = p.User.PhoneNumber, IsActive = p.User.IsActive, Students = p.ParentStudents.Select(ps => new LinkedStudentDto { StudentId = ps.Student.StudentId, StudentCode = ps.Student.StudentCode, FullName = ps.Student.User.FullName, Standard = ps.Student.Standard, BusNumber = ps.Student.Bus?.BusNumber }).ToList() });
+            if (p is null)
+                return ApiResponse<ParentListDto>.Fail("Not found.");
+            return ApiResponse<ParentListDto>.Ok(new ParentListDto
+            {
+                UserId = p.UserId,
+                FullName = p.User.FullName,
+                Email = p.User.Email,
+                PhoneNumber = p.User.PhoneNumber,
+                IsActive = p.User.IsActive,
+                Students = p.ParentStudents.Select(ps => new LinkedStudentDto
+                {
+                    StudentId = ps.Student.StudentId,
+                    StudentCode = ps.Student.StudentCode,
+                    FullName = ps.Student.User.FullName,
+                    Standard = ps.Student.Standard,
+                    BusNumber = ps.Student.Bus?.BusNumber
+                }).ToList()
+            });
         }
         public async Task<ApiResponse<CreatedUserResultDto>> CreateAsync(CreateParentDto dto, int createdBy)
         {
@@ -55,8 +91,45 @@
             await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Updated.");
         }
         public async Task<ApiResponse<bool>> DeleteAsync(int userId)
-        { var p = await _db.Parents.Include(x => x.User).FirstOrDefaultAsync(x => x.UserId == userId); if (p is null) return ApiResponse<bool>.Fail("Not found."); p.User.IsActive = false; p.User.UpdatedAt = DateTime.UtcNow; await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Marked inactive."); }
+        {
+            var p = await _db.Parents.Include(x => x.User).FirstOrDefaultAsync(x => x.UserId == userId);
+            if (p is null)
+                return ApiResponse<bool>.Fail("Not found.");
+            p.User.IsActive = false;
+            p.User.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return ApiResponse<bool>.Ok(true, "Marked inactive.");
+        }
+
         public async Task<ApiResponse<bool>> ToggleActiveAsync(int userId)
-        { var p = await _db.Parents.Include(x => x.User).FirstOrDefaultAsync(x => x.UserId == userId); if (p is null) return ApiResponse<bool>.Fail("Not found."); p.User.IsActive = !p.User.IsActive; p.User.UpdatedAt = DateTime.UtcNow; await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, p.User.IsActive ? "Activated." : "Deactivated."); }
+        {
+            var p = await _db.Parents.Include(x => x.User).FirstOrDefaultAsync(x => x.UserId == userId);
+            if (p is null)
+                return ApiResponse<bool>.Fail("Not found.");
+            p.User.IsActive = !p.User.IsActive;
+            p.User.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return ApiResponse<bool>.Ok(true, p.User.IsActive ? "Activated." : "Deactivated.");
+        }
+
+        public async Task<ApiResponse<CreatedUserResultDto>> ResetPasswordAsync(int userId)
+        {
+            var u = await _db.Users.FindAsync(userId);
+            if (u is null) return ApiResponse<CreatedUserResultDto>.Fail("Parent not found.");
+            var newPassword = _pwd.GenerateRandomPassword();
+            var (hash, salt) = _pwd.HashPassword(newPassword);
+            u.PasswordHash = hash;
+            u.PasswordSalt = salt;
+            u.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return ApiResponse<CreatedUserResultDto>.Ok(new CreatedUserResultDto
+            {
+                UserId = u.UserId,
+                FullName = u.FullName,
+                Email = u.Email,
+                PlainPassword = newPassword,
+                Role = "Parent"
+            }, "Password reset successfully.");
+        }
     }
 }

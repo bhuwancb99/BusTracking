@@ -69,5 +69,25 @@
             var list = await q.OrderBy(s => s.User.FullName).Take(10).Select(s => new StudentSearchDto { StudentId = s.StudentId, StudentCode = s.StudentCode, FullName = s.User.FullName, Standard = s.Standard, BusNumber = s.Bus != null ? s.Bus.BusNumber : null }).ToListAsync();
             return ApiResponse<List<StudentSearchDto>>.Ok(list);
         }
+
+        public async Task<ApiResponse<CreatedUserResultDto>> ResetPasswordAsync(int studentId)
+        {
+            var u = await _db.Users.FindAsync(studentId);
+            if (u is null) return ApiResponse<CreatedUserResultDto>.Fail("Student not found.");
+            var newPassword = _pwd.GenerateRandomPassword();
+            var (hash, salt) = _pwd.HashPassword(newPassword);
+            u.PasswordHash = hash;
+            u.PasswordSalt = salt;
+            u.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return ApiResponse<CreatedUserResultDto>.Ok(new CreatedUserResultDto
+            {
+                UserId = u.UserId,
+                FullName = u.FullName,
+                Email = u.Email,
+                PlainPassword = newPassword,
+                Role = "Student"
+            }, "Password reset successfully.");
+        }
     }
 }

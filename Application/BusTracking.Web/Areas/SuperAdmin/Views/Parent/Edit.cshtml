@@ -70,8 +70,28 @@
                     <div class="d-flex gap-2 mt-4">
                         <button type="submit" class="btn btn-warning px-4"><i class="bi bi-check2 me-1"></i>Update Parent</button>
                         <a asp-area="SuperAdmin" asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                        <button type="button" class="btn btn-outline-danger px-4 ms-auto" onclick="confirmResetPassword()">
+                            <i class="bi bi-key me-1"></i>Reset Password
+                        </button>
                     </div>
                 </form>
+
+                <div id="pwdResult" class="mt-3" style="display:none;">
+                    <div class="alert alert-success border-0 d-flex align-items-start gap-3">
+                        <i class="bi bi-shield-check fs-4 text-success mt-1"></i>
+                        <div>
+                            <div class="fw-semibold mb-1">Password Reset Successfully</div>
+                            <div class="mb-1 small text-muted">New password for <span id="pwdName" class="fw-semibold text-dark"></span></div>
+                            <div class="d-flex align-items-center gap-2 mt-2">
+                                <code id="pwdValue" class="fs-5 px-3 py-1 bg-white border rounded text-danger fw-bold"></code>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyPwd()" title="Copy">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                            <div class="text-muted small mt-2"><i class="bi bi-exclamation-triangle me-1 text-warning"></i>Copy this password now — it will not be shown again.</div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -127,6 +147,31 @@
             const chip=btn.closest('.chip-student');
             existingCodes.delete(chip.dataset.code);
             chip.remove();
+        }
+
+        function confirmResetPassword() {
+            if (!confirm('Reset password for this parent? A new password will be generated and shown once.')) return;
+            doResetPassword();
+        }
+        async function doResetPassword() {
+            const id = @ViewBag.ParentId;
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            const res = await fetch(`/SuperAdmin/Parent/ResetPassword?id=${id}`, {
+                method: 'POST',
+                headers: { 'RequestVerificationToken': token }
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('pwdName').textContent = data.fullName + ' (' + data.email + ')';
+                document.getElementById('pwdValue').textContent = data.password;
+                document.getElementById('pwdResult').style.display = '';
+                document.getElementById('pwdResult').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert('Error: ' + data.message);
+            }
+        }
+        function copyPwd() {
+            navigator.clipboard.writeText(document.getElementById('pwdValue').textContent);
         }
     </script>
 }

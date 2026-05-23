@@ -58,5 +58,24 @@
             u.IsActive = !u.IsActive; u.UpdatedAt = DateTime.UtcNow; await _db.SaveChangesAsync();
             return ApiResponse<bool>.Ok(true, u.IsActive ? "Activated." : "Deactivated.");
         }
+        public async Task<ApiResponse<CreatedUserResultDto>> ResetPasswordAsync(int userId)
+        {
+            var u = await _db.Users.FindAsync(userId);
+            if (u is null) return ApiResponse<CreatedUserResultDto>.Fail("Coordinator not found.");
+            var newPassword = _pwd.GenerateRandomPassword();
+            var (hash, salt) = _pwd.HashPassword(newPassword);
+            u.PasswordHash = hash;
+            u.PasswordSalt = salt;
+            u.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return ApiResponse<CreatedUserResultDto>.Ok(new CreatedUserResultDto
+            {
+                UserId = u.UserId,
+                FullName = u.FullName,
+                Email = u.Email,
+                PlainPassword = newPassword,
+                Role = "BusCoordinator"
+            }, "Password reset successfully.");
+        }
     }
 }

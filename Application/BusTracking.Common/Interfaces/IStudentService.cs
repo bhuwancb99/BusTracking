@@ -12,5 +12,6 @@
         Task<ApiResponse<bool>> SetAvailabilityAsync(CreateAvailabilityDto dto, int markedBy);
         Task<ApiResponse<List<AvailabilityDto>>> GetAvailabilitiesAsync(int studentId);
         Task<ApiResponse<List<StudentSearchDto>>> SearchAsync(string? query);
+        Task<ApiResponse<CreatedUserResultDto>> ResetPasswordAsync(int studentId);
     }
 }

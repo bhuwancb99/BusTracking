@@ -74,7 +74,8 @@
                 ViewBag.DriverId = id;
                 return View(m);
             }
-            TempData["SuccessMessage"] = r.Message; return RedirectToAction(nameof(Index));
+            TempData["SuccessMessage"] = r.Message; 
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost, ValidateAntiForgeryToken]
@@ -104,6 +105,20 @@
         {
             var r = await _bus.GetDropdownAsync(q);
             return Json(r.Data);
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(int id)
+        {
+            var r = await _driver.ResetPasswordAsync(id);
+            return Json(new
+            {
+                r.Success,
+                r.Message,
+                password = r.Data?.PlainPassword,
+                fullName = r.Data?.FullName,
+                email = r.Data?.Email
+            });
         }
     }
 }

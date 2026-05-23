@@ -64,5 +64,25 @@
             var list = await q.OrderBy(u => u.FullName).Take(20).Select(u => new DriverDropdownDto { UserId = u.UserId, Display = u.FullName + " (" + u.Email + ")" }).ToListAsync();
             return ApiResponse<List<DriverDropdownDto>>.Ok(list);
         }
+
+        public async Task<ApiResponse<CreatedUserResultDto>> ResetPasswordAsync(int userId)
+        {
+            var u = await _db.Users.FindAsync(userId);
+            if (u is null) return ApiResponse<CreatedUserResultDto>.Fail("Driver not found.");
+            var newPassword = _pwd.GenerateRandomPassword();
+            var (hash, salt) = _pwd.HashPassword(newPassword);
+            u.PasswordHash = hash;
+            u.PasswordSalt = salt;
+            u.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return ApiResponse<CreatedUserResultDto>.Ok(new CreatedUserResultDto
+            {
+                UserId = u.UserId,
+                FullName = u.FullName,
+                Email = u.Email,
+                PlainPassword = newPassword,
+                Role = "Driver"
+            }, "Password reset successfully.");
+        }
     }
 }

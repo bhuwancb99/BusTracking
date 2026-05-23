@@ -10,5 +10,6 @@
         Task<ApiResponse<bool>> ToggleActiveAsync(int userId);
         Task<ApiResponse<bool>> AssignBusAsync(AssignBusToDriverDto dto);
         Task<ApiResponse<List<DriverDropdownDto>>> GetDropdownAsync(string? search);
+        Task<ApiResponse<CreatedUserResultDto>> ResetPasswordAsync(int userId);
     }
 }
