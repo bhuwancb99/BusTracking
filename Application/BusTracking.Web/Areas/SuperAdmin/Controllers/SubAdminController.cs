@@ -20,16 +20,25 @@
             return r.Success ? View(r.Data) : NotFound();
         }
 
-        [HttpGet] public IActionResult Create() => View(new CreateSubAdminDto());
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            ViewBag.AllPermissions = await _sa.GetAllPermissionsAsync();
+            return View(new CreateSubAdminDto());
+        }
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateSubAdminDto m)
         {
             if (!ModelState.IsValid)
+            {
+                ViewBag.AllPermissions = await _sa.GetAllPermissionsAsync();
                 return View(m);
+            }
             var r = await _sa.CreateAsync(m, UserId);
             if (!r.Success)
             {
                 ModelState.AddModelError("", r.Message);
+                ViewBag.AllPermissions = await _sa.GetAllPermissionsAsync();
                 return View(m);
             }
             TempData["CreatedUser"] = System.Text.Json.JsonSerializer.Serialize(r.Data);
@@ -43,12 +52,14 @@
             if (!r.Success)
                 return NotFound();
             ViewBag.SubAdminId = id;
+            ViewBag.AllPermissions = await _sa.GetAllPermissionsAsync();
+            var permIds = await _sa.GetPermissionIdsAsync(id);
             return View(new UpdateSubAdminDto
             {
                 FullName = r.Data!.FullName,
                 PhoneNumber = r.Data.PhoneNumber,
                 IsActive = r.Data.IsActive,
-                PermissionIds = []
+                PermissionIds = permIds
             });
         }
 
@@ -58,6 +69,7 @@
             if (!ModelState.IsValid)
             {
                 ViewBag.SubAdminId = id;
+                ViewBag.AllPermissions = await _sa.GetAllPermissionsAsync();
                 return View(m);
             }
             var r = await _sa.UpdateAsync(id, m);
@@ -65,6 +77,7 @@
             {
                 ModelState.AddModelError("", r.Message);
                 ViewBag.SubAdminId = id;
+                ViewBag.AllPermissions = await _sa.GetAllPermissionsAsync();
                 return View(m);
             }
             TempData["SuccessMessage"] = r.Message;

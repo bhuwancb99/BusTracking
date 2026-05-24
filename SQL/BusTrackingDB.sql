@@ -83,6 +83,8 @@ INSERT INTO Permissions (ModuleName, PermissionKey, Description) VALUES
 ('ManageStudents',      'student.add',              'Add student'),
 ('ManageStudents',      'student.edit',             'Edit student'),
 ('ManageStudents',      'student.delete',           'Delete student'),
+('ManageTrips',         'trip.view',                'View trips'),
+('ManageTrips',         'trip.manage',              'Manage trips (start/stop/track)'),
 ('ManageStudents',      'student.assignbus',        'Assign bus to student'),
 ('ManageNotifications', 'notification.manage',      'Enable/disable notifications'),
 ('HelpSupport',         'helpsupport.view',         'View help & support requests'),

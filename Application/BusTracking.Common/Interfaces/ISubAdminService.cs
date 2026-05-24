@@ -9,5 +9,7 @@
         Task<ApiResponse<bool>> DeleteAsync(int userId);
         Task<ApiResponse<bool>> ToggleActiveAsync(int userId);
         Task<ApiResponse<CreatedUserResultDto>> ResetPasswordAsync(int userId);
+        Task<List<int>> GetPermissionIdsAsync(int userId);
+        Task<List<(int Id, string ModuleName, string Key, string Description)>> GetAllPermissionsAsync();
     }
 }

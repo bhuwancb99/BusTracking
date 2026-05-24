@@ -37,34 +37,26 @@
                             <button type="button" class="btn btn-sm btn-outline-primary" id="btnSelectAll">Select All</button>
                         </div>
                         @{
-                            var permGroups = new Dictionary<string, List<(int id, string key, string label)>>
-                            {
-                                ["Dashboard"] = [(1, "dashboard.view", "View Dashboard")],
-                                ["Routes"] = [(6, "route.view", "View"), (7, "route.add", "Add"), (8, "route.edit", "Edit"), (9, "route.delete", "Delete")],
-                                ["Buses"] = [(10, "bus.view", "View"), (11, "bus.add", "Add"), (12, "bus.edit", "Edit"), (13, "bus.delete", "Delete"), (14, "bus.track", "Track")],
-                                ["Drivers"] = [(15, "driver.view", "View"), (16, "driver.add", "Add"), (17, "driver.edit", "Edit"), (18, "driver.delete", "Delete"), (19, "driver.track", "Track")],
-                                ["Parents"] = [(20, "parent.view", "View"), (21, "parent.add", "Add"), (22, "parent.edit", "Edit"), (23, "parent.delete", "Delete")],
-                                ["Students"] = [(24, "student.view", "View"), (25, "student.add", "Add"), (26, "student.edit", "Edit"), (27, "student.delete", "Delete"), (28, "student.assignbus", "Assign Bus")],
-                                ["Notifications"] = [(29, "notification.manage", "Manage")],
-                                ["Help & Support"] = [(30, "helpsupport.view", "View"), (31, "helpsupport.manage", "Manage")],
-                            };
+                            var allPerms = ViewBag.AllPermissions as List<(int Id, string ModuleName, string Key, string Description)>
+                                          ?? new List<(int, string, string, string)>();
+                            var permGroups = allPerms.GroupBy(p => p.ModuleName).OrderBy(g => g.Key);
                         }
                         <div class="row g-3">
-                            @foreach (var (module, perms) in permGroups)
+                            @foreach (var group in permGroups)
                             {
-                                var modKey = module.Replace(" ", "_").Replace("&", "");
+                                var modKey = group.Key.Replace(" ", "_").Replace("&", "");
                                 <div class="col-md-6">
                                     <div class="border rounded p-3">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span class="fw-semibold small text-uppercase text-muted">@module</span>
+                                            <span class="fw-semibold small text-uppercase text-muted">@group.Key.Replace("Manage", "")</span>
                                             <button type="button" class="btn btn-link btn-sm p-0 text-primary btn-module-all" data-mod="@modKey">All</button>
                                         </div>
-                                        @foreach (var (id, key, label) in perms)
+                                        @foreach (var perm in group)
                                         {
                                             <div class="form-check">
                                                 <input class="form-check-input perm-@modKey" type="checkbox"
-                                                       name="PermissionIds" value="@id" id="perm_@id" />
-                                                <label class="form-check-label small" for="perm_@id">@label</label>
+                                                       name="PermissionIds" value="@perm.Id" id="perm_@perm.Id" />
+                                                <label class="form-check-label small" for="perm_@perm.Id">@perm.Description</label>
                                             </div>
                                         }
                                     </div>

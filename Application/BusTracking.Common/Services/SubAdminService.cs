@@ -77,5 +77,21 @@
                 Role = "BusCoordinator"
             }, "Password reset successfully.");
         }
+
+        public async Task<List<int>> GetPermissionIdsAsync(int userId)
+        {
+            return await _db.SubAdminPermissions
+                .Where(sp => sp.UserId == userId)
+                .Select(sp => sp.PermissionId)
+                .ToListAsync();
+        }
+
+        public async Task<List<(int Id, string ModuleName, string Key, string Description)>> GetAllPermissionsAsync()
+        {
+            return await _db.Permissions
+                .OrderBy(p => p.ModuleName).ThenBy(p => p.PermissionId)
+                .Select(p => ValueTuple.Create(p.PermissionId, p.ModuleName, p.PermissionKey, p.Description))
+                .ToListAsync();
+        }
     }
 }

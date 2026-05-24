@@ -6,5 +6,6 @@
         Task<ApiResponse<bool>> ForgotPasswordAsync(ForgotPasswordDto dto);
         Task<ApiResponse<bool>> ResetPasswordAsync(ResetPasswordDto dto);
         Task<ApiResponse<bool>> ChangePasswordAsync(int userId, ChangePasswordDto dto);
+        Task<List<string>> GetCoordinatorPermissionsAsync(int userId);
     }
 }

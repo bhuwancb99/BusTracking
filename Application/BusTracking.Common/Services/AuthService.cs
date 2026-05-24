@@ -104,5 +104,13 @@
 
             return ApiResponse<bool>.Ok(true, "Password changed.");
         }
+
+        public async Task<List<string>> GetCoordinatorPermissionsAsync(int userId)
+        {
+            return await _db.SubAdminPermissions
+                .Where(sp => sp.UserId == userId)
+                .Select(sp => sp.Permission.PermissionKey)
+                .ToListAsync();
+        }
     }
 }

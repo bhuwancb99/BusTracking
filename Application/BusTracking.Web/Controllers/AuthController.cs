@@ -38,6 +38,14 @@ public class AuthController : Controller
             new(ClaimTypes.Role,           result.Data.Role),
         };
 
+        // For BusCoordinators, load their assigned permissions and add as claims
+        if (result.Data.Role == "BusCoordinator")
+        {
+            var permKeys = await _auth.GetCoordinatorPermissionsAsync(result.Data.UserId);
+            foreach (var key in permKeys)
+                claims.Add(new Claim("permission", key));
+        }
+
         await HttpContext.SignInAsync(
             CookieAuthenticationDefaults.AuthenticationScheme,
             new ClaimsPrincipal(new ClaimsIdentity(claims,

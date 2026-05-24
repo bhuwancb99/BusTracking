@@ -34,7 +34,8 @@
                 bool showDrivers = Has("driver.view");
                 bool showParents = Has("parent.view");
                 bool showStudents = Has("student.view");
-                bool showNotif = Has("notification.manage");
+                bool showNotif   = Has("notification.manage");
+                bool showTrips   = Has("trip.view") || Has("trip.manage");
                 bool showSupport = Has("helpsupport.view") || Has("helpsupport.manage");
 
                 // If NO permission claims exist yet (older session / all-access assigned)
@@ -100,11 +101,11 @@
             }
 
             @* Trips *@
-            @if (true || fallback)
+            @if (showTrips || fallback)
             {
                 <li class="sidebar-item @(ctrl == "Trip" ? "active" : "")">
                     <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="Trip" asp-action="Index">
-                        <i class="bi bi-bus-front"></i><span>Trips</span>
+                        <i class="bi bi-signpost-split"></i><span>Trips</span>
                     </a>
                 </li>
             }
