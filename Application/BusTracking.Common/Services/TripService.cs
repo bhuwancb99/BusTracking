@@ -91,6 +91,22 @@
             return ApiResponse<BusLocationDto?>.Ok(loc);
         }
 
+        public async Task<ApiResponse<List<BusLocationDto>>> GetLocationHistoryAsync(int tripId)
+        {
+            var list = await _db.BusLiveLocations
+                .Where(l => l.TripId == tripId)
+                .OrderBy(l => l.RecordedAt)
+                .Select(l => new BusLocationDto
+                {
+                    Latitude = l.Latitude,
+                    Longitude = l.Longitude,
+                    Speed = l.Speed,
+                    Heading = l.Heading,
+                    RecordedAt = l.RecordedAt
+                }).ToListAsync();
+            return ApiResponse<List<BusLocationDto>>.Ok(list);
+        }
+
 
         public async Task<ApiResponse<TripListDto>> GetByIdAsync(int tripId)
         {

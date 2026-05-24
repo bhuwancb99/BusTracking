@@ -14,6 +14,7 @@
         Task<ApiResponse<bool>> ReachStopAsync(int tripId, int stopId);
         Task<ApiResponse<List<TripStopEventDto>>> GetStopEventsAsync(int tripId);
         Task<ApiResponse<BusLocationDto?>> GetLatestLocationAsync(int tripId);
+        Task<ApiResponse<List<BusLocationDto>>> GetLocationHistoryAsync(int tripId);
         Task<ApiResponse<bool>> InsertLocationPingAsync(int tripId, int busId, decimal lat, decimal lng, decimal? speed, decimal? heading);
 
     }

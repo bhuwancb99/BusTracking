@@ -1,21 +1,20 @@
-﻿@model BusTracking.Common.DTOs.Trip.TripListDto
+@model BusTracking.Common.DTOs.Trip.TripListDto
 @using BusTracking.Common.DTOs.Trip
 @{
     ViewData["Title"] = $"Trip #{Model?.TripId}";
     var students = ViewBag.Students as List<StudentTripStatusDto> ?? [];
-    var stops = ViewBag.Stops as List<TripStopEventDto> ?? [];
-    var isLive = Model?.Status == "InProgress";
-    var statusStyle = Model?.Status switch
-    {
-        "Scheduled" => "background:#e8f0fe;color:#1a73e8",
+    var stops    = ViewBag.Stops    as List<TripStopEventDto>     ?? [];
+    var isLive   = Model?.Status == "InProgress";
+    var statusStyle = Model?.Status switch {
+        "Scheduled"  => "background:#e8f0fe;color:#1a73e8",
         "InProgress" => "background:#e6f4ea;color:#1e8e3e",
-        "Completed" => "background:#f1f3f4;color:#5f6368",
-        "Cancelled" => "background:#fce8e6;color:#c5221f",
-        _ => "background:#f1f3f4;color:#5f6368"
+        "Completed"  => "background:#f1f3f4;color:#5f6368",
+        "Cancelled"  => "background:#fce8e6;color:#c5221f",
+        _            => "background:#f1f3f4;color:#5f6368"
     };
 }
 
-<!-- Header -->
+<!-- ── Header ─────────────────────────────────────────────────────── -->
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
         <h4 class="fw-bold mb-1">
@@ -23,64 +22,43 @@
             Trip #@Model?.TripId — @Model?.BusNumber
         </h4>
         <div class="d-flex align-items-center gap-2 flex-wrap">
-            <span class="badge rounded-pill px-3 py-2"
-                  style="@statusStyle;font-size:.8rem">
+            <span class="badge rounded-pill px-3 py-2" style="@statusStyle;font-size:.8rem">
                 @Model?.Status
             </span>
-            <span class="text-muted small">
-                <i class="bi bi-calendar3 me-1"></i>@Model?.TripDate
-            </span>
+            <span class="text-muted small"><i class="bi bi-calendar3 me-1"></i>@Model?.TripDate</span>
             <span class="badge rounded-pill px-2"
-                  style="@(Model?.TripType == "Morning"
-                                                                                            ? "background:#fff3e0;color:#e65100"
-                                                                                            : "background:#e8eaf6;color:#3949ab");font-size:.75rem">
-                <i class="bi @(Model?.TripType == "Morning" ? "bi-sunrise" : "bi-sunset") me-1"></i>
-                @Model?.TripType
+                  style="@(Model?.TripType=="Morning"?"background:#fff3e0;color:#e65100":"background:#e8eaf6;color:#3949ab");font-size:.75rem">
+                <i class="bi @(Model?.TripType=="Morning"?"bi-sunrise":"bi-sunset") me-1"></i>@Model?.TripType
             </span>
-            <span class="text-muted small">
-                <i class="bi bi-person-video2 me-1"></i>@Model?.DriverName
-            </span>
-            <span class="text-muted small">
-                <i class="bi bi-map me-1"></i>@Model?.RouteName
-            </span>
+            <span class="text-muted small"><i class="bi bi-person-video2 me-1"></i>@Model?.DriverName</span>
+            <span class="text-muted small"><i class="bi bi-map me-1"></i>@Model?.RouteName</span>
         </div>
     </div>
-    <!-- Trip action buttons -->
     <div class="d-flex gap-2 flex-wrap">
         @if (Model?.Status == "Scheduled")
         {
-            <form asp-area="BusCoordinator" asp-controller="Trip"
-                  asp-action="Start" asp-route-id="@Model.TripId" method="post">
+            <form asp-area="BusCoordinator" asp-controller="Trip" asp-action="Start" asp-route-id="@Model.TripId" method="post">
                 @Html.AntiForgeryToken()
-                <button class="btn btn-success px-4">
-                    <i class="bi bi-play-fill me-1"></i>Start Trip
-                </button>
+                <button class="btn btn-success px-4"><i class="bi bi-play-fill me-1"></i>Start Trip</button>
             </form>
         }
         @if (Model?.Status == "InProgress")
         {
-            <form asp-area="BusCoordinator" asp-controller="Trip"
-                  asp-action="End" asp-route-id="@Model.TripId" method="post"
+            <form asp-area="BusCoordinator" asp-controller="Trip" asp-action="End" asp-route-id="@Model.TripId" method="post"
                   onsubmit="return confirm('End this trip?')">
                 @Html.AntiForgeryToken()
-                <button class="btn btn-danger px-4">
-                    <i class="bi bi-stop-fill me-1"></i>End Trip
-                </button>
+                <button class="btn btn-danger px-4"><i class="bi bi-stop-fill me-1"></i>End Trip</button>
             </form>
         }
         @if (Model?.Status is "Scheduled" or "InProgress")
         {
-            <form asp-area="BusCoordinator" asp-controller="Trip"
-                  asp-action="Cancel" asp-route-id="@Model!.TripId" method="post"
+            <form asp-area="BusCoordinator" asp-controller="Trip" asp-action="Cancel" asp-route-id="@Model!.TripId" method="post"
                   onsubmit="return confirm('Cancel this trip?')">
                 @Html.AntiForgeryToken()
-                <button class="btn btn-outline-warning px-3">
-                    <i class="bi bi-x-lg me-1"></i>Cancel
-                </button>
+                <button class="btn btn-outline-warning px-3"><i class="bi bi-x-lg me-1"></i>Cancel</button>
             </form>
         }
-        <a asp-area="BusCoordinator" asp-controller="Trip" asp-action="Index"
-           class="btn btn-outline-secondary px-3">
+        <a asp-area="BusCoordinator" asp-controller="Trip" asp-action="Index" class="btn btn-outline-secondary px-3">
             <i class="bi bi-arrow-left me-1"></i>Back
         </a>
     </div>
@@ -88,14 +66,13 @@
 
 <div class="row g-4">
 
-    <!-- ══ LEFT COLUMN ══════════════════════════════════════════ -->
+    <!-- ══ LEFT COLUMN ════════════════════════════════════════════════ -->
     <div class="col-lg-5">
 
-        <!-- ── Stop Timeline ─────────────────────────────────── -->
+        <!-- ── Stop Timeline ──────────────────────────────────────── -->
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white border-0 pt-4 px-4 fw-semibold">
-                <i class="bi bi-signpost-split me-2 text-primary"></i>
-                Route Stops
+                <i class="bi bi-signpost-split me-2 text-primary"></i>Route Stops
                 <span class="badge bg-secondary-subtle text-secondary ms-2">@stops.Count</span>
             </div>
             <div class="card-body p-4">
@@ -108,20 +85,9 @@
                     <div class="stop-timeline">
                         @foreach (var stop in stops.OrderBy(s => s.StopOrder))
                         {
-                            var dotColor = stop.Status switch
-                            {
-                                "Departed" => "#1e8e3e",
-                                "Reached" => "#1a73e8",
-                                _ => "#dadce0"
-                            };
-                            var dotIcon = stop.Status switch
-                            {
-                                "Departed" => "bi-check-circle-fill",
-                                "Reached" => "bi-geo-alt-fill",
-                                _ => "bi-circle"
-                            };
-                            <div class="d-flex gap-3 mb-3 align-items-start stop-row"
-                                 data-stop-id="@stop.StopId">
+                            var dotColor = stop.Status switch { "Departed" => "#1e8e3e", "Reached" => "#1a73e8", _ => "#dadce0" };
+                            var dotIcon  = stop.Status switch { "Departed" => "bi-check-circle-fill", "Reached" => "bi-geo-alt-fill", _ => "bi-circle" };
+                            <div class="d-flex gap-3 mb-3 align-items-start stop-row" data-stop-id="@stop.StopId">
                                 <div class="flex-shrink-0 mt-1">
                                     <i class="bi @dotIcon" style="color:@dotColor;font-size:1.1rem"></i>
                                 </div>
@@ -129,35 +95,22 @@
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
                                             <span class="fw-semibold small">@stop.StopName</span>
-                                            <span class="text-muted ms-2" style="font-size:.72rem">
-                                                Stop #@stop.StopOrder
-                                            </span>
+                                            <span class="text-muted ms-2" style="font-size:.72rem">Stop #@stop.StopOrder</span>
                                         </div>
                                         <span class="badge rounded-pill px-2"
-                                              style="font-size:.7rem;@(stop.Status == "Departed"
-                                                                                                                                                                                                                                    ? "background:#e6f4ea;color:#1e8e3e"
-                                                                                                                                                                                                                                    : stop.Status == "Reached"
-                                                                                                                                                                                                                                    ? "background:#e8f0fe;color:#1a73e8"
-                                                                                                                                                                                                                                    : "background:#f1f3f4;color:#5f6368")">
+                                              style="font-size:.7rem;@(stop.Status=="Departed"?"background:#e6f4ea;color:#1e8e3e":stop.Status=="Reached"?"background:#e8f0fe;color:#1a73e8":"background:#f1f3f4;color:#5f6368")">
                                             @stop.Status
                                         </span>
                                     </div>
                                     <div class="d-flex gap-3 mt-1" style="font-size:.72rem;color:#5f6368">
-                                        @if (stop.ReachedAt.HasValue)
-                                        {
-                                            <span><i class="bi bi-clock me-1"></i>Reached @stop.ReachedAt.Value.ToString("HH:mm")</span>
-                                        }
-                                        @if (stop.DepartedAt.HasValue)
-                                        {
-                                            <span><i class="bi bi-arrow-right me-1"></i>Departed @stop.DepartedAt.Value.ToString("HH:mm")</span>
-                                        }
+                                        @if (stop.ReachedAt.HasValue) { <span><i class="bi bi-clock me-1"></i>Reached @stop.ReachedAt.Value.ToString("HH:mm")</span> }
+                                        @if (stop.DepartedAt.HasValue) { <span><i class="bi bi-arrow-right me-1"></i>Departed @stop.DepartedAt.Value.ToString("HH:mm")</span> }
                                     </div>
                                     @if (isLive && stop.Status == "Pending")
                                     {
                                         <button class="btn btn-sm mt-2 btn-reach-stop"
                                                 style="font-size:.75rem;background:#e8f0fe;color:#1a73e8;border:none;padding:3px 10px;border-radius:20px"
-                                                data-trip-id="@Model!.TripId"
-                                                data-stop-id="@stop.StopId">
+                                                data-trip-id="@Model!.TripId" data-stop-id="@stop.StopId">
                                             <i class="bi bi-geo-alt me-1"></i>Mark Reached
                                         </button>
                                     }
@@ -169,138 +122,87 @@
             </div>
         </div>
 
-        <!-- ── GPS Simulator (only when InProgress) ─────────── -->
+        <!-- ── GPS Simulator (Testing Tool — only InProgress) ────── -->
         @if (isLive)
         {
             <div class="card border-0 shadow-sm mb-4" style="border-left:4px solid #1a73e8!important">
-                <div class="card-header bg-white border-0 pt-4 px-4 fw-semibold">
-                    <i class="bi bi-broadcast me-2 text-primary"></i>
-                    GPS Simulator
-                    <span class="badge ms-2" style="background:#e8f0fe;color:#1a73e8;font-size:.7rem">
-                        Testing Tool
-                    </span>
+                <div class="card-header bg-white border-0 pt-4 px-4 fw-semibold d-flex align-items-center gap-2">
+                    <i class="bi bi-broadcast text-primary"></i>GPS Simulator
+                    <span class="badge ms-1" style="background:#e8f0fe;color:#1a73e8;font-size:.7rem">Testing Tool</span>
+                    <button class="btn btn-link btn-sm ms-auto p-0" data-bs-toggle="collapse" data-bs-target="#gpsSimBody">
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
                 </div>
-                <div class="card-body p-4">
-                    <p class="text-muted small mb-3">
-                        <i class="bi bi-info-circle me-1"></i>
-                        Use this to simulate the driver's mobile app sending GPS pings.
-                        The live map will update after each ping.
-                    </p>
-                    <div class="row g-2 mb-3">
-                        <div class="col-6">
-                            <label class="form-label fw-semibold small">Latitude</label>
-                            <input type="number" id="simLat" class="form-control form-control-sm"
-                                   step="0.0001" placeholder="e.g. 29.2350" value="29.2183" />
+                <div class="collapse show" id="gpsSimBody">
+                    <div class="card-body p-4">
+                        <div class="alert alert-info border-0 py-2 px-3 mb-3" style="font-size:.8rem;background:#e8f0fe;color:#1a73e8">
+                            <i class="bi bi-info-circle me-1"></i>
+                            <strong>Testing only.</strong> In production, the driver's phone app automatically sends real GPS pings to
+                            <code>/api/location/ping</code> every 5–10 seconds — no manual input needed.
                         </div>
-                        <div class="col-6">
-                            <label class="form-label fw-semibold small">Longitude</label>
-                            <input type="number" id="simLng" class="form-control form-control-sm"
-                                   step="0.0001" placeholder="e.g. 79.5250" value="79.5130" />
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <label class="form-label fw-semibold small">Latitude</label>
+                                <input type="number" id="simLat" class="form-control form-control-sm" step="0.0001" value="29.2183" />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-semibold small">Longitude</label>
+                                <input type="number" id="simLng" class="form-control form-control-sm" step="0.0001" value="79.5130" />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-semibold small">Speed (km/h)</label>
+                                <input type="number" id="simSpeed" class="form-control form-control-sm" value="30" />
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-semibold small">Heading (°)</label>
+                                <input type="number" id="simHeading" class="form-control form-control-sm" value="0" min="0" max="360" />
+                            </div>
                         </div>
-                        <div class="col-6">
-                            <label class="form-label fw-semibold small">Speed (km/h)</label>
-                            <input type="number" id="simSpeed" class="form-control form-control-sm"
-                                   step="0.1" value="30" />
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary btn-sm px-4" id="btnSendPing">
+                                <i class="bi bi-send me-1"></i>Send Ping
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm" id="btnAutoMove">
+                                <i class="bi bi-play me-1"></i>Auto Move
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm d-none" id="btnStopAuto">
+                                <i class="bi bi-stop me-1"></i>Stop
+                            </button>
                         </div>
-                        <div class="col-6">
-                            <label class="form-label fw-semibold small">Heading (°)</label>
-                            <input type="number" id="simHeading" class="form-control form-control-sm"
-                                   step="1" value="0" min="0" max="360" />
-                        </div>
+                        <div id="pingLog" class="mt-3 small text-muted" style="max-height:70px;overflow-y:auto"></div>
                     </div>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-primary btn-sm px-4" id="btnSendPing">
-                            <i class="bi bi-send me-1"></i>Send Ping
-                        </button>
-                        <button class="btn btn-outline-secondary btn-sm" id="btnAutoMove"
-                                title="Auto-increment lat every 5s">
-                            <i class="bi bi-play me-1"></i>Auto Move
-                        </button>
-                        <button class="btn btn-outline-danger btn-sm d-none" id="btnStopAuto">
-                            <i class="bi bi-stop me-1"></i>Stop
-                        </button>
-                    </div>
-                    <div id="pingLog" class="mt-3 small text-muted" style="max-height:80px;overflow-y:auto"></div>
                 </div>
             </div>
         }
 
-    </div>
-
-    <!-- ══ RIGHT COLUMN ═════════════════════════════════════════ -->
-    <div class="col-lg-7">
-
-        <!-- ── Live Map ──────────────────────────────────────── -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white border-0 pt-3 px-4 d-flex justify-content-between align-items-center">
-                <span class="fw-semibold">
-                    <i class="bi bi-map me-2 text-primary"></i>Live Location
-                </span>
-                @if (isLive)
-                {
-                    <span class="badge"
-                          style="background:#e6f4ea;color:#1e8e3e;font-size:.75rem">
-                        <span class="me-1" style="display:inline-block;width:8px;height:8px;
-                        background:#1e8e3e;border-radius:50%;animation:pulse 1.5s infinite"></span>
-                        LIVE — updates every 10s
-                    </span>
-                }
-                else
-                {
-                    <span class="text-muted small">Trip not in progress</span>
-                }
-            </div>
-            <div class="card-body p-0">
-                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-                <div id="tripMap" data-trip-id="@Model?.TripId"
-                     style="height:300px;border-radius:0 0 0 0"></div>
-                <div class="px-4 py-2 border-top d-flex gap-4 small text-muted" id="gpsInfoBar">
-                    <span><i class="bi bi-geo-alt me-1"></i><span id="latVal">–</span></span>
-                    <span><i class="bi bi-geo me-1"></i><span id="lngVal">–</span></span>
-                    <span><i class="bi bi-speedometer2 me-1"></i><span id="spdVal">–</span> km/h</span>
-                    <span><i class="bi bi-clock me-1"></i><span id="updVal">–</span></span>
-                </div>
-            </div>
-        </div>
-
-        <!-- ── Student Boarding Status ───────────────────────── -->
+        <!-- ── Students ──────────────────────────────────────────── -->
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between">
                 <span class="fw-semibold">
-                    <i class="bi bi-mortarboard me-2 text-info"></i>
-                    Students
+                    <i class="bi bi-mortarboard me-2 text-info"></i>Students
                     <span class="badge bg-info-subtle text-info ms-1">@students.Count</span>
                 </span>
-                @if (isLive)
-                {
-                    <small class="text-muted align-self-center">
-                        Click a status to update
-                    </small>
-                }
+                @if (isLive) { <small class="text-muted align-self-center">Click status to update</small> }
             </div>
             <div class="card-body p-0" style="max-height:340px;overflow-y:auto">
                 @if (!students.Any())
                 {
                     <div class="text-center text-muted py-4">
-                        <i class="bi bi-mortarboard fs-2 d-block mb-1"></i>
-                        No students on this trip.
+                        <i class="bi bi-mortarboard fs-2 d-block mb-1"></i>No students on this trip.
                     </div>
                 }
                 else
                 {
                     @foreach (var s in students.OrderBy(x => x.StopOrder).ThenBy(x => x.StudentName))
                     {
-                        var bsCss = s.BoardingStatus switch
-                        {
+                        var bsCss = s.BoardingStatus switch {
                             "PickedUp" => "background:#e6f4ea;color:#1e8e3e",
-                            "NoShow" => "background:#fce8e6;color:#c5221f",
-                            "OnLeave" => "background:#fff3e0;color:#e65100",
-                            _ => "background:#f1f3f4;color:#5f6368"
+                            "NoShow"   => "background:#fce8e6;color:#c5221f",
+                            "OnLeave"  => "background:#fff3e0;color:#e65100",
+                            _          => "background:#f1f3f4;color:#5f6368"
                         };
-                        <div class="d-flex align-items-center gap-3 px-4 py-3 border-bottom
-                            student-row" id="srow-@s.StudentId">
-                            <div class="rounded-circle d-flex align-items-center justify-content-center
-                                bg-info-subtle text-info fw-bold flex-shrink-0"
+                        <div class="d-flex align-items-center gap-3 px-4 py-3 border-bottom student-row" id="srow-@s.StudentId">
+                            <div class="rounded-circle d-flex align-items-center justify-content-center bg-info-subtle text-info fw-bold flex-shrink-0"
                                  style="width:36px;height:36px;font-size:.8rem">
                                 @s.StudentName.ToInitials()
                             </div>
@@ -311,33 +213,22 @@
                                     <span class="ms-2"><i class="bi bi-hash me-1"></i>Stop @s.StopOrder</span>
                                 </div>
                             </div>
-                            <!-- Status badge / dropdown when live -->
                             @if (isLive)
                             {
                                 <div class="dropdown">
                                     <button class="btn btn-sm dropdown-toggle sboarding-badge"
                                             style="@bsCss;border:none;font-size:.75rem;border-radius:20px;padding:4px 12px"
-                                            data-bs-toggle="dropdown"
-                                            id="sbtn-@s.StudentId">
+                                            data-bs-toggle="dropdown" id="sbtn-@s.StudentId">
                                         @s.BoardingStatus
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                        @foreach (var st in new[]{
-                                            ("Pending","bi-circle","#5f6368"),
-                                            ("PickedUp","bi-check-circle-fill","#1e8e3e"),
-                                            ("NoShow","bi-x-circle-fill","#c5221f"),
-                                            ("OnLeave","bi-calendar-x","#e65100")})
+                                        @foreach (var st in new[]{ ("Pending","bi-circle","#5f6368"), ("PickedUp","bi-check-circle-fill","#1e8e3e"), ("NoShow","bi-x-circle-fill","#c5221f"), ("OnLeave","bi-calendar-x","#e65100") })
                                         {
                                             <li>
-                                                <a class="dropdown-item small boarding-option"
-                                                   href="#"
-                                                   data-trip-id="@Model!.TripId"
-                                                   data-student-id="@s.StudentId"
-                                                   data-stop-id="@s.StopOrder"
-                                                   data-status="@st.Item1"
-                                                   data-btn-id="sbtn-@s.StudentId">
-                                                    <i class="bi @st.Item2 me-2"
-                                                       style="color:@st.Item3"></i>@st.Item1
+                                                <a class="dropdown-item small boarding-option" href="#"
+                                                   data-trip-id="@Model!.TripId" data-student-id="@s.StudentId"
+                                                   data-stop-id="@s.StopOrder" data-status="@st.Item1" data-btn-id="sbtn-@s.StudentId">
+                                                    <i class="bi @st.Item2 me-2" style="color:@st.Item3"></i>@st.Item1
                                                 </a>
                                             </li>
                                         }
@@ -346,10 +237,7 @@
                             }
                             else
                             {
-                                <span class="badge rounded-pill px-3 py-2"
-                                      style="@bsCss;font-size:.73rem">
-                                    @s.BoardingStatus
-                                </span>
+                                <span class="badge rounded-pill px-3 py-2" style="@bsCss;font-size:.73rem">@s.BoardingStatus</span>
                             }
                         </div>
                     }
@@ -358,182 +246,430 @@
         </div>
 
     </div>
+
+    <!-- ══ RIGHT COLUMN — UBER-STYLE LIVE MAP ═══════════════════════ -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm" style="overflow:hidden">
+
+            <!-- Map header with live badge -->
+            <div class="card-header bg-white border-0 pt-3 px-4 d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">
+                    <i class="bi bi-map me-2 text-primary"></i>Live Location
+                </span>
+                @if (isLive)
+                {
+                    <span class="badge d-flex align-items-center gap-1" style="background:#e6f4ea;color:#1e8e3e;font-size:.75rem">
+                        <span id="liveDot" style="display:inline-block;width:8px;height:8px;background:#1e8e3e;border-radius:50%;animation:livePulse 1.5s infinite"></span>
+                        LIVE
+                    </span>
+                }
+                else
+                {
+                    <span class="text-muted small">Trip not in progress</span>
+                }
+            </div>
+
+            <!-- Leaflet Map -->
+            <div class="card-body p-0 position-relative">
+                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+                <div id="tripMap" style="height:420px"></div>
+
+                <!-- Uber-style speed/status overlay (bottom of map) -->
+                <div id="liveOverlay" class="position-absolute bottom-0 start-0 end-0 px-3 py-2"
+                     style="background:linear-gradient(transparent,rgba(0,0,0,.55));pointer-events:none;display:none">
+                    <div class="d-flex justify-content-between align-items-end text-white">
+                        <div>
+                            <div id="spdBig" style="font-size:2rem;font-weight:700;line-height:1">–</div>
+                            <div style="font-size:.7rem;opacity:.8">km/h</div>
+                        </div>
+                        <div class="text-center">
+                            <div id="busStatusLabel" style="font-size:.85rem;font-weight:600">–</div>
+                            <div id="lastUpdLabel" style="font-size:.68rem;opacity:.75">–</div>
+                        </div>
+                        <div class="text-end">
+                            <div id="coordLabel" style="font-size:.68rem;opacity:.75">–</div>
+                            <div id="headingLabel" style="font-size:.75rem">–</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- "Trip not started" placeholder -->
+                @if (!isLive)
+                {
+                    <div id="mapPlaceholder" class="position-absolute top-50 start-50 translate-middle text-center"
+                         style="pointer-events:none;z-index:999">
+                        <div style="background:rgba(255,255,255,.92);border-radius:12px;padding:16px 24px;box-shadow:0 4px 20px rgba(0,0,0,.15)">
+                            <i class="bi bi-bus-front text-primary" style="font-size:2.5rem"></i>
+                            <div class="fw-semibold mt-1" style="font-size:.9rem">@(Model?.Status == "Completed" ? "Trip completed" : "Trip not started yet")</div>
+                            <div class="text-muted" style="font-size:.75rem">@(Model?.Status == "Completed" ? "Route replay shown below" : "Start the trip to see live tracking")</div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Bottom info bar -->
+            <div class="px-4 py-2 border-top d-flex gap-4 small text-muted flex-wrap" id="gpsInfoBar">
+                <span><i class="bi bi-geo-alt me-1 text-danger"></i><span id="latVal">–</span></span>
+                <span><i class="bi bi-geo me-1 text-primary"></i><span id="lngVal">–</span></span>
+                <span><i class="bi bi-speedometer2 me-1 text-success"></i><span id="spdVal">–</span> km/h</span>
+                <span><i class="bi bi-compass me-1 text-warning"></i><span id="hdgVal">–</span>°</span>
+                <span><i class="bi bi-clock me-1"></i><span id="updVal">–</span></span>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @section Scripts {
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        const TRIP_ID  = @Model?.TripId;
-        const BUS_ID   = @(Model?.BusNumber != null ? "1" : "0");   // fallback
-        const IS_LIVE  = @(isLive ? "true" : "false");
-        const TOKEN    = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── Constants ────────────────────────────────────────────────────────
+const TRIP_ID = @Model?.TripId;
+const IS_LIVE = @(isLive ? "true" : "false");
+const TOKEN   = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
 
-        // ── Leaflet map ───────────────────────────────────────────────
-        const map = L.map('tripMap', { zoomControl:true }).setView([29.2183, 79.5130], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap'
-        }).addTo(map);
+// ── Stop data from server ────────────────────────────────────────────
+const STOPS = [
+    @foreach (var stop in stops.OrderBy(s => s.StopOrder))
+    {
+        @:{ id: @stop.StopId, name: "@stop.StopName", order: @stop.StopOrder, status: "@stop.Status" },
+    }
+];
 
-        // Add stop markers from stop events
-        @foreach (var stop in stops)
-        {
-            if (stop.StopOrder > 0)
-            {
-                @:L.circleMarker([@(29.2183 + stop.StopOrder * 0.005), @(79.5130 + stop.StopOrder * 0.005)], {
-                @:    radius:8, color:'#1a73e8', fillColor:'#e8f0fe', fillOpacity:1, weight:2
-                @:}).bindPopup('<b>Stop #@stop.StopOrder</b><br>@stop.StopName<br>@stop.Status').addTo(map);
-            }
-        }
+// ── Map Init ─────────────────────────────────────────────────────────
+const map = L.map('tripMap', { zoomControl: true, attributionControl: true })
+              .setView([29.2183, 79.5130], 13);
 
-        const busIcon = L.divIcon({
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>'
+}).addTo(map);
+
+// ── Stop markers ─────────────────────────────────────────────────────
+const stopColors = { Departed: '#1e8e3e', Reached: '#1a73e8', Pending: '#9aa0a6' };
+STOPS.forEach((s, i) => {
+    const color = stopColors[s.status] || '#9aa0a6';
+    const stopLat = 29.2183 + (i + 1) * 0.005;
+    const stopLng = 79.5130 + (i + 1) * 0.005;
+
+    const stopIcon = L.divIcon({
         className: '',
-        html: `<div style="background:#1a73e8;border-radius:50%;width:36px;height:36px;
-        display:flex;align-items:center;justify-content:center;
-        box-shadow:0 2px 8px rgba(26,115,232,.5);border:2px solid white">
-        <i class="bi bi-bus-front-fill" style="color:white;font-size:16px"></i>
+        html: `<div style="
+            background:${color};color:white;border-radius:50%;
+            width:30px;height:30px;display:flex;align-items:center;
+            justify-content:center;font-weight:700;font-size:.75rem;
+            border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,.3)">
+            ${s.order}
         </div>`,
-        iconSize:[36,36], iconAnchor:[18,18]
-        });
-        let busMarker = null;
-        let pathLine  = null;
-        let pathCoords= [];
+        iconSize: [30, 30], iconAnchor: [15, 15]
+    });
 
-        async function fetchLocation() {
-        try {
+    L.marker([stopLat, stopLng], { icon: stopIcon })
+     .bindPopup(`<b>Stop #${s.order}</b><br>${s.name}<br><span style="color:${color}">${s.status}</span>`)
+     .addTo(map);
+});
+
+// ── Animated bus icon (rotates with heading) ─────────────────────────
+function makeBusIcon(heading) {
+    return L.divIcon({
+        className: '',
+        html: `<div style="position:relative;width:48px;height:48px">
+            <!-- Shadow -->
+            <div style="position:absolute;bottom:-4px;left:50%;transform:translateX(-50%);
+                width:28px;height:8px;background:rgba(0,0,0,.2);border-radius:50%;filter:blur(3px)"></div>
+            <!-- Bus body -->
+            <div style="position:absolute;inset:0;background:#1a73e8;border-radius:12px;
+                display:flex;align-items:center;justify-content:center;
+                box-shadow:0 4px 14px rgba(26,115,232,.6);border:2px solid white;
+                transform:rotate(${heading}deg);transition:transform .5s ease">
+                <svg width="24" height="24" fill="white" viewBox="0 0 16 16">
+                    <path d="M1.5 3.5A2.5 2.5 0 0 1 4 1h8a2.5 2.5 0 0 1 2.5 2.5V9a2.5 2.5 0 0 1-2 2.458V12.5h.5a.5.5 0 0 1 0 1H3.5a.5.5 0 0 1 0-1h.5v-.042A2.5 2.5 0 0 1 1.5 9V3.5z"/>
+                </svg>
+            </div>
+            <!-- Direction arrow -->
+            <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%) rotate(${heading}deg);
+                width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;
+                border-bottom:10px solid #1a73e8;transition:transform .5s ease"></div>
+        </div>`,
+        iconSize: [48, 48], iconAnchor: [24, 24]
+    });
+}
+
+// ── Pulsing "you are here" ring ───────────────────────────────────────
+function makePulseIcon() {
+    return L.divIcon({
+        className: '',
+        html: `<div class="bus-pulse-ring"></div>`,
+        iconSize: [60, 60], iconAnchor: [30, 30]
+    });
+}
+
+// ── State ────────────────────────────────────────────────────────────
+let busMarker    = null;
+let pulseMarker  = null;
+let pathLine     = null;
+let pathCoords   = [];
+let prevLatLng   = null;
+let firstLoad    = true;
+let autoFollowing= true;
+
+// ── Smooth bus animation between pings ───────────────────────────────
+function animateBus(from, to, heading, durationMs) {
+    if (!busMarker) return;
+    const startTime = performance.now();
+    const latDiff = to[0] - from[0];
+    const lngDiff = to[1] - from[1];
+
+    function step(now) {
+        const elapsed = now - startTime;
+        const t = Math.min(elapsed / durationMs, 1);
+        const ease = t < .5 ? 2*t*t : -1+(4-2*t)*t; // ease in-out
+        const lat = from[0] + latDiff * ease;
+        const lng = from[1] + lngDiff * ease;
+        busMarker.setLatLng([lat, lng]);
+        if (pulseMarker) pulseMarker.setLatLng([lat, lng]);
+        if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+}
+
+// ── Update UI elements ───────────────────────────────────────────────
+function updateInfoBar(lat, lng, speed, heading, recordedAt) {
+    const spd = speed ? parseFloat(speed).toFixed(1) : '0';
+    const hdg = heading ? Math.round(heading) : 0;
+
+    document.getElementById('latVal').textContent  = parseFloat(lat).toFixed(5);
+    document.getElementById('lngVal').textContent  = parseFloat(lng).toFixed(5);
+    document.getElementById('spdVal').textContent  = spd;
+    document.getElementById('hdgVal').textContent  = hdg;
+    document.getElementById('updVal').textContent  = new Date(recordedAt).toLocaleTimeString();
+
+    // Overlay
+    document.getElementById('spdBig').textContent        = spd;
+    document.getElementById('coordLabel').textContent    = `${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)}`;
+    document.getElementById('headingLabel').textContent  = headingToCompass(hdg);
+    document.getElementById('lastUpdLabel').textContent  = 'Updated ' + new Date(recordedAt).toLocaleTimeString();
+
+    const moving = parseFloat(spd) > 2;
+    document.getElementById('busStatusLabel').textContent = moving ? '🚌 Moving' : '🅿️ Stopped';
+    document.getElementById('liveOverlay').style.display = '';
+}
+
+function headingToCompass(h) {
+    const dirs = ['N','NE','E','SE','S','SW','W','NW','N'];
+    return dirs[Math.round(h / 45)] + ` ${h}°`;
+}
+
+// ── Fetch latest location & update map ───────────────────────────────
+async function fetchLocation() {
+    try {
         const res  = await fetch(`/BusCoordinator/Trip/LatestLocation?tripId=${TRIP_ID}`);
         const data = await res.json();
-        if (data.success && data.data) {
-        const { latitude:lat, longitude:lng, speed, heading, recordedAt } = data.data;
-        const latlng = [lat, lng];
+        if (!data.success || !data.data) return;
+
+        const { latitude: lat, longitude: lng, speed, heading, recordedAt } = data.data;
+        const latlng = [parseFloat(lat), parseFloat(lng)];
+        const hdg    = heading ? parseFloat(heading) : 0;
 
         if (!busMarker) {
-        busMarker = L.marker(latlng, { icon:busIcon }).addTo(map);
-        map.setView(latlng, 15);
+            // First paint
+            pulseMarker = L.marker(latlng, { icon: makePulseIcon(), zIndexOffset: 999 }).addTo(map);
+            busMarker   = L.marker(latlng, { icon: makeBusIcon(hdg), zIndexOffset: 1000 }).addTo(map);
+            busMarker.bindPopup(`<b>${'@Model?.BusNumber'}</b><br>${'@Model?.DriverName'}<br>Speed: ${speed ?? 0} km/h`);
+            if (firstLoad) { map.setView(latlng, 15); firstLoad = false; }
+            document.getElementById('mapPlaceholder')?.remove();
         } else {
-        busMarker.setLatLng(latlng);
+            const from = busMarker.getLatLng();
+            // Update icon with new heading
+            busMarker.setIcon(makeBusIcon(hdg));
+            // Smooth animate
+            animateBus([from.lat, from.lng], latlng, hdg, 8000);
         }
 
-        // Draw path
+        // Trail path
         pathCoords.push(latlng);
         if (pathLine) map.removeLayer(pathLine);
-        if (pathCoords.length > 1)
-        pathLine = L.polyline(pathCoords, { color:'#1a73e8', weight:3, opacity:.6, dashArray:'5,8' }).addTo(map);
-
-        document.getElementById('latVal').textContent = lat.toFixed(5);
-        document.getElementById('lngVal').textContent = lng.toFixed(5);
-        document.getElementById('spdVal').textContent = speed ? speed.toFixed(1) : '0';
-        document.getElementById('updVal').textContent = new Date(recordedAt).toLocaleTimeString();
-        }
-        } catch(e) { console.warn('Location fetch failed', e); }
+        if (pathCoords.length > 1) {
+            // Solid recent path + faded older path
+            const recent = pathCoords.slice(-10);
+            const older  = pathCoords.slice(0, -10);
+            if (older.length > 1)
+                L.polyline(older, { color: '#1a73e8', weight: 2, opacity: .25, dashArray: '4,8' }).addTo(map);
+            pathLine = L.polyline(recent, { color: '#1a73e8', weight: 4, opacity: .8 }).addTo(map);
         }
 
-        fetchLocation();
-        if (IS_LIVE) setInterval(fetchLocation, 10000);
+        prevLatLng = latlng;
+        updateInfoBar(lat, lng, speed, heading, recordedAt);
 
-        // ── GPS Simulator ─────────────────────────────────────────────
-        let autoTimer = null;
-        document.getElementById('btnSendPing')?.addEventListener('click', async () => {
-        await sendPing();
-        });
-        document.getElementById('btnAutoMove')?.addEventListener('click', function() {
-        this.classList.add('d-none');
-        document.getElementById('btnStopAuto').classList.remove('d-none');
-        autoTimer = setInterval(async () => {
+        if (autoFollowing) map.panTo(latlng, { animate: true, duration: 1 });
+    } catch(e) { console.warn('Location fetch failed', e); }
+}
+
+// ── Load full history on page load (for completed trips replay) ───────
+async function loadHistory() {
+    try {
+        const res  = await fetch(`/BusCoordinator/Trip/LocationHistory?tripId=${TRIP_ID}`);
+        const data = await res.json();
+        if (!data.success || !data.data?.length) return;
+
+        const coords = data.data.map(d => [parseFloat(d.latitude), parseFloat(d.longitude)]);
+        pathCoords   = coords;
+
+        if (coords.length > 1) {
+            L.polyline(coords, { color: '#1a73e8', weight: 3, opacity: .5, dashArray: '4,8' }).addTo(map);
+        }
+        if (coords.length > 0) {
+            const last = coords[coords.length - 1];
+            const lastData = data.data[data.data.length - 1];
+            busMarker  = L.marker(last, { icon: makeBusIcon(lastData.heading ?? 0), zIndexOffset: 1000 }).addTo(map);
+            map.fitBounds(L.latLngBounds(coords).pad(.1));
+            updateInfoBar(lastData.latitude, lastData.longitude, lastData.speed, lastData.heading, lastData.recordedAt);
+            document.getElementById('mapPlaceholder')?.remove();
+        }
+    } catch(e) { console.warn('History load failed', e); }
+}
+
+// ── Stop following when user drags map ───────────────────────────────
+map.on('dragstart', () => { autoFollowing = false; });
+const followBtn = L.control({ position: 'topright' });
+followBtn.onAdd = function() {
+    const btn = L.DomUtil.create('button', 'leaflet-bar leaflet-control');
+    btn.innerHTML = '🎯';
+    btn.title = 'Re-center on bus';
+    btn.style.cssText = 'width:34px;height:34px;font-size:16px;cursor:pointer;background:white;border:none;border-radius:4px';
+    btn.onclick = function() {
+        autoFollowing = true;
+        if (busMarker) map.panTo(busMarker.getLatLng(), { animate: true, duration: .5 });
+    };
+    return btn;
+};
+followBtn.addTo(map);
+
+// ── Start polling ────────────────────────────────────────────────────
+if (IS_LIVE) {
+    fetchLocation();
+    setInterval(fetchLocation, 8000);
+} else {
+    loadHistory();
+}
+
+// ── GPS Simulator ────────────────────────────────────────────────────
+let autoTimer = null;
+
+document.getElementById('btnSendPing')?.addEventListener('click', sendPing);
+
+document.getElementById('btnAutoMove')?.addEventListener('click', function () {
+    this.classList.add('d-none');
+    document.getElementById('btnStopAuto').classList.remove('d-none');
+    autoTimer = setInterval(async () => {
         const lat = parseFloat(document.getElementById('simLat').value);
-        document.getElementById('simLat').value = (lat + 0.0015).toFixed(6);
+        const lng = parseFloat(document.getElementById('simLng').value);
+        document.getElementById('simLat').value = (lat + 0.0012).toFixed(6);
+        document.getElementById('simLng').value = (lng + 0.0008).toFixed(6);
+        document.getElementById('simHeading').value = Math.round((Math.random() * 360));
+        document.getElementById('simSpeed').value   = Math.round(20 + Math.random() * 25);
         await sendPing();
-        }, 5000);
-        });
-        document.getElementById('btnStopAuto')?.addEventListener('click', function() {
-        clearInterval(autoTimer);
-        this.classList.add('d-none');
-        document.getElementById('btnAutoMove').classList.remove('d-none');
-        });
+    }, 4000);
+});
 
-        async function sendPing() {
-        const dto = {
-        tripId  : TRIP_ID,
-        busId   : 1,
+document.getElementById('btnStopAuto')?.addEventListener('click', function () {
+    clearInterval(autoTimer);
+    this.classList.add('d-none');
+    document.getElementById('btnAutoMove').classList.remove('d-none');
+});
+
+async function sendPing() {
+    const dto = {
+        tripId   : TRIP_ID,
+        busId    : 1,
         latitude : parseFloat(document.getElementById('simLat').value),
         longitude: parseFloat(document.getElementById('simLng').value),
         speed    : parseFloat(document.getElementById('simSpeed').value),
         heading  : parseFloat(document.getElementById('simHeading').value)
-        };
-        const res  = await fetch('/BusCoordinator/Trip/SimulateGps', {
-        method:'POST',
-        headers:{'Content-Type':'application/json','RequestVerificationToken':TOKEN()},
+    };
+    const res  = await fetch('/BusCoordinator/Trip/SimulateGps', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': TOKEN() },
         body: JSON.stringify(dto)
-        });
-        const data = await res.json();
-        const log  = document.getElementById('pingLog');
-        log.innerHTML = `<span class="${data.success?'text-success':'text-danger'}">
-        ${new Date().toLocaleTimeString()} — Ping sent (${dto.latitude.toFixed(4)}, ${dto.longitude.toFixed(4)})
+    });
+    const data = await res.json();
+    const log  = document.getElementById('pingLog');
+    if (log) {
+        log.innerHTML = `<span class="${data.success ? 'text-success' : 'text-danger'}">
+            ${new Date().toLocaleTimeString()} — Ping (${dto.latitude.toFixed(4)}, ${dto.longitude.toFixed(4)}) ${dto.speed} km/h
         </span><br>` + log.innerHTML;
-        if (data.success) fetchLocation();
-        }
+    }
+    if (data.success) fetchLocation();
+}
 
-        // ── Mark stop reached ─────────────────────────────────────────
-        document.querySelectorAll('.btn-reach-stop').forEach(btn => {
-        btn.addEventListener('click', async function() {
-        const tripId = this.dataset.tripId;
-        const stopId = this.dataset.stopId;
-        const res    = await fetch(`/BusCoordinator/Trip/ReachStop?tripId=${tripId}&stopId=${stopId}`, {
-        method:'POST', headers:{'RequestVerificationToken':TOKEN()}
+// ── Mark stop reached ────────────────────────────────────────────────
+document.querySelectorAll('.btn-reach-stop').forEach(btn => {
+    btn.addEventListener('click', async function () {
+        const res  = await fetch(`/BusCoordinator/Trip/ReachStop?tripId=${this.dataset.tripId}&stopId=${this.dataset.stopId}`, {
+            method: 'POST', headers: { 'RequestVerificationToken': TOKEN() }
         });
         const data = await res.json();
-        busTrack.showToast(data.message, data.success?'success':'danger');
-        if (data.success) setTimeout(()=>location.reload(),700);
-        });
-        });
+        busTrack.showToast(data.message, data.success ? 'success' : 'danger');
+        if (data.success) setTimeout(() => location.reload(), 700);
+    });
+});
 
-        // ── Boarding status update ─────────────────────────────────────
-        document.querySelectorAll('.boarding-option').forEach(opt => {
-        opt.addEventListener('click', async function(e) {
+// ── Boarding status update ────────────────────────────────────────────
+document.querySelectorAll('.boarding-option').forEach(opt => {
+    opt.addEventListener('click', async function (e) {
         e.preventDefault();
         const body = {
-        tripId   : parseInt(this.dataset.tripId),
-        studentId: parseInt(this.dataset.studentId),
-        stopId   : parseInt(this.dataset.stopId),
-        status   : this.dataset.status
+            tripId   : parseInt(this.dataset.tripId),
+            studentId: parseInt(this.dataset.studentId),
+            stopId   : parseInt(this.dataset.stopId),
+            status   : this.dataset.status
         };
         const res  = await fetch('/BusCoordinator/Trip/UpdateBoarding', {
-        method:'POST',
-        headers:{'Content-Type':'application/json','RequestVerificationToken':TOKEN()},
-        body: JSON.stringify(body)
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': TOKEN() },
+            body: JSON.stringify(body)
         });
         const data = await res.json();
-        busTrack.showToast(data.message, data.success?'success':'danger');
+        busTrack.showToast(data.message, data.success ? 'success' : 'danger');
         if (data.success) {
-        // Update badge text & style
-        const statusStyles = {
-        'PickedUp': 'background:#e6f4ea;color:#1e8e3e',
-        'NoShow'  : 'background:#fce8e6;color:#c5221f',
-        'OnLeave' : 'background:#fff3e0;color:#e65100',
-        'Pending' : 'background:#f1f3f4;color:#5f6368'
-        };
-        const btn = document.getElementById(this.dataset.btnId);
-        if (btn) {
-        btn.textContent = this.dataset.status;
-        btn.style.cssText = `${statusStyles[this.dataset.status]};border:none;font-size:.75rem;border-radius:20px;padding:4px 12px`;
+            const styles = {
+                PickedUp: 'background:#e6f4ea;color:#1e8e3e',
+                NoShow  : 'background:#fce8e6;color:#c5221f',
+                OnLeave : 'background:#fff3e0;color:#e65100',
+                Pending : 'background:#f1f3f4;color:#5f6368'
+            };
+            const btn = document.getElementById(this.dataset.btnId);
+            if (btn) {
+                btn.textContent = this.dataset.status;
+                btn.style.cssText = `${styles[this.dataset.status]};border:none;font-size:.75rem;border-radius:20px;padding:4px 12px`;
+            }
         }
-        }
-        });
-        });
-    </script>
-    <style>
-        @@keyframes pulse {
-        0%, 100% {
-        opacity: 1;
-        }
+    });
+});
+</script>
 
-        50% {
-        opacity: .3;
-        }
-        }
-
-
-        .stop-timeline .stop-row:not(:last-child)::before {
-        display: none;
-        }
-    </style>
+<style>
+    /* Pulsing ring around bus */
+    .bus-pulse-ring {
+        width: 60px; height: 60px; border-radius: 50%;
+        border: 3px solid #1a73e8; opacity: .6;
+        animation: busRingPulse 2s ease-out infinite;
+    }
+    @@keyframes busRingPulse {
+        0%   { transform: scale(.5); opacity: .8; }
+        100% { transform: scale(1.6); opacity: 0; }
+    }
+    @@keyframes livePulse {
+        0%, 100% { opacity: 1; }
+        50%       { opacity: .2; }
+    }
+    .stop-timeline .stop-row:not(:last-child) {
+        padding-bottom: 8px;
+        border-left: 2px dashed #e8eaed;
+        margin-left: 9px;
+        padding-left: 16px;
+    }
+    .stop-timeline .stop-row:not(:last-child) .flex-shrink-0 {
+        margin-left: -25px;
+    }
+</style>
 }

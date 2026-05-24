@@ -130,6 +130,13 @@
         }
 
         [HttpGet]
+        public async Task<IActionResult> LocationHistory(int tripId)
+        {
+            var r = await _trip.GetLocationHistoryAsync(tripId);
+            return Json(new { success = r.Success, data = r.Data });
+        }
+
+        [HttpGet]
         public async Task<IActionResult> StopsForBus(int busId)
         {
             var r = await _route.GetStopsByBusAsync(busId);
