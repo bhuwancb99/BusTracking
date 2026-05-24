@@ -48,6 +48,9 @@
             if (!r.Success)
                 return NotFound();
             ViewBag.ParentId = id;
+            // Pass name map so view can render "Rahul Pandey STD00001" in chips
+            ViewBag.StudentMap = r.Data!.Students
+                .ToDictionary(s => s.StudentCode, s => s.FullName);
             return View(new UpdateParentDto
             {
                 FullName = r.Data!.FullName,

@@ -59,6 +59,8 @@
             if (!r.Success)
                 return NotFound(); ViewBag.BusId = id;
             await LoadRoutesDropdown(r.Data!.RouteId);
+            if (r.Data.DriverUserId.HasValue && r.Data.DriverName != null)
+                ViewBag.DriverDisplay = $"{r.Data.DriverName} ({r.Data.DriverPhone ?? "–"})";
             return View(new UpdateBusDto
             {
                 BusName = r.Data!.BusName,

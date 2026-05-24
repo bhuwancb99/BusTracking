@@ -48,6 +48,8 @@
             if (!r.Success)
                 return NotFound();
             ViewBag.DriverId = id;
+            if (r.Data!.BusId.HasValue && r.Data.BusName != null)
+                ViewBag.BusDisplay = $"{r.Data.BusName} ({r.Data.BusNumber})";
             return View(new UpdateDriverDto
             {
                 FullName = r.Data!.FullName,
@@ -74,7 +76,7 @@
                 ViewBag.DriverId = id;
                 return View(m);
             }
-            TempData["SuccessMessage"] = r.Message; 
+            TempData["SuccessMessage"] = r.Message;
             return RedirectToAction(nameof(Index));
         }
 

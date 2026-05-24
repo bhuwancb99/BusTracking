@@ -33,7 +33,8 @@
                         StudentCode = ps.Student.StudentCode,
                         FullName = ps.Student.User.FullName,
                         Standard = ps.Student.Standard,
-                        BusNumber = ps.Student.Bus != null ? ps.Student.Bus.BusNumber : null
+                        BusNumber = ps.Student.Bus != null ? ps.Student.Bus.BusNumber : null,
+                        BusName = ps.Student.Bus != null ? ps.Student.Bus.BusName : null
                     }).ToList()
                 }).ToListAsync();
             return ApiResponse<PagedResult<ParentListDto>>.Ok(new PagedResult<ParentListDto>
@@ -62,7 +63,8 @@
                     StudentCode = ps.Student.StudentCode,
                     FullName = ps.Student.User.FullName,
                     Standard = ps.Student.Standard,
-                    BusNumber = ps.Student.Bus?.BusNumber
+                    BusNumber = ps.Student.Bus?.BusNumber,
+                    BusName = ps.Student.Bus?.BusName
                 }).ToList()
             });
         }

@@ -53,11 +53,15 @@
 
                     <!-- Selected student chips -->
                     <div id="selectedStudents" class="d-flex flex-wrap gap-2 mb-3">
+                        @{
+                            var studentMap = ViewBag.StudentMap as Dictionary<string, string> ?? new Dictionary<string, string>();
+                        }
                         @foreach (var code in Model.StudentCodes)
                         {
+                            var name = studentMap.TryGetValue(code, out var n) ? n : "";
                             <span class="badge bg-info-subtle text-info px-3 py-2 d-flex align-items-center gap-2 chip-student" data-code="@code">
                                 <i class="bi bi-mortarboard"></i>
-                                <span>@code</span>
+                                <span>@(name.Length > 0 ? $"{name} " : "")<code class="bg-transparent">@code</code></span>
                                 <button type="button" class="btn btn-sm p-0 ms-1 text-danger" onclick="removeStudent(this)">
                                     <i class="bi bi-x-circle"></i>
                                 </button>

@@ -73,7 +73,11 @@
                                             <td>
                                                 @if (s.BusNumber is not null)
                                                 {
-                                                    <span class="badge bg-primary-subtle text-primary">@s.BusNumber</span>
+                                                    <div><span class="badge bg-primary-subtle text-primary">@s.BusNumber</span></div>
+                                                    @if (s.BusName is not null)
+                                                    {
+                                                        <div class="text-muted small">@s.BusName</div>
+                                                    }
                                                 }
                                                 else
                                                 {

@@ -50,6 +50,9 @@
             if (!r.Success)
                 return NotFound();
             ViewBag.DriverId = id;
+            // Pass the human-readable bus display so the textbox shows name not ID
+            if (r.Data!.BusId.HasValue && r.Data.BusName != null)
+                ViewBag.BusDisplay = $"{r.Data.BusName} ({r.Data.BusNumber})";
             return View(new UpdateDriverDto
             {
                 FullName = r.Data!.FullName,
@@ -82,7 +85,7 @@
         public async Task<IActionResult> Delete(int id)
         {
             await _driver.DeleteAsync(id);
-            TempData["SuccessMessage"] = "Marked inactive."; 
+            TempData["SuccessMessage"] = "Marked inactive.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -90,19 +93,19 @@
         public async Task<IActionResult> Toggle(int id)
         {
             var r = await _driver.ToggleActiveAsync(id);
-            return Json(new { r.Success, r.Message }); 
+            return Json(new { r.Success, r.Message });
         }
 
         [HttpGet]
         public async Task<IActionResult> SearchBuses(string? q)
-        { 
-            var r = await _bus.GetDropdownAsync(q); 
-            return Json(r.Data); 
+        {
+            var r = await _bus.GetDropdownAsync(q);
+            return Json(r.Data);
         }
 
         [HttpPost]
         public async Task<IActionResult> AssignBus([FromBody] AssignBusToDriverDto dto)
-        { 
+        {
             var r = await _driver.AssignBusAsync(dto);
             return Json(new { r.Success, r.Message });
         }

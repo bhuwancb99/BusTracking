@@ -65,7 +65,7 @@
                             <label class="form-label fw-semibold">Assign Driver</label>
                             <div class="position-relative">
                                 <input type="text" id="driverSearch" class="form-control"
-                                       value="@(Model.DriverUserId.HasValue ? $"Driver ID: {Model.DriverUserId}" : "")"
+                                       value="@(ViewBag.DriverDisplay as string ?? "")"
                                        placeholder="Type driver name…" autocomplete="off" />
                                 <input type="hidden" asp-for="DriverUserId" id="driverIdInput" />
                                 <div id="driverSuggestions" class="dropdown-menu w-100 shadow-sm"></div>
@@ -74,7 +74,7 @@
                                 @if (Model.DriverUserId.HasValue)
                                 {
                                     <span class="badge bg-success-subtle text-success">
-                                        <i class="bi bi-person-video2 me-1"></i>Driver ID: @Model.DriverUserId
+                                        <i class="bi bi-person-video2 me-1"></i>@(ViewBag.DriverDisplay as string ?? $"Driver ID: {Model.DriverUserId}")
                                     </span>
                                     <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-1"
                                             onclick="clearDriver()">

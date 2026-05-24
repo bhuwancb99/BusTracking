@@ -48,6 +48,8 @@
             if (!r.Success)
                 return NotFound();
             ViewBag.ParentId = id;
+            ViewBag.StudentMap = r.Data!.Students
+                .ToDictionary(s => s.StudentCode, s => s.FullName);
             return View(new UpdateParentDto
             {
                 FullName = r.Data!.FullName,

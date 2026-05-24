@@ -7,5 +7,6 @@
         public string FullName { get; set; } = "";
         public string? Standard { get; set; }
         public string? BusNumber { get; set; }
+        public string? BusName { get; set; }
     }
 }
