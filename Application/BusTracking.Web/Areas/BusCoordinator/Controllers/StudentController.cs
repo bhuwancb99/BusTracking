@@ -44,6 +44,8 @@
             if (!r.Success)
                 return NotFound();
             ViewBag.StudentId = id;
+            if (r.Data!.BusId.HasValue && r.Data.BusName != null)
+                ViewBag.BusDisplay = $"{r.Data.BusName} ({r.Data.BusNumber})";
             return View(new UpdateStudentDto
             {
                 FullName = r.Data!.FullName,

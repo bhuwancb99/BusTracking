@@ -47,7 +47,7 @@
                             <div class="position-relative">
                                 <input type="text" id="busSearch" class="form-control"
                                        placeholder="Type bus name or number…" autocomplete="off"
-                                       value="@(Model.BusId.HasValue ? $"Bus ID: {Model.BusId}" : "")" />
+                                       value="@(ViewBag.BusDisplay as string ?? "")" />
                                 <input type="hidden" asp-for="BusId" id="busIdInput" />
                                 <div id="busSuggestions" class="dropdown-menu w-100 shadow-sm"></div>
                             </div>
@@ -55,7 +55,7 @@
                                 @if (Model.BusId.HasValue)
                                 {
                                     <span class="badge bg-primary-subtle text-primary" id="busChip">
-                                        <i class="bi bi-bus-front me-1"></i>Bus ID: @Model.BusId
+                                        <i class="bi bi-bus-front me-1"></i>@(ViewBag.BusDisplay as string ?? $"Bus ID: {Model.BusId}")
                                     </span>
                                     <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-1"
                                             onclick="clearBus()">

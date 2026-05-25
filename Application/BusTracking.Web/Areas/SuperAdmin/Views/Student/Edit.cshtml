@@ -42,6 +42,7 @@
                             <label class="form-label fw-semibold">Assign Bus</label>
                             <div class="position-relative">
                                 <input type="text" id="busSearch" class="form-control"
+                                       value="@(ViewBag.BusDisplay as string ?? "")"
                                        placeholder="Type bus name or number…" autocomplete="off" />
                                 <input type="hidden" asp-for="BusId" id="busIdInput" />
                                 <div id="busSuggestions" class="dropdown-menu w-100 shadow-sm"></div>
@@ -50,7 +51,7 @@
                                 @if (Model?.BusId.HasValue == true)
                                 {
                                     <span class="badge bg-primary-subtle text-primary">
-                                        <i class="bi bi-bus-front me-1"></i><span id="busLabel">Loading…</span>
+                                        <i class="bi bi-bus-front me-1"></i><span id="busLabel">@(ViewBag.BusDisplay as string ?? $"Bus ID: {Model.BusId}")</span>
                                     </span>
                                     <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-1" onclick="clearBus()">Remove</button>
                                 }
@@ -141,20 +142,9 @@
         const currentBusId  = @Html.Raw(Model?.BusId?.ToString() ?? "null");
         const currentStopId = @Html.Raw(Model?.StopId?.ToString() ?? "null");
 
-        // ── On page load: if bus already assigned, load its info + stops ──────
+        // ── On page load: if bus already assigned, load stops ───────────────
         window.addEventListener('DOMContentLoaded', async () => {
             if (!currentBusId) return;
-
-            // Pre-fill bus search box by fetching the bus display name
-            try {
-                const busData = await (await fetch(`/SuperAdmin/Student/SearchBuses?q=`)).json();
-                // Instead just show Bus ID — stops are more important
-                const label = document.getElementById('busLabel');
-                if (label) label.textContent = `Bus ID: ${currentBusId}`;
-                document.getElementById('busSearch').placeholder = `Bus ID: ${currentBusId} (type to change)`;
-            } catch {}
-
-            // Load stops immediately
             await loadStops(currentBusId, currentStopId);
         });
 
