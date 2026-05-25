@@ -26,6 +26,7 @@ public class AppDbContext : DbContext
     public DbSet<DeviceToken> DeviceTokens { get; set; }
     public DbSet<Feedback> Feedbacks { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
+    public DbSet<AppConfiguration> AppConfigurations { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -54,6 +55,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<DeviceToken>().ToTable("DeviceTokens");
         modelBuilder.Entity<Feedback>().ToTable("Feedbacks");
         modelBuilder.Entity<AuditLog>().ToTable("AuditLogs");
+        modelBuilder.Entity<AppConfiguration>().ToTable("AppConfigurations");
 
         // ── Unique indexes ────────────────────────────────────────────
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
@@ -81,6 +83,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Notification>().Property(n => n.NotificationType).HasConversion<string>();
         modelBuilder.Entity<DeviceToken>().Property(d => d.Platform).HasConversion<string>();
         modelBuilder.Entity<TripStopEvent>().Property(t => t.Status).HasConversion<string>();
+        modelBuilder.Entity<AppConfiguration>().Property(c => c.Platform).HasConversion<string>();
+        modelBuilder.Entity<AppConfiguration>().HasIndex(c => new { c.ConfigKey, c.Platform }).IsUnique();
 
         // ── Prevent cascade cycles ────────────────────────────────────
         modelBuilder.Entity<SubAdminPermission>()

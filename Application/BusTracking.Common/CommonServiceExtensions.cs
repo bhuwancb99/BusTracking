@@ -37,6 +37,9 @@ public static class CommonServiceExtensions
         services.AddScoped<IParentExtService, ParentExtService>();
         services.AddScoped<ISubAdminExtService, SubAdminExtService>();
 
+        // App Configuration
+        services.AddScoped<IAppConfigService, AppConfigService>();
+
         return services;
     }
 }

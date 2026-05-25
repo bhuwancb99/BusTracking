@@ -1,4 +1,5 @@
 ﻿global using BusTracking.Common.Data;
+global using BusTracking.Common.DTOs.AppConfig;
 global using BusTracking.Common.DTOs.Assign;
 global using BusTracking.Common.DTOs.Auth;
 global using BusTracking.Common.DTOs.Availability;

@@ -8,27 +8,28 @@ namespace BusTracking.API.Controllers
     [Authorize(Roles = "SuperAdmin"), Route("api/admin")]
     public class SuperAdminController : ApiBaseController
     {
-        private readonly IBusService     _bus;
-        private readonly IRouteService   _route;
-        private readonly IDriverService  _driver;
-        private readonly IStudentService _student;
-        private readonly IParentService  _parent;
+        private readonly IBusService      _bus;
+        private readonly IRouteService    _route;
+        private readonly IDriverService   _driver;
+        private readonly IStudentService  _student;
+        private readonly IParentService   _parent;
         private readonly ISubAdminService _subAdmin;
-        private readonly ITripService    _trip;
+        private readonly ITripService     _trip;
         private readonly IFeedbackService _feedback;
         private readonly INotificationService _notif;
-        private readonly IDashboardService _dash;
-        private readonly AppDbContext    _db;
+        private readonly IDashboardService    _dash;
+        private readonly IAppConfigService    _config;
+        private readonly AppDbContext         _db;
 
         public SuperAdminController(
             IBusService bus, IRouteService route, IDriverService driver,
             IStudentService student, IParentService parent, ISubAdminService subAdmin,
             ITripService trip, IFeedbackService feedback, INotificationService notif,
-            IDashboardService dash, AppDbContext db)
+            IDashboardService dash, IAppConfigService config, AppDbContext db)
         {
             _bus = bus; _route = route; _driver = driver; _student = student;
             _parent = parent; _subAdmin = subAdmin; _trip = trip; _feedback = feedback;
-            _notif = notif; _dash = dash; _db = db;
+            _notif = notif; _dash = dash; _config = config; _db = db;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -651,6 +652,59 @@ namespace BusTracking.API.Controllers
         public async Task<IActionResult> MarkAllRead()
         {
             var r = await _notif.MarkAllAsReadAsync(CurrentUserId);
+            return Ok(r);
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // APP CONFIGURATION
+        // ════════════════════════════════════════════════════════════
+
+        /// <summary>GET /api/admin/config?platform=&search=&isActive= — List all configs</summary>
+        [HttpGet("config")]
+        public async Task<IActionResult> GetConfigs([FromQuery] string? platform,
+            [FromQuery] string? search, [FromQuery] bool? isActive)
+        {
+            var r = await _config.GetAllAsync(platform, search, isActive);
+            return Ok(r);
+        }
+
+        /// <summary>GET /api/admin/config/{id}</summary>
+        [HttpGet("config/{id}")]
+        public async Task<IActionResult> GetConfig(int id)
+        {
+            var r = await _config.GetByIdAsync(id);
+            return r.Success ? Ok(r) : NotFound(r);
+        }
+
+        /// <summary>POST /api/admin/config — Create config key</summary>
+        [HttpPost("config")]
+        public async Task<IActionResult> CreateConfig([FromBody] CreateAppConfigDto dto)
+        {
+            var r = await _config.CreateAsync(dto, CurrentUserId);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        /// <summary>PUT /api/admin/config/{id} — Update config key</summary>
+        [HttpPut("config/{id}")]
+        public async Task<IActionResult> UpdateConfig(int id, [FromBody] UpdateAppConfigDto dto)
+        {
+            var r = await _config.UpdateAsync(id, dto);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        /// <summary>DELETE /api/admin/config/{id}</summary>
+        [HttpDelete("config/{id}")]
+        public async Task<IActionResult> DeleteConfig(int id)
+        {
+            var r = await _config.DeleteAsync(id);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        /// <summary>POST /api/admin/config/{id}/toggle — Toggle active/inactive</summary>
+        [HttpPost("config/{id}/toggle")]
+        public async Task<IActionResult> ToggleConfig(int id)
+        {
+            var r = await _config.ToggleActiveAsync(id);
             return Ok(r);
         }
 

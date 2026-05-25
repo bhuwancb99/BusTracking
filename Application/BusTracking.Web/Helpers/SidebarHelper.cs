@@ -20,6 +20,7 @@ public static class SidebarHelper
     private static List<SidebarMenuItem> SuperAdminMenu() =>
     [
         new() { Label = "Dashboard",       Icon = "bi-speedometer2",  Controller = "Dashboard", Action = "Index", Area = "SuperAdmin" },
+        new() { Label = "App Config",      Icon = "bi-sliders",       Controller = "AppConfig", Action = "Index", Area = "SuperAdmin" },
         new() { Label = "Bus Coordinators",Icon = "bi-person-badge",  Controller = "SubAdmin",  Action = "Index", Area = "SuperAdmin" },
         new() { Label = "Routes",          Icon = "bi-map",           Controller = "Route",     Action = "Index", Area = "SuperAdmin" },
         new() { Label = "Buses",           Icon = "bi-bus-front",     Controller = "Bus",       Action = "Index", Area = "SuperAdmin" },

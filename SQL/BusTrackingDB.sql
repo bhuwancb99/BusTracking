@@ -423,6 +423,48 @@ CREATE TABLE AuditLogs (
 );
 GO
 
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'AppConfigurations')
+BEGIN
+    CREATE TABLE AppConfigurations (
+        ConfigId     INT IDENTITY(1,1) PRIMARY KEY,
+        ConfigKey    NVARCHAR(100)  NOT NULL,
+        ConfigValue  NVARCHAR(500) NOT NULL,
+        Description  NVARCHAR(200)  NULL,
+        Platform     NVARCHAR(20)   NOT NULL DEFAULT 'Both',  -- Web | Mobile | Both
+        IsActive     BIT            NOT NULL DEFAULT 1,
+        CreatedBy    INT            NOT NULL,
+        CreatedAt    DATETIME2      NOT NULL DEFAULT GETUTCDATE(),
+        UpdatedAt    DATETIME2      NOT NULL DEFAULT GETUTCDATE(),
+
+        CONSTRAINT FK_AppConfigurations_Users FOREIGN KEY (CreatedBy) REFERENCES Users(UserId),
+        CONSTRAINT UQ_AppConfigurations_Key_Platform UNIQUE (ConfigKey, Platform)
+    );
+
+    CREATE INDEX IX_AppConfigurations_Platform_Active
+        ON AppConfigurations (Platform, IsActive);
+END
+GO
+
+-- ── Seed default Mobile config keys ──────────────────────────────────
+-- (Only inserts if key doesn't already exist)
+
+INSERT INTO AppConfigurations (ConfigKey, ConfigValue, Description, Platform, IsActive, CreatedBy)
+SELECT * FROM (VALUES
+    ('IsMaintencePage',    '0',   'Set to 1 to show maintenance screen on app launch',       'Mobile', 1, 1),
+    ('MandatoryUpdateApp', '0',   'Set to 1 to force users to update the app',                'Mobile', 1, 1),
+    ('AndroidVersion',      '1.0.0','','Mobile', 1, 1),
+    ('iOSVersion',      '1.0.0','','Mobile', 1, 1),
+    ('Android_Update_Url', '',    'Google Play Store URL for the Android app',                'Mobile', 1, 1),
+    ('iOS_Update_Url',     '',    'Apple App Store URL for the iOS app',                      'Mobile', 1, 1),
+    ('GpsIntervalSeconds', '10',  'How often the driver app sends GPS pings (seconds)',        'Mobile', 1, 1),
+    ('SupportEmail',       '',    'Support email shown inside the mobile app',                'Mobile', 1, 1),
+    ('SupportPhone',       '',    'Support phone number shown inside the mobile app',         'Mobile', 1, 1)
+) AS v(ConfigKey, ConfigValue, Description, Platform, IsActive, CreatedBy)
+WHERE NOT EXISTS (
+    SELECT 1 FROM AppConfigurations
+    WHERE ConfigKey = v.ConfigKey AND Platform = v.Platform
+);
+
 -- ============================================================
 -- VIEWS
 -- ============================================================

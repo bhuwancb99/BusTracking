@@ -1,0 +1,124 @@
+@model BusTracking.Common.DTOs.AppConfig.CreateAppConfigDto
+@{
+    ViewData["Title"] = "Add Configuration";
+    ViewData["Breadcrumb"] = "Add Configuration";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-plus-circle me-2 text-primary"></i>Add Configuration</h4>
+    <a asp-area="SuperAdmin" asp-action="Index" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back
+    </a>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+
+                <div asp-validation-summary="All" class="alert alert-danger border-0 small py-2 mb-3" style="display:none"></div>
+
+                <form asp-area="SuperAdmin" asp-action="Create" method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="mb-3">
+                        <label asp-for="ConfigKey" class="form-label fw-semibold">
+                            Config Key <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="ConfigKey" class="form-control font-monospace"
+                               placeholder="e.g. IsMaintencePage, Android_Update_Url" />
+                        <div class="form-text text-muted">Use snake_case or PascalCase. Must be unique per platform.</div>
+                        <span asp-validation-for="ConfigKey" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ConfigValue" class="form-label fw-semibold">
+                            Value <span class="text-danger">*</span>
+                        </label>
+                        <textarea asp-for="ConfigValue" class="form-control font-monospace" rows="3"
+                                  placeholder="e.g. 1, https://play.google.com/store/apps/details?id=…"></textarea>
+                        <span asp-validation-for="ConfigValue" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label fw-semibold">Description</label>
+                        <input asp-for="Description" class="form-control"
+                               placeholder="e.g. Set to 1 to show maintenance page on app launch" />
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="Platform" class="form-label fw-semibold">Platform</label>
+                            <select asp-for="Platform" class="form-select">
+                                <option value="Both">Both (Web + Mobile)</option>
+                                <option value="Web">Web only</option>
+                                <option value="Mobile">Mobile only</option>
+                            </select>
+                            <div class="form-text text-muted">Mobile = MAUI apps. Web = web dashboard.</div>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end pb-1">
+                            <div class="form-check form-switch">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+                                <label asp-for="IsActive" class="form-check-label fw-semibold">Active</label>
+                                <div class="form-text text-muted">Inactive configs are ignored by apps.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-check2 me-1"></i>Save Configuration
+                        </button>
+                        <a asp-area="SuperAdmin" asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
+        <!-- ── Common key reference ─────────────────────────────────── -->
+        <div class="card border-0 shadow-sm mt-4">
+            <div class="card-header bg-white border-0 pt-3 pb-1 px-4 fw-semibold small text-muted">
+                <i class="bi bi-lightbulb me-1 text-warning"></i>Common Mobile Config Keys
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-sm mb-0" style="font-size:.8rem">
+                    <thead class="table-light">
+                        <tr><th class="px-4">Key</th><th>Example Value</th><th>Purpose</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var row in new[]
+                        {
+                            ("IsMaintencePage",    "0",                         "Show maintenance screen (1=yes)"),
+                            ("MandatoryUpdateApp", "0",                         "Force app update (1=yes)"),
+                            ("MinAppVersion",      "1.0.0",                     "Minimum required app version"),
+                            ("Android_Update_Url", "https://play.google.com/…", "Play Store URL"),
+                            ("iOS_Update_Url",     "https://apps.apple.com/…",  "App Store URL"),
+                            ("SupportEmail",       "support@bustracking.com",   "In-app support email"),
+                            ("SupportPhone",       "+91 9999999999",            "In-app support phone"),
+                            ("GpsIntervalSeconds", "10",                        "Driver GPS ping interval"),
+                        })
+                        {
+                            <tr>
+                                <td class="px-4"><code class="text-primary small">@row.Item1</code></td>
+                                <td><span class="text-muted">@row.Item2</span></td>
+                                <td><span class="text-muted">@row.Item3</span></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Show validation summary if there are errors
+        const vs = document.querySelector('[data-valmsg-summary]');
+        if (vs && vs.querySelectorAll('li').length > 0) vs.style.display = '';
+    </script>
+}
