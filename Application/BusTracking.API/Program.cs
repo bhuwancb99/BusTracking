@@ -6,7 +6,7 @@ builder.Services.AddCommonServices(builder.Configuration);
 // ── Controllers ───────────────────────────────────────────────────────
 builder.Services.AddControllers();
 
-// ── JWT Auth (for MAUI Driver App) ───────────────────────────────────
+// ── JWT Auth (for all MAUI apps: Driver, Parent, Student, BusCoordinator)
 var jwtKey = builder.Configuration["Jwt:Key"]!;
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -30,22 +30,18 @@ builder.Services.AddAuthorization();
 builder.Services.AddCors(o => o.AddPolicy("AllowAll", p =>
     p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// ── OpenAPI (.NET 10) ─────────────────────────────────────────────────
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
 
 app.UseHttpsRedirection();
-
 app.UseCors("AllowAll");
-app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

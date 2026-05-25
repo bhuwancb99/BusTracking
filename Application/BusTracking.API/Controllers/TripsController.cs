@@ -109,5 +109,60 @@
             await _db.SaveChangesAsync();
             return Ok(ApiResponse<bool>.Ok(true, "Stop marked as reached."));
         }
+
+        /// <summary>Mark a stop as departed</summary>
+        [HttpPost("{tripId}/stops/{stopId}/depart")]
+        public async Task<IActionResult> DepartStop(int tripId, int stopId)
+        {
+            var evt = await _db.TripStopEvents
+                .FirstOrDefaultAsync(e => e.TripId == tripId && e.StopId == stopId);
+
+            if (evt is null)
+            {
+                _db.TripStopEvents.Add(new TripStopEvent
+                {
+                    TripId = tripId,
+                    StopId = stopId,
+                    DepartedAt = DateTime.UtcNow,
+                    Status = TripStopStatus.Departed
+                });
+            }
+            else
+            {
+                evt.DepartedAt = DateTime.UtcNow;
+                evt.Status = TripStopStatus.Departed;
+            }
+
+            await _db.SaveChangesAsync();
+            return Ok(ApiResponse<bool>.Ok(true, "Stop marked as departed."));
+        }
+
+        /// <summary>Get all stops with status for a trip</summary>
+        [HttpGet("{tripId}/stops")]
+        public async Task<IActionResult> GetStops(int tripId)
+        {
+            var trip = await _db.BusTrips
+                .Include(t => t.Bus).ThenInclude(b => b!.Route).ThenInclude(r => r!.Stops)
+                .FirstOrDefaultAsync(t => t.TripId == tripId);
+
+            if (trip?.Bus?.Route is null)
+                return NotFound(ApiResponse<object>.Fail("Trip or route not found."));
+
+            var events = await _db.TripStopEvents
+                .Where(e => e.TripId == tripId)
+                .ToDictionaryAsync(e => e.StopId);
+
+            var stops = trip.Bus.Route.Stops
+                .OrderBy(s => s.StopOrder)
+                .Select(s => new
+                {
+                    s.StopId, s.StopName, s.StopOrder, s.Latitude, s.Longitude,
+                    Status = events.TryGetValue(s.StopId, out var e) ? e.Status.ToString() : "Pending",
+                    ReachedAt = events.TryGetValue(s.StopId, out var e2) ? e2.ReachedAt : null,
+                    DepartedAt = events.TryGetValue(s.StopId, out var e3) ? e3.DepartedAt : null
+                }).ToList();
+
+            return Ok(ApiResponse<object>.Ok(stops));
+        }
     }
 }

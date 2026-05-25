@@ -4,9 +4,10 @@
     public class AuthController : ApiBaseController
     {
         private readonly IAuthService _auth;
-        public AuthController(IAuthService auth) => _auth = auth;
+        private readonly IUserService _user;
+        public AuthController(IAuthService auth, IUserService user) { _auth = auth; _user = user; }
 
-        /// <summary>Driver login</summary>
+        /// <summary>Login — works for all roles: Driver, Parent, Student, BusCoordinator</summary>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
@@ -33,6 +34,14 @@
         {
             var r = await _auth.ChangePasswordAsync(CurrentUserId, dto);
             return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        /// <summary>Get current user profile — use after login to verify token</summary>
+        [Authorize, HttpGet("me")]
+        public async Task<IActionResult> Me()
+        {
+            var r = await _user.GetProfileAsync(CurrentUserId);
+            return r.Success ? Ok(r) : NotFound(r);
         }
     }
 }
