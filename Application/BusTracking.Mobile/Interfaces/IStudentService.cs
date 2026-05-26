@@ -1,0 +1,20 @@
+﻿using BusTracking.Mobile.Models.Common;
+using BusTracking.Mobile.Models.Student;
+using BusTracking.Mobile.Models.Tracking;
+
+namespace BusTracking.Mobile.Interfaces
+{
+    public interface IStudentService
+    {
+        Task<List<StudentItem>> GetAllAsync(string? search = null, int page = 1);
+        Task<StudentItem?> GetByIdAsync(int id);
+        Task<ApiResponse<object>> CreateAsync(CreateStudentRequest req);
+        Task<ApiResponse<object>> UpdateAsync(int id, UpdateStudentRequest req);
+        Task<ApiResponse<object>> DeleteAsync(int id);
+        Task<ApiResponse<object>> ToggleAsync(int id);
+        Task<ApiResponse<object>> ResetPasswordAsync(int id);
+        Task<List<StudentItem>> SearchAsync(string query);
+        Task<TrackingData?> GetTrackingAsync();
+        Task<ApiResponse<bool>> SetAvailabilityAsync(object req);
+    }
+}
