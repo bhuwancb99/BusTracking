@@ -3,12 +3,57 @@
     x:Class="BusTracking.Mobile.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:BusTracking.Mobile"
-    Title="BusTracking.Mobile">
+    xmlns:admin="clr-namespace:BusTracking.Mobile.Views.SuperAdmin"
+    xmlns:auth="clr-namespace:BusTracking.Mobile.Views.Auth"
+    xmlns:common="clr-namespace:BusTracking.Mobile.Views.Common"
+    xmlns:coord="clr-namespace:BusTracking.Mobile.Views.Coordinator"
+    xmlns:parent="clr-namespace:BusTracking.Mobile.Views.Parent"
+    xmlns:student="clr-namespace:BusTracking.Mobile.Views.Student"
+    Shell.FlyoutBehavior="Disabled"
+    Shell.NavBarIsVisible="False">
 
+    <!--  ── Auth route ──  -->
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        ContentTemplate="{DataTemplate auth:LoginPage}"
+        Route="Login"
+        Shell.NavBarIsVisible="False" />
+
+    <!--  ── Common ──  -->
+    <ShellContent
+        ContentTemplate="{DataTemplate common:MaintenancePage}"
+        Route="Maintenance"
+        Shell.NavBarIsVisible="False" />
+
+    <!--  ── SuperAdmin routes ──  -->
+    <ShellContent ContentTemplate="{DataTemplate admin:AdminDashboardPage}" Route="AdminDashboard" />
+    <ShellContent ContentTemplate="{DataTemplate admin:AdminBusListPage}" Route="AdminBusList" />
+    <ShellContent ContentTemplate="{DataTemplate admin:AdminBusFormPage}" Route="AdminBusForm" />
+    <ShellContent ContentTemplate="{DataTemplate admin:AdminDriverListPage}" Route="AdminDriverList" />
+    <ShellContent ContentTemplate="{DataTemplate admin:AdminStudentListPage}" Route="AdminStudentList" />
+    <ShellContent ContentTemplate="{DataTemplate admin:AdminParentListPage}" Route="AdminParentList" />
+    <ShellContent ContentTemplate="{DataTemplate admin:AdminCoordinatorListPage}" Route="AdminCoordinatorList" />
+    <ShellContent ContentTemplate="{DataTemplate admin:AdminCoordinatorFormPage}" Route="AdminCoordinatorForm" />
+    <ShellContent ContentTemplate="{DataTemplate admin:AdminTripListPage}" Route="AdminTripList" />
+    <ShellContent ContentTemplate="{DataTemplate admin:AdminConfigListPage}" Route="AdminConfigList" />
+    <ShellContent ContentTemplate="{DataTemplate admin:AdminConfigFormPage}" Route="AdminConfigForm" />
+    <ShellContent ContentTemplate="{DataTemplate auth:ChangePasswordPage}" Route="ChangePassword" />
+
+    <!--  ── Coordinator routes ──  -->
+    <ShellContent ContentTemplate="{DataTemplate coord:CoordinatorDashboardPage}" Route="CoordinatorDashboard" />
+    <ShellContent ContentTemplate="{DataTemplate coord:CoordBusListPage}" Route="CoordBusList" />
+    <ShellContent ContentTemplate="{DataTemplate coord:CoordTripListPage}" Route="CoordTripList" />
+    <ShellContent ContentTemplate="{DataTemplate coord:CoordStudentListPage}" Route="CoordStudentList" />
+    <ShellContent ContentTemplate="{DataTemplate coord:CoordParentListPage}" Route="CoordParentList" />
+    <ShellContent ContentTemplate="{DataTemplate coord:CoordDriverListPage}" Route="CoordDriverList" />
+    <ShellContent ContentTemplate="{DataTemplate coord:CoordRouteListPage}" Route="CoordRouteList" />
+
+    <!--  ── Parent routes ──  -->
+    <ShellContent ContentTemplate="{DataTemplate parent:ParentDashboardPage}" Route="ParentDashboard" />
+    <ShellContent ContentTemplate="{DataTemplate parent:ParentTrackingPage}" Route="ParentTracking" />
+
+    <!--  ── Student routes ──  -->
+    <ShellContent ContentTemplate="{DataTemplate student:StudentDashboardPage}" Route="StudentDashboard" />
+    <ShellContent ContentTemplate="{DataTemplate student:StudentTrackingPage}" Route="StudentTracking" />
+    <ShellContent ContentTemplate="{DataTemplate student:StudentAvailabilityPage}" Route="StudentAvailability" />
 
 </Shell>

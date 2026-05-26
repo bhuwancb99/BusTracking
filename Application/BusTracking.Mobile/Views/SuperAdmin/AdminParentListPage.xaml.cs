@@ -1,0 +1,8 @@
+using BusTracking.Mobile.Viewmodels.SuperAdmin;
+
+namespace BusTracking.Mobile.Views.SuperAdmin;
+
+public partial class AdminParentListPage : ViewBase<AdminParentListViewModel>
+{
+    public AdminParentListPage(AdminParentListViewModel vm) : base(vm) => InitializeComponent();
+}

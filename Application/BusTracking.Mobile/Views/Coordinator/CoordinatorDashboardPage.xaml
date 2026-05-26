@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.Coordinator.CoordinatorDashboardPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
+    x:TypeArguments="vm:CoordinatorDashboardViewModel"
+    BackgroundColor="#F4F6FB">
+
+    <Shell.TitleView>
+        <Grid Padding="0,0,12,0" ColumnDefinitions="*,Auto">
+            <Label
+                Grid.Column="0"
+                FontAttributes="Bold"
+                FontSize="17"
+                Text="Bus Coordinator"
+                TextColor="White"
+                VerticalOptions="Center" />
+            <ImageButton
+                Grid.Column="1"
+                BackgroundColor="Transparent"
+                Command="{Binding LogoutCommand}"
+                Source="logout.png"
+                WidthRequest="22" />
+        </Grid>
+    </Shell.TitleView>
+
+    <RefreshView Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsBusy}">
+        <ScrollView>
+            <VerticalStackLayout Padding="16,16,16,32" Spacing="0">
+
+                <!--  Welcome  -->
+                <Label
+                    Margin="0,0,0,4"
+                    FontAttributes="Bold"
+                    FontSize="22"
+                    Text="{Binding WelcomeText}"
+                    TextColor="#1e293b" />
+                <Label
+                    Margin="0,0,0,20"
+                    FontSize="13"
+                    Text="Coordinator Dashboard"
+                    TextColor="#64748b" />
+
+                <!--  Stats (only show if user has permission to view that data)  -->
+                <Grid
+                    ColumnDefinitions="*,*"
+                    ColumnSpacing="12"
+                    RowDefinitions="Auto,Auto"
+                    RowSpacing="12">
+
+                    <Frame
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Padding="16"
+                        BackgroundColor="White"
+                        CornerRadius="16"
+                        HasShadow="True"
+                        IsVisible="{Binding ShowBuses}">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToBusesCommand}" />
+                        </Frame.GestureRecognizers>
+                        <VerticalStackLayout Spacing="4">
+                            <Label FontSize="28" Text="🚌" />
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="26"
+                                Text="{Binding Summary.TotalBuses}"
+                                TextColor="#2563eb" />
+                            <Label
+                                FontSize="12"
+                                Text="Buses"
+                                TextColor="#64748b" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Frame
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Padding="16"
+                        BackgroundColor="White"
+                        CornerRadius="16"
+                        HasShadow="True"
+                        IsVisible="{Binding ShowStudents}">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToStudentsCommand}" />
+                        </Frame.GestureRecognizers>
+                        <VerticalStackLayout Spacing="4">
+                            <Label FontSize="28" Text="🎒" />
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="26"
+                                Text="{Binding Summary.TotalStudents}"
+                                TextColor="#7c3aed" />
+                            <Label
+                                FontSize="12"
+                                Text="Students"
+                                TextColor="#64748b" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Frame
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Padding="16"
+                        BackgroundColor="White"
+                        CornerRadius="16"
+                        HasShadow="True"
+                        IsVisible="{Binding ShowTrips}">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToTripsCommand}" />
+                        </Frame.GestureRecognizers>
+                        <VerticalStackLayout Spacing="4">
+                            <Label FontSize="28" Text="📍" />
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="26"
+                                Text="{Binding Summary.ActiveTrips}"
+                                TextColor="#dc2626" />
+                            <Label
+                                FontSize="12"
+                                Text="Active Trips"
+                                TextColor="#64748b" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                    <Frame
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Padding="16"
+                        BackgroundColor="White"
+                        CornerRadius="16"
+                        HasShadow="True"
+                        IsVisible="{Binding ShowParents}">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToParentsCommand}" />
+                        </Frame.GestureRecognizers>
+                        <VerticalStackLayout Spacing="4">
+                            <Label FontSize="28" Text="👨‍👩‍👧" />
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="26"
+                                Text="{Binding Summary.TotalParents}"
+                                TextColor="#059669" />
+                            <Label
+                                FontSize="12"
+                                Text="Parents"
+                                TextColor="#64748b" />
+                        </VerticalStackLayout>
+                    </Frame>
+
+                </Grid>
+
+                <!--  Permission-gated nav menu  -->
+                <Label
+                    Margin="0,24,0,12"
+                    FontAttributes="Bold"
+                    FontSize="16"
+                    Text="Manage"
+                    TextColor="#1e293b" />
+
+                <FlexLayout
+                    AlignItems="Start"
+                    JustifyContent="Start"
+                    Wrap="Wrap">
+
+                    <Frame
+                        Margin="0,0,10,10"
+                        Padding="14,10"
+                        BackgroundColor="White"
+                        CornerRadius="12"
+                        HasShadow="True"
+                        IsVisible="{Binding ShowRoutes}">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToRoutesCommand}" />
+                        </Frame.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="8">
+                            <Label FontSize="18" Text="🗺️" />
+                            <Label
+                                FontSize="14"
+                                Text="Routes"
+                                TextColor="#1e293b"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Frame>
+
+                    <Frame
+                        Margin="0,0,10,10"
+                        Padding="14,10"
+                        BackgroundColor="White"
+                        CornerRadius="12"
+                        HasShadow="True"
+                        IsVisible="{Binding ShowDrivers}">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToDriversCommand}" />
+                        </Frame.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="8">
+                            <Label FontSize="18" Text="🧑‍✈️" />
+                            <Label
+                                FontSize="14"
+                                Text="Drivers"
+                                TextColor="#1e293b"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Frame>
+
+                    <Frame
+                        Margin="0,0,10,10"
+                        Padding="14,10"
+                        BackgroundColor="White"
+                        CornerRadius="12"
+                        HasShadow="True"
+                        IsVisible="{Binding ShowStudents}">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToStudentsCommand}" />
+                        </Frame.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="8">
+                            <Label FontSize="18" Text="🎒" />
+                            <Label
+                                FontSize="14"
+                                Text="Students"
+                                TextColor="#1e293b"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Frame>
+
+                    <Frame
+                        Margin="0,0,10,10"
+                        Padding="14,10"
+                        BackgroundColor="White"
+                        CornerRadius="12"
+                        HasShadow="True"
+                        IsVisible="{Binding ShowParents}">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToParentsCommand}" />
+                        </Frame.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="8">
+                            <Label FontSize="18" Text="👨‍👩‍👧" />
+                            <Label
+                                FontSize="14"
+                                Text="Parents"
+                                TextColor="#1e293b"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Frame>
+
+                    <Frame
+                        Margin="0,0,10,10"
+                        Padding="14,10"
+                        BackgroundColor="White"
+                        CornerRadius="12"
+                        HasShadow="True"
+                        IsVisible="{Binding ShowTrips}">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToTripsCommand}" />
+                        </Frame.GestureRecognizers>
+                        <HorizontalStackLayout Spacing="8">
+                            <Label FontSize="18" Text="📍" />
+                            <Label
+                                FontSize="14"
+                                Text="Trips"
+                                TextColor="#1e293b"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Frame>
+
+                </FlexLayout>
+
+                <!--  Quick Actions  -->
+                <Label
+                    Margin="0,8,0,12"
+                    FontAttributes="Bold"
+                    FontSize="16"
+                    Text="Quick Actions"
+                    TextColor="#1e293b" />
+
+                <VerticalStackLayout Spacing="10">
+                    <Button
+                        BackgroundColor="#2563eb"
+                        Command="{Binding GoToTripsCommand}"
+                        CornerRadius="12"
+                        FontAttributes="Bold"
+                        HeightRequest="48"
+                        IsVisible="{Binding CanCreateTrip}"
+                        Text="+ Create Trip"
+                        TextColor="White" />
+                    <Button
+                        BackgroundColor="#7c3aed"
+                        Command="{Binding GoToStudentsCommand}"
+                        CornerRadius="12"
+                        FontAttributes="Bold"
+                        HeightRequest="48"
+                        IsVisible="{Binding CanAddStudent}"
+                        Text="+ Add Student"
+                        TextColor="White" />
+                    <Button
+                        BackgroundColor="#059669"
+                        Command="{Binding GoToBusesCommand}"
+                        CornerRadius="12"
+                        FontAttributes="Bold"
+                        HeightRequest="48"
+                        IsVisible="{Binding CanAddBus}"
+                        Text="+ Add Bus"
+                        TextColor="White" />
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+
+</views:ViewBase>

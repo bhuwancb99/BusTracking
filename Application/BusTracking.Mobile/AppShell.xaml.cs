@@ -1,10 +1,10 @@
-﻿namespace BusTracking.Mobile
+﻿namespace BusTracking.Mobile;
+
+public partial class App : Application
 {
-    public partial class AppShell : Shell
+    public App(AppShell shell)
     {
-        public AppShell()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+        MainPage = shell;
     }
 }
