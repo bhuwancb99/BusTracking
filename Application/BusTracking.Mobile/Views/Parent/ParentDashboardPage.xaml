@@ -1,13 +1,142 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage
+<views:ViewBase
     x:Class="BusTracking.Mobile.Views.Parent.ParentDashboardPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Title="ParentDashboardPage">
-    <VerticalStackLayout>
-        <Label
-            HorizontalOptions="Center"
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" />
-    </VerticalStackLayout>
-</ContentPage>
+    xmlns:models="clr-namespace:BusTracking.Mobile.Models"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Parent"
+    Title="My Dashboard"
+    x:TypeArguments="vm:ParentDashboardViewModel"
+    BackgroundColor="#F4F6FB">
+
+    <Shell.TitleView>
+        <Grid Padding="0,0,12,0" ColumnDefinitions="*,Auto">
+            <Label
+                Grid.Column="0"
+                FontAttributes="Bold"
+                FontSize="17"
+                Text="Parent Portal"
+                TextColor="White"
+                VerticalOptions="Center" />
+            <ImageButton
+                Grid.Column="1"
+                BackgroundColor="Transparent"
+                Command="{Binding LogoutCommand}"
+                Source="logout.png"
+                WidthRequest="22" />
+        </Grid>
+    </Shell.TitleView>
+
+    <RefreshView Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsBusy}">
+        <ScrollView>
+            <VerticalStackLayout Padding="16,16,16,32" Spacing="16">
+
+                <!--  Welcome  -->
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="22"
+                    Text="{Binding WelcomeText}"
+                    TextColor="#1e293b" />
+                <Label
+                    FontSize="13"
+                    Text="Track your children's buses below"
+                    TextColor="#64748b" />
+
+                <!--  Children list  -->
+                <Label
+                    Margin="0,4,0,4"
+                    FontAttributes="Bold"
+                    FontSize="16"
+                    Text="My Children"
+                    TextColor="#1e293b" />
+
+                <CollectionView ItemsSource="{Binding Children}" SelectionMode="None">
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout
+                            Padding="0,32"
+                            HorizontalOptions="Center"
+                            Spacing="12">
+                            <Label
+                                FontSize="48"
+                                HorizontalOptions="Center"
+                                Text="👶" />
+                            <Label
+                                FontSize="14"
+                                HorizontalOptions="Center"
+                                Text="No children linked to your account"
+                                TextColor="#64748b" />
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:LinkedStudent">
+                            <Border
+                                Margin="0,0,0,10"
+                                BackgroundColor="White"
+                                StrokeShape="RoundRectangle 16"
+                                StrokeThickness="0">
+                                <Grid
+                                    Padding="16"
+                                    ColumnDefinitions="Auto,*,Auto"
+                                    ColumnSpacing="12">
+
+                                    <!--  Avatar  -->
+                                    <Border
+                                        Grid.Column="0"
+                                        BackgroundColor="#eff6ff"
+                                        HeightRequest="48"
+                                        StrokeShape="RoundRectangle 24"
+                                        StrokeThickness="0"
+                                        WidthRequest="48">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="18"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding FullName}"
+                                            TextColor="#2563eb"
+                                            VerticalOptions="Center" />
+                                    </Border>
+
+                                    <!--  Info  -->
+                                    <VerticalStackLayout
+                                        Grid.Column="1"
+                                        Spacing="4"
+                                        VerticalOptions="Center">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="15"
+                                            Text="{Binding FullName}"
+                                            TextColor="#1e293b" />
+                                        <Label
+                                            FontSize="12"
+                                            Text="{Binding StudentCode}"
+                                            TextColor="#64748b" />
+                                        <Label
+                                            FontSize="12"
+                                            Text="{Binding BusDisplay}"
+                                            TextColor="#2563eb" />
+                                    </VerticalStackLayout>
+
+                                    <!--  Track button  -->
+                                    <Button
+                                        Grid.Column="2"
+                                        Padding="14,8"
+                                        BackgroundColor="#2563eb"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ParentDashboardViewModel}}, Path=TrackChildCommand}"
+                                        CommandParameter="{Binding .}"
+                                        CornerRadius="20"
+                                        FontSize="12"
+                                        Text="Track"
+                                        TextColor="White"
+                                        VerticalOptions="Center" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </RefreshView>
+
+</views:ViewBase>

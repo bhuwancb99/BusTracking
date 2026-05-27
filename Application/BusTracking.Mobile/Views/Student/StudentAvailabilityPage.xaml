@@ -1,13 +1,192 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage
+<views:ViewBase
     x:Class="BusTracking.Mobile.Views.Student.StudentAvailabilityPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Title="StudentAvailabilityPage">
-    <VerticalStackLayout>
-        <Label
-            HorizontalOptions="Center"
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" />
-    </VerticalStackLayout>
-</ContentPage>
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Student"
+    Title="My Availability"
+    x:TypeArguments="vm:StudentAvailabilityViewModel"
+    BackgroundColor="#F4F6FB">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,16,16,32" Spacing="16">
+
+            <!--  Header card  -->
+            <Border
+                BackgroundColor="#1e3a5f"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0">
+                <VerticalStackLayout Padding="20" Spacing="6">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="18"
+                        Text="📅 Set Availability"
+                        TextColor="White" />
+                    <Label
+                        FontSize="13"
+                        Text="Let your coordinator know when you'll be travelling."
+                        TextColor="#93c5fd" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Date picker  -->
+            <Border
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="10">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        Text="Date"
+                        TextColor="#374151" />
+                    <DatePicker
+                        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+                        BackgroundColor="Transparent"
+                        Date="{Binding SelectedDate}"
+                        FontSize="15"
+                        MinimumDate="{x:Static sys:DateTime.Today}"
+                        TextColor="#1e293b" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Morning toggle  -->
+            <Border
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <Grid Padding="16" ColumnDefinitions="Auto,*,Auto">
+                    <Label
+                        Grid.Column="0"
+                        FontSize="24"
+                        Text="🌅"
+                        VerticalOptions="Center" />
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Margin="12,0"
+                        Spacing="2">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="15"
+                            Text="Morning Trip"
+                            TextColor="#1e293b" />
+                        <Label
+                            FontSize="12"
+                            Text="Available for pickup"
+                            TextColor="#64748b" />
+                    </VerticalStackLayout>
+                    <Switch
+                        Grid.Column="2"
+                        IsToggled="{Binding MorningAvailable}"
+                        OnColor="#2563eb"
+                        ThumbColor="White"
+                        VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <!--  Evening toggle  -->
+            <Border
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <Grid Padding="16" ColumnDefinitions="Auto,*,Auto">
+                    <Label
+                        Grid.Column="0"
+                        FontSize="24"
+                        Text="🌆"
+                        VerticalOptions="Center" />
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Margin="12,0"
+                        Spacing="2">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="15"
+                            Text="Evening Trip"
+                            TextColor="#1e293b" />
+                        <Label
+                            FontSize="12"
+                            Text="Available for drop-off"
+                            TextColor="#64748b" />
+                    </VerticalStackLayout>
+                    <Switch
+                        Grid.Column="2"
+                        IsToggled="{Binding EveningAvailable}"
+                        OnColor="#2563eb"
+                        ThumbColor="White"
+                        VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <!--  Reason  -->
+            <Border
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        Text="Reason (optional)"
+                        TextColor="#374151" />
+                    <Editor
+                        AutoSize="TextChanges"
+                        BackgroundColor="Transparent"
+                        MinimumHeightRequest="80"
+                        Placeholder="e.g. School holiday, sick leave…"
+                        PlaceholderColor="#94a3b8"
+                        Text="{Binding Reason}"
+                        TextColor="#1e293b" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Error  -->
+            <Border
+                BackgroundColor="#fef2f2"
+                IsVisible="{Binding HasError}"
+                Stroke="#fecaca"
+                StrokeShape="RoundRectangle 10"
+                StrokeThickness="1">
+                <Label
+                    Padding="12,8"
+                    FontSize="13"
+                    Text="{Binding ErrorMessage}"
+                    TextColor="#ef4444" />
+            </Border>
+
+            <!--  Save button  -->
+            <Button
+                BackgroundColor="#2563eb"
+                Command="{Binding SaveCommand}"
+                CornerRadius="14"
+                FontAttributes="Bold"
+                FontSize="16"
+                HeightRequest="52"
+                Text="Save Availability"
+                TextColor="White">
+                <Button.Triggers>
+                    <DataTrigger
+                        Binding="{Binding IsBusy}"
+                        TargetType="Button"
+                        Value="True">
+                        <Setter Property="Text" Value="Saving…" />
+                        <Setter Property="IsEnabled" Value="False" />
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+
+            <ActivityIndicator
+                HorizontalOptions="Center"
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                Color="#2563eb" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</views:ViewBase>

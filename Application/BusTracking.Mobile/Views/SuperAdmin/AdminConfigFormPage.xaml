@@ -1,13 +1,201 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage
+<views:ViewBase
     x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminConfigFormPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Title="AdminConfigFormPage">
-    <VerticalStackLayout>
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
+    x:TypeArguments="vm:AdminConfigFormViewModel"
+    BackgroundColor="#F4F6FB">
+
+    <Shell.TitleView>
         <Label
-            HorizontalOptions="Center"
-            Text="Welcome to .NET MAUI!"
+            FontAttributes="Bold"
+            FontSize="17"
+            Text="{Binding Title}"
+            TextColor="White"
             VerticalOptions="Center" />
-    </VerticalStackLayout>
-</ContentPage>
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,16,16,32" Spacing="14">
+
+            <!--  Error  -->
+            <Border
+                BackgroundColor="#fef2f2"
+                IsVisible="{Binding HasError}"
+                Stroke="#fecaca"
+                StrokeShape="RoundRectangle 10"
+                StrokeThickness="1">
+                <Label
+                    Padding="12,10"
+                    FontSize="13"
+                    Text="{Binding ErrorMessage}"
+                    TextColor="#ef4444" />
+            </Border>
+
+            <!--  Config Key  -->
+            <Border
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Config Key *"
+                        TextColor="#374151" />
+                    <Entry
+                        BackgroundColor="Transparent"
+                        FontFamily="Monospace"
+                        Placeholder="e.g. IsMaintencePage, Android_Update_Url"
+                        PlaceholderColor="#94a3b8"
+                        Text="{Binding ConfigKey}"
+                        TextColor="#1e293b" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Config Value  -->
+            <Border
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Value *"
+                        TextColor="#374151" />
+                    <Editor
+                        AutoSize="TextChanges"
+                        BackgroundColor="Transparent"
+                        FontFamily="Monospace"
+                        MinimumHeightRequest="70"
+                        Placeholder="e.g. 1, https://play.google.com/…"
+                        PlaceholderColor="#94a3b8"
+                        Text="{Binding ConfigValue}"
+                        TextColor="#1e293b" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Description  -->
+            <Border
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Description"
+                        TextColor="#374151" />
+                    <Entry
+                        BackgroundColor="Transparent"
+                        Placeholder="What does this config key do?"
+                        PlaceholderColor="#94a3b8"
+                        Text="{Binding Description}"
+                        TextColor="#1e293b" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Platform  -->
+            <Border
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <Grid Padding="16" ColumnDefinitions="*,Auto">
+                    <Label
+                        Grid.Column="0"
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Platform"
+                        TextColor="#374151"
+                        VerticalOptions="Center" />
+                    <Picker
+                        Grid.Column="1"
+                        BackgroundColor="Transparent"
+                        ItemsSource="{Binding PlatformOptions}"
+                        MinimumWidthRequest="130"
+                        SelectedItem="{Binding Platform}"
+                        TextColor="#1e293b" />
+                </Grid>
+            </Border>
+
+            <!--  Is Active  -->
+            <Border
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <Grid Padding="16" ColumnDefinitions="*,Auto">
+                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            Text="Active"
+                            TextColor="#1e293b" />
+                        <Label
+                            FontSize="12"
+                            Text="Inactive configs are ignored by apps"
+                            TextColor="#64748b" />
+                    </VerticalStackLayout>
+                    <Switch
+                        Grid.Column="1"
+                        IsToggled="{Binding IsActive}"
+                        OnColor="#2563eb"
+                        ThumbColor="White"
+                        VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <!--  Buttons  -->
+            <Grid
+                Margin="0,8,0,0"
+                ColumnDefinitions="*,*"
+                ColumnSpacing="12">
+                <Button
+                    Grid.Column="0"
+                    BackgroundColor="White"
+                    BorderColor="#e2e8f0"
+                    BorderWidth="1.5"
+                    Command="{Binding CancelCommand}"
+                    CornerRadius="12"
+                    FontAttributes="Bold"
+                    HeightRequest="50"
+                    Text="Cancel"
+                    TextColor="#64748b" />
+                <Button
+                    Grid.Column="1"
+                    BackgroundColor="#2563eb"
+                    Command="{Binding SaveCommand}"
+                    CornerRadius="12"
+                    FontAttributes="Bold"
+                    HeightRequest="50"
+                    Text="Save"
+                    TextColor="White">
+                    <Button.Triggers>
+                        <DataTrigger
+                            Binding="{Binding IsBusy}"
+                            TargetType="Button"
+                            Value="True">
+                            <Setter Property="Text" Value="Saving…" />
+                            <Setter Property="IsEnabled" Value="False" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+            </Grid>
+
+            <ActivityIndicator
+                HorizontalOptions="Center"
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                Color="#2563eb" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</views:ViewBase>

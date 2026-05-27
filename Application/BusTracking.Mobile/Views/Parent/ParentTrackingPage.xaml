@@ -1,13 +1,189 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage
+<views:ViewBase
     x:Class="BusTracking.Mobile.Views.Parent.ParentTrackingPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Title="ParentTrackingPage">
-    <VerticalStackLayout>
-        <Label
-            HorizontalOptions="Center"
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" />
-    </VerticalStackLayout>
-</ContentPage>
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Parent"
+    Title="Track Bus"
+    x:TypeArguments="vm:ParentTrackingViewModel"
+    BackgroundColor="#F4F6FB">
+
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!--  Status bar  -->
+        <Border
+            Grid.Row="0"
+            Margin="12,12,12,6"
+            BackgroundColor="#1e3a5f"
+            StrokeShape="RoundRectangle 16"
+            StrokeThickness="0">
+            <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto">
+                <Label
+                    Grid.Column="0"
+                    FontSize="26"
+                    Text="🚌"
+                    VerticalOptions="Center" />
+                <VerticalStackLayout
+                    Grid.Column="1"
+                    Margin="12,0"
+                    Spacing="3">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="15"
+                        Text="{Binding StatusLabel}"
+                        TextColor="White" />
+                    <Label
+                        FontSize="12"
+                        Text="{Binding Tracking.BoardingStatus, StringFormat='Boarding: {0}'}"
+                        TextColor="#93c5fd" />
+                </VerticalStackLayout>
+                <Border
+                    Grid.Column="2"
+                    Padding="10,4"
+                    StrokeShape="RoundRectangle 20"
+                    StrokeThickness="0">
+                    <Border.Triggers>
+                        <DataTrigger
+                            Binding="{Binding IsLive}"
+                            TargetType="Border"
+                            Value="True">
+                            <Setter Property="BackgroundColor" Value="#14532d" />
+                        </DataTrigger>
+                        <DataTrigger
+                            Binding="{Binding IsLive}"
+                            TargetType="Border"
+                            Value="False">
+                            <Setter Property="BackgroundColor" Value="#1e2a3a" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Label FontAttributes="Bold" FontSize="12">
+                        <Label.Triggers>
+                            <DataTrigger
+                                Binding="{Binding IsLive}"
+                                TargetType="Label"
+                                Value="True">
+                                <Setter Property="Text" Value="● LIVE" />
+                                <Setter Property="TextColor" Value="#4ade80" />
+                            </DataTrigger>
+                            <DataTrigger
+                                Binding="{Binding IsLive}"
+                                TargetType="Label"
+                                Value="False">
+                                <Setter Property="Text" Value="○ No Trip" />
+                                <Setter Property="TextColor" Value="#64748b" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!--  Map placeholder  -->
+        <Border
+            Grid.Row="1"
+            Margin="12,6"
+            BackgroundColor="#e2e8f0"
+            ClipsToBounds="True"
+            StrokeShape="RoundRectangle 20"
+            StrokeThickness="0">
+            <Grid>
+                <!--  Replace this with Microsoft.Maui.Maps or Mapsui MapControl  -->
+                <VerticalStackLayout
+                    HorizontalOptions="Center"
+                    Spacing="8"
+                    VerticalOptions="Center">
+                    <Label
+                        FontSize="72"
+                        HorizontalOptions="Center"
+                        Text="🗺️" />
+                    <Label
+                        FontSize="14"
+                        HorizontalOptions="Center"
+                        Text="Live Map"
+                        TextColor="#64748b" />
+                    <Label
+                        FontSize="11"
+                        HorizontalOptions="Center"
+                        Text="Bus location updates every 10 seconds"
+                        TextColor="#94a3b8" />
+                </VerticalStackLayout>
+
+                <!--  Animated bus marker — position driven by BusLatitude/BusLongitude  -->
+                <Border
+                    Padding="10,8"
+                    BackgroundColor="#2563eb"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding IsLive}"
+                    Stroke="White"
+                    StrokeShape="RoundRectangle 28"
+                    StrokeThickness="2"
+                    VerticalOptions="Center">
+                    <Label FontSize="22" Text="🚌" />
+                </Border>
+            </Grid>
+        </Border>
+
+        <!--  Bottom coordinates card  -->
+        <Border
+            Grid.Row="2"
+            Margin="12,6,12,16"
+            BackgroundColor="White"
+            Stroke="#e2e8f0"
+            StrokeShape="RoundRectangle 16"
+            StrokeThickness="1">
+            <Grid Padding="16,14" ColumnDefinitions="*,*,*">
+                <VerticalStackLayout
+                    Grid.Column="0"
+                    HorizontalOptions="Center"
+                    Spacing="3">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        HorizontalOptions="Center"
+                        Text="{Binding BusLatitude, StringFormat='{0:F4}'}"
+                        TextColor="#1e293b" />
+                    <Label
+                        FontSize="10"
+                        HorizontalOptions="Center"
+                        Text="Lat"
+                        TextColor="#94a3b8" />
+                </VerticalStackLayout>
+                <VerticalStackLayout
+                    Grid.Column="1"
+                    HorizontalOptions="Center"
+                    Spacing="3">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        HorizontalOptions="Center"
+                        Text="{Binding BusLongitude, StringFormat='{0:F4}'}"
+                        TextColor="#1e293b" />
+                    <Label
+                        FontSize="10"
+                        HorizontalOptions="Center"
+                        Text="Lng"
+                        TextColor="#94a3b8" />
+                </VerticalStackLayout>
+                <VerticalStackLayout
+                    Grid.Column="2"
+                    HorizontalOptions="Center"
+                    Spacing="3">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        HorizontalOptions="Center"
+                        Text="{Binding Tracking.Location.SpeedDisplay, FallbackValue='– km/h'}"
+                        TextColor="#1e293b" />
+                    <Label
+                        FontSize="10"
+                        HorizontalOptions="Center"
+                        Text="Speed"
+                        TextColor="#94a3b8" />
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
+
+    </Grid>
+
+</views:ViewBase>

@@ -1,13 +1,198 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage
+<views:ViewBase
     x:Class="BusTracking.Mobile.Views.Coordinator.CoordTripListPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Title="CoordTripListPage">
-    <VerticalStackLayout>
-        <Label
+    xmlns:models="clr-namespace:BusTracking.Mobile.Models"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
+    Title="Trips"
+    x:TypeArguments="vm:CoordTripListViewModel"
+    BackgroundColor="#F4F6FB">
+
+    <Shell.TitleView>
+        <Grid Padding="0,0,8,0" ColumnDefinitions="*,Auto">
+            <Label
+                Grid.Column="0"
+                FontAttributes="Bold"
+                FontSize="17"
+                Text="Trips"
+                TextColor="White"
+                VerticalOptions="Center" />
+            <Button
+                Grid.Column="1"
+                Padding="14,6"
+                BackgroundColor="White"
+                Command="{Binding AddCommand}"
+                CornerRadius="20"
+                FontSize="13"
+                IsVisible="{Binding CanManage}"
+                Text="+ New"
+                TextColor="#2563eb" />
+        </Grid>
+    </Shell.TitleView>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!--  Filter bar  -->
+        <Border
+            Grid.Row="0"
+            Margin="12,12,12,4"
+            BackgroundColor="White"
+            Stroke="#e2e8f0"
+            StrokeShape="RoundRectangle 12"
+            StrokeThickness="1">
+            <Picker
+                Title="Filter by status"
+                Margin="12,0"
+                BackgroundColor="Transparent"
+                ItemsSource="{Binding StatusOptions}"
+                SelectedIndexChanged="OnStatusChanged"
+                SelectedItem="{Binding SelectedStatus}" />
+        </Border>
+
+        <ActivityIndicator
+            Grid.Row="1"
             HorizontalOptions="Center"
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" />
-    </VerticalStackLayout>
-</ContentPage>
+            IsRunning="{Binding IsBusy}"
+            IsVisible="{Binding IsBusy}"
+            VerticalOptions="Center"
+            Color="#2563eb" />
+
+        <CollectionView
+            Grid.Row="1"
+            Margin="12,4,12,0"
+            ItemsSource="{Binding Items}"
+            SelectionMode="None">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout
+                    Padding="0,60"
+                    HorizontalOptions="Center"
+                    Spacing="12"
+                    VerticalOptions="Center">
+                    <Label
+                        FontSize="48"
+                        HorizontalOptions="Center"
+                        Text="📍" />
+                    <Label
+                        FontSize="15"
+                        HorizontalOptions="Center"
+                        Text="No trips found"
+                        TextColor="#64748b" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:TripItem">
+                    <Border
+                        Margin="0,0,0,10"
+                        BackgroundColor="White"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="0">
+                        <Grid
+                            Padding="16"
+                            RowDefinitions="Auto,Auto,Auto"
+                            RowSpacing="6">
+
+                            <!--  Row 1: Trip ID + Status  -->
+                            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+                                <Label
+                                    Grid.Column="0"
+                                    FontAttributes="Bold"
+                                    FontSize="15"
+                                    Text="{Binding TripId, StringFormat='Trip #{0}'}"
+                                    TextColor="#1e293b" />
+                                <Label
+                                    Grid.Column="1"
+                                    Margin="8,0,0,0"
+                                    FontSize="16"
+                                    Text="{Binding TripTypeIcon}"
+                                    VerticalOptions="Center" />
+                                <Border
+                                    Grid.Column="2"
+                                    Padding="10,4"
+                                    BackgroundColor="{Binding StatusColor}"
+                                    StrokeShape="RoundRectangle 20"
+                                    StrokeThickness="0">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="11"
+                                        Text="{Binding Status}"
+                                        TextColor="White" />
+                                </Border>
+                            </Grid>
+
+                            <!--  Row 2: Bus + Driver  -->
+                            <Label
+                                Grid.Row="1"
+                                FontSize="13"
+                                TextColor="#64748b">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span FontSize="13" Text="🚌 " />
+                                        <Span
+                                            FontAttributes="Bold"
+                                            Text="{Binding BusNumber}"
+                                            TextColor="#1e293b" />
+                                        <Span Text="  ·  " />
+                                        <Span Text="{Binding DriverName}" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+
+                            <!--  Row 3: Date + Actions  -->
+                            <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto,Auto">
+                                <Label
+                                    Grid.Column="0"
+                                    FontSize="12"
+                                    Text="{Binding TripDate}"
+                                    TextColor="#94a3b8"
+                                    VerticalOptions="Center" />
+
+                                <Button
+                                    Grid.Column="1"
+                                    Margin="4,0,0,0"
+                                    Padding="12,6"
+                                    BackgroundColor="#059669"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordTripListViewModel}}, Path=StartCommand}"
+                                    CommandParameter="{Binding .}"
+                                    CornerRadius="8"
+                                    FontSize="12"
+                                    IsVisible="{Binding Status, Converter={StaticResource StatusToStartVisible}}"
+                                    Text="Start"
+                                    TextColor="White" />
+
+                                <Button
+                                    Grid.Column="2"
+                                    Margin="4,0,0,0"
+                                    Padding="12,6"
+                                    BackgroundColor="#dc2626"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordTripListViewModel}}, Path=EndCommand}"
+                                    CommandParameter="{Binding .}"
+                                    CornerRadius="8"
+                                    FontSize="12"
+                                    IsVisible="{Binding Status, Converter={StaticResource StatusToEndVisible}}"
+                                    Text="End"
+                                    TextColor="White" />
+
+                                <Button
+                                    Grid.Column="3"
+                                    Margin="4,0,0,0"
+                                    Padding="12,6"
+                                    BackgroundColor="#eff6ff"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordTripListViewModel}}, Path=ViewCommand}"
+                                    CommandParameter="{Binding .}"
+                                    CornerRadius="8"
+                                    FontSize="12"
+                                    Text="View"
+                                    TextColor="#2563eb" />
+                            </Grid>
+
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+
+</views:ViewBase>

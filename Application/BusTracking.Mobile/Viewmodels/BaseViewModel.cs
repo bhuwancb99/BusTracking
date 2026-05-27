@@ -60,15 +60,15 @@ public abstract partial class BaseViewModel : ObservableObject
 
     protected async Task ShowAlertAsync(string title, string message, string cancel = "OK")
     {
-        if (Application.Current?.MainPage is Page p)
-            await p.DisplayAlert(title, message, cancel);
+        if (Application.Current?.Windows[0].Page is Page p)
+            await p.DisplayAlertAsync(title, message, cancel);
     }
 
     protected async Task<bool> ConfirmAsync(string title, string message,
         string accept = "Yes", string cancel = "No")
     {
-        if (Application.Current?.MainPage is Page p)
-            return await p.DisplayAlert(title, message, accept, cancel);
+        if (Application.Current?.Windows[0].Page is Page p)
+            return await p.DisplayAlertAsync(title, message, accept, cancel);
         return false;
     }
 

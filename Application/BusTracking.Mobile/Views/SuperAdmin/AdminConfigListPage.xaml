@@ -1,13 +1,177 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage
+<views:ViewBase
     x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminConfigListPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Title="AdminConfigListPage">
-    <VerticalStackLayout>
-        <Label
+    xmlns:models="clr-namespace:BusTracking.Mobile.Models"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
+    Title="App Configuration"
+    x:TypeArguments="vm:AdminConfigListViewModel"
+    BackgroundColor="#F4F6FB">
+
+    <Shell.TitleView>
+        <Grid Padding="0,0,8,0" ColumnDefinitions="*,Auto">
+            <Label
+                Grid.Column="0"
+                FontAttributes="Bold"
+                FontSize="17"
+                Text="App Config"
+                TextColor="White"
+                VerticalOptions="Center" />
+            <Button
+                Grid.Column="1"
+                Padding="14,6"
+                BackgroundColor="White"
+                Command="{Binding AddCommand}"
+                CornerRadius="20"
+                FontSize="13"
+                Text="+ Add"
+                TextColor="#2563eb" />
+        </Grid>
+    </Shell.TitleView>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!--  Platform filter  -->
+        <Border
+            Grid.Row="0"
+            Margin="12,12,12,4"
+            BackgroundColor="White"
+            Stroke="#e2e8f0"
+            StrokeShape="RoundRectangle 12"
+            StrokeThickness="1">
+            <Picker
+                Title="Filter by platform"
+                Margin="12,0"
+                BackgroundColor="Transparent"
+                ItemsSource="{Binding PlatformOptions}"
+                SelectedItem="{Binding SelectedPlatform}" />
+        </Border>
+
+        <ActivityIndicator
+            Grid.Row="1"
             HorizontalOptions="Center"
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" />
-    </VerticalStackLayout>
-</ContentPage>
+            IsRunning="{Binding IsBusy}"
+            IsVisible="{Binding IsBusy}"
+            VerticalOptions="Center"
+            Color="#2563eb" />
+
+        <CollectionView
+            Grid.Row="1"
+            Margin="12,4,12,0"
+            ItemsSource="{Binding Items}"
+            SelectionMode="None">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout
+                    Padding="0,60"
+                    HorizontalOptions="Center"
+                    Spacing="12"
+                    VerticalOptions="Center">
+                    <Label
+                        FontSize="48"
+                        HorizontalOptions="Center"
+                        Text="⚙️" />
+                    <Label
+                        FontSize="15"
+                        HorizontalOptions="Center"
+                        Text="No configurations found"
+                        TextColor="#64748b" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:AppConfigItem">
+                    <Border
+                        Margin="0,0,0,10"
+                        BackgroundColor="White"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="0">
+                        <Grid
+                            Padding="16"
+                            RowDefinitions="Auto,Auto,Auto"
+                            RowSpacing="6">
+
+                            <!--  Key + Platform badge  -->
+                            <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                                <Label
+                                    Grid.Column="0"
+                                    FontAttributes="Bold"
+                                    FontFamily="Monospace"
+                                    FontSize="14"
+                                    Text="{Binding ConfigKey}"
+                                    TextColor="#1e293b" />
+                                <Border
+                                    Grid.Column="1"
+                                    Padding="10,4"
+                                    BackgroundColor="{Binding PlatformColor}"
+                                    StrokeShape="RoundRectangle 20"
+                                    StrokeThickness="0">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="10"
+                                        Text="{Binding Platform}"
+                                        TextColor="White" />
+                                </Border>
+                            </Grid>
+
+                            <!--  Value (truncated)  -->
+                            <Label
+                                Grid.Row="1"
+                                FontSize="13"
+                                LineBreakMode="TailTruncation"
+                                MaxLines="1"
+                                Text="{Binding ConfigValue}"
+                                TextColor="#64748b" />
+
+                            <!--  Description + Actions  -->
+                            <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto,Auto">
+                                <Label
+                                    Grid.Column="0"
+                                    FontSize="11"
+                                    Text="{Binding Description, FallbackValue='No description'}"
+                                    TextColor="#94a3b8"
+                                    VerticalOptions="Center" />
+
+                                <!--  Active badge  -->
+                                <Border
+                                    Grid.Column="1"
+                                    Margin="4,0"
+                                    Padding="8,3"
+                                    BackgroundColor="{Binding StatusColor}"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="0">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="10"
+                                        Text="{Binding StatusLabel}"
+                                        TextColor="White" />
+                                </Border>
+
+                                <ImageButton
+                                    Grid.Column="2"
+                                    Margin="4,0"
+                                    BackgroundColor="Transparent"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminConfigListViewModel}}, Path=EditCommand}"
+                                    CommandParameter="{Binding .}"
+                                    HeightRequest="20"
+                                    Source="edit.png"
+                                    WidthRequest="20" />
+                                <ImageButton
+                                    Grid.Column="3"
+                                    BackgroundColor="Transparent"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminConfigListViewModel}}, Path=DeleteCommand}"
+                                    CommandParameter="{Binding .}"
+                                    HeightRequest="20"
+                                    Source="delete.png"
+                                    WidthRequest="20" />
+                            </Grid>
+
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+
+</views:ViewBase>
