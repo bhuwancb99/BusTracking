@@ -1,14 +1,103 @@
-﻿<?xml version = "1.0" encoding = "UTF-8" ?>
-<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:local="clr-namespace:BusTracking.Mobile"
-             x:Class="BusTracking.Mobile.App">
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<Application
+    x:Class="BusTracking.Mobile.App"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:converters="clr-namespace:BusTracking.Mobile.Converters">
+
     <Application.Resources>
         <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
-                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
-            </ResourceDictionary.MergedDictionaries>
+
+            <!--  ── Converters ───────────────────────────────────────  -->
+            <converters:InvertBoolConverter x:Key="InvertBool" />
+            <converters:NullToBoolConverter x:Key="NullToBool" />
+            <converters:NullToVisibleConverter x:Key="NullToVisible" />
+            <converters:BoolToEyeIconConverter x:Key="BoolToEyeIcon" />
+            <converters:StatusToStartVisibleConverter x:Key="StatusToStartVisible" />
+            <converters:StatusToEndVisibleConverter x:Key="StatusToEndVisible" />
+            <converters:BoolToStatusColorConverter x:Key="BoolToStatusColor" />
+            <converters:PlatformToColorConverter x:Key="PlatformToColor" />
+            <converters:StringToBoolConverter x:Key="StringToBool" />
+
+            <!--  ── Color palette ────────────────────────────────────  -->
+            <Color x:Key="Primary">#2563eb</Color>
+            <Color x:Key="PrimaryDark">#1d4ed8</Color>
+            <Color x:Key="PrimaryLight">#eff6ff</Color>
+            <Color x:Key="Accent">#f59e0b</Color>
+            <Color x:Key="Success">#059669</Color>
+            <Color x:Key="Danger">#dc2626</Color>
+            <Color x:Key="Warning">#d97706</Color>
+            <Color x:Key="Info">#0891b2</Color>
+            <Color x:Key="PageBg">#F4F6FB</Color>
+            <Color x:Key="CardBg">#FFFFFF</Color>
+            <Color x:Key="TextPrimary">#1e293b</Color>
+            <Color x:Key="TextSecondary">#64748b</Color>
+            <Color x:Key="TextMuted">#94a3b8</Color>
+            <Color x:Key="BorderColor">#e2e8f0</Color>
+            <Color x:Key="NavBarBg">#1e3a5f</Color>
+
+            <!--  ── Styles ───────────────────────────────────────────  -->
+            <Style TargetType="Shell">
+                <Setter Property="Shell.BackgroundColor" Value="#1e3a5f" />
+                <Setter Property="Shell.ForegroundColor" Value="White" />
+                <Setter Property="Shell.TitleColor" Value="White" />
+                <Setter Property="Shell.DisabledColor" Value="#B4FFFFFF" />
+                <Setter Property="Shell.UnselectedColor" Value="#95FFFFFF" />
+                <Setter Property="Shell.NavBarHasShadow" Value="False" />
+            </Style>
+
+            <Style TargetType="NavigationPage">
+                <Setter Property="BarBackgroundColor" Value="#1e3a5f" />
+                <Setter Property="BarTextColor" Value="White" />
+            </Style>
+
+            <Style TargetType="ContentPage">
+                <Setter Property="BackgroundColor" Value="{StaticResource PageBg}" />
+            </Style>
+
+            <Style x:Key="HeadingLabel" TargetType="Label">
+                <Setter Property="FontSize" Value="22" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+            </Style>
+
+            <Style x:Key="SubLabel" TargetType="Label">
+                <Setter Property="FontSize" Value="13" />
+                <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+            </Style>
+
+            <Style x:Key="PrimaryButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="HeightRequest" Value="50" />
+                <Setter Property="FontSize" Value="15" />
+            </Style>
+
+            <Style x:Key="SecondaryButton" TargetType="Button">
+                <Setter Property="BackgroundColor" Value="White" />
+                <Setter Property="TextColor" Value="{StaticResource Primary}" />
+                <Setter Property="BorderColor" Value="{StaticResource Primary}" />
+                <Setter Property="BorderWidth" Value="1.5" />
+                <Setter Property="CornerRadius" Value="12" />
+                <Setter Property="FontAttributes" Value="Bold" />
+                <Setter Property="HeightRequest" Value="50" />
+                <Setter Property="FontSize" Value="15" />
+            </Style>
+
+            <Style TargetType="Entry">
+                <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+                <Setter Property="PlaceholderColor" Value="{StaticResource TextMuted}" />
+                <Setter Property="BackgroundColor" Value="Transparent" />
+                <Setter Property="FontSize" Value="14" />
+            </Style>
+
+            <Style TargetType="ActivityIndicator">
+                <Setter Property="Color" Value="{StaticResource Primary}" />
+            </Style>
+
         </ResourceDictionary>
     </Application.Resources>
+
 </Application>

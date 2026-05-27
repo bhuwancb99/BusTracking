@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFrameworks>net10.0-android</TargetFrameworks>
@@ -29,10 +29,10 @@
 		<MauiXamlInflator>SourceGen</MauiXamlInflator>
 
 		<!-- Display name -->
-		<ApplicationTitle>BusTracking.Mobile</ApplicationTitle>
+		<ApplicationTitle>Bus Track</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.bustracking.mobile</ApplicationId>
+		<ApplicationId>com.bustrack.mobile</ApplicationId>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -70,6 +70,7 @@
 		<PackageReference Include="CommunityToolkit.Maui" Version="14.1.1" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.70" />
+		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.70" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.8" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
 		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
@@ -77,7 +78,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Converters\" />
 		<Folder Include="Helpers\" />
 		<Folder Include="Viewmodels\Common\" />
 	</ItemGroup>

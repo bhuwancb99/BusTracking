@@ -90,3 +90,4 @@ namespace BusTracking.Mobile.Viewmodels.Auth
             });
         }
     }
+}
