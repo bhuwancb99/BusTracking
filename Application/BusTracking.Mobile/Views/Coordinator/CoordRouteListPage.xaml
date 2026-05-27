@@ -1,13 +1,161 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage
+<views:ViewBase
     x:Class="BusTracking.Mobile.Views.Coordinator.CoordRouteListPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    Title="CoordRouteListPage">
-    <VerticalStackLayout>
-        <Label
+    xmlns:models="clr-namespace:BusTracking.Mobile.Models"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
+    Title="Routes"
+    x:TypeArguments="vm:CoordRouteListViewModel"
+    BackgroundColor="#F4F6FB">
+
+    <Shell.TitleView>
+        <Grid Padding="0,0,8,0" ColumnDefinitions="*,Auto">
+            <Label
+                Grid.Column="0"
+                FontAttributes="Bold"
+                FontSize="17"
+                Text="Routes"
+                TextColor="White"
+                VerticalOptions="Center" />
+            <Button
+                Grid.Column="1"
+                Padding="14,6"
+                BackgroundColor="White"
+                Command="{Binding AddCommand}"
+                CornerRadius="20"
+                FontSize="13"
+                IsVisible="{Binding CanAdd}"
+                Text="+ Add"
+                TextColor="#2563eb" />
+        </Grid>
+    </Shell.TitleView>
+
+    <Grid RowDefinitions="*">
+        <ActivityIndicator
             HorizontalOptions="Center"
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" />
-    </VerticalStackLayout>
-</ContentPage>
+            IsRunning="{Binding IsBusy}"
+            IsVisible="{Binding IsBusy}"
+            VerticalOptions="Center"
+            Color="#2563eb" />
+
+        <CollectionView
+            Margin="12,12,12,0"
+            ItemsSource="{Binding Items}"
+            SelectionMode="None">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout
+                    Padding="0,60"
+                    HorizontalOptions="Center"
+                    Spacing="12"
+                    VerticalOptions="Center">
+                    <Label
+                        FontSize="48"
+                        HorizontalOptions="Center"
+                        Text="🗺️" />
+                    <Label
+                        FontSize="15"
+                        HorizontalOptions="Center"
+                        Text="No routes found"
+                        TextColor="#64748b" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:RouteItem">
+                    <Border
+                        Margin="0,0,0,10"
+                        BackgroundColor="White"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="0">
+                        <Grid
+                            Padding="16"
+                            ColumnDefinitions="Auto,*,Auto"
+                            ColumnSpacing="12">
+
+                            <Border
+                                Grid.Column="0"
+                                BackgroundColor="#eff6ff"
+                                HeightRequest="44"
+                                StrokeShape="RoundRectangle 22"
+                                StrokeThickness="0"
+                                WidthRequest="44">
+                                <Label
+                                    FontSize="20"
+                                    HorizontalOptions="Center"
+                                    Text="🗺️"
+                                    VerticalOptions="Center" />
+                            </Border>
+
+                            <VerticalStackLayout
+                                Grid.Column="1"
+                                Spacing="3"
+                                VerticalOptions="Center">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="14"
+                                    Text="{Binding RouteName}"
+                                    TextColor="#1e293b" />
+                                <Label FontSize="12" TextColor="#64748b">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span
+                                                FontAttributes="Bold"
+                                                Text="{Binding RouteCode}"
+                                                TextColor="#2563eb" />
+                                            <Span Text=" · " />
+                                            <Span Text="{Binding StopCount, StringFormat='{0} stops'}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label
+                                    FontSize="11"
+                                    Text="{Binding TimingDisplay}"
+                                    TextColor="#94a3b8" />
+                            </VerticalStackLayout>
+
+                            <VerticalStackLayout
+                                Grid.Column="2"
+                                Spacing="8"
+                                VerticalOptions="Center">
+                                <Border
+                                    Padding="8,3"
+                                    StrokeShape="RoundRectangle 12"
+                                    StrokeThickness="0">
+                                    <Border.BackgroundColor>
+                                        <Binding Converter="{StaticResource BoolToStatusColor}" Path="IsActive" />
+                                    </Border.BackgroundColor>
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="10"
+                                        Text="{Binding StatusLabel}"
+                                        TextColor="White" />
+                                </Border>
+                                <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
+                                    <ImageButton
+                                        BackgroundColor="Transparent"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordRouteListViewModel}}, Path=ViewCommand}"
+                                        CommandParameter="{Binding .}"
+                                        HeightRequest="20"
+                                        IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordRouteListViewModel}}, Path=CanView}"
+                                        Source="view.svg"
+                                        WidthRequest="20" />
+                                    <ImageButton
+                                        BackgroundColor="Transparent"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordRouteListViewModel}}, Path=EditCommand}"
+                                        CommandParameter="{Binding .}"
+                                        HeightRequest="20"
+                                        IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordRouteListViewModel}}, Path=CanEdit}"
+                                        Source="edit.svg"
+                                        WidthRequest="20" />
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+
+</views:ViewBase>
