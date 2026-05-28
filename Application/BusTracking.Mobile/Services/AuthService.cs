@@ -31,6 +31,9 @@
 
             var user = r.Data;
 
+            // Clear any old/corrupt session before saving new one
+            await _db.ClearSessionAsync();
+
             // Save encrypted to local DB
             await _db.SaveSessionAsync(user);
 
@@ -51,24 +54,46 @@
         // ── Get current user (from memory → DB) ──────────────────────────────
         public async Task<SessionUser?> GetCurrentUserAsync()
         {
+            // Return from memory if still valid
             if (_currentUser != null && DateTime.UtcNow < _currentUser.Expiry)
                 return _currentUser;
 
-            var session = await _db.GetSessionAsync();
-            if (session is null)
-                return null;
+            // Try restoring from DB (handles app close/reopen)
+            try
+            {
+                var session = await _db.GetSessionAsync();
+                if (session is null) 
+                    return null;
 
-            _currentUser = session;
-            _api.SetToken(session.Token);
-            return session;
+                // Validate token is not empty/corrupt after decrypt
+                if (string.IsNullOrWhiteSpace(session.Token))
+                {
+                    await _db.ClearSessionAsync();
+                    return null;
+                }
+
+                _currentUser = session;
+                _api.SetToken(session.Token);
+                return session;
+            }
+            catch
+            {
+                // Corrupt DB session — wipe it so user gets a clean login
+                await _db.ClearSessionAsync();
+                return null;
+            }
         }
 
         // ── Auth check ────────────────────────────────────────────────────────
         public async Task<bool> IsAuthenticatedAsync()
         {
+            // Check memory first
             if (_currentUser != null && DateTime.UtcNow < _currentUser.Expiry)
                 return true;
-            return await _db.HasValidSessionAsync();
+
+            // Try full restore — this also sets token on HttpClient
+            var user = await GetCurrentUserAsync();
+            return user is not null;
         }
 
         // ── Logout ────────────────────────────────────────────────────────────

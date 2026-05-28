@@ -7,6 +7,15 @@
         private readonly ICacheService _cache;
         private string? _token;
 
+        // Endpoints that must NOT have a token attached
+        private static readonly string[] _noAuthEndpoints =
+        [
+            Constants.Auth.Login,
+            Constants.Auth.ForgotPassword,
+            Constants.Auth.ResetPassword,
+            Constants.AppConfig.Mobile,
+        ];
+
         private static readonly JsonSerializerOptions _json = new()
         {
             PropertyNameCaseInsensitive = true,
@@ -18,29 +27,25 @@
             _db = db;
             _cache = cache;
 
-#if DEBUG
             var handler = new HttpClientHandler
             {
+#if DEBUG
                 ServerCertificateCustomValidationCallback = (_, _, _, _) => true
+#endif
             };
+
             _http = new HttpClient(handler)
             {
                 BaseAddress = new Uri(Constants.ApiBaseUrl),
                 Timeout = TimeSpan.FromSeconds(30)
             };
-#else
-    _http = new HttpClient()
-    {
-        BaseAddress = new Uri(Constants.ApiBaseUrl),
-        Timeout = TimeSpan.FromSeconds(30)
-    };
-#endif
         }
 
         public void SetToken(string token)
         {
             _token = token;
-            _http.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            _http.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
         }
 
         public void ClearToken()
@@ -54,9 +59,9 @@
         {
             try
             {
-                await EnsureTokenAsync();
+                await EnsureTokenAsync(endpoint);
                 var res = await _http.GetAsync(endpoint);
-                return await ParseAsync<T>(res);
+                return await ParseAsync<T>(res, endpoint);
             }
             catch (Exception ex)
             {
@@ -69,12 +74,12 @@
         {
             try
             {
-                await EnsureTokenAsync();
+                await EnsureTokenAsync(endpoint);
                 var content = body is null
                     ? new StringContent("{}", Encoding.UTF8, "application/json")
                     : new StringContent(JsonSerializer.Serialize(body, _json), Encoding.UTF8, "application/json");
                 var res = await _http.PostAsync(endpoint, content);
-                return await ParseAsync<T>(res);
+                return await ParseAsync<T>(res, endpoint);
             }
             catch (Exception ex)
             {
@@ -87,12 +92,12 @@
         {
             try
             {
-                await EnsureTokenAsync();
+                await EnsureTokenAsync(endpoint);
                 var content = body is null
                     ? new StringContent("{}", Encoding.UTF8, "application/json")
                     : new StringContent(JsonSerializer.Serialize(body, _json), Encoding.UTF8, "application/json");
                 var res = await _http.PutAsync(endpoint, content);
-                return await ParseAsync<T>(res);
+                return await ParseAsync<T>(res, endpoint);
             }
             catch (Exception ex)
             {
@@ -105,9 +110,9 @@
         {
             try
             {
-                await EnsureTokenAsync();
+                await EnsureTokenAsync(endpoint);
                 var res = await _http.DeleteAsync(endpoint);
-                return await ParseAsync<T>(res);
+                return await ParseAsync<T>(res, endpoint);
             }
             catch (Exception ex)
             {
@@ -117,26 +122,60 @@
 
         // ── Helpers ───────────────────────────────────────────────────────────
 
-        /// <summary>Load token from DB if not yet set in memory (app restart scenario)</summary>
-        private async Task EnsureTokenAsync()
+        /// <summary>
+        /// Restore token from DB on app restart.
+        /// Skipped entirely for login/public endpoints that need no token.
+        /// </summary>
+        private async Task EnsureTokenAsync(string endpoint)
         {
+            // Skip for public endpoints — login must never send a stale token
+            if (_noAuthEndpoints.Any(e =>
+                    endpoint.StartsWith(e, StringComparison.OrdinalIgnoreCase)))
+            {
+                // Also clear any stale token header so it is not accidentally sent
+                _http.DefaultRequestHeaders.Authorization = null;
+                return;
+            }
+
+            // Token already set in memory — nothing to do
             if (!string.IsNullOrEmpty(_token))
                 return;
-            var session = await _db.GetSessionAsync();
-            if (session != null)
-                SetToken(session.Token);
+
+            // App restarted — restore token from DB
+            try
+            {
+                var session = await _db.GetSessionAsync();
+                if (session != null && !string.IsNullOrWhiteSpace(session.Token))
+                    SetToken(session.Token);
+            }
+            catch
+            {
+                // DB read failed — proceed without token, server will return 401
+            }
         }
 
-        private async Task<ApiResponse<T>> ParseAsync<T>(HttpResponseMessage res)
+        private async Task<ApiResponse<T>> ParseAsync<T>(HttpResponseMessage res, string endpoint)
         {
             var json = await res.Content.ReadAsStringAsync();
 
             if (res.StatusCode == System.Net.HttpStatusCode.Unauthorized)
             {
-                // Token expired — clear local session so app redirects to login
-                await _db.ClearSessionAsync();
-                ClearToken();
-                return Fail<T>("Session expired. Please login again.");
+                // Do not clear session for public endpoints (login returning 401 = wrong credentials)
+                if (!_noAuthEndpoints.Any(e =>
+                        endpoint.StartsWith(e, StringComparison.OrdinalIgnoreCase)))
+                {
+                    await _db.ClearSessionAsync();
+                    ClearToken();
+                    return Fail<T>("Session expired. Please login again.");
+                }
+
+                // Login endpoint returned 401 = wrong credentials
+                try
+                {
+                    var err = JsonSerializer.Deserialize<ApiResponse<T>>(json, _json);
+                    return err ?? Fail<T>("Invalid email or password.");
+                }
+                catch { return Fail<T>("Invalid email or password."); }
             }
 
             if (!res.IsSuccessStatusCode)

@@ -3,6 +3,7 @@
     public partial class LoginViewModel : BaseViewModel
     {
         private readonly IAppConfigService _appConfig;
+        private bool _initialized;   // guard against InitializeAsync running twice
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
@@ -25,25 +26,47 @@
 
         public override async Task InitializeAsync()
         {
-            // On app start: fetch mobile config, check maintenance
+            // Prevent running twice when Shell navigates back to Login
+            if (_initialized) return;
+            _initialized = true;
+
             await RunAsync(async () =>
             {
-                var cfg = await _appConfig.GetMobileConfigAsync();
-
-                if (await _appConfig.IsMaintenanceModeAsync())
+                // ── 1. Check maintenance mode ──────────────────────────────
+                try
                 {
-                    IsMaintenanceMode = true;
-                    MaintenanceMessage = cfg.GetValueOrDefault("MaintenanceMessage",
-                        "We are under maintenance. Please check back soon.");
-                    return;
+                    var cfg = await _appConfig.GetMobileConfigAsync();
+
+                    if (await _appConfig.IsMaintenanceModeAsync())
+                    {
+                        IsMaintenanceMode = true;
+                        MaintenanceMessage = cfg.GetValueOrDefault("MaintenanceMessage",
+                            "We are under maintenance. Please check back soon.");
+                        return;
+                    }
+                }
+                catch
+                {
+                    // API unreachable — skip maintenance check, show login form
                 }
 
-                // If valid session exists, skip login
-                if (await Auth.IsAuthenticatedAsync())
+                // ── 2. Restore session if valid ────────────────────────────
+                try
                 {
-                    var user = await Auth.GetCurrentUserAsync();
-                    if (user is not null)
-                        await Nav.GoToDashboardAsync(user.Role);
+                    if (await Auth.IsAuthenticatedAsync())
+                    {
+                        var user = await Auth.GetCurrentUserAsync();
+                        if (user is not null)
+                        {
+                            await Nav.GoToDashboardAsync(user.Role);
+                            return;
+                        }
+                    }
+                }
+                catch
+                {
+                    // Corrupt session — IsAuthenticatedAsync already cleared it
+                    // Fall through to show login form normally
                 }
             });
         }
@@ -62,6 +85,11 @@
                     SetError(r.Message);
                     return;
                 }
+
+                // Clear fields after successful login
+                Email = "";
+                Password = "";
+
                 await Nav.GoToDashboardAsync(r.Data.Role);
             });
         }

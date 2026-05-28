@@ -3,208 +3,334 @@
     x:Class="BusTracking.Mobile.Views.Auth.LoginPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:sf="clr-namespace:Syncfusion.Maui.Toolkit.TextInputLayout;assembly=Syncfusion.Maui.Toolkit"
+    xmlns:sfButtons="clr-namespace:Syncfusion.Maui.Toolkit.Buttons;assembly=Syncfusion.Maui.Toolkit"
+    xmlns:sfIndicator="clr-namespace:Syncfusion.Maui.Toolkit.ProgressBar;assembly=Syncfusion.Maui.Toolkit"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Auth"
     x:DataType="vm:LoginViewModel"
     x:TypeArguments="vm:LoginViewModel"
-    BackgroundColor="#F8FAFC">
+    BackgroundColor="#0A0F1E">
 
-    <Grid RowDefinitions="*,Auto,*">
+    <Shell.NavBarIsVisible>False</Shell.NavBarIsVisible>
+
+    <Grid>
+
+        <!--  ── Animated background layers ──  -->
+        <AbsoluteLayout>
+            <!--  Deep navy base  -->
+            <BoxView
+                AbsoluteLayout.LayoutBounds="0,0,1,1"
+                AbsoluteLayout.LayoutFlags="All"
+                Color="#0A0F1E" />
+
+            <!--  Top-left glow blob  -->
+            <Ellipse
+                AbsoluteLayout.LayoutBounds="-80,-80,300,300"
+                AbsoluteLayout.LayoutFlags="None"
+                Fill="#1A2A6C"
+                Opacity="0.6" />
+
+            <!--  Bottom-right glow blob  -->
+            <Ellipse
+                AbsoluteLayout.LayoutBounds="200,550,350,350"
+                AbsoluteLayout.LayoutFlags="None"
+                Fill="#0D47A1"
+                Opacity="0.4" />
+
+            <!--  Center accent  -->
+            <Ellipse
+                AbsoluteLayout.LayoutBounds="100,250,200,200"
+                AbsoluteLayout.LayoutFlags="None"
+                Fill="#1565C0"
+                Opacity="0.2" />
+        </AbsoluteLayout>
 
         <!--  ── Maintenance overlay ──  -->
-        <Border
-            Grid.RowSpan="3"
-            Padding="32"
-            BackgroundColor="White"
+        <Grid
+            BackgroundColor="#0A0F1E"
             IsVisible="{Binding IsMaintenanceMode}"
-            StrokeShape="RoundRectangle 0"
             ZIndex="99">
-            <VerticalStackLayout Spacing="16" VerticalOptions="Center">
+            <VerticalStackLayout
+                Padding="40"
+                Spacing="20"
+                VerticalOptions="Center">
                 <Label
-                    FontSize="64"
+                    FontSize="72"
                     HorizontalOptions="Center"
                     Text="🔧" />
                 <Label
                     FontAttributes="Bold"
-                    FontSize="22"
+                    FontSize="24"
                     HorizontalOptions="Center"
+                    HorizontalTextAlignment="Center"
                     Text="Under Maintenance"
-                    TextColor="#1e293b" />
+                    TextColor="White" />
                 <Label
-                    FontSize="14"
+                    FontSize="15"
                     HorizontalOptions="Center"
                     HorizontalTextAlignment="Center"
                     Text="{Binding MaintenanceMessage}"
-                    TextColor="#64748b" />
-            </VerticalStackLayout>
-        </Border>
-
-        <!--  ── Top brand panel ──  -->
-        <Grid
-            Grid.Row="0"
-            Padding="32,60,32,40"
-            BackgroundColor="#1e3a5f">
-            <VerticalStackLayout Spacing="8" VerticalOptions="End">
-                <Label
-                    FontSize="48"
-                    HorizontalOptions="Center"
-                    Text="🚌" />
-                <Label
-                    FontAttributes="Bold"
-                    FontSize="28"
-                    HorizontalOptions="Center"
-                    Text="BusTrack"
-                    TextColor="White" />
-                <Label
-                    FontSize="13"
-                    HorizontalOptions="Center"
-                    Text="Safe journeys, every day"
-                    TextColor="#93c5fd" />
+                    TextColor="#90CAF9" />
             </VerticalStackLayout>
         </Grid>
 
-        <!--  ── Form card ──  -->
-        <ScrollView Grid.Row="1">
-            <Border
-                Margin="20,-24,20,0"
-                Padding="28,24"
-                BackgroundColor="White"
-                StrokeShape="RoundRectangle 20">
-                <VerticalStackLayout Spacing="20">
+        <!--  ── Main scrollable content ──  -->
+        <ScrollView>
+            <Grid MinimumHeightRequest="600" RowDefinitions="Auto,*,Auto">
+
+                <!--  ── Brand header ──  -->
+                <VerticalStackLayout
+                    Grid.Row="0"
+                    Padding="32,64,32,32"
+                    Spacing="0">
+
+                    <!--  Bus icon with glowing ring  -->
+                    <Grid
+                        Margin="0,0,0,20"
+                        HeightRequest="88"
+                        HorizontalOptions="Center"
+                        WidthRequest="88">
+                        <Ellipse
+                            Fill="#1565C0"
+                            HeightRequest="88"
+                            Opacity="0.3"
+                            WidthRequest="88" />
+                        <Ellipse
+                            Fill="#1976D2"
+                            HeightRequest="72"
+                            HorizontalOptions="Center"
+                            Opacity="0.5"
+                            VerticalOptions="Center"
+                            WidthRequest="72" />
+                        <Border
+                            BackgroundColor="#1E88E5"
+                            HeightRequest="60"
+                            HorizontalOptions="Center"
+                            Stroke="#42A5F5"
+                            StrokeShape="RoundRectangle 18"
+                            StrokeThickness="1.5"
+                            VerticalOptions="Center"
+                            WidthRequest="60">
+                            <Label
+                                FontSize="30"
+                                HorizontalOptions="Center"
+                                Text="🚌"
+                                VerticalOptions="Center" />
+                        </Border>
+                    </Grid>
 
                     <Label
+                        CharacterSpacing="1"
                         FontAttributes="Bold"
-                        FontSize="22"
-                        Text="Sign In"
-                        TextColor="#1e293b" />
+                        FontSize="32"
+                        HorizontalOptions="Center"
+                        Text="BusTrack"
+                        TextColor="White" />
 
-                    <!--  Error banner  -->
-                    <Border
-                        Padding="12,8"
-                        BackgroundColor="#fef2f2"
-                        IsVisible="{Binding HasError}"
-                        Stroke="#fecaca"
-                        StrokeShape="RoundRectangle 10">
-                        <Label
-                            FontSize="13"
-                            Text="{Binding ErrorMessage}"
-                            TextColor="#ef4444" />
-                    </Border>
+                    <Label
+                        Margin="0,6,0,0"
+                        FontSize="13"
+                        HorizontalOptions="Center"
+                        Text="Safe journeys, every day"
+                        TextColor="#64B5F6" />
 
-                    <!--  Email  -->
-                    <VerticalStackLayout Spacing="6">
+                </VerticalStackLayout>
+
+                <!--  ── Login card ──  -->
+                <Border
+                    Grid.Row="1"
+                    Margin="20,0,20,0"
+                    Padding="28,30"
+                    BackgroundColor="#111827"
+                    Stroke="#1E3A5F"
+                    StrokeShape="RoundRectangle 28"
+                    StrokeThickness="1.5">
+                    <Border.Shadow>
+                        <Shadow
+                            Brush="#000000"
+                            Opacity="0.5"
+                            Radius="32"
+                            Offset="0,8" />
+                    </Border.Shadow>
+
+                    <VerticalStackLayout Spacing="0">
+
                         <Label
+                            Margin="0,0,0,4"
                             FontAttributes="Bold"
+                            FontSize="22"
+                            Text="Welcome back"
+                            TextColor="White" />
+
+                        <Label
+                            Margin="0,0,0,24"
                             FontSize="13"
-                            Text="Email"
-                            TextColor="#374151" />
+                            Text="Sign in to your account"
+                            TextColor="#64748B" />
+
+                        <!--  Error banner  -->
                         <Border
-                            Padding="14,0"
-                            BackgroundColor="#f8fafc"
-                            Stroke="#e2e8f0"
-                            StrokeShape="RoundRectangle 12">
+                            Margin="0,0,0,16"
+                            Padding="14,10"
+                            BackgroundColor="#1A0A0A"
+                            IsVisible="{Binding HasError}"
+                            Stroke="#7F1D1D"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="1">
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                <Label
+                                    Grid.Column="0"
+                                    FontSize="16"
+                                    Text="⚠️"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Column="1"
+                                    FontSize="13"
+                                    Text="{Binding ErrorMessage}"
+                                    TextColor="#FCA5A5"
+                                    VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+
+                        <sf:SfTextInputLayout
+                            Margin="0,0,0,16"
+                            ContainerBackground="#0D1526"
+                            ContainerType="Outlined"
+                            HelperText=""
+                            Hint="Email Address"
+                            HintLabelStyle="{StaticResource SfHintStyle}"
+                            OutlineCornerRadius="14"
+                            Stroke="#1E3A5F">
                             <Entry
                                 BackgroundColor="Transparent"
                                 Keyboard="Email"
                                 Placeholder="you@example.com"
-                                PlaceholderColor="#94a3b8"
+                                PlaceholderColor="#374151"
                                 ReturnType="Next"
                                 Text="{Binding Email}"
-                                TextColor="#1e293b" />
-                        </Border>
-                    </VerticalStackLayout>
+                                TextColor="White" />
+                        </sf:SfTextInputLayout>
 
-                    <!--  Password  -->
-                    <VerticalStackLayout Spacing="6">
-                        <Label
+                        <sf:SfTextInputLayout
+                            Margin="0,0,0,12"
+                            ContainerBackground="#0D1526"
+                            ContainerType="Outlined"
+                            EnablePasswordVisibilityToggle="True"
+                            Hint="Password"
+                            HintLabelStyle="{StaticResource SfHintStyle}"
+                            OutlineCornerRadius="14"
+                            Stroke="#1E3A5F">
+                            <Entry
+                                BackgroundColor="Transparent"
+                                IsPassword="True"
+                                Placeholder="••••••••"
+                                PlaceholderColor="#374151"
+                                ReturnType="Done"
+                                Text="{Binding Password}"
+                                TextColor="White" />
+                        </sf:SfTextInputLayout>
+
+                        <!--  Forgot password  -->
+                        <Label Margin="0,0,0,24" HorizontalOptions="End">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span
+                                        FontSize="13"
+                                        Text="Forgot password?"
+                                        TextColor="#60A5FA">
+                                        <Span.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding ForgotPasswordCommand}" />
+                                        </Span.GestureRecognizers>
+                                    </Span>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+
+                        <!--  ── Sign In ──  -->
+                        <sfButtons:SfButton
+                            Margin="0,0,0,16"
+                            Background="#1565C0"
+                            Command="{Binding LoginCommand}"
+                            CornerRadius="14"
                             FontAttributes="Bold"
-                            FontSize="13"
-                            Text="Password"
-                            TextColor="#374151" />
-                        <Border
-                            Padding="14,0"
-                            BackgroundColor="#f8fafc"
-                            Stroke="#e2e8f0"
-                            StrokeShape="RoundRectangle 12">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <Entry
-                                    Grid.Column="0"
-                                    BackgroundColor="Transparent"
-                                    IsPassword="{Binding IsPasswordVisible, Converter={StaticResource InvertBool}}"
-                                    Placeholder="••••••••"
-                                    PlaceholderColor="#94a3b8"
-                                    ReturnType="Done"
-                                    Text="{Binding Password}"
-                                    TextColor="#1e293b" />
-                                <ImageButton
-                                    Grid.Column="1"
-                                    Padding="4"
-                                    BackgroundColor="Transparent"
-                                    Command="{Binding TogglePasswordVisibilityCommand}"
-                                    HeightRequest="22"
-                                    Source="{Binding IsPasswordVisible, Converter={StaticResource BoolToEyeIcon}}"
-                                    WidthRequest="22" />
-                            </Grid>
-                        </Border>
-                    </VerticalStackLayout>
+                            FontSize="16"
+                            HeightRequest="54"
+                            Stroke="#1976D2"
+                            StrokeThickness="1"
+                            Text="Sign In"
+                            TextColor="White">
+                            <sfButtons:SfButton.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding IsBusy}"
+                                    TargetType="sfButtons:SfButton"
+                                    Value="True">
+                                    <Setter Property="Text" Value="Signing in…" />
+                                    <Setter Property="IsEnabled" Value="False" />
+                                    <Setter Property="Opacity" Value="0.7" />
+                                </DataTrigger>
+                            </sfButtons:SfButton.Triggers>
+                        </sfButtons:SfButton>
 
-                    <!--  Forgot password  -->
-                    <Label HorizontalOptions="End">
+                        <!--  Loading indicator  -->
+                        <sfIndicator:SfLinearProgressBar
+                            Margin="0,0,0,4"
+                            HeightRequest="3"
+                            IsIndeterminate="True"
+                            IsVisible="{Binding IsBusy}"
+                            ProgressFill="#1976D2"
+                            TrackCornerRadius="2"
+                            TrackFill="#1E3A5F" />
+
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  ── Footer ──  -->
+                <VerticalStackLayout
+                    Grid.Row="2"
+                    Padding="32,20,32,40"
+                    Spacing="8">
+
+                    <!--  Divider with text  -->
+                    <Grid
+                        Margin="0,0,0,4"
+                        ColumnDefinitions="*,Auto,*"
+                        ColumnSpacing="12">
+                        <BoxView
+                            Grid.Column="0"
+                            BackgroundColor="#1E3A5F"
+                            HeightRequest="1"
+                            VerticalOptions="Center" />
+                        <Label
+                            Grid.Column="1"
+                            FontSize="11"
+                            Text="secured"
+                            TextColor="#374151" />
+                        <BoxView
+                            Grid.Column="2"
+                            BackgroundColor="#1E3A5F"
+                            HeightRequest="1"
+                            VerticalOptions="Center" />
+                    </Grid>
+
+                    <Label
+                        FontSize="12"
+                        HorizontalOptions="Center"
+                        HorizontalTextAlignment="Center"
+                        TextColor="#374151">
                         <Label.FormattedText>
                             <FormattedString>
-                                <Span
-                                    FontSize="13"
-                                    Text="Forgot password?"
-                                    TextColor="#2563eb"
-                                    TextDecorations="Underline">
-                                    <Span.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding ForgotPasswordCommand}" />
-                                    </Span.GestureRecognizers>
-                                </Span>
+                                <Span Text="🔒  " TextColor="#374151" />
+                                <Span Text="End-to-end encrypted  ·  " TextColor="#374151" />
+                                <Span Text="v1.0" TextColor="#1E3A5F" />
                             </FormattedString>
                         </Label.FormattedText>
                     </Label>
 
-                    <!--  Sign In Button  -->
-                    <Button
-                        BackgroundColor="#2563eb"
-                        Command="{Binding LoginCommand}"
-                        CornerRadius="12"
-                        FontAttributes="Bold"
-                        FontSize="16"
-                        HeightRequest="52"
-                        Text="Sign In"
-                        TextColor="White">
-                        <Button.Triggers>
-                            <DataTrigger
-                                Binding="{Binding IsBusy}"
-                                TargetType="Button"
-                                Value="True">
-                                <Setter Property="Text" Value="Signing in…" />
-                                <Setter Property="IsEnabled" Value="False" />
-                            </DataTrigger>
-                        </Button.Triggers>
-                    </Button>
-
-                    <!--  Loading  -->
-                    <ActivityIndicator
-                        HorizontalOptions="Center"
-                        IsRunning="{Binding IsBusy}"
-                        IsVisible="{Binding IsBusy}"
-                        Color="#2563eb" />
-
                 </VerticalStackLayout>
-            </Border>
-        </ScrollView>
 
-        <!--  ── Footer ──  -->
-        <Label
-            Grid.Row="2"
-            FontSize="12"
-            HorizontalOptions="Center"
-            Text="🔒 End-to-end encrypted"
-            TextColor="#94a3b8"
-            VerticalOptions="Center" />
+            </Grid>
+        </ScrollView>
 
     </Grid>
 </views:ViewBase>

@@ -32,6 +32,7 @@ global using CommunityToolkit.Mvvm.ComponentModel;
 global using CommunityToolkit.Mvvm.Input;
 global using Microsoft.Extensions.Logging;
 global using SQLite;
+global using Syncfusion.Maui.Toolkit.Hosting;
 global using System.Collections.ObjectModel;
 global using System.Globalization;
 global using System.Security.Cryptography;
