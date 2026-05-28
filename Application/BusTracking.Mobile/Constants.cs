@@ -7,9 +7,11 @@
 public static class Constants
 {
     // ── API Base ──────────────────────────────────────────────────────────
+
 #if DEBUG
-    // Android emulator uses 10.0.2.2 to reach localhost
-    public const string ApiBaseUrl = "https://10.0.2.2:7001";
+    // Switch comment depending on what you are testing on
+    public const string ApiBaseUrl = "https://10.0.2.2:7001";       // Android emulator
+    //public const string ApiBaseUrl = "https://192.168.29.242:7001";  // Physical device
 #else
     public const string ApiBaseUrl = "https://api.bustracking.com";
 #endif

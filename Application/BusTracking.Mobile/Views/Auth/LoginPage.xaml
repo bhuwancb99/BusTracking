@@ -69,7 +69,6 @@
                 Margin="20,-24,20,0"
                 Padding="28,24"
                 BackgroundColor="White"
-                Shadow="True"
                 StrokeShape="RoundRectangle 20">
                 <VerticalStackLayout Spacing="20">
 

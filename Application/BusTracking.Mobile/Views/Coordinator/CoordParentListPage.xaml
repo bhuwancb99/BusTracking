@@ -154,7 +154,7 @@
                                     HeightRequest="20"
                                     HorizontalOptions="End"
                                     IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordParentListViewModel}}, Path=CanView}"
-                                    Source="view.svg"
+                                    Source="view.png"
                                     WidthRequest="20" />
                             </VerticalStackLayout>
 

@@ -56,7 +56,6 @@
                         Grid.Column="0"
                         Padding="16"
                         BackgroundColor="White"
-                        Shadow="True"
                         StrokeShape="RoundRectangle 16">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToBusesCommand}" />
@@ -80,7 +79,6 @@
                         Grid.Column="1"
                         Padding="16"
                         BackgroundColor="White"
-                        Shadow="True"
                         StrokeShape="RoundRectangle 16">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToDriversCommand}" />
@@ -104,7 +102,6 @@
                         Grid.Column="0"
                         Padding="16"
                         BackgroundColor="White"
-                        Shadow="True"
                         StrokeShape="RoundRectangle 16">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToStudentsCommand}" />
@@ -128,7 +125,6 @@
                         Grid.Column="1"
                         Padding="16"
                         BackgroundColor="White"
-                        Shadow="True"
                         StrokeShape="RoundRectangle 16">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToParentsCommand}" />
@@ -152,7 +148,6 @@
                         Grid.Column="0"
                         Padding="16"
                         BackgroundColor="White"
-                        Shadow="True"
                         StrokeShape="RoundRectangle 16">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToTripsCommand}" />
@@ -176,7 +171,6 @@
                         Grid.Column="1"
                         Padding="16"
                         BackgroundColor="White"
-                        Shadow="True"
                         StrokeShape="RoundRectangle 16">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToCoordinatorsCommand}" />

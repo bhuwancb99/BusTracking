@@ -18,19 +18,23 @@
             _db = db;
             _cache = cache;
 
+#if DEBUG
             var handler = new HttpClientHandler
             {
-                // Trust dev cert in debug
-#if DEBUG
                 ServerCertificateCustomValidationCallback = (_, _, _, _) => true
-#endif
             };
-
             _http = new HttpClient(handler)
             {
                 BaseAddress = new Uri(Constants.ApiBaseUrl),
                 Timeout = TimeSpan.FromSeconds(30)
             };
+#else
+    _http = new HttpClient()
+    {
+        BaseAddress = new Uri(Constants.ApiBaseUrl),
+        Timeout = TimeSpan.FromSeconds(30)
+    };
+#endif
         }
 
         public void SetToken(string token)

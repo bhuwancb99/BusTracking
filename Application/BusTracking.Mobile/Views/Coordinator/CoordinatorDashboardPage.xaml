@@ -57,7 +57,6 @@
                         Padding="16"
                         BackgroundColor="White"
                         IsVisible="{Binding ShowBuses}"
-                        Shadow="True"
                         StrokeShape="RoundRectangle 16">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToBusesCommand}" />
@@ -82,7 +81,6 @@
                         Padding="16"
                         BackgroundColor="White"
                         IsVisible="{Binding ShowStudents}"
-                        Shadow="True"
                         StrokeShape="RoundRectangle 16">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToStudentsCommand}" />
@@ -107,7 +105,6 @@
                         Padding="16"
                         BackgroundColor="White"
                         IsVisible="{Binding ShowTrips}"
-                        Shadow="True"
                         StrokeShape="RoundRectangle 16">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToTripsCommand}" />
@@ -132,7 +129,6 @@
                         Padding="16"
                         BackgroundColor="White"
                         IsVisible="{Binding ShowParents}"
-                        Shadow="True"
                         StrokeShape="RoundRectangle 16">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToParentsCommand}" />
@@ -171,7 +167,6 @@
                         Padding="14,10"
                         BackgroundColor="White"
                         IsVisible="{Binding ShowRoutes}"
-                        Shadow="True"
                         StrokeShape="RoundRectangle 12">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToRoutesCommand}" />
@@ -191,7 +186,6 @@
                         Padding="14,10"
                         BackgroundColor="White"
                         IsVisible="{Binding ShowDrivers}"
-                        Shadow="True"
                         StrokeShape="RoundRectangle 12">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToDriversCommand}" />
@@ -211,7 +205,6 @@
                         Padding="14,10"
                         BackgroundColor="White"
                         IsVisible="{Binding ShowStudents}"
-                        Shadow="True"
                         StrokeShape="RoundRectangle 12">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToStudentsCommand}" />
@@ -231,7 +224,6 @@
                         Padding="14,10"
                         BackgroundColor="White"
                         IsVisible="{Binding ShowParents}"
-                        Shadow="True"
                         StrokeShape="RoundRectangle 12">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToParentsCommand}" />
@@ -251,7 +243,6 @@
                         Padding="14,10"
                         BackgroundColor="White"
                         IsVisible="{Binding ShowTrips}"
-                        Shadow="True"
                         StrokeShape="RoundRectangle 12">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToTripsCommand}" />

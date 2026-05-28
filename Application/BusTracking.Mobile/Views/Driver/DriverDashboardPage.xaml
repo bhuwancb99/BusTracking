@@ -43,7 +43,6 @@
                 <Border
                     Padding="20"
                     BackgroundColor="#1e3a5f"
-                    Shadow="True"
                     StrokeShape="RoundRectangle 20">
                     <VerticalStackLayout Spacing="8">
                         <Label
@@ -84,7 +83,6 @@
                     Padding="20"
                     BackgroundColor="White"
                     IsVisible="{Binding ActiveTrip, Converter={StaticResource NotNull}}"
-                    Shadow="True"
                     StrokeShape="RoundRectangle 16">
                     <VerticalStackLayout Spacing="10">
                         <Label
