@@ -7,7 +7,6 @@
         [ObservableProperty] private ObservableCollection<ParentItem> _items = [];
         [ObservableProperty] private string _searchText = "";
 
-        public bool CanAdd => Can("parent.add");
         public bool CanEdit => Can("parent.edit");
         public bool CanView => Can("parent.view");
 

@@ -12,25 +12,12 @@
     BackgroundColor="#F4F6FB">
 
     <Shell.TitleView>
-        <Grid Padding="0,0,8,0" ColumnDefinitions="*,Auto">
-            <Label
-                Grid.Column="0"
-                FontAttributes="Bold"
-                FontSize="17"
-                Text="Drivers"
-                TextColor="White"
-                VerticalOptions="Center" />
-            <Button
-                Grid.Column="1"
-                Padding="14,6"
-                BackgroundColor="White"
-                Command="{Binding AddCommand}"
-                CornerRadius="20"
-                FontSize="13"
-                IsVisible="{Binding CanAdd}"
-                Text="+ Add"
-                TextColor="#2563eb" />
-        </Grid>
+        <Label
+            FontAttributes="Bold"
+            FontSize="17"
+            Text="Drivers"
+            TextColor="White"
+            VerticalOptions="Center" />
     </Shell.TitleView>
 
     <Grid RowDefinitions="Auto,*">

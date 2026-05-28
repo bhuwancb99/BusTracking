@@ -43,13 +43,23 @@
             Stroke="#e2e8f0"
             StrokeShape="RoundRectangle 12"
             StrokeThickness="1">
-            <Picker
-                Title="Filter by status"
-                Margin="12,0"
-                BackgroundColor="Transparent"
-                ItemsSource="{Binding StatusOptions}"
-                SelectedIndexChanged="OnStatusChanged"
-                SelectedItem="{Binding SelectedStatus}" />
+            <Grid Padding="12,0" ColumnDefinitions="*,Auto">
+                <Picker
+                    Title="Filter by status"
+                    Grid.Column="0"
+                    BackgroundColor="Transparent"
+                    ItemsSource="{Binding StatusOptions}"
+                    SelectedItem="{Binding SelectedStatus}" />
+                <Button
+                    Grid.Column="1"
+                    Padding="12,4"
+                    BackgroundColor="#2563eb"
+                    Command="{Binding LoadCommand}"
+                    CornerRadius="8"
+                    FontSize="12"
+                    Text="Refresh"
+                    TextColor="White" />
+            </Grid>
         </Border>
 
         <ActivityIndicator

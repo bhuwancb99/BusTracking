@@ -44,11 +44,10 @@
                         Text="Date"
                         TextColor="#374151" />
                     <DatePicker
-                        xmlns:sys="clr-namespace:System;assembly=mscorlib"
                         BackgroundColor="Transparent"
                         Date="{Binding SelectedDate}"
                         FontSize="15"
-                        MinimumDate="{x:Static sys:DateTime.Today}"
+                        MinimumDate="{Binding MinimumDate}"
                         TextColor="#1e293b" />
                 </VerticalStackLayout>
             </Border>

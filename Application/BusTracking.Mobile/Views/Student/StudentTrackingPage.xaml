@@ -3,12 +3,274 @@
     x:Class="BusTracking.Mobile.Views.Student.StudentTrackingPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:BusTracking.Mobile.Models"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
-    Title="StudentTrackingPage">
-    <VerticalStackLayout>
-        <Label
-            HorizontalOptions="Center"
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" />
-    </VerticalStackLayout>
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Student"
+    Title="Track My Bus"
+    x:DataType="vm:StudentTrackingViewModel"
+    x:TypeArguments="vm:StudentTrackingViewModel"
+    BackgroundColor="#F4F6FB">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+
+        <!--  Live status bar  -->
+        <Border
+            Grid.Row="0"
+            Margin="12,12,12,4"
+            BackgroundColor="#1e3a5f"
+            StrokeShape="RoundRectangle 14"
+            StrokeThickness="0">
+            <Grid Padding="14,12" ColumnDefinitions="Auto,*,Auto">
+                <Label
+                    Grid.Column="0"
+                    FontSize="24"
+                    Text="🚌"
+                    VerticalOptions="Center" />
+                <VerticalStackLayout
+                    Grid.Column="1"
+                    Margin="10,0"
+                    Spacing="2">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        Text="{Binding StatusText}"
+                        TextColor="White" />
+                    <Label
+                        FontSize="12"
+                        Text="{Binding SpeedText}"
+                        TextColor="#93c5fd" />
+                </VerticalStackLayout>
+                <Border
+                    Grid.Column="2"
+                    Padding="8,4"
+                    StrokeShape="RoundRectangle 20"
+                    StrokeThickness="0">
+                    <Border.Triggers>
+                        <DataTrigger
+                            Binding="{Binding IsLive}"
+                            TargetType="Border"
+                            Value="True">
+                            <Setter Property="BackgroundColor" Value="#14532d" />
+                        </DataTrigger>
+                        <DataTrigger
+                            Binding="{Binding IsLive}"
+                            TargetType="Border"
+                            Value="False">
+                            <Setter Property="BackgroundColor" Value="#1e2a3a" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Label FontAttributes="Bold" FontSize="11">
+                        <Label.Triggers>
+                            <DataTrigger
+                                Binding="{Binding IsLive}"
+                                TargetType="Label"
+                                Value="True">
+                                <Setter Property="Text" Value="● LIVE" />
+                                <Setter Property="TextColor" Value="#4ade80" />
+                            </DataTrigger>
+                            <DataTrigger
+                                Binding="{Binding IsLive}"
+                                TargetType="Label"
+                                Value="False">
+                                <Setter Property="Text" Value="○ Offline" />
+                                <Setter Property="TextColor" Value="#94a3b8" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!--  Map placeholder  -->
+        <Border
+            Grid.Row="1"
+            Margin="12,4"
+            BackgroundColor="#e2e8f0"
+            HeightRequest="220"
+            StrokeShape="RoundRectangle 16"
+            StrokeThickness="0">
+            <Grid>
+                <VerticalStackLayout
+                    HorizontalOptions="Center"
+                    Spacing="6"
+                    VerticalOptions="Center">
+                    <Label
+                        FontSize="64"
+                        HorizontalOptions="Center"
+                        Text="🗺️"
+                        TextColor="#94a3b8" />
+                    <Label
+                        FontSize="13"
+                        HorizontalOptions="Center"
+                        Text="Live map appears here"
+                        TextColor="#64748b" />
+                    <Label
+                        FontSize="10"
+                        HorizontalOptions="Center"
+                        Text="Integrate Microsoft.Maui.Maps or Mapsui here"
+                        TextColor="#94a3b8" />
+                </VerticalStackLayout>
+                <!--  Bus marker overlay  -->
+                <Border
+                    Padding="8,6"
+                    BackgroundColor="#2563eb"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding IsLive}"
+                    Stroke="White"
+                    StrokeShape="RoundRectangle 24"
+                    StrokeThickness="2"
+                    VerticalOptions="Center">
+                    <Label FontSize="18" Text="🚌" />
+                </Border>
+            </Grid>
+        </Border>
+
+        <!--  Stop timeline  -->
+        <Border
+            Grid.Row="2"
+            Margin="12,4"
+            BackgroundColor="White"
+            StrokeShape="RoundRectangle 16"
+            StrokeThickness="0">
+            <ScrollView>
+                <VerticalStackLayout Padding="16" Spacing="0">
+                    <Label
+                        Margin="0,0,0,12"
+                        FontAttributes="Bold"
+                        FontSize="15"
+                        Text="Route Stops"
+                        TextColor="#1e293b" />
+
+                    <CollectionView ItemsSource="{Binding Stops}" SelectionMode="None">
+                        <CollectionView.EmptyView>
+                            <Label
+                                Margin="0,12"
+                                FontSize="13"
+                                HorizontalOptions="Center"
+                                Text="No stop data yet"
+                                TextColor="#94a3b8" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Tracking.StopStatus">
+                                <Grid
+                                    Margin="0,0,0,4"
+                                    ColumnDefinitions="Auto,12,*"
+                                    RowDefinitions="Auto,Auto">
+
+                                    <!--  Timeline dot  -->
+                                    <Border
+                                        Grid.Row="0"
+                                        Grid.RowSpan="2"
+                                        Grid.Column="0"
+                                        BackgroundColor="{Binding StatusColor}"
+                                        HeightRequest="28"
+                                        HorizontalOptions="Center"
+                                        StrokeShape="RoundRectangle 14"
+                                        StrokeThickness="0"
+                                        VerticalOptions="Start"
+                                        WidthRequest="28">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="11"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding StopOrder}"
+                                            TextColor="White"
+                                            VerticalOptions="Center" />
+                                    </Border>
+
+                                    <!--  Connector line  -->
+                                    <BoxView
+                                        Grid.Row="1"
+                                        Grid.Column="0"
+                                        BackgroundColor="#e2e8f0"
+                                        HeightRequest="14"
+                                        HorizontalOptions="Center"
+                                        WidthRequest="2" />
+
+                                    <!--  Stop info  -->
+                                    <Label
+                                        Grid.Row="0"
+                                        Grid.Column="2"
+                                        Margin="0,2,0,0"
+                                        FontAttributes="Bold"
+                                        FontSize="14"
+                                        Text="{Binding StopName}"
+                                        TextColor="#1e293b" />
+                                    <Label
+                                        Grid.Row="1"
+                                        Grid.Column="2"
+                                        FontSize="11"
+                                        Text="{Binding Status}"
+                                        TextColor="{Binding StatusColor}" />
+
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </ScrollView>
+        </Border>
+
+        <!--  Bottom info bar  -->
+        <Border
+            Grid.Row="3"
+            Margin="12,4,12,12"
+            BackgroundColor="White"
+            Stroke="#e2e8f0"
+            StrokeShape="RoundRectangle 14"
+            StrokeThickness="1">
+            <Grid Padding="16,12" ColumnDefinitions="*,*,*">
+                <VerticalStackLayout
+                    Grid.Column="0"
+                    HorizontalOptions="Center"
+                    Spacing="2">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        HorizontalOptions="Center"
+                        Text="{Binding BusLat, StringFormat='{0:F4}'}"
+                        TextColor="#1e293b" />
+                    <Label
+                        FontSize="10"
+                        HorizontalOptions="Center"
+                        Text="Latitude"
+                        TextColor="#94a3b8" />
+                </VerticalStackLayout>
+                <VerticalStackLayout
+                    Grid.Column="1"
+                    HorizontalOptions="Center"
+                    Spacing="2">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        HorizontalOptions="Center"
+                        Text="{Binding BusLng, StringFormat='{0:F4}'}"
+                        TextColor="#1e293b" />
+                    <Label
+                        FontSize="10"
+                        HorizontalOptions="Center"
+                        Text="Longitude"
+                        TextColor="#94a3b8" />
+                </VerticalStackLayout>
+                <VerticalStackLayout
+                    Grid.Column="2"
+                    HorizontalOptions="Center"
+                    Spacing="2">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        HorizontalOptions="Center"
+                        Text="{Binding SpeedText}"
+                        TextColor="#1e293b" />
+                    <Label
+                        FontSize="10"
+                        HorizontalOptions="Center"
+                        Text="Speed"
+                        TextColor="#94a3b8" />
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
+
+    </Grid>
+
 </views:ViewBase>

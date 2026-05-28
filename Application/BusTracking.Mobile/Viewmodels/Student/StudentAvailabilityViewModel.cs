@@ -9,6 +9,8 @@
         [ObservableProperty] private bool _eveningAvailable = true;
         [ObservableProperty] private string _reason = "";
 
+        public DateTime MinimumDate => DateTime.Today;
+
         public StudentAvailabilityViewModel(IAuthService auth, INavigationService nav, IStudentService students)
             : base(auth, nav) { _students = students; Title = "My Availability"; }
 

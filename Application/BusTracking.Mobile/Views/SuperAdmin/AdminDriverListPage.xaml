@@ -24,7 +24,7 @@
                 Grid.Column="1"
                 Padding="14,6"
                 BackgroundColor="White"
-                Command="{Binding AddAsync}"
+                Command="{Binding AddCommand}"
                 CornerRadius="20"
                 FontSize="13"
                 IsVisible="{Binding CanAdd}"

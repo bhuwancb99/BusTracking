@@ -7,7 +7,6 @@
         [ObservableProperty] private ObservableCollection<DriverItem> _items = [];
         [ObservableProperty] private string _searchText = "";
 
-        public bool CanAdd => Can("driver.add");
         public bool CanEdit => Can("driver.edit");
         public bool CanView => Can("driver.view");
 
