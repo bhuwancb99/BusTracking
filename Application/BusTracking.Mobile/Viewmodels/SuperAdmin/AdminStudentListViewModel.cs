@@ -7,7 +7,6 @@
         [ObservableProperty] private ObservableCollection<StudentItem> _items = [];
         [ObservableProperty] private string _searchText = "";
         [ObservableProperty] private bool _canLoadMore;
-        private int _page = 1;
 
         public bool CanAdd => Can("student.add");
         public bool CanEdit => Can("student.edit");
@@ -23,7 +22,6 @@
         {
             await RunAsync(async () =>
             {
-                _page = 1;
                 var data = await _students.GetAllAsync(SearchText.Trim().Length > 0 ? SearchText : null);
                 Items = new ObservableCollection<StudentItem>(data);
                 IsEmpty = !Items.Any();

@@ -7,6 +7,7 @@
     xmlns:auth="clr-namespace:BusTracking.Mobile.Views.Auth"
     xmlns:common="clr-namespace:BusTracking.Mobile.Views.Common"
     xmlns:coord="clr-namespace:BusTracking.Mobile.Views.Coordinator"
+    xmlns:driver="clr-namespace:BusTracking.Mobile.Views.Driver"
     xmlns:parent="clr-namespace:BusTracking.Mobile.Views.Parent"
     xmlns:student="clr-namespace:BusTracking.Mobile.Views.Student"
     Shell.FlyoutBehavior="Disabled"
@@ -46,6 +47,11 @@
     <ShellContent ContentTemplate="{DataTemplate coord:CoordParentListPage}" Route="CoordParentList" />
     <ShellContent ContentTemplate="{DataTemplate coord:CoordDriverListPage}" Route="CoordDriverList" />
     <ShellContent ContentTemplate="{DataTemplate coord:CoordRouteListPage}" Route="CoordRouteList" />
+
+    <!--  ── Driver routes ──  -->
+    <ShellContent ContentTemplate="{DataTemplate driver:DriverDashboardPage}" Route="DriverDashboard" />
+    <ShellContent ContentTemplate="{DataTemplate driver:DriverTripListPage}" Route="DriverTripList" />
+    <ShellContent ContentTemplate="{DataTemplate driver:DriverTrackingPage}" Route="DriverTracking" />
 
     <!--  ── Parent routes ──  -->
     <ShellContent ContentTemplate="{DataTemplate parent:ParentDashboardPage}" Route="ParentDashboard" />

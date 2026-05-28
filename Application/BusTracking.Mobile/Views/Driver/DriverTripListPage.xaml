@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.Driver.DriverTripListPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:driver="clr-namespace:BusTracking.Mobile.Models.Driver"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Driver"
+    Title="My Trips"
+    x:DataType="vm:DriverTripListViewModel"
+    x:TypeArguments="vm:DriverTripListViewModel"
+    BackgroundColor="#F4F6FB">
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!--  Date picker  -->
+        <Border
+            Grid.Row="0"
+            Margin="16,12,16,0"
+            Padding="14,10"
+            BackgroundColor="White"
+            Shadow="True"
+            StrokeShape="RoundRectangle 14">
+            <Grid ColumnDefinitions="Auto,*">
+                <Label
+                    Grid.Column="0"
+                    FontAttributes="Bold"
+                    FontSize="13"
+                    Text="📅  Date:"
+                    TextColor="#374151"
+                    VerticalOptions="Center" />
+                <DatePicker
+                    Grid.Column="1"
+                    Date="{Binding SelectedDate, Converter={StaticResource StringToDate}}"
+                    Format="yyyy-MM-dd"
+                    TextColor="#1e293b" />
+            </Grid>
+        </Border>
+
+        <!--  Trip list  -->
+        <RefreshView
+            Grid.Row="1"
+            Command="{Binding RefreshCommand}"
+            IsRefreshing="{Binding IsBusy}">
+            <CollectionView Margin="16,12,16,16" ItemsSource="{Binding Trips}">
+
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Spacing="12" VerticalOptions="Center">
+                        <Label
+                            FontSize="48"
+                            HorizontalOptions="Center"
+                            Text="🚌" />
+                        <Label
+                            FontSize="15"
+                            HorizontalOptions="Center"
+                            Text="No trips found for this date"
+                            TextColor="#94a3b8" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="driver:DriverTripItem">
+                        <Border
+                            Margin="0,0,0,12"
+                            Padding="16"
+                            BackgroundColor="White"
+                            Shadow="True"
+                            StrokeShape="RoundRectangle 16">
+                            <VerticalStackLayout Spacing="10">
+
+                                <!--  Header row  -->
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <Label
+                                        Grid.Column="0"
+                                        FontSize="28"
+                                        Text="{Binding TripTypeIcon}"
+                                        VerticalOptions="Center" />
+                                    <VerticalStackLayout
+                                        Grid.Column="1"
+                                        Margin="10,0"
+                                        Spacing="2">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="15"
+                                            Text="{Binding TripType, StringFormat='{0} Trip'}"
+                                            TextColor="#1e293b" />
+                                        <Label
+                                            FontSize="12"
+                                            Text="{Binding TripDate}"
+                                            TextColor="#64748b" />
+                                    </VerticalStackLayout>
+                                    <Border
+                                        Grid.Column="2"
+                                        Padding="10,4"
+                                        BackgroundColor="{Binding StatusColor}"
+                                        StrokeShape="RoundRectangle 8">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="11"
+                                            Text="{Binding Status}"
+                                            TextColor="White" />
+                                    </Border>
+                                </Grid>
+
+                                <BoxView BackgroundColor="#f1f5f9" HeightRequest="1" />
+
+                                <Label
+                                    FontSize="13"
+                                    Text="{Binding RouteName, StringFormat='Route: {0}'}"
+                                    TextColor="#64748b" />
+
+                                <!--  Action buttons  -->
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                                    <Button
+                                        Grid.Column="0"
+                                        BackgroundColor="#2563eb"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverTripListViewModel}}, Path=StartTripCommand}"
+                                        CommandParameter="{Binding .}"
+                                        CornerRadius="10"
+                                        FontAttributes="Bold"
+                                        FontSize="13"
+                                        HeightRequest="42"
+                                        IsVisible="{Binding CanStart}"
+                                        Text="▶ Start"
+                                        TextColor="White" />
+                                    <Button
+                                        Grid.Column="0"
+                                        BackgroundColor="#16a34a"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverTripListViewModel}}, Path=OpenTripCommand}"
+                                        CommandParameter="{Binding .}"
+                                        CornerRadius="10"
+                                        FontAttributes="Bold"
+                                        FontSize="13"
+                                        HeightRequest="42"
+                                        IsVisible="{Binding CanEnd}"
+                                        Text="📍 Track"
+                                        TextColor="White" />
+                                    <Button
+                                        Grid.Column="1"
+                                        BackgroundColor="#fef2f2"
+                                        BorderColor="#fecaca"
+                                        BorderWidth="1"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverTripListViewModel}}, Path=CancelTripCommand}"
+                                        CommandParameter="{Binding .}"
+                                        CornerRadius="10"
+                                        FontAttributes="Bold"
+                                        FontSize="13"
+                                        HeightRequest="42"
+                                        IsVisible="{Binding CanCancel}"
+                                        Text="✕ Cancel"
+                                        TextColor="#ef4444" />
+                                </Grid>
+
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+        </RefreshView>
+
+    </Grid>
+
+</views:ViewBase>

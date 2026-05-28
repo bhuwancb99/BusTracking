@@ -7,7 +7,6 @@
         [ObservableProperty] private ObservableCollection<DriverItem> _items = [];
         [ObservableProperty] private string _searchText = "";
         [ObservableProperty] private bool _canLoadMore;
-        private int _page = 1;
 
         public bool CanAdd => Can("driver.add");
         public bool CanEdit => Can("driver.edit");
@@ -23,7 +22,6 @@
         {
             await RunAsync(async () =>
             {
-                _page = 1;
                 var data = await _drivers.GetAllAsync(SearchText.Trim().Length > 0 ? SearchText : null, 1);
                 Items = new ObservableCollection<DriverItem>(data);
                 IsEmpty = !Items.Any();

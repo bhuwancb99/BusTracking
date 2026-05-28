@@ -49,6 +49,7 @@
             s.AddTransient<ITripService, TripService>();
             s.AddTransient<IRouteService, RouteService>();
             s.AddTransient<IAdminConfigService, AdminConfigService>();
+            s.AddTransient<IDriverTripService, DriverTripService>();
         }
 
         // ── ViewModels ────────────────────────────────────────────────────────
@@ -79,6 +80,11 @@
             s.AddTransient<CoordParentListViewModel>();
             s.AddTransient<CoordDriverListViewModel>();
             s.AddTransient<CoordRouteListViewModel>();
+
+            // Driver
+            s.AddTransient<DriverDashboardViewModel>();
+            s.AddTransient<DriverTripListViewModel>();
+            s.AddTransient<DriverTrackingViewModel>();
 
             // Parent
             s.AddTransient<ParentDashboardViewModel>();
@@ -118,6 +124,11 @@
             s.AddTransient<CoordParentListPage>();
             s.AddTransient<CoordDriverListPage>();
             s.AddTransient<CoordRouteListPage>();
+
+            // Driver
+            s.AddTransient<DriverDashboardPage>();
+            s.AddTransient<DriverTripListPage>();
+            s.AddTransient<DriverTrackingPage>();
 
             // Parent
             s.AddTransient<ParentDashboardPage>();

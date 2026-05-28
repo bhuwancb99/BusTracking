@@ -115,6 +115,20 @@ public static class Constants
         public const string Students = "/api/coordinator/students";
     }
 
+    // ── Driver endpoints ──────────────────────────────────────────────────
+    public static class Driver
+    {
+        public const string Dashboard = "/api/driver/dashboard";
+        public const string Trips = "/api/driver/trips";
+        public const string TripById = "/api/driver/trips/{0}";
+        public const string TripStart = "/api/driver/trips/{0}/start";
+        public const string TripEnd = "/api/driver/trips/{0}/end";
+        public const string TripCancel = "/api/driver/trips/{0}/cancel";
+        public const string TripStops = "/api/driver/trips/{0}/stops";
+        public const string TripBoarding = "/api/driver/trips/{0}/boarding";
+        public const string TripLocation = "/api/driver/trips/{0}/location";
+    }
+
     // ── Parent endpoints ──────────────────────────────────────────────────
     public static class Parent
     {
