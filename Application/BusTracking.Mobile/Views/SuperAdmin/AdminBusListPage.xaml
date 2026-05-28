@@ -7,6 +7,7 @@
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
     Title="Buses"
+    x:DataType="vm:AdminBusListViewModel"
     x:TypeArguments="vm:AdminBusListViewModel"
     BackgroundColor="#F4F6FB">
 
@@ -35,14 +36,14 @@
     <Grid RowDefinitions="Auto,*">
 
         <!--  Search bar  -->
-        <Frame
+        <Border
             Grid.Row="0"
             Margin="12,12,12,4"
             Padding="12,0"
             BackgroundColor="White"
-            BorderColor="#e2e8f0"
-            CornerRadius="12"
-            HasShadow="False">
+            Shadow="False"
+            Stroke="#e2e8f0"
+            StrokeShape="RoundRectangle 12">
             <Grid ColumnDefinitions="Auto,*,Auto">
                 <Label
                     Grid.Column="0"
@@ -67,22 +68,22 @@
                     Text="Go"
                     TextColor="White" />
             </Grid>
-        </Frame>
+        </Border>
 
         <!--  Error  -->
-        <Frame
+        <Border
             Grid.Row="0"
             Margin="12,0"
             Padding="12,8"
             BackgroundColor="#fef2f2"
-            BorderColor="#fecaca"
-            CornerRadius="10"
-            IsVisible="{Binding HasError}">
+            IsVisible="{Binding HasError}"
+            Stroke="#fecaca"
+            StrokeShape="RoundRectangle 10">
             <Label
                 FontSize="13"
                 Text="{Binding ErrorMessage}"
                 TextColor="#ef4444" />
-        </Frame>
+        </Border>
 
         <!--  Loading  -->
         <ActivityIndicator
@@ -120,26 +121,26 @@
             RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
             SelectionMode="None">
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:BusItem">
-                    <Frame
+                <DataTemplate x:DataType="models:Bus.BusItem">
+                    <Border
                         Margin="0,4"
                         Padding="16"
                         BackgroundColor="White"
-                        CornerRadius="14"
-                        HasShadow="True">
+                        Shadow="True"
+                        StrokeShape="RoundRectangle 0">
                         <Grid
                             ColumnDefinitions="Auto,*,Auto"
                             ColumnSpacing="12"
                             RowDefinitions="Auto,Auto">
 
                             <!--  Icon  -->
-                            <Frame
+                            <Border
                                 Grid.RowSpan="2"
                                 Grid.Column="0"
                                 Padding="10"
                                 BackgroundColor="#eff6ff"
-                                CornerRadius="12"
                                 HeightRequest="48"
+                                StrokeShape="RoundRectangle 12"
                                 VerticalOptions="Center"
                                 WidthRequest="48">
                                 <Label
@@ -147,7 +148,7 @@
                                     HorizontalOptions="Center"
                                     Text="🚌"
                                     VerticalOptions="Center" />
-                            </Frame>
+                            </Border>
 
                             <!--  Info  -->
                             <Label
@@ -180,16 +181,16 @@
                                 Grid.Column="2"
                                 Spacing="6"
                                 VerticalOptions="Center">
-                                <Frame
+                                <Border
                                     Padding="8,3"
                                     BackgroundColor="#f1f5f9"
-                                    BorderColor="Transparent"
-                                    CornerRadius="20">
+                                    Stroke="Transparent"
+                                    StrokeShape="RoundRectangle 20">
                                     <Label
                                         FontSize="11"
                                         Text="{Binding StatusLabel}"
                                         TextColor="{Binding StatusColor}" />
-                                </Frame>
+                                </Border>
                                 <HorizontalStackLayout HorizontalOptions="End" Spacing="6">
                                     <!--  Edit button — bound to CanEdit on parent ViewModel via ancestor binding  -->
                                     <ImageButton
@@ -210,7 +211,7 @@
                             </VerticalStackLayout>
 
                         </Grid>
-                    </Frame>
+                    </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
             <CollectionView.Footer>

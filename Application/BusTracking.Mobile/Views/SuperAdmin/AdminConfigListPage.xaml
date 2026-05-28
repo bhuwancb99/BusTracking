@@ -7,6 +7,7 @@
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
     Title="App Configuration"
+    x:DataType="vm:AdminConfigListViewModel"
     x:TypeArguments="vm:AdminConfigListViewModel"
     BackgroundColor="#F4F6FB">
 
@@ -80,7 +81,7 @@
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:AppConfigItem">
+                <DataTemplate x:DataType="models:AppConfig.AppConfigItem">
                     <Border
                         Margin="0,0,0,10"
                         BackgroundColor="White"

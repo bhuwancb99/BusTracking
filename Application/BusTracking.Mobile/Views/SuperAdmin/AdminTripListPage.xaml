@@ -41,7 +41,7 @@
             Spacing="10">
             <Border
                 BackgroundColor="White"
-                HorizontalOptions="FillAndExpand"
+                HorizontalOptions="Fill"
                 Stroke="#e2e8f0"
                 StrokeShape="RoundRectangle 12"
                 StrokeThickness="1">
@@ -86,7 +86,7 @@
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:TripItem">
+                <DataTemplate x:DataType="models:Trip.TripItem">
                     <Border
                         Margin="0,0,0,10"
                         BackgroundColor="White"

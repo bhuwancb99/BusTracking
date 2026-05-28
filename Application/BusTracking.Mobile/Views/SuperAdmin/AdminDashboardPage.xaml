@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
+    x:DataType="vm:AdminDashboardViewModel"
     x:TypeArguments="vm:AdminDashboardViewModel"
     BackgroundColor="#F4F6FB">
 
@@ -50,16 +51,16 @@
                     RowDefinitions="Auto,Auto,Auto"
                     RowSpacing="12">
 
-                    <Frame
+                    <Border
                         Grid.Row="0"
                         Grid.Column="0"
                         Padding="16"
                         BackgroundColor="White"
-                        CornerRadius="16"
-                        HasShadow="True">
-                        <Frame.GestureRecognizers>
+                        Shadow="True"
+                        StrokeShape="RoundRectangle 16">
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToBusesCommand}" />
-                        </Frame.GestureRecognizers>
+                        </Border.GestureRecognizers>
                         <VerticalStackLayout Spacing="4">
                             <Label FontSize="28" Text="🚌" />
                             <Label
@@ -72,18 +73,18 @@
                                 Text="Buses"
                                 TextColor="#64748b" />
                         </VerticalStackLayout>
-                    </Frame>
+                    </Border>
 
-                    <Frame
+                    <Border
                         Grid.Row="0"
                         Grid.Column="1"
                         Padding="16"
                         BackgroundColor="White"
-                        CornerRadius="16"
-                        HasShadow="True">
-                        <Frame.GestureRecognizers>
+                        Shadow="True"
+                        StrokeShape="RoundRectangle 16">
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToDriversCommand}" />
-                        </Frame.GestureRecognizers>
+                        </Border.GestureRecognizers>
                         <VerticalStackLayout Spacing="4">
                             <Label FontSize="28" Text="🧑‍✈️" />
                             <Label
@@ -96,18 +97,18 @@
                                 Text="Drivers"
                                 TextColor="#64748b" />
                         </VerticalStackLayout>
-                    </Frame>
+                    </Border>
 
-                    <Frame
+                    <Border
                         Grid.Row="1"
                         Grid.Column="0"
                         Padding="16"
                         BackgroundColor="White"
-                        CornerRadius="16"
-                        HasShadow="True">
-                        <Frame.GestureRecognizers>
+                        Shadow="True"
+                        StrokeShape="RoundRectangle 16">
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToStudentsCommand}" />
-                        </Frame.GestureRecognizers>
+                        </Border.GestureRecognizers>
                         <VerticalStackLayout Spacing="4">
                             <Label FontSize="28" Text="🎒" />
                             <Label
@@ -120,18 +121,18 @@
                                 Text="Students"
                                 TextColor="#64748b" />
                         </VerticalStackLayout>
-                    </Frame>
+                    </Border>
 
-                    <Frame
+                    <Border
                         Grid.Row="1"
                         Grid.Column="1"
                         Padding="16"
                         BackgroundColor="White"
-                        CornerRadius="16"
-                        HasShadow="True">
-                        <Frame.GestureRecognizers>
+                        Shadow="True"
+                        StrokeShape="RoundRectangle 16">
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToParentsCommand}" />
-                        </Frame.GestureRecognizers>
+                        </Border.GestureRecognizers>
                         <VerticalStackLayout Spacing="4">
                             <Label FontSize="28" Text="👨‍👩‍👧" />
                             <Label
@@ -144,18 +145,18 @@
                                 Text="Parents"
                                 TextColor="#64748b" />
                         </VerticalStackLayout>
-                    </Frame>
+                    </Border>
 
-                    <Frame
+                    <Border
                         Grid.Row="2"
                         Grid.Column="0"
                         Padding="16"
                         BackgroundColor="White"
-                        CornerRadius="16"
-                        HasShadow="True">
-                        <Frame.GestureRecognizers>
+                        Shadow="True"
+                        StrokeShape="RoundRectangle 16">
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToTripsCommand}" />
-                        </Frame.GestureRecognizers>
+                        </Border.GestureRecognizers>
                         <VerticalStackLayout Spacing="4">
                             <Label FontSize="28" Text="📍" />
                             <Label
@@ -168,18 +169,18 @@
                                 Text="Active Trips"
                                 TextColor="#64748b" />
                         </VerticalStackLayout>
-                    </Frame>
+                    </Border>
 
-                    <Frame
+                    <Border
                         Grid.Row="2"
                         Grid.Column="1"
                         Padding="16"
                         BackgroundColor="White"
-                        CornerRadius="16"
-                        HasShadow="True">
-                        <Frame.GestureRecognizers>
+                        Shadow="True"
+                        StrokeShape="RoundRectangle 16">
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToCoordinatorsCommand}" />
-                        </Frame.GestureRecognizers>
+                        </Border.GestureRecognizers>
                         <VerticalStackLayout Spacing="4">
                             <Label FontSize="28" Text="📋" />
                             <Label
@@ -192,7 +193,7 @@
                                 Text="Coordinators"
                                 TextColor="#64748b" />
                         </VerticalStackLayout>
-                    </Frame>
+                    </Border>
 
                 </Grid>
 

@@ -6,6 +6,7 @@
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Student"
     Title="My Dashboard"
+    x:DataType="vm:StudentDashboardViewModel"
     x:TypeArguments="vm:StudentDashboardViewModel"
     BackgroundColor="#F4F6FB">
 
@@ -38,11 +39,11 @@
                     TextColor="#1e293b" />
 
                 <!--  Bus info card  -->
-                <Frame
+                <Border
                     Padding="20"
                     BackgroundColor="#1e3a5f"
-                    CornerRadius="20"
-                    HasShadow="True">
+                    Shadow="True"
+                    StrokeShape="RoundRectangle 20">
                     <VerticalStackLayout Spacing="8">
                         <Label
                             FontAttributes="Bold"
@@ -67,7 +68,7 @@
                             Text="{Binding TripStatus}"
                             TextColor="White" />
                     </VerticalStackLayout>
-                </Frame>
+                </Border>
 
                 <!--  Action buttons  -->
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="12">

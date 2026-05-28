@@ -7,6 +7,7 @@
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
     Title="Students"
+    x:DataType="vm:AdminStudentListViewModel"
     x:TypeArguments="vm:AdminStudentListViewModel"
     BackgroundColor="#F4F6FB">
 
@@ -46,7 +47,7 @@
                     Grid.Column="0"
                     Margin="0,0,8,0"
                     HeightRequest="18"
-                    Source="search.svg"
+                    Source="search.png"
                     VerticalOptions="Center"
                     WidthRequest="18" />
                 <Entry
@@ -100,7 +101,7 @@
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:StudentItem">
+                <DataTemplate x:DataType="models:Student.StudentItem">
                     <Border
                         Margin="0,0,0,10"
                         BackgroundColor="White"
@@ -176,7 +177,7 @@
                                         CommandParameter="{Binding .}"
                                         HeightRequest="20"
                                         IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminStudentListViewModel}}, Path=CanEdit}"
-                                        Source="view.svg"
+                                        Source="view.png"
                                         WidthRequest="20" />
                                     <ImageButton
                                         BackgroundColor="Transparent"
@@ -184,7 +185,7 @@
                                         CommandParameter="{Binding .}"
                                         HeightRequest="20"
                                         IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminStudentListViewModel}}, Path=CanEdit}"
-                                        Source="edit.svg"
+                                        Source="edit.png"
                                         WidthRequest="20" />
                                     <ImageButton
                                         BackgroundColor="Transparent"
@@ -192,7 +193,7 @@
                                         CommandParameter="{Binding .}"
                                         HeightRequest="20"
                                         IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminStudentListViewModel}}, Path=CanDelete}"
-                                        Source="delete.svg"
+                                        Source="delete.png"
                                         WidthRequest="20" />
                                 </HorizontalStackLayout>
                             </VerticalStackLayout>

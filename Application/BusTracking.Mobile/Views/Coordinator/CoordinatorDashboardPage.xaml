@@ -51,17 +51,17 @@
                     RowDefinitions="Auto,Auto"
                     RowSpacing="12">
 
-                    <Frame
+                    <Border
                         Grid.Row="0"
                         Grid.Column="0"
                         Padding="16"
                         BackgroundColor="White"
-                        CornerRadius="16"
-                        HasShadow="True"
-                        IsVisible="{Binding ShowBuses}">
-                        <Frame.GestureRecognizers>
+                        IsVisible="{Binding ShowBuses}"
+                        Shadow="True"
+                        StrokeShape="RoundRectangle 16">
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToBusesCommand}" />
-                        </Frame.GestureRecognizers>
+                        </Border.GestureRecognizers>
                         <VerticalStackLayout Spacing="4">
                             <Label FontSize="28" Text="🚌" />
                             <Label
@@ -74,19 +74,19 @@
                                 Text="Buses"
                                 TextColor="#64748b" />
                         </VerticalStackLayout>
-                    </Frame>
+                    </Border>
 
-                    <Frame
+                    <Border
                         Grid.Row="0"
                         Grid.Column="1"
                         Padding="16"
                         BackgroundColor="White"
-                        CornerRadius="16"
-                        HasShadow="True"
-                        IsVisible="{Binding ShowStudents}">
-                        <Frame.GestureRecognizers>
+                        IsVisible="{Binding ShowStudents}"
+                        Shadow="True"
+                        StrokeShape="RoundRectangle 16">
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToStudentsCommand}" />
-                        </Frame.GestureRecognizers>
+                        </Border.GestureRecognizers>
                         <VerticalStackLayout Spacing="4">
                             <Label FontSize="28" Text="🎒" />
                             <Label
@@ -99,19 +99,19 @@
                                 Text="Students"
                                 TextColor="#64748b" />
                         </VerticalStackLayout>
-                    </Frame>
+                    </Border>
 
-                    <Frame
+                    <Border
                         Grid.Row="1"
                         Grid.Column="0"
                         Padding="16"
                         BackgroundColor="White"
-                        CornerRadius="16"
-                        HasShadow="True"
-                        IsVisible="{Binding ShowTrips}">
-                        <Frame.GestureRecognizers>
+                        IsVisible="{Binding ShowTrips}"
+                        Shadow="True"
+                        StrokeShape="RoundRectangle 16">
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToTripsCommand}" />
-                        </Frame.GestureRecognizers>
+                        </Border.GestureRecognizers>
                         <VerticalStackLayout Spacing="4">
                             <Label FontSize="28" Text="📍" />
                             <Label
@@ -124,19 +124,19 @@
                                 Text="Active Trips"
                                 TextColor="#64748b" />
                         </VerticalStackLayout>
-                    </Frame>
+                    </Border>
 
-                    <Frame
+                    <Border
                         Grid.Row="1"
                         Grid.Column="1"
                         Padding="16"
                         BackgroundColor="White"
-                        CornerRadius="16"
-                        HasShadow="True"
-                        IsVisible="{Binding ShowParents}">
-                        <Frame.GestureRecognizers>
+                        IsVisible="{Binding ShowParents}"
+                        Shadow="True"
+                        StrokeShape="RoundRectangle 16">
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToParentsCommand}" />
-                        </Frame.GestureRecognizers>
+                        </Border.GestureRecognizers>
                         <VerticalStackLayout Spacing="4">
                             <Label FontSize="28" Text="👨‍👩‍👧" />
                             <Label
@@ -149,7 +149,7 @@
                                 Text="Parents"
                                 TextColor="#64748b" />
                         </VerticalStackLayout>
-                    </Frame>
+                    </Border>
 
                 </Grid>
 
@@ -166,16 +166,16 @@
                     JustifyContent="Start"
                     Wrap="Wrap">
 
-                    <Frame
+                    <Border
                         Margin="0,0,10,10"
                         Padding="14,10"
                         BackgroundColor="White"
-                        CornerRadius="12"
-                        HasShadow="True"
-                        IsVisible="{Binding ShowRoutes}">
-                        <Frame.GestureRecognizers>
+                        IsVisible="{Binding ShowRoutes}"
+                        Shadow="True"
+                        StrokeShape="RoundRectangle 12">
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToRoutesCommand}" />
-                        </Frame.GestureRecognizers>
+                        </Border.GestureRecognizers>
                         <HorizontalStackLayout Spacing="8">
                             <Label FontSize="18" Text="🗺️" />
                             <Label
@@ -184,18 +184,18 @@
                                 TextColor="#1e293b"
                                 VerticalOptions="Center" />
                         </HorizontalStackLayout>
-                    </Frame>
+                    </Border>
 
-                    <Frame
+                    <Border
                         Margin="0,0,10,10"
                         Padding="14,10"
                         BackgroundColor="White"
-                        CornerRadius="12"
-                        HasShadow="True"
-                        IsVisible="{Binding ShowDrivers}">
-                        <Frame.GestureRecognizers>
+                        IsVisible="{Binding ShowDrivers}"
+                        Shadow="True"
+                        StrokeShape="RoundRectangle 12">
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToDriversCommand}" />
-                        </Frame.GestureRecognizers>
+                        </Border.GestureRecognizers>
                         <HorizontalStackLayout Spacing="8">
                             <Label FontSize="18" Text="🧑‍✈️" />
                             <Label
@@ -204,18 +204,18 @@
                                 TextColor="#1e293b"
                                 VerticalOptions="Center" />
                         </HorizontalStackLayout>
-                    </Frame>
+                    </Border>
 
-                    <Frame
+                    <Border
                         Margin="0,0,10,10"
                         Padding="14,10"
                         BackgroundColor="White"
-                        CornerRadius="12"
-                        HasShadow="True"
-                        IsVisible="{Binding ShowStudents}">
-                        <Frame.GestureRecognizers>
+                        IsVisible="{Binding ShowStudents}"
+                        Shadow="True"
+                        StrokeShape="RoundRectangle 12">
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToStudentsCommand}" />
-                        </Frame.GestureRecognizers>
+                        </Border.GestureRecognizers>
                         <HorizontalStackLayout Spacing="8">
                             <Label FontSize="18" Text="🎒" />
                             <Label
@@ -224,18 +224,18 @@
                                 TextColor="#1e293b"
                                 VerticalOptions="Center" />
                         </HorizontalStackLayout>
-                    </Frame>
+                    </Border>
 
-                    <Frame
+                    <Border
                         Margin="0,0,10,10"
                         Padding="14,10"
                         BackgroundColor="White"
-                        CornerRadius="12"
-                        HasShadow="True"
-                        IsVisible="{Binding ShowParents}">
-                        <Frame.GestureRecognizers>
+                        IsVisible="{Binding ShowParents}"
+                        Shadow="True"
+                        StrokeShape="RoundRectangle 12">
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToParentsCommand}" />
-                        </Frame.GestureRecognizers>
+                        </Border.GestureRecognizers>
                         <HorizontalStackLayout Spacing="8">
                             <Label FontSize="18" Text="👨‍👩‍👧" />
                             <Label
@@ -244,18 +244,18 @@
                                 TextColor="#1e293b"
                                 VerticalOptions="Center" />
                         </HorizontalStackLayout>
-                    </Frame>
+                    </Border>
 
-                    <Frame
+                    <Border
                         Margin="0,0,10,10"
                         Padding="14,10"
                         BackgroundColor="White"
-                        CornerRadius="12"
-                        HasShadow="True"
-                        IsVisible="{Binding ShowTrips}">
-                        <Frame.GestureRecognizers>
+                        IsVisible="{Binding ShowTrips}"
+                        Shadow="True"
+                        StrokeShape="RoundRectangle 12">
+                        <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToTripsCommand}" />
-                        </Frame.GestureRecognizers>
+                        </Border.GestureRecognizers>
                         <HorizontalStackLayout Spacing="8">
                             <Label FontSize="18" Text="📍" />
                             <Label
@@ -264,7 +264,7 @@
                                 TextColor="#1e293b"
                                 VerticalOptions="Center" />
                         </HorizontalStackLayout>
-                    </Frame>
+                    </Border>
 
                 </FlexLayout>
 

@@ -6,6 +6,7 @@
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Parent"
     Title="Track Bus"
+    x:DataType="vm:ParentTrackingViewModel"
     x:TypeArguments="vm:ParentTrackingViewModel"
     BackgroundColor="#F4F6FB">
 
@@ -84,7 +85,6 @@
             Grid.Row="1"
             Margin="12,6"
             BackgroundColor="#e2e8f0"
-            ClipsToBounds="True"
             StrokeShape="RoundRectangle 20"
             StrokeThickness="0">
             <Grid>

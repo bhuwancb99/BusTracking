@@ -7,6 +7,7 @@
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
     Title="Routes"
+    x:DataType="vm:CoordRouteListViewModel"
     x:TypeArguments="vm:CoordRouteListViewModel"
     BackgroundColor="#F4F6FB">
 
@@ -62,7 +63,7 @@
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:RouteItem">
+                <DataTemplate x:DataType="models:Route.RouteItem">
                     <Border
                         Margin="0,0,0,10"
                         BackgroundColor="White"
@@ -138,7 +139,7 @@
                                         CommandParameter="{Binding .}"
                                         HeightRequest="20"
                                         IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordRouteListViewModel}}, Path=CanView}"
-                                        Source="view.svg"
+                                        Source="view.png"
                                         WidthRequest="20" />
                                     <ImageButton
                                         BackgroundColor="Transparent"
@@ -146,7 +147,7 @@
                                         CommandParameter="{Binding .}"
                                         HeightRequest="20"
                                         IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordRouteListViewModel}}, Path=CanEdit}"
-                                        Source="edit.svg"
+                                        Source="edit.png"
                                         WidthRequest="20" />
                                 </HorizontalStackLayout>
                             </VerticalStackLayout>

@@ -5,18 +5,19 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Auth"
+    x:DataType="vm:LoginViewModel"
     x:TypeArguments="vm:LoginViewModel"
     BackgroundColor="#F8FAFC">
 
     <Grid RowDefinitions="*,Auto,*">
 
         <!--  ── Maintenance overlay ──  -->
-        <Frame
+        <Border
             Grid.RowSpan="3"
             Padding="32"
             BackgroundColor="White"
-            CornerRadius="0"
             IsVisible="{Binding IsMaintenanceMode}"
+            StrokeShape="RoundRectangle 0"
             ZIndex="99">
             <VerticalStackLayout Spacing="16" VerticalOptions="Center">
                 <Label
@@ -36,7 +37,7 @@
                     Text="{Binding MaintenanceMessage}"
                     TextColor="#64748b" />
             </VerticalStackLayout>
-        </Frame>
+        </Border>
 
         <!--  ── Top brand panel ──  -->
         <Grid
@@ -64,12 +65,12 @@
 
         <!--  ── Form card ──  -->
         <ScrollView Grid.Row="1">
-            <Frame
+            <Border
                 Margin="20,-24,20,0"
                 Padding="28,24"
                 BackgroundColor="White"
-                CornerRadius="20"
-                HasShadow="True">
+                Shadow="True"
+                StrokeShape="RoundRectangle 20">
                 <VerticalStackLayout Spacing="20">
 
                     <Label
@@ -79,17 +80,17 @@
                         TextColor="#1e293b" />
 
                     <!--  Error banner  -->
-                    <Frame
+                    <Border
                         Padding="12,8"
                         BackgroundColor="#fef2f2"
-                        BorderColor="#fecaca"
-                        CornerRadius="10"
-                        IsVisible="{Binding HasError}">
+                        IsVisible="{Binding HasError}"
+                        Stroke="#fecaca"
+                        StrokeShape="RoundRectangle 10">
                         <Label
                             FontSize="13"
                             Text="{Binding ErrorMessage}"
                             TextColor="#ef4444" />
-                    </Frame>
+                    </Border>
 
                     <!--  Email  -->
                     <VerticalStackLayout Spacing="6">
@@ -98,11 +99,11 @@
                             FontSize="13"
                             Text="Email"
                             TextColor="#374151" />
-                        <Frame
+                        <Border
                             Padding="14,0"
                             BackgroundColor="#f8fafc"
-                            BorderColor="#e2e8f0"
-                            CornerRadius="12">
+                            Stroke="#e2e8f0"
+                            StrokeShape="RoundRectangle 12">
                             <Entry
                                 BackgroundColor="Transparent"
                                 Keyboard="Email"
@@ -111,7 +112,7 @@
                                 ReturnType="Next"
                                 Text="{Binding Email}"
                                 TextColor="#1e293b" />
-                        </Frame>
+                        </Border>
                     </VerticalStackLayout>
 
                     <!--  Password  -->
@@ -121,11 +122,11 @@
                             FontSize="13"
                             Text="Password"
                             TextColor="#374151" />
-                        <Frame
+                        <Border
                             Padding="14,0"
                             BackgroundColor="#f8fafc"
-                            BorderColor="#e2e8f0"
-                            CornerRadius="12">
+                            Stroke="#e2e8f0"
+                            StrokeShape="RoundRectangle 12">
                             <Grid ColumnDefinitions="*,Auto">
                                 <Entry
                                     Grid.Column="0"
@@ -145,7 +146,7 @@
                                     Source="{Binding IsPasswordVisible, Converter={StaticResource BoolToEyeIcon}}"
                                     WidthRequest="22" />
                             </Grid>
-                        </Frame>
+                        </Border>
                     </VerticalStackLayout>
 
                     <!--  Forgot password  -->
@@ -194,7 +195,7 @@
                         Color="#2563eb" />
 
                 </VerticalStackLayout>
-            </Frame>
+            </Border>
         </ScrollView>
 
         <!--  ── Footer ──  -->

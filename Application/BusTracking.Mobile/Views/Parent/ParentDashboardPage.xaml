@@ -7,6 +7,7 @@
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Parent"
     Title="My Dashboard"
+    x:DataType="vm:ParentDashboardViewModel"
     x:TypeArguments="vm:ParentDashboardViewModel"
     BackgroundColor="#F4F6FB">
 
@@ -69,7 +70,7 @@
                         </VerticalStackLayout>
                     </CollectionView.EmptyView>
                     <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="models:LinkedStudent">
+                        <DataTemplate x:DataType="models:Parent.LinkedStudent">
                             <Border
                                 Margin="0,0,0,10"
                                 BackgroundColor="White"

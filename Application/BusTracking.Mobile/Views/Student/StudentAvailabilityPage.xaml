@@ -6,6 +6,7 @@
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Student"
     Title="My Availability"
+    x:DataType="vm:StudentAvailabilityViewModel"
     x:TypeArguments="vm:StudentAvailabilityViewModel"
     BackgroundColor="#F4F6FB">
 

@@ -7,6 +7,7 @@
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
     Title="Students"
+    x:DataType="vm:CoordStudentListViewModel"
     x:TypeArguments="vm:CoordStudentListViewModel"
     BackgroundColor="#F4F6FB">
 
@@ -99,7 +100,7 @@
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:StudentItem">
+                <DataTemplate x:DataType="models:Student.StudentItem">
                     <Border
                         Margin="0,0,0,10"
                         BackgroundColor="White"

@@ -6,6 +6,7 @@
     xmlns:models="clr-namespace:BusTracking.Mobile.Models"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
+    x:DataType="vm:AdminCoordinatorFormViewModel"
     x:TypeArguments="vm:AdminCoordinatorFormViewModel"
     BackgroundColor="#F4F6FB">
 
@@ -206,7 +207,7 @@
                                 <!--  Permissions in this module  -->
                                 <CollectionView ItemsSource="{Binding Permissions}" SelectionMode="None">
                                     <CollectionView.ItemTemplate>
-                                        <DataTemplate x:DataType="models:PermissionItem">
+                                        <DataTemplate x:DataType="models:Coordinator.PermissionItem">
                                             <Grid
                                                 Padding="0,6"
                                                 ColumnDefinitions="Auto,*"

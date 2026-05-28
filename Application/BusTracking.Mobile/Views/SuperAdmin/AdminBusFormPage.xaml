@@ -6,6 +6,7 @@
     xmlns:models="clr-namespace:BusTracking.Mobile.Models"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
+    x:DataType="vm:AdminBusFormViewModel"
     x:TypeArguments="vm:AdminBusFormViewModel"
     BackgroundColor="#F4F6FB">
 

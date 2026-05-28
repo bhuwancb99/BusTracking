@@ -7,6 +7,7 @@
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
     Title="Coordinators"
+    x:DataType="vm:AdminCoordinatorListViewModel"
     x:TypeArguments="vm:AdminCoordinatorListViewModel"
     BackgroundColor="#F4F6FB">
 
@@ -45,7 +46,7 @@
                     Grid.Column="0"
                     Margin="0,0,8,0"
                     HeightRequest="18"
-                    Source="search.svg"
+                    Source="search.png"
                     VerticalOptions="Center"
                     WidthRequest="18" />
                 <Entry
@@ -99,7 +100,7 @@
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:CoordinatorItem">
+                <DataTemplate x:DataType="models:Coordinator.CoordinatorItem">
                     <Border
                         Margin="0,0,0,10"
                         BackgroundColor="White"
@@ -166,21 +167,21 @@
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminCoordinatorListViewModel}}, Path=EditCommand}"
                                         CommandParameter="{Binding .}"
                                         HeightRequest="20"
-                                        Source="edit.svg"
+                                        Source="edit.png"
                                         WidthRequest="20" />
                                     <ImageButton
                                         BackgroundColor="Transparent"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminCoordinatorListViewModel}}, Path=ResetPasswordCommand}"
                                         CommandParameter="{Binding .}"
                                         HeightRequest="20"
-                                        Source="key.svg"
+                                        Source="key.png"
                                         WidthRequest="20" />
                                     <ImageButton
                                         BackgroundColor="Transparent"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminCoordinatorListViewModel}}, Path=DeleteCommand}"
                                         CommandParameter="{Binding .}"
                                         HeightRequest="20"
-                                        Source="delete.svg"
+                                        Source="delete.png"
                                         WidthRequest="20" />
                                 </HorizontalStackLayout>
                             </VerticalStackLayout>
