@@ -1,7 +1,4 @@
-﻿using BusTracking.Mobile.Models.Common;
-using BusTracking.Mobile.Models.Driver;
-
-namespace BusTracking.Mobile.Interfaces
+﻿namespace BusTracking.Mobile.Interfaces
 {
     public interface IDriverService
     {

@@ -1,8 +1,4 @@
-﻿using BusTracking.Mobile.Models.Common;
-using BusTracking.Mobile.Models.Student;
-using BusTracking.Mobile.Models.Tracking;
-
-namespace BusTracking.Mobile.Interfaces
+﻿namespace BusTracking.Mobile.Interfaces
 {
     public interface IStudentService
     {

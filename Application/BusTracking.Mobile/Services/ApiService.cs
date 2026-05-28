@@ -1,10 +1,4 @@
-﻿using BusTracking.Mobile.Database;
-using BusTracking.Mobile.Interfaces;
-using BusTracking.Mobile.Models.Common;
-using System.Text;
-using System.Text.Json;
-
-namespace BusTracking.Mobile.Services
+﻿namespace BusTracking.Mobile.Services
 {
     public class ApiService : IApiService
     {

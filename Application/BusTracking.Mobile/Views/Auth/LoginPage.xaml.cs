@@ -1,5 +1,3 @@
-using BusTracking.Mobile.Viewmodels.Auth;
-
 namespace BusTracking.Mobile.Views.Auth;
 
 public partial class LoginPage : ViewBase<LoginViewModel>

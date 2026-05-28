@@ -1,9 +1,4 @@
-﻿using BusTracking.Mobile.Interfaces;
-using BusTracking.Mobile.ViewModels;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-
-namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminConfigFormViewModel : BaseViewModel, IQueryAttributable
     {

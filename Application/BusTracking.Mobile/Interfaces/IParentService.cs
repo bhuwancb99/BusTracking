@@ -1,8 +1,4 @@
-﻿using BusTracking.Mobile.Models.Common;
-using BusTracking.Mobile.Models.Parent;
-using BusTracking.Mobile.Models.Tracking;
-
-namespace BusTracking.Mobile.Interfaces
+﻿namespace BusTracking.Mobile.Interfaces
 {
     public interface IParentService
     {

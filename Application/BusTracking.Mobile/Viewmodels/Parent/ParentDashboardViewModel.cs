@@ -1,11 +1,4 @@
-﻿using BusTracking.Mobile.Interfaces;
-using BusTracking.Mobile.Models.Parent;
-using BusTracking.Mobile.ViewModels;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using System.Collections.ObjectModel;
-
-namespace BusTracking.Mobile.Viewmodels.Parent
+﻿namespace BusTracking.Mobile.Viewmodels.Parent
 {
     public partial class ParentDashboardViewModel : BaseViewModel
     {

@@ -1,8 +1,4 @@
-﻿using BusTracking.Mobile.Interfaces;
-using BusTracking.Mobile.Models.Common;
-using BusTracking.Mobile.Models.Coordinator;
-
-namespace BusTracking.Mobile.Services
+﻿namespace BusTracking.Mobile.Services
 {
     public class CoordinatorService : ICoordinatorService
     {

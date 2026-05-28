@@ -1,9 +1,4 @@
-﻿using BusTracking.Mobile.Models.Auth;
-using SQLite;
-using System.Security.Cryptography;
-using System.Text;
-
-namespace BusTracking.Mobile.Database;
+﻿namespace BusTracking.Mobile.Database;
 
 /// <summary>
 /// Provides an asynchronous local SQLite database for persisting a single encrypted SessionUser.

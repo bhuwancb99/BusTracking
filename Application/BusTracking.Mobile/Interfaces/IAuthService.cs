@@ -1,7 +1,4 @@
-﻿using BusTracking.Mobile.Models.Auth;
-using BusTracking.Mobile.Models.Common;
-
-namespace BusTracking.Mobile.Interfaces
+﻿namespace BusTracking.Mobile.Interfaces
 {
     public interface IAuthService
     {

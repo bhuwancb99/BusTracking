@@ -1,10 +1,4 @@
-﻿using BusTracking.Mobile.Interfaces;
-using BusTracking.Mobile.Models.Tracking;
-using BusTracking.Mobile.ViewModels;
-using CommunityToolkit.Mvvm.ComponentModel;
-using System.Collections.ObjectModel;
-
-namespace BusTracking.Mobile.Viewmodels.Student
+﻿namespace BusTracking.Mobile.Viewmodels.Student
 {
     public partial class StudentTrackingViewModel : BaseViewModel
     {

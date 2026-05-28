@@ -1,7 +1,4 @@
-﻿using BusTracking.Mobile.Interfaces;
-using CommunityToolkit.Mvvm.ComponentModel;
-
-namespace BusTracking.Mobile.ViewModels;
+﻿namespace BusTracking.Mobile.ViewModels;
 
 /// <summary>
 /// Base ViewModel — all ViewModels inherit from this.
@@ -88,47 +85,6 @@ public abstract partial class BaseViewModel : ObservableObject
 
     /// <summary>Check if user has permission. SuperAdmin always returns true.</summary>
     protected bool Can(string permissionKey) => Auth.HasPermission(permissionKey);
-}
-
-/// <summary>
-/// Navigation service — wraps Shell navigation for DI-friendly use.
-/// </summary>
-public interface INavigationService
-{
-    Task GoToAsync(string route, bool animate = true);
-    Task GoToAsync(string route, Dictionary<string, object> parameters, bool animate = true);
-    Task GoBackAsync();
-    Task GoToLoginAsync();
-    Task GoToDashboardAsync(string role);
-}
-
-public class NavigationService : INavigationService
-{
-    public Task GoToAsync(string route, bool animate = true)
-        => Shell.Current.GoToAsync(route, animate);
-
-    public Task GoToAsync(string route, Dictionary<string, object> parameters, bool animate = true)
-        => Shell.Current.GoToAsync(route, animate, parameters);
-
-    public Task GoBackAsync()
-        => Shell.Current.GoToAsync("..", true);
-
-    public Task GoToLoginAsync()
-        => Shell.Current.GoToAsync("//Login", true);
-
-    public async Task GoToDashboardAsync(string role)
-    {
-        var route = role switch
-        {
-            Constants.Roles.SuperAdmin => "//AdminDashboard",
-            Constants.Roles.BusCoordinator => "//CoordinatorDashboard",
-            Constants.Roles.Parent => "//ParentDashboard",
-            Constants.Roles.Student => "//StudentDashboard",
-            Constants.Roles.Driver => "//DriverDashboard",
-            _ => "//Login"
-        };
-        await Shell.Current.GoToAsync(route, true);
-    }
 }
 
 // Extension of BaseViewModel with lifecycle support

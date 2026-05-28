@@ -1,22 +1,4 @@
-﻿using BusTracking.Mobile.Database;
-using BusTracking.Mobile.Interfaces;
-using BusTracking.Mobile.Services;
-using BusTracking.Mobile.Viewmodels.Auth;
-using BusTracking.Mobile.Viewmodels.Coordinator;
-using BusTracking.Mobile.Viewmodels.Parent;
-using BusTracking.Mobile.Viewmodels.Student;
-using BusTracking.Mobile.Viewmodels.SuperAdmin;
-using BusTracking.Mobile.ViewModels;
-using BusTracking.Mobile.Views.Auth;
-using BusTracking.Mobile.Views.Common;
-using BusTracking.Mobile.Views.Coordinator;
-using BusTracking.Mobile.Views.Parent;
-using BusTracking.Mobile.Views.Student;
-using BusTracking.Mobile.Views.SuperAdmin;
-using CommunityToolkit.Maui;
-using Microsoft.Extensions.Logging;
-
-namespace BusTracking.Mobile
+﻿namespace BusTracking.Mobile
 {
     public static class MauiProgram
     {
@@ -30,7 +12,7 @@ namespace BusTracking.Mobile
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
-                    fonts.AddFont("MaterialIcons-Regular.ttf", "MaterialIcons");
+                    //fonts.AddFont("MaterialIcons-Regular.ttf", "MaterialIcons");
                 });
 
 #if DEBUG

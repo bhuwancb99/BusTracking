@@ -1,9 +1,4 @@
-﻿using BusTracking.Mobile.Interfaces;
-using BusTracking.Mobile.Models.Tracking;
-using BusTracking.Mobile.ViewModels;
-using CommunityToolkit.Mvvm.ComponentModel;
-
-namespace BusTracking.Mobile.Viewmodels.Parent
+﻿namespace BusTracking.Mobile.Viewmodels.Parent
 {
     public partial class ParentTrackingViewModel : BaseViewModel, IQueryAttributable
     {

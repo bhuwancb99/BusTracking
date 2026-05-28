@@ -1,9 +1,4 @@
-﻿using BusTracking.Mobile.Interfaces;
-using BusTracking.Mobile.Models.Common;
-using BusTracking.Mobile.Models.Parent;
-using BusTracking.Mobile.Models.Tracking;
-
-namespace BusTracking.Mobile.Services
+﻿namespace BusTracking.Mobile.Services
 {
     public class ParentService : IParentService
     {

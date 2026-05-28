@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage
+<views:ViewBase
     x:Class="BusTracking.Mobile.Views.Student.StudentTrackingPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     Title="StudentTrackingPage">
     <VerticalStackLayout>
         <Label
@@ -10,4 +11,4 @@
             Text="Welcome to .NET MAUI!"
             VerticalOptions="Center" />
     </VerticalStackLayout>
-</ContentPage>
+</views:ViewBase>

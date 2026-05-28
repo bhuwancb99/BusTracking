@@ -1,9 +1,4 @@
-﻿using BusTracking.Mobile.Interfaces;
-using BusTracking.Mobile.ViewModels;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-
-namespace BusTracking.Mobile.Viewmodels.Auth
+﻿namespace BusTracking.Mobile.Viewmodels.Auth
 {
     public partial class ChangePasswordViewModel : BaseViewModel
     {

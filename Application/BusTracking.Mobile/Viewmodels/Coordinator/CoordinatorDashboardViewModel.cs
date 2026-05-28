@@ -1,10 +1,4 @@
-﻿using BusTracking.Mobile.Interfaces;
-using BusTracking.Mobile.Models.Dashboard;
-using BusTracking.Mobile.ViewModels;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-
-namespace BusTracking.Mobile.Viewmodels.Coordinator
+﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordinatorDashboardViewModel : BaseViewModel
     {

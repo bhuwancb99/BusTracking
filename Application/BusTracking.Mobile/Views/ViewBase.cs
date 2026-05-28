@@ -1,6 +1,4 @@
-﻿using BusTracking.Mobile.ViewModels;
-
-namespace BusTracking.Mobile.Views;
+﻿namespace BusTracking.Mobile.Views;
 
 /// <summary>
 /// Base page that automatically:

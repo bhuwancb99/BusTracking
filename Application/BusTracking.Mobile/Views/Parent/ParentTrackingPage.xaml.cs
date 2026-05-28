@@ -1,5 +1,3 @@
-using BusTracking.Mobile.Viewmodels.Parent;
-
 namespace BusTracking.Mobile.Views.Parent;
 
 public partial class ParentTrackingPage : ViewBase<ParentTrackingViewModel>

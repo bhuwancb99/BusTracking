@@ -1,6 +1,4 @@
-﻿using BusTracking.Mobile.Interfaces;
-
-namespace BusTracking.Mobile.Services
+﻿namespace BusTracking.Mobile.Services
 {
     public class CacheService : ICacheService
     {

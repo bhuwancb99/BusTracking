@@ -1,7 +1,4 @@
-﻿using BusTracking.Mobile.Models.AppConfig;
-using BusTracking.Mobile.Models.Common;
-
-namespace BusTracking.Mobile.Interfaces
+﻿namespace BusTracking.Mobile.Interfaces
 {
     public interface IAdminConfigService
     {

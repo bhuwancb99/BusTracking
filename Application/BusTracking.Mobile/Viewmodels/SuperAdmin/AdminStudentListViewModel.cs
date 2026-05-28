@@ -1,11 +1,4 @@
-﻿using BusTracking.Mobile.Interfaces;
-using BusTracking.Mobile.Models.Student;
-using BusTracking.Mobile.ViewModels;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using System.Collections.ObjectModel;
-
-namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminStudentListViewModel : BaseViewModel
     {

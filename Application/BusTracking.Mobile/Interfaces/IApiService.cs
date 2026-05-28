@@ -1,6 +1,4 @@
-﻿using BusTracking.Mobile.Models.Common;
-
-namespace BusTracking.Mobile.Interfaces
+﻿namespace BusTracking.Mobile.Interfaces
 {
     /// <summary>
     /// Central API service. All HTTP calls go through here.

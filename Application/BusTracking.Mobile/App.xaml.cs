@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace BusTracking.Mobile
+﻿namespace BusTracking.Mobile
 {
     public partial class App : Application
     {

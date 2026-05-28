@@ -1,6 +1,4 @@
-﻿using BusTracking.Mobile.Models.Dashboard;
-
-namespace BusTracking.Mobile.Interfaces
+﻿namespace BusTracking.Mobile.Interfaces
 {
     public interface IDashboardService
     {

@@ -1,12 +1,4 @@
-﻿using BusTracking.Mobile.Interfaces;
-using BusTracking.Mobile.Models.Coordinator;
-using BusTracking.Mobile.Services;
-using BusTracking.Mobile.ViewModels;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using System.Collections.ObjectModel;
-
-namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminCoordinatorListViewModel : BaseViewModel
     {
