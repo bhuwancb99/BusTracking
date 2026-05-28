@@ -31,7 +31,7 @@ builder.Services.AddCors(o => o.AddPolicy("AllowAll", p =>
     p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
 
 
-builder.WebHost.UseUrls("https://0.0.0.0:7001", "http://0.0.0.0:5001");
+//builder.WebHost.UseUrls("https://0.0.0.0:7001", "http://0.0.0.0:5001");
 
 // ── OpenAPI (.NET 10) ─────────────────────────────────────────────────
 builder.Services.AddOpenApi();
