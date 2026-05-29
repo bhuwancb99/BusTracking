@@ -6,7 +6,7 @@ public class LocalDatabase
     private readonly SemaphoreSlim _lock = new(1, 1);
     private readonly string _encKey = Constants.Database.EncryptionKey;
 
-    // ── Lazy init — called by every method before touching _db ────────────
+    // ── Lazy init ─────────────────────────────────────────────────────────
     private async Task<SQLiteAsyncConnection> GetDbAsync()
     {
         await _lock.WaitAsync();
@@ -26,12 +26,24 @@ public class LocalDatabase
     }
 
     // ── Session ───────────────────────────────────────────────────────────
+
     public async Task SaveSessionAsync(SessionUser user)
     {
         var db = await GetDbAsync();
-        user.Token = Encrypt(user.Token);
-        await db.DeleteAllAsync<SessionUser>();      // only one session at a time
-        await db.InsertAsync(user);
+
+        var toStore = new SessionUser
+        {
+            UserId = user.UserId,
+            FullName = user.FullName,
+            Email = user.Email,
+            Role = user.Role,
+            Token = Encrypt(user.Token),
+            Expiry = user.Expiry,
+            Permissions = user.Permissions
+        };
+
+        await db.DeleteAllAsync<SessionUser>();
+        await db.InsertAsync(toStore);
     }
 
     public async Task<SessionUser?> GetSessionAsync()
@@ -40,7 +52,7 @@ public class LocalDatabase
         var user = await db.Table<SessionUser>().FirstOrDefaultAsync();
         if (user is null) return null;
 
-        // Check expiry
+        // Expired — wipe and return null
         if (DateTime.UtcNow >= user.Expiry)
         {
             await ClearSessionAsync();
@@ -84,7 +96,6 @@ public class LocalDatabase
         using var encryptor = aes.CreateEncryptor();
         var plainBytes = Encoding.UTF8.GetBytes(plainText);
         var cipherBytes = encryptor.TransformFinalBlock(plainBytes, 0, plainBytes.Length);
-        // Prepend IV to cipher for decryption
         var result = new byte[aes.IV.Length + cipherBytes.Length];
         aes.IV.CopyTo(result, 0);
         cipherBytes.CopyTo(result, aes.IV.Length);
@@ -99,11 +110,9 @@ public class LocalDatabase
             using var aes = Aes.Create();
             var key = SHA256.HashData(Encoding.UTF8.GetBytes(_encKey));
             aes.Key = key;
-            var iv = fullBytes[..16];
-            var cipher = fullBytes[16..];
-            aes.IV = iv;
+            aes.IV = fullBytes[..16];
             using var decryptor = aes.CreateDecryptor();
-            var plain = decryptor.TransformFinalBlock(cipher, 0, cipher.Length);
+            var plain = decryptor.TransformFinalBlock(fullBytes, 16, fullBytes.Length - 16);
             return Encoding.UTF8.GetString(plain);
         }
         catch
