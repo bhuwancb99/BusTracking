@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
+    <!--  ── Brand / Action ───────────────────────────────────────  -->
     <Color x:Key="Primary">#2563eb</Color>
     <Color x:Key="PrimaryDark">#1d4ed8</Color>
     <Color x:Key="PrimaryLight">#eff6ff</Color>
@@ -9,12 +10,71 @@
     <Color x:Key="Danger">#dc2626</Color>
     <Color x:Key="Warning">#d97706</Color>
     <Color x:Key="Info">#0891b2</Color>
+
+    <!--  ── Login Header Gradient Stops ──────────────────────────  -->
+    <Color x:Key="LoginHeaderTop">#1a2f6e</Color>
+    <Color x:Key="LoginHeaderMid">#1c3fa0</Color>
+    <Color x:Key="LoginHeaderBottom">#2563eb</Color>
+
+    <!--  ── Login Card / Page Backgrounds ───────────────────────  -->
+    <!--  Light  -->
+    <Color x:Key="LoginPageBgLight">#1c3fa0</Color>
+    <Color x:Key="LoginCardBgLight">#FFFFFF</Color>
+    <Color x:Key="LoginInputBgLight">#F0F4FF</Color>
+    <Color x:Key="LoginInputBorderLight">#c7d7f7</Color>
+    <Color x:Key="LoginSecureBadgeBgLight">#E8EFFE</Color>
+    <Color x:Key="LoginSecureBadgeBorderLight">#b8d0fb</Color>
+    <!--  Dark  -->
+    <Color x:Key="LoginPageBgDark">#0A0F1E</Color>
+    <Color x:Key="LoginCardBgDark">#111827</Color>
+    <Color x:Key="LoginInputBgDark">#0D1526</Color>
+    <Color x:Key="LoginInputBorderDark">#1E3A5F</Color>
+    <Color x:Key="LoginSecureBadgeBgDark">#0D1A2E</Color>
+    <Color x:Key="LoginSecureBadgeBorderDark">#1E3A5F</Color>
+
+    <!--  ── General Page / Card ──────────────────────────────────  -->
     <Color x:Key="PageBg">#F4F6FB</Color>
+    <Color x:Key="PageBgDark">#0A0F1E</Color>
     <Color x:Key="CardBg">#FFFFFF</Color>
+    <Color x:Key="CardBgDark">#111827</Color>
+
+    <!--  ── Text ─────────────────────────────────────────────────  -->
     <Color x:Key="TextPrimary">#1e293b</Color>
+    <Color x:Key="TextPrimaryDark">#FFFFFF</Color>
     <Color x:Key="TextSecondary">#64748b</Color>
+    <Color x:Key="TextSecondaryDark">#94a3b8</Color>
     <Color x:Key="TextMuted">#94a3b8</Color>
+    <Color x:Key="TextMutedDark">#475569</Color>
+    <Color x:Key="TextLink">#2563eb</Color>
+    <Color x:Key="TextLinkDark">#60A5FA</Color>
+
+    <!--  ── Borders ──────────────────────────────────────────────  -->
     <Color x:Key="BorderColor">#e2e8f0</Color>
+    <Color x:Key="BorderColorDark">#1E3A5F</Color>
+
+    <!--  ── Role badge (STAFF) ────────────────────────────────  -->
+    <Color x:Key="RoleBadgeBgLight">#FFF9EC</Color>
+    <Color x:Key="RoleBadgeBgDark">#1A1200</Color>
+    <Color x:Key="RoleBadgeBorderLight">#FCD34D</Color>
+    <Color x:Key="RoleBadgeBorderDark">#78540F</Color>
+    <Color x:Key="RoleBadgeTextLight">#92400E</Color>
+    <Color x:Key="RoleBadgeTextDark">#FCD34D</Color>
+
+    <!--  ── Secure Header Badge (top pill) ──────────────────────  -->
+    <Color x:Key="SecurePillBgLight">#DBEAFE</Color>
+    <Color x:Key="SecurePillBgDark">#0D1A2E</Color>
+    <Color x:Key="SecurePillTextLight">#1d4ed8</Color>
+    <Color x:Key="SecurePillTextDark">#60A5FA</Color>
+
+    <!--  ── NavBar ───────────────────────────────────────────────  -->
     <Color x:Key="NavBarBg">#1e3a5f</Color>
+
+    <!--  ── Error banner ─────────────────────────────────────────  -->
+    <Color x:Key="ErrorBannerBgLight">#FFF5F5</Color>
+    <Color x:Key="ErrorBannerBgDark">#1A0A0A</Color>
+    <Color x:Key="ErrorBannerBorderLight">#FECACA</Color>
+    <Color x:Key="ErrorBannerBorderDark">#7F1D1D</Color>
+    <Color x:Key="ErrorTextLight">#B91C1C</Color>
+    <Color x:Key="ErrorTextDark">#FCA5A5</Color>
 
 </ResourceDictionary>

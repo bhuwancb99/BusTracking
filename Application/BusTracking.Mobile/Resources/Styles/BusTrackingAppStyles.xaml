@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!--  Syncfusion TextInputLayout hint label style  -->
+    <!--  ── Syncfusion TextInputLayout hint ────────────────────────────  -->
     <Style x:Key="SfHintStyle" TargetType="Label">
-        <Setter Property="TextColor" Value="#64748B" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
         <Setter Property="FontSize" Value="13" />
     </Style>
 
-    <!--  Syncfusion focused hint (optional override)  -->
     <Style x:Key="SfFocusedHintStyle" TargetType="Label">
-        <Setter Property="TextColor" Value="#60A5FA" />
+        <Setter Property="TextColor" Value="{StaticResource Primary}" />
         <Setter Property="FontSize" Value="13" />
     </Style>
 
-    <!--  ── Styles ───────────────────────────────────────────  -->
+    <!--  ── Shell / Navigation ──────────────────────────────────────────  -->
     <Style TargetType="Shell">
-        <Setter Property="Shell.BackgroundColor" Value="#1e3a5f" />
+        <Setter Property="Shell.BackgroundColor" Value="{StaticResource NavBarBg}" />
         <Setter Property="Shell.ForegroundColor" Value="White" />
         <Setter Property="Shell.TitleColor" Value="White" />
         <Setter Property="Shell.DisabledColor" Value="#B4FFFFFF" />
@@ -24,25 +23,28 @@
     </Style>
 
     <Style TargetType="NavigationPage">
-        <Setter Property="BarBackgroundColor" Value="#1e3a5f" />
+        <Setter Property="BarBackgroundColor" Value="{StaticResource NavBarBg}" />
         <Setter Property="BarTextColor" Value="White" />
     </Style>
 
+    <!--  ── Page default ───────────────────────────────────────────────  -->
     <Style TargetType="ContentPage">
-        <Setter Property="BackgroundColor" Value="{StaticResource PageBg}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}" />
     </Style>
 
+    <!--  ── Typography ─────────────────────────────────────────────────  -->
     <Style x:Key="HeadingLabel" TargetType="Label">
         <Setter Property="FontSize" Value="22" />
         <Setter Property="FontAttributes" Value="Bold" />
-        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
     </Style>
 
     <Style x:Key="SubLabel" TargetType="Label">
         <Setter Property="FontSize" Value="13" />
-        <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
     </Style>
 
+    <!--  ── Buttons ─────────────────────────────────────────────────────  -->
     <Style x:Key="PrimaryButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
         <Setter Property="TextColor" Value="White" />
@@ -53,7 +55,7 @@
     </Style>
 
     <Style x:Key="SecondaryButton" TargetType="Button">
-        <Setter Property="BackgroundColor" Value="White" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=White, Dark={StaticResource CardBgDark}}" />
         <Setter Property="TextColor" Value="{StaticResource Primary}" />
         <Setter Property="BorderColor" Value="{StaticResource Primary}" />
         <Setter Property="BorderWidth" Value="1.5" />
@@ -63,13 +65,90 @@
         <Setter Property="FontSize" Value="15" />
     </Style>
 
+    <!--  ── Login-specific: Sign In button ─────────────────────────────  -->
+    <Style x:Key="LoginSignInButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="CornerRadius" Value="14" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="FontSize" Value="16" />
+        <Setter Property="HeightRequest" Value="54" />
+        <Setter Property="BorderWidth" Value="0" />
+    </Style>
+
+    <!--  ── Login card ──────────────────────────────────────────────────  -->
+    <Style x:Key="LoginCardBorder" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource LoginCardBgLight}, Dark={StaticResource LoginCardBgDark}}" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource LoginInputBorderLight}, Dark={StaticResource LoginInputBorderDark}}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 28" />
+        <Setter Property="StrokeThickness" Value="1.5" />
+        <Setter Property="Padding" Value="28,30" />
+    </Style>
+
+    <!--  ── Login input field wrapper ──────────────────────────────────  -->
+    <Style x:Key="LoginInputLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="11" />
+        <Setter Property="FontAttributes" Value="Bold" />
+        <Setter Property="CharacterSpacing" Value="1" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+        <Setter Property="Margin" Value="0,0,0,6" />
+    </Style>
+
+    <!--  ── Input box border ───────────────────────────────────────────  -->
+    <Style x:Key="LoginInputBorder" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource LoginInputBgLight}, Dark={StaticResource LoginInputBgDark}}" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource LoginInputBorderLight}, Dark={StaticResource LoginInputBorderDark}}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 14" />
+        <Setter Property="StrokeThickness" Value="1.5" />
+        <Setter Property="Padding" Value="16,4" />
+        <Setter Property="HeightRequest" Value="52" />
+    </Style>
+
+    <!--  ── Secure footer badge ────────────────────────────────────────  -->
+    <Style x:Key="SecureFooterBadge" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource LoginSecureBadgeBgLight}, Dark={StaticResource LoginSecureBadgeBgDark}}" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource LoginSecureBadgeBorderLight}, Dark={StaticResource LoginSecureBadgeBorderDark}}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="Padding" Value="14,6" />
+    </Style>
+
+    <!--  ── Role badge ─────────────────────────────────────────────────  -->
+    <Style x:Key="RoleBadgeBorder" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource RoleBadgeBgLight}, Dark={StaticResource RoleBadgeBgDark}}" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource RoleBadgeBorderLight}, Dark={StaticResource RoleBadgeBorderDark}}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="StrokeThickness" Value="1.5" />
+        <Setter Property="Padding" Value="12,8" />
+    </Style>
+
+    <!--  ── Error banner ───────────────────────────────────────────────  -->
+    <Style x:Key="ErrorBannerBorder" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="Padding" Value="14,10" />
+        <Setter Property="Margin" Value="0,0,0,16" />
+    </Style>
+
+    <!--  ── Secure pill (top header) ───────────────────────────────────  -->
+    <Style x:Key="SecurePillBorder" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource SecurePillBgLight}, Dark={StaticResource SecurePillBgDark}}" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        <Setter Property="Padding" Value="14,6" />
+    </Style>
+
+    <!--  ── Entry default ──────────────────────────────────────────────  -->
     <Style TargetType="Entry">
-        <Setter Property="TextColor" Value="{StaticResource TextPrimary}" />
-        <Setter Property="PlaceholderColor" Value="{StaticResource TextMuted}" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+        <Setter Property="PlaceholderColor" Value="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
         <Setter Property="BackgroundColor" Value="Transparent" />
         <Setter Property="FontSize" Value="14" />
     </Style>
 
+    <!--  ── ActivityIndicator ───────────────────────────────────────────  -->
     <Style TargetType="ActivityIndicator">
         <Setter Property="Color" Value="{StaticResource Primary}" />
     </Style>

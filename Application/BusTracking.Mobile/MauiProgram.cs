@@ -19,7 +19,7 @@
 #if DEBUG
             builder.Logging.AddDebug();
 #endif
-
+            MauiControlsHandlers();
             RegisterServices(builder.Services);
             RegisterViewModels(builder.Services);
             RegisterViews(builder.Services);
@@ -142,6 +142,103 @@
 
             // Common
             s.AddTransient<MaintenancePage>();
+        }
+
+        /// <summary>
+        /// MauiControlsHandlers
+        /// </summary>
+        static void MauiControlsHandlers()
+        {
+            #region DatePicker Handler
+            Microsoft.Maui.Handlers.DatePickerHandler.Mapper.AppendToMapping("MyDatePickerHandler", (handler, view) =>
+            {
+#if ANDROID
+
+                handler.PlatformView.Background = null;
+                handler.PlatformView.SetBackgroundColor(Android.Graphics.Color.Transparent);
+                handler.PlatformView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
+#endif
+#if IOS
+            handler.PlatformView.BackgroundColor = UIKit.UIColor.Clear;
+            handler.PlatformView.Layer.BorderWidth = 0;
+            handler.PlatformView.BorderStyle = UIKit.UITextBorderStyle.None;
+#endif
+            });
+            #endregion
+
+            #region Entry BorderLess
+
+            Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("MyBorderlessEntryHandler", (handler, view) =>
+            {
+                if (view is Entry)
+                {
+#if ANDROID
+                    handler.PlatformView.Background = null;
+                    handler.PlatformView.SetTextColor(Android.Graphics.Color.Black);
+                    handler.PlatformView.SetBackgroundColor(Android.Graphics.Color.Transparent);
+                    handler.PlatformView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
+#elif IOS
+                handler.PlatformView.BackgroundColor = UIKit.UIColor.Clear;
+                handler.PlatformView.Layer.BorderWidth = 0;
+                handler.PlatformView.BorderStyle = UIKit.UITextBorderStyle.None;
+#endif
+                }
+            });
+
+            #endregion
+
+            #region Picker Handler
+
+            Microsoft.Maui.Handlers.PickerHandler.Mapper.AppendToMapping("MyPickerHandler", (handler, view) =>
+            {
+                if (view is Picker picker)
+                {
+#if ANDROID
+                    picker.SelectedIndexChanged += (s, e) =>
+                    {
+                        if (picker.IsFocused)
+                        {
+                            picker.Unfocus();
+                        }
+                    };
+                    handler.PlatformView.Background = null;
+                    handler.PlatformView.SetTextColor(Android.Graphics.Color.Black);
+                    handler.PlatformView.SetBackgroundColor(Android.Graphics.Color.Transparent);
+                    handler.PlatformView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
+#elif IOS
+                handler.PlatformView.BackgroundColor = UIKit.UIColor.Clear;
+                handler.PlatformView.Layer.BorderWidth = 0;
+                handler.PlatformView.BorderStyle = UIKit.UITextBorderStyle.None;
+#endif
+                }
+            });
+
+            #endregion
+
+            #region Editor Handler
+
+            Microsoft.Maui.Handlers.EditorHandler.Mapper.AppendToMapping("MyEditorHandler", (handler, view) =>
+            {
+#if ANDROID
+                handler.PlatformView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
+#endif
+            });
+
+            #endregion
+
+            #region TimePicker Handler
+            Microsoft.Maui.Handlers.TimePickerHandler.Mapper.AppendToMapping("MyTimePickerHandler", (handler, view) =>
+            {
+#if ANDROID
+
+                handler.PlatformView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
+#elif IOS
+            handler.PlatformView.BackgroundColor = UIKit.UIColor.Clear;
+            handler.PlatformView.Layer.BorderWidth = 0;
+            handler.PlatformView.BorderStyle = UIKit.UITextBorderStyle.None;
+#endif
+            });
+            #endregion
         }
     }
 }
