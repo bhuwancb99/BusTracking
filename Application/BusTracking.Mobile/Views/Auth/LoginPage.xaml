@@ -3,38 +3,35 @@
     x:Class="BusTracking.Mobile.Views.Auth.LoginPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     xmlns:sfIndicator="clr-namespace:Syncfusion.Maui.Toolkit.ProgressBar;assembly=Syncfusion.Maui.Toolkit"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Auth"
     x:DataType="vm:LoginViewModel"
     x:TypeArguments="vm:LoginViewModel"
-    BackgroundColor="{AppThemeBinding Light={StaticResource LoginPageBgLight},
-                                      Dark={StaticResource LoginPageBgDark}}">
+    BackgroundColor="{AppThemeBinding Light={StaticResource LoginCardBgLight},
+                                      Dark={StaticResource LoginCardBgDark}}">
+
+    <!--
+        KEY FIX: Page BackgroundColor is now WHITE/DARK (card color), NOT blue.
+        The blue header is painted by the VerticalStackLayout in Row 0.
+        This stops the blue from showing behind the Android bottom nav bar.
+    -->
 
     <Shell.NavBarIsVisible>False</Shell.NavBarIsVisible>
 
-    <!--  Status bar: blue to match header, white icons  -->
-    <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
-    </views:ViewBase.Behaviors>
-
-    <!--
-        Root Grid:
-        Row 0 = Blue header (Auto – shrinks to content)
-        Row 1 = White card (Auto – shrinks to content)
-    -->
     <ScrollView>
-        <Grid BackgroundColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" RowDefinitions="Auto,Auto">
+        <Grid RowDefinitions="Auto,Auto">
 
             <!--
                 ══════════════════════════════════════════════════════
-                ROW 0 — Blue header
+                ROW 0 — Blue header (self-contained blue background)
                 ═══════════════════════════════════════════════════════════
             -->
             <VerticalStackLayout
                 Grid.Row="0"
                 Padding="24,52,24,36"
+                BackgroundColor="{AppThemeBinding Light={StaticResource LoginPageBgLight},
+                                                  Dark={StaticResource LoginPageBgDark}}"
                 Spacing="0">
 
                 <!--  SECURE pill  -->
@@ -179,6 +176,14 @@
                                     FontSize="22"
                                     HorizontalOptions="Center"
                                     Text="🔑" />
+                                <Label
+                                    CharacterSpacing="1"
+                                    FontAttributes="Bold"
+                                    FontSize="10"
+                                    HorizontalOptions="Center"
+                                    Text="STAFF"
+                                    TextColor="{AppThemeBinding Light={StaticResource RoleBadgeTextLight},
+                                                                Dark={StaticResource RoleBadgeTextDark}}" />
                             </VerticalStackLayout>
                         </Border>
                     </Grid>
@@ -190,7 +195,7 @@
                                                           Dark={StaticResource BorderColorDark}}"
                         HeightRequest="1" />
 
-                    <!--  ── Maintenance overlay ──  -->
+                    <!--  Maintenance overlay  -->
                     <VerticalStackLayout
                         Padding="0,8"
                         IsVisible="{Binding IsMaintenanceMode}"
@@ -215,7 +220,7 @@
                                                         Dark={StaticResource TextSecondaryDark}}" />
                     </VerticalStackLayout>
 
-                    <!--  ── Login form  (InvertBool = correct key from App.xaml) ──  -->
+                    <!--  Login form  -->
                     <VerticalStackLayout IsVisible="{Binding IsMaintenanceMode, Converter={StaticResource InvertBool}}" Spacing="0">
 
                         <!--  Error banner  -->
@@ -255,7 +260,7 @@
                             TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                         Dark={StaticResource TextSecondaryDark}}" />
 
-                        <!--  Email Entry box  -->
+                        <!--  Email Entry  -->
                         <Border
                             Margin="0,0,0,18"
                             Padding="16,0"
@@ -290,7 +295,7 @@
                             TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                         Dark={StaticResource TextSecondaryDark}}" />
 
-                        <!--  Password Entry box  -->
+                        <!--  Password Entry  -->
                         <Border
                             Margin="0,0,0,10"
                             Padding="16,0"
