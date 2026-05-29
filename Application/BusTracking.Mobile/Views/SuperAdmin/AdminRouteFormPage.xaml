@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminRouteFormPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
+    x:DataType="vm:AdminRouteFormViewModel"
+    x:TypeArguments="vm:AdminRouteFormViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
+    <Shell.TitleView>
+        <Label
+            FontAttributes="Bold"
+            FontSize="17"
+            Text="{Binding Title}"
+            TextColor="White"
+            VerticalOptions="Center" />
+    </Shell.TitleView>
+    <ScrollView>
+        <VerticalStackLayout Padding="16,16,16,32" Spacing="14">
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight},
+                                                  Dark={StaticResource ErrorBannerBgDark}}"
+                IsVisible="{Binding HasError}"
+                Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
+                                         Dark={StaticResource ErrorBannerBorderDark}}"
+                StrokeShape="RoundRectangle 10"
+                StrokeThickness="1">
+                <Label
+                    Padding="12,10"
+                    FontSize="13"
+                    Text="{Binding ErrorMessage}"
+                    TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
+                                                Dark={StaticResource ErrorTextDark}}" />
+            </Border>
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Route Name *"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                    <Entry
+                        BackgroundColor="Transparent"
+                        Placeholder="e.g. North Sector Route"
+                        Text="{Binding RouteName}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
+                </VerticalStackLayout>
+            </Border>
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Route Code *"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                    <Entry
+                        BackgroundColor="Transparent"
+                        Placeholder="e.g. RT-001"
+                        Text="{Binding RouteCode}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
+                </VerticalStackLayout>
+            </Border>
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Morning Pickup Time"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                    <Entry
+                        BackgroundColor="Transparent"
+                        Placeholder="e.g. 07:30"
+                        Text="{Binding MorningTime}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
+                </VerticalStackLayout>
+            </Border>
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Evening Drop Time"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                    <Entry
+                        BackgroundColor="Transparent"
+                        Placeholder="e.g. 17:00"
+                        Text="{Binding EveningTime}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
+                </VerticalStackLayout>
+            </Border>
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <Grid Padding="16" ColumnDefinitions="*,Auto">
+                    <Label
+                        Grid.Column="0"
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        Text="Active"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}"
+                        VerticalOptions="Center" />
+                    <Switch
+                        Grid.Column="1"
+                        IsToggled="{Binding IsActive}"
+                        OnColor="{StaticResource Primary}"
+                        ThumbColor="White"
+                        VerticalOptions="Center" />
+                </Grid>
+            </Border>
+            <Grid
+                Margin="0,8,0,0"
+                ColumnDefinitions="*,*"
+                ColumnSpacing="12">
+                <Button
+                    Grid.Column="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    BorderColor="{AppThemeBinding Light={StaticResource BorderColor},
+                                                  Dark={StaticResource BorderColorDark}}"
+                    BorderWidth="1.5"
+                    Command="{Binding CancelCommand}"
+                    CornerRadius="12"
+                    FontAttributes="Bold"
+                    HeightRequest="50"
+                    Text="Cancel"
+                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                Dark={StaticResource TextSecondaryDark}}" />
+                <Button
+                    Grid.Column="1"
+                    BackgroundColor="{StaticResource Primary}"
+                    Command="{Binding SaveCommand}"
+                    CornerRadius="12"
+                    FontAttributes="Bold"
+                    HeightRequest="50"
+                    TextColor="White">
+                    <Button.Triggers>
+                        <DataTrigger
+                            Binding="{Binding IsBusy}"
+                            TargetType="Button"
+                            Value="True">
+                            <Setter Property="Text" Value="Saving…" />
+                            <Setter Property="IsEnabled" Value="False" />
+                        </DataTrigger>
+                        <DataTrigger
+                            Binding="{Binding IsEditMode}"
+                            TargetType="Button"
+                            Value="True">
+                            <Setter Property="Text" Value="Update Route" />
+                        </DataTrigger>
+                        <DataTrigger
+                            Binding="{Binding IsEditMode}"
+                            TargetType="Button"
+                            Value="False">
+                            <Setter Property="Text" Value="Add Route" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+            </Grid>
+            <ActivityIndicator
+                HorizontalOptions="Center"
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                Color="{StaticResource Primary}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</views:ViewBase>

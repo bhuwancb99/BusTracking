@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.Coordinator.CoordParentDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:BusTracking.Mobile.Models"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
+    x:DataType="vm:CoordParentDetailViewModel"
+    x:TypeArguments="vm:CoordParentDetailViewModel"
+    BackgroundColor="#F4F6FB">
+
+    <Shell.TitleView>
+        <Label
+            FontAttributes="Bold"
+            FontSize="17"
+            Text="Parent Details"
+            TextColor="White"
+            VerticalOptions="Center" />
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+
+            <ActivityIndicator
+                HorizontalOptions="Center"
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                VerticalOptions="Center"
+                Color="#2563eb" />
+
+            <Border
+                Padding="12,10"
+                BackgroundColor="#fef2f2"
+                IsVisible="{Binding HasError}"
+                Stroke="#fecaca"
+                StrokeShape="RoundRectangle 10">
+                <Label
+                    FontSize="13"
+                    Text="{Binding ErrorMessage}"
+                    TextColor="#ef4444" />
+            </Border>
+
+            <!--  Header  -->
+            <Border
+                Padding="20"
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 16">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                    <Border
+                        Grid.Column="0"
+                        BackgroundColor="#16a34a"
+                        HeightRequest="60"
+                        StrokeShape="RoundRectangle 30"
+                        WidthRequest="60">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="22"
+                            HorizontalOptions="Center"
+                            Text="{Binding Parent.InitialsDisplay}"
+                            TextColor="White"
+                            VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Spacing="4"
+                        VerticalOptions="Center">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="18"
+                            Text="{Binding Parent.FullName}"
+                            TextColor="#1e293b" />
+                        <Label
+                            FontSize="13"
+                            Text="{Binding Parent.Email}"
+                            TextColor="#64748b" />
+                        <Label
+                            FontSize="13"
+                            Text="{Binding Parent.ChildrenLabel}"
+                            TextColor="#2563eb" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!--  Info  -->
+            <Border
+                Padding="16"
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 16">
+                <VerticalStackLayout Spacing="14">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        Text="Contact"
+                        TextColor="#374151" />
+                    <BoxView BackgroundColor="#f1f5f9" HeightRequest="1" />
+                    <VerticalStackLayout Spacing="3">
+                        <Label
+                            FontSize="11"
+                            Text="PHONE"
+                            TextColor="#94a3b8" />
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            Text="{Binding Parent.PhoneNumber}"
+                            TextColor="#1e293b" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Linked students  -->
+            <Border
+                Padding="16"
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 16">
+                <VerticalStackLayout Spacing="10">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        Text="Linked Students"
+                        TextColor="#374151" />
+                    <BoxView BackgroundColor="#f1f5f9" HeightRequest="1" />
+                    <CollectionView ItemsSource="{Binding Parent.Students}" SelectionMode="None">
+                        <CollectionView.EmptyView>
+                            <Label
+                                FontSize="13"
+                                HorizontalOptions="Center"
+                                Text="No students linked"
+                                TextColor="#94a3b8" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Parent.LinkedStudent">
+                                <Border
+                                    Margin="0,3"
+                                    Padding="12,8"
+                                    BackgroundColor="#f8fafc"
+                                    Stroke="#e2e8f0"
+                                    StrokeShape="RoundRectangle 10">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label
+                                            Grid.Column="0"
+                                            FontAttributes="Bold"
+                                            FontSize="14"
+                                            Text="{Binding FullName}"
+                                            TextColor="#1e293b" />
+                                        <Label
+                                            Grid.Column="1"
+                                            FontSize="12"
+                                            Text="{Binding StudentCode}"
+                                            TextColor="#2563eb" />
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</views:ViewBase>

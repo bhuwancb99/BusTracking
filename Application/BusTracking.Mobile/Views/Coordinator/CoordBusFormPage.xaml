@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.Coordinator.CoordBusFormPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:BusTracking.Mobile.Models"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
+    x:DataType="vm:CoordBusFormViewModel"
+    x:TypeArguments="vm:CoordBusFormViewModel"
+    BackgroundColor="#F4F6FB">
+
+    <Shell.TitleView>
+        <Label
+            FontAttributes="Bold"
+            FontSize="17"
+            Text="{Binding Title}"
+            TextColor="White"
+            VerticalOptions="Center" />
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,16,16,32" Spacing="14">
+
+            <!--  Error  -->
+            <Border
+                Padding="12,10"
+                BackgroundColor="#fef2f2"
+                IsVisible="{Binding HasError}"
+                Stroke="#fecaca"
+                StrokeShape="RoundRectangle 10">
+                <Label
+                    FontSize="13"
+                    Text="{Binding ErrorMessage}"
+                    TextColor="#ef4444" />
+            </Border>
+
+            <!--  Bus Name  -->
+            <Border
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 14">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Bus Name *"
+                        TextColor="#374151" />
+                    <Entry
+                        BackgroundColor="Transparent"
+                        Placeholder="e.g. Red Falcon"
+                        PlaceholderColor="#94a3b8"
+                        Text="{Binding BusName}"
+                        TextColor="#1e293b" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Bus Number  -->
+            <Border
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 14">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Bus Number *"
+                        TextColor="#374151" />
+                    <Entry
+                        BackgroundColor="Transparent"
+                        Placeholder="e.g. MH-01-1234"
+                        PlaceholderColor="#94a3b8"
+                        Text="{Binding BusNumber}"
+                        TextColor="#1e293b" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Capacity  -->
+            <Border
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 14">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Capacity"
+                        TextColor="#374151" />
+                    <Entry
+                        BackgroundColor="Transparent"
+                        Keyboard="Numeric"
+                        Placeholder="e.g. 40"
+                        PlaceholderColor="#94a3b8"
+                        Text="{Binding Capacity}"
+                        TextColor="#1e293b" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Route  -->
+            <Border
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 14">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Route"
+                        TextColor="#374151" />
+                    <Picker
+                        BackgroundColor="Transparent"
+                        ItemDisplayBinding="{Binding RouteName}"
+                        ItemsSource="{Binding RouteOptions}"
+                        SelectedItem="{Binding SelectedRoute}"
+                        TextColor="#1e293b"
+                        TitleColor="#94a3b8" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Active toggle  -->
+            <Border
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 14">
+                <Grid Padding="16" ColumnDefinitions="*,Auto">
+                    <Label
+                        Grid.Column="0"
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Active"
+                        TextColor="#374151"
+                        VerticalOptions="Center" />
+                    <Switch
+                        Grid.Column="1"
+                        IsToggled="{Binding IsActive}"
+                        OnColor="#2563eb" />
+                </Grid>
+            </Border>
+
+            <!--  Buttons  -->
+            <Grid
+                Margin="0,8,0,0"
+                ColumnDefinitions="*,*"
+                ColumnSpacing="12">
+                <Button
+                    Grid.Column="0"
+                    BackgroundColor="White"
+                    BorderColor="#e2e8f0"
+                    BorderWidth="1.5"
+                    Command="{Binding CancelCommand}"
+                    CornerRadius="12"
+                    FontAttributes="Bold"
+                    HeightRequest="50"
+                    Text="Cancel"
+                    TextColor="#64748b" />
+                <Button
+                    Grid.Column="1"
+                    BackgroundColor="#2563eb"
+                    Command="{Binding SaveCommand}"
+                    CornerRadius="12"
+                    FontAttributes="Bold"
+                    HeightRequest="50"
+                    TextColor="White">
+                    <Button.Triggers>
+                        <DataTrigger
+                            Binding="{Binding IsBusy}"
+                            TargetType="Button"
+                            Value="True">
+                            <Setter Property="Text" Value="Saving…" />
+                            <Setter Property="IsEnabled" Value="False" />
+                        </DataTrigger>
+                        <DataTrigger
+                            Binding="{Binding IsEditMode}"
+                            TargetType="Button"
+                            Value="True">
+                            <Setter Property="Text" Value="Update Bus" />
+                        </DataTrigger>
+                        <DataTrigger
+                            Binding="{Binding IsEditMode}"
+                            TargetType="Button"
+                            Value="False">
+                            <Setter Property="Text" Value="Add Bus" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</views:ViewBase>

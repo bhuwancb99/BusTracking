@@ -74,6 +74,13 @@
             s.AddTransient<AdminConfigListViewModel>();
             s.AddTransient<AdminConfigFormViewModel>();
             s.AddTransient<AdminRouteListViewModel>();
+            s.AddTransient<AdminBusDetailViewModel>();
+            s.AddTransient<AdminCoordinatorDetailViewModel>();
+            s.AddTransient<AdminRouteDetailViewModel>();
+            s.AddTransient<AdminRouteFormViewModel>();
+            s.AddTransient<AdminStudentFormViewModel>();
+            s.AddTransient<AdminTripDetailViewModel>();
+            s.AddTransient<AdminTripFormViewModel>();
 
             // Coordinator
             s.AddTransient<CoordinatorDashboardViewModel>();
@@ -83,11 +90,22 @@
             s.AddTransient<CoordParentListViewModel>();
             s.AddTransient<CoordDriverListViewModel>();
             s.AddTransient<CoordRouteListViewModel>();
+            s.AddTransient<CoordBusFormViewModel>();
+            s.AddTransient<CoordBusDetailViewModel>();
+            s.AddTransient<CoordDriverDetailViewModel>();
+            s.AddTransient<CoordParentDetailViewModel>();
+            s.AddTransient<CoordStudentFormViewModel>();
+            s.AddTransient<CoordStudentDetailViewModel>();
+            s.AddTransient<CoordRouteFormViewModel>();
+            s.AddTransient<CoordRouteDetailViewModel>();
+            s.AddTransient<CoordTripFormViewModel>();
+            s.AddTransient<CoordTripDetailViewModel>();
 
             // Driver
             s.AddTransient<DriverDashboardViewModel>();
             s.AddTransient<DriverTripListViewModel>();
             s.AddTransient<DriverTrackingViewModel>();
+            s.AddTransient<DriverTripDetailViewModel>();
 
             // Parent
             s.AddTransient<ParentDashboardViewModel>();
@@ -119,6 +137,15 @@
             s.AddTransient<AdminConfigListPage>();
             s.AddTransient<AdminConfigFormPage>();
             s.AddTransient<AdminRouteListPage>();
+            s.AddTransient<AdminDriverFormPage>();
+            s.AddTransient<AdminParentFormPage>();
+            s.AddTransient<AdminRouteFormPage>();
+            s.AddTransient<AdminStudentFormPage>();
+            s.AddTransient<AdminTripFormPage>();
+            s.AddTransient<AdminBusDetailPage>();
+            s.AddTransient<AdminCoordinatorDetailPage>();
+            s.AddTransient<AdminRouteDetailPage>();
+            s.AddTransient<AdminTripDetailPage>();
 
             // Coordinator
             s.AddTransient<CoordinatorDashboardPage>();
@@ -128,11 +155,22 @@
             s.AddTransient<CoordParentListPage>();
             s.AddTransient<CoordDriverListPage>();
             s.AddTransient<CoordRouteListPage>();
+            s.AddTransient<CoordBusFormPage>();
+            s.AddTransient<CoordBusDetailPage>();
+            s.AddTransient<CoordDriverDetailPage>();
+            s.AddTransient<CoordParentDetailPage>();
+            s.AddTransient<CoordStudentFormPage>();
+            s.AddTransient<CoordStudentDetailPage>();
+            s.AddTransient<CoordRouteFormPage>();
+            s.AddTransient<CoordRouteDetailPage>();
+            s.AddTransient<CoordTripFormPage>();
+            s.AddTransient<CoordTripDetailPage>();
 
             // Driver
             s.AddTransient<DriverDashboardPage>();
             s.AddTransient<DriverTripListPage>();
             s.AddTransient<DriverTrackingPage>();
+            s.AddTransient<DriverTripDetailPage>();
 
             // Parent
             s.AddTransient<ParentDashboardPage>();

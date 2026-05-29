@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.Coordinator.CoordRouteDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:models="clr-namespace:BusTracking.Mobile.Models"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
+    x:DataType="vm:CoordRouteDetailViewModel"
+    x:TypeArguments="vm:CoordRouteDetailViewModel"
+    BackgroundColor="#F4F6FB">
+
+    <Shell.TitleView>
+        <Grid Padding="0,0,8,0" ColumnDefinitions="*,Auto">
+            <Label
+                Grid.Column="0"
+                FontAttributes="Bold"
+                FontSize="17"
+                Text="Route Details"
+                TextColor="White"
+                VerticalOptions="Center" />
+            <Button
+                Grid.Column="1"
+                Padding="12,6"
+                BackgroundColor="White"
+                Command="{Binding EditCommand}"
+                CornerRadius="20"
+                FontSize="13"
+                Text="Edit"
+                TextColor="#2563eb" />
+        </Grid>
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+
+            <ActivityIndicator
+                HorizontalOptions="Center"
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                VerticalOptions="Center"
+                Color="#2563eb" />
+
+            <Border
+                Padding="12,10"
+                BackgroundColor="#fef2f2"
+                IsVisible="{Binding HasError}"
+                Stroke="#fecaca"
+                StrokeShape="RoundRectangle 10">
+                <Label
+                    FontSize="13"
+                    Text="{Binding ErrorMessage}"
+                    TextColor="#ef4444" />
+            </Border>
+
+            <!--  Header  -->
+            <Border
+                Padding="20"
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 16">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                    <Border
+                        Grid.Column="0"
+                        Padding="14"
+                        BackgroundColor="#eff6ff"
+                        HeightRequest="60"
+                        StrokeShape="RoundRectangle 16"
+                        WidthRequest="60">
+                        <Label
+                            FontSize="26"
+                            HorizontalOptions="Center"
+                            Text="🗺️"
+                            VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Spacing="4"
+                        VerticalOptions="Center">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="18"
+                            Text="{Binding Route.RouteName}"
+                            TextColor="#1e293b" />
+                        <Label
+                            FontSize="13"
+                            Text="{Binding Route.RouteCode}"
+                            TextColor="#2563eb" />
+                        <Label
+                            FontSize="12"
+                            Text="{Binding Route.TimingDisplay}"
+                            TextColor="#94a3b8" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!--  Stops  -->
+            <Border
+                Padding="16"
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 16">
+                <VerticalStackLayout Spacing="10">
+                    <Label>
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span
+                                    FontAttributes="Bold"
+                                    FontSize="14"
+                                    Text="Stops  "
+                                    TextColor="#374151" />
+                                <Span
+                                    FontSize="13"
+                                    Text="{Binding Route.StopCount, StringFormat='({0})'}"
+                                    TextColor="#94a3b8" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <BoxView BackgroundColor="#f1f5f9" HeightRequest="1" />
+                    <CollectionView ItemsSource="{Binding Stops}" SelectionMode="None">
+                        <CollectionView.EmptyView>
+                            <Label
+                                FontSize="13"
+                                HorizontalOptions="Center"
+                                Text="No stops"
+                                TextColor="#94a3b8" />
+                        </CollectionView.EmptyView>
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="models:Route.StopItem">
+                                <Grid
+                                    Padding="0,8"
+                                    ColumnDefinitions="32,*,Auto"
+                                    ColumnSpacing="10">
+                                    <Border
+                                        Grid.Column="0"
+                                        BackgroundColor="#2563eb"
+                                        HeightRequest="28"
+                                        StrokeShape="RoundRectangle 14"
+                                        WidthRequest="28">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="12"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding StopOrder}"
+                                            TextColor="White"
+                                            VerticalOptions="Center" />
+                                    </Border>
+                                    <Label
+                                        Grid.Column="1"
+                                        FontSize="14"
+                                        Text="{Binding StopName}"
+                                        TextColor="#1e293b"
+                                        VerticalOptions="Center" />
+                                    <Label
+                                        Grid.Column="2"
+                                        FontSize="12"
+                                        Text="{Binding MorningTime}"
+                                        TextColor="#94a3b8"
+                                        VerticalOptions="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</views:ViewBase>
