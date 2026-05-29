@@ -9,7 +9,9 @@
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new AppShell());
+            var shell = Handler?.MauiContext?.Services.GetRequiredService<AppShell>()
+                        ?? IPlatformApplication.Current!.Services.GetRequiredService<AppShell>();
+            return new Window(shell);
         }
     }
 }

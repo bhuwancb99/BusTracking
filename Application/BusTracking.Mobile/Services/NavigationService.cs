@@ -25,6 +25,11 @@
                 Constants.Roles.Driver => "//DriverDashboard",
                 _ => "//Login"
             };
+
+            // Build role-specific flyout BEFORE navigating so drawer is ready instantly
+            if (Shell.Current is AppShell appShell)
+                await appShell.InitializeForRoleAsync();
+
             await Shell.Current.GoToAsync(route, true);
         }
     }

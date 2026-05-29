@@ -16,6 +16,7 @@
             : base(auth, nav) { _drivers = drivers; Title = "Drivers"; }
 
         public override async Task InitializeAsync() => await LoadAsync();
+        public override async Task RefreshOnReturnAsync() => await LoadAsync();   // ← reload after Add/Edit
 
         [RelayCommand]
         private async Task LoadAsync()
@@ -30,14 +31,10 @@
         }
 
         [RelayCommand] private async Task SearchAsync() => await LoadAsync();
-
         [RelayCommand] private Task AddAsync() => Nav.GoToAsync("AdminDriverForm");
         [RelayCommand]
         private Task EditAsync(DriverItem d) =>
             Nav.GoToAsync("AdminDriverForm", new Dictionary<string, object> { ["UserId"] = d.UserId });
-        [RelayCommand]
-        private Task ViewAsync(DriverItem d) =>
-            Nav.GoToAsync("AdminDriverDetail", new Dictionary<string, object> { ["UserId"] = d.UserId });
 
         [RelayCommand]
         private async Task ToggleAsync(DriverItem d)
@@ -51,7 +48,7 @@
         {
             if (!await ConfirmAsync("Reset Password", $"Reset password for {d.FullName}?")) return;
             var r = await _drivers.ResetPasswordAsync(d.UserId);
-            if (r.Success) await ShowAlertAsync("Password Reset", $"New password has been generated.\n{r.Message}");
+            if (r.Success) await ShowAlertAsync("Password Reset", $"New password: {r.Message}");
             else SetError(r.Message);
         }
 

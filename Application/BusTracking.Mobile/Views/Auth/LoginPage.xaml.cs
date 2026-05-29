@@ -8,6 +8,10 @@ public partial class LoginPage : ViewBase<LoginViewModel>
     {
         base.OnAppearing();
 
+        Shell.SetNavBarIsVisible(this, false);
+        Shell.SetTabBarIsVisible(this, false);
+        Shell.SetFlyoutBehavior(this, FlyoutBehavior.Disabled);
+
         SetSystemBarsColor(
             lightStatusKey: "LoginPageBgLight",  // blue  — top status bar
             darkStatusKey: "LoginPageBgDark",

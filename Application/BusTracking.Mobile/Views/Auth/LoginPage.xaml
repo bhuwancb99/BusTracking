@@ -17,8 +17,6 @@
         This stops the blue from showing behind the Android bottom nav bar.
     -->
 
-    <Shell.NavBarIsVisible>False</Shell.NavBarIsVisible>
-
     <ScrollView>
         <Grid RowDefinitions="Auto,Auto">
 

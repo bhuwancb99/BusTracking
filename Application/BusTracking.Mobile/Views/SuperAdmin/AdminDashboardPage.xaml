@@ -9,225 +9,448 @@
     x:TypeArguments="vm:AdminDashboardViewModel"
     BackgroundColor="#F4F6FB">
 
+    <!--
+        Shell renders the dark navbar + hamburger automatically.
+        Shell.TitleView replaces just the centre/right area of that bar.
+    -->
     <Shell.TitleView>
         <Grid Padding="0,0,12,0" ColumnDefinitions="*,Auto">
             <Label
                 Grid.Column="0"
                 FontAttributes="Bold"
                 FontSize="17"
-                Text="Super Admin"
+                Text="Dashboard"
                 TextColor="White"
                 VerticalOptions="Center" />
-            <ImageButton
+            <!--  Super Admin role badge  -->
+            <Border
                 Grid.Column="1"
-                BackgroundColor="Transparent"
-                Command="{Binding LogoutCommand}"
-                Source="logout.png"
-                WidthRequest="22" />
+                Padding="10,4"
+                BackgroundColor="#f59e0b"
+                StrokeShape="RoundRectangle 20"
+                VerticalOptions="Center">
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="11"
+                    Text="Super Admin"
+                    TextColor="White" />
+            </Border>
         </Grid>
     </Shell.TitleView>
 
     <RefreshView Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsBusy}">
         <ScrollView>
-            <VerticalStackLayout Padding="16,16,16,32" Spacing="0">
+            <VerticalStackLayout Padding="16,20,16,40" Spacing="0">
 
                 <!--  Welcome  -->
                 <Label
-                    Margin="0,0,0,4"
+                    Margin="0,0,0,2"
                     FontAttributes="Bold"
                     FontSize="22"
                     Text="{Binding WelcomeText}"
                     TextColor="#1e293b" />
                 <Label
-                    Margin="0,0,0,20"
+                    Margin="0,0,0,24"
                     FontSize="13"
-                    Text="Here's your system overview"
+                    Text="{Binding TodayDate}"
                     TextColor="#64748b" />
 
-                <!--  Stat Cards Grid  -->
+                <!--
+                    Stat Cards — 3 columns × 2 rows, matches web order:
+                    Buses | Drivers | Coordinators
+                    Parents | Students | Active Trips
+                -->
                 <Grid
-                    ColumnDefinitions="*,*"
-                    ColumnSpacing="12"
-                    RowDefinitions="Auto,Auto,Auto"
-                    RowSpacing="12">
+                    ColumnDefinitions="*,*,*"
+                    ColumnSpacing="10"
+                    RowDefinitions="Auto,Auto"
+                    RowSpacing="10">
 
+                    <!--  Buses  -->
                     <Border
                         Grid.Row="0"
                         Grid.Column="0"
-                        Padding="16"
+                        Padding="12"
                         BackgroundColor="White"
-                        StrokeShape="RoundRectangle 16">
+                        Stroke="#e2e8f0"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="1">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToBusesCommand}" />
                         </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="4">
-                            <Label FontSize="28" Text="🚌" />
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                            <Label
+                                FontSize="24"
+                                HorizontalOptions="Center"
+                                Text="🚌" />
                             <Label
                                 FontAttributes="Bold"
-                                FontSize="28"
+                                FontSize="22"
+                                HorizontalOptions="Center"
                                 Text="{Binding Summary.TotalBuses}"
                                 TextColor="#2563eb" />
                             <Label
-                                FontSize="12"
+                                FontSize="11"
+                                HorizontalOptions="Center"
                                 Text="Buses"
                                 TextColor="#64748b" />
+                            <Border
+                                Margin="0,4,0,0"
+                                Padding="8,3"
+                                Stroke="#e2e8f0"
+                                StrokeShape="RoundRectangle 8"
+                                StrokeThickness="1">
+                                <Label
+                                    FontSize="11"
+                                    HorizontalOptions="Center"
+                                    Text="View"
+                                    TextColor="#475569" />
+                            </Border>
                         </VerticalStackLayout>
                     </Border>
 
+                    <!--  Drivers  -->
                     <Border
                         Grid.Row="0"
                         Grid.Column="1"
-                        Padding="16"
+                        Padding="12"
                         BackgroundColor="White"
-                        StrokeShape="RoundRectangle 16">
+                        Stroke="#e2e8f0"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="1">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToDriversCommand}" />
                         </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="4">
-                            <Label FontSize="28" Text="🧑‍✈️" />
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                            <Label
+                                FontSize="24"
+                                HorizontalOptions="Center"
+                                Text="🧑‍✈️" />
                             <Label
                                 FontAttributes="Bold"
-                                FontSize="28"
+                                FontSize="22"
+                                HorizontalOptions="Center"
                                 Text="{Binding Summary.TotalDrivers}"
                                 TextColor="#0891b2" />
                             <Label
-                                FontSize="12"
+                                FontSize="11"
+                                HorizontalOptions="Center"
                                 Text="Drivers"
                                 TextColor="#64748b" />
+                            <Border
+                                Margin="0,4,0,0"
+                                Padding="8,3"
+                                Stroke="#e2e8f0"
+                                StrokeShape="RoundRectangle 8"
+                                StrokeThickness="1">
+                                <Label
+                                    FontSize="11"
+                                    HorizontalOptions="Center"
+                                    Text="View"
+                                    TextColor="#475569" />
+                            </Border>
                         </VerticalStackLayout>
                     </Border>
 
+                    <!--  Coordinators  -->
+                    <Border
+                        Grid.Row="0"
+                        Grid.Column="2"
+                        Padding="12"
+                        BackgroundColor="White"
+                        Stroke="#e2e8f0"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="1">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToCoordinatorsCommand}" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                            <Label
+                                FontSize="24"
+                                HorizontalOptions="Center"
+                                Text="📋" />
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="22"
+                                HorizontalOptions="Center"
+                                Text="{Binding Summary.TotalBusCoordinators}"
+                                TextColor="#d97706" />
+                            <Label
+                                FontSize="11"
+                                HorizontalOptions="Center"
+                                Text="Coordinators"
+                                TextColor="#64748b" />
+                            <Border
+                                Margin="0,4,0,0"
+                                Padding="8,3"
+                                Stroke="#e2e8f0"
+                                StrokeShape="RoundRectangle 8"
+                                StrokeThickness="1">
+                                <Label
+                                    FontSize="11"
+                                    HorizontalOptions="Center"
+                                    Text="View"
+                                    TextColor="#475569" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!--  Parents  -->
                     <Border
                         Grid.Row="1"
                         Grid.Column="0"
-                        Padding="16"
+                        Padding="12"
                         BackgroundColor="White"
-                        StrokeShape="RoundRectangle 16">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding GoToStudentsCommand}" />
-                        </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="4">
-                            <Label FontSize="28" Text="🎒" />
-                            <Label
-                                FontAttributes="Bold"
-                                FontSize="28"
-                                Text="{Binding Summary.TotalStudents}"
-                                TextColor="#7c3aed" />
-                            <Label
-                                FontSize="12"
-                                Text="Students"
-                                TextColor="#64748b" />
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <Border
-                        Grid.Row="1"
-                        Grid.Column="1"
-                        Padding="16"
-                        BackgroundColor="White"
-                        StrokeShape="RoundRectangle 16">
+                        Stroke="#e2e8f0"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="1">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToParentsCommand}" />
                         </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="4">
-                            <Label FontSize="28" Text="👨‍👩‍👧" />
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                            <Label
+                                FontSize="24"
+                                HorizontalOptions="Center"
+                                Text="👨‍👩‍👧" />
                             <Label
                                 FontAttributes="Bold"
-                                FontSize="28"
+                                FontSize="22"
+                                HorizontalOptions="Center"
                                 Text="{Binding Summary.TotalParents}"
                                 TextColor="#059669" />
                             <Label
-                                FontSize="12"
+                                FontSize="11"
+                                HorizontalOptions="Center"
                                 Text="Parents"
                                 TextColor="#64748b" />
+                            <Border
+                                Margin="0,4,0,0"
+                                Padding="8,3"
+                                Stroke="#e2e8f0"
+                                StrokeShape="RoundRectangle 8"
+                                StrokeThickness="1">
+                                <Label
+                                    FontSize="11"
+                                    HorizontalOptions="Center"
+                                    Text="View"
+                                    TextColor="#475569" />
+                            </Border>
                         </VerticalStackLayout>
                     </Border>
 
+                    <!--  Students  -->
                     <Border
-                        Grid.Row="2"
-                        Grid.Column="0"
-                        Padding="16"
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Padding="12"
                         BackgroundColor="White"
-                        StrokeShape="RoundRectangle 16">
+                        Stroke="#e2e8f0"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="1">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding GoToStudentsCommand}" />
+                        </Border.GestureRecognizers>
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                            <Label
+                                FontSize="24"
+                                HorizontalOptions="Center"
+                                Text="🎒" />
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="22"
+                                HorizontalOptions="Center"
+                                Text="{Binding Summary.TotalStudents}"
+                                TextColor="#7c3aed" />
+                            <Label
+                                FontSize="11"
+                                HorizontalOptions="Center"
+                                Text="Students"
+                                TextColor="#64748b" />
+                            <Border
+                                Margin="0,4,0,0"
+                                Padding="8,3"
+                                Stroke="#e2e8f0"
+                                StrokeShape="RoundRectangle 8"
+                                StrokeThickness="1">
+                                <Label
+                                    FontSize="11"
+                                    HorizontalOptions="Center"
+                                    Text="View"
+                                    TextColor="#475569" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!--  Active Trips (no View button — matches web)  -->
+                    <Border
+                        Grid.Row="1"
+                        Grid.Column="2"
+                        Padding="12"
+                        BackgroundColor="White"
+                        Stroke="#e2e8f0"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="1">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToTripsCommand}" />
                         </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="4">
-                            <Label FontSize="28" Text="📍" />
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="4">
+                            <Label
+                                FontSize="24"
+                                HorizontalOptions="Center"
+                                Text="📍" />
                             <Label
                                 FontAttributes="Bold"
-                                FontSize="28"
+                                FontSize="22"
+                                HorizontalOptions="Center"
                                 Text="{Binding Summary.ActiveTrips}"
                                 TextColor="#dc2626" />
                             <Label
-                                FontSize="12"
+                                FontSize="11"
+                                HorizontalOptions="Center"
                                 Text="Active Trips"
                                 TextColor="#64748b" />
                         </VerticalStackLayout>
                     </Border>
 
-                    <Border
-                        Grid.Row="2"
-                        Grid.Column="1"
-                        Padding="16"
-                        BackgroundColor="White"
-                        StrokeShape="RoundRectangle 16">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding GoToCoordinatorsCommand}" />
-                        </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="4">
-                            <Label FontSize="28" Text="📋" />
+                </Grid>
+
+                <!--  Quick Actions  -->
+                <HorizontalStackLayout Margin="0,28,0,12" Spacing="8">
+                    <Label
+                        FontSize="16"
+                        Text="⚡"
+                        VerticalOptions="Center" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="16"
+                        Text="Quick Actions"
+                        TextColor="#1e293b"
+                        VerticalOptions="Center" />
+                </HorizontalStackLayout>
+
+                <ScrollView Orientation="Horizontal">
+                    <HorizontalStackLayout Spacing="10">
+
+                        <Border
+                            Padding="14,10"
+                            BackgroundColor="White"
+                            Stroke="#f59e0b"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1.5">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding QuickAddCoordinatorCommand}" />
+                            </Border.GestureRecognizers>
                             <Label
-                                FontAttributes="Bold"
-                                FontSize="28"
-                                Text="{Binding Summary.TotalBusCoordinators}"
-                                TextColor="#d97706" />
+                                FontSize="13"
+                                Text="+ Add Coordinator"
+                                TextColor="#f59e0b" />
+                        </Border>
+
+                        <Border
+                            Padding="14,10"
+                            BackgroundColor="White"
+                            Stroke="#0891b2"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1.5">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding QuickAddDriverCommand}" />
+                            </Border.GestureRecognizers>
                             <Label
-                                FontSize="12"
-                                Text="Coordinators"
+                                FontSize="13"
+                                Text="+ Add Driver"
+                                TextColor="#0891b2" />
+                        </Border>
+
+                        <Border
+                            Padding="14,10"
+                            BackgroundColor="White"
+                            Stroke="#7c3aed"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1.5">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding QuickAddStudentCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label
+                                FontSize="13"
+                                Text="+ Add Student"
+                                TextColor="#7c3aed" />
+                        </Border>
+
+                        <Border
+                            Padding="14,10"
+                            BackgroundColor="White"
+                            Stroke="#059669"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1.5">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding QuickAddParentCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label
+                                FontSize="13"
+                                Text="+ Add Parent"
+                                TextColor="#059669" />
+                        </Border>
+
+                        <Border
+                            Padding="14,10"
+                            BackgroundColor="White"
+                            Stroke="#2563eb"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1.5">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding QuickAddBusCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label
+                                FontSize="13"
+                                Text="+ Add Bus"
+                                TextColor="#2563eb" />
+                        </Border>
+
+                        <Border
+                            Padding="14,10"
+                            BackgroundColor="White"
+                            Stroke="#64748b"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1.5">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoToRoutesCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label
+                                FontSize="13"
+                                Text="+ Add Route"
                                 TextColor="#64748b" />
-                        </VerticalStackLayout>
-                    </Border>
+                        </Border>
 
-                </Grid>
+                        <Border
+                            Padding="14,10"
+                            BackgroundColor="White"
+                            Stroke="#2563eb"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1.5">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoToTripsCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label
+                                FontSize="13"
+                                Text="+ Create Trip"
+                                TextColor="#2563eb" />
+                        </Border>
 
-                <!--  Quick actions  -->
-                <Label
-                    Margin="0,24,0,12"
-                    FontAttributes="Bold"
-                    FontSize="16"
-                    Text="Quick Actions"
-                    TextColor="#1e293b" />
+                        <Border
+                            Padding="14,10"
+                            BackgroundColor="#1a2236"
+                            StrokeShape="RoundRectangle 10">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding GoToTripsCommand}" />
+                            </Border.GestureRecognizers>
+                            <Label
+                                FontSize="13"
+                                Text="≡  All Trips"
+                                TextColor="White" />
+                        </Border>
 
-                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
-                    <Button
-                        Grid.Column="0"
-                        BackgroundColor="#eff6ff"
-                        Command="{Binding GoToRoutesCommand}"
-                        CornerRadius="12"
-                        FontSize="13"
-                        HeightRequest="44"
-                        Text="Routes"
-                        TextColor="#2563eb" />
-                    <Button
-                        Grid.Column="1"
-                        BackgroundColor="#f0fdf4"
-                        Command="{Binding GoToConfigCommand}"
-                        CornerRadius="12"
-                        FontSize="13"
-                        HeightRequest="44"
-                        Text="Config"
-                        TextColor="#059669" />
-                    <Button
-                        Grid.Column="2"
-                        BackgroundColor="#fef2f2"
-                        Command="{Binding GoToTripsCommand}"
-                        CornerRadius="12"
-                        FontSize="13"
-                        HeightRequest="44"
-                        Text="Trips"
-                        TextColor="#dc2626" />
-                </Grid>
+                    </HorizontalStackLayout>
+                </ScrollView>
 
             </VerticalStackLayout>
         </ScrollView>

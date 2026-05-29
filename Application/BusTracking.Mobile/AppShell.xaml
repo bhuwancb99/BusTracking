@@ -10,56 +10,334 @@
     xmlns:driver="clr-namespace:BusTracking.Mobile.Views.Driver"
     xmlns:parent="clr-namespace:BusTracking.Mobile.Views.Parent"
     xmlns:student="clr-namespace:BusTracking.Mobile.Views.Student"
-    Shell.FlyoutBehavior="Disabled"
-    Shell.NavBarIsVisible="False">
+    FlyoutBehavior="Flyout"
+    FlyoutWidth="270"
+    Shell.BackgroundColor="#1a2236"
+    Shell.ForegroundColor="White"
+    Shell.TitleColor="White"
+    Shell.UnselectedColor="#94a3b8">
 
-    <!--  ── Auth route ──  -->
+    <!--
+        ══════════════════════════════════════════════════════════
+        CUSTOM FLYOUT CONTENT
+        Using Shell.FlyoutContent instead of dynamic FlyoutItems
+        because MAUI's dynamic FlyoutItem API requires ShellContent
+        children wired at XAML-parse time — adding them at runtime
+        leaves them invisible and navigation crashes.
+        Here we own the entire drawer UI and call GoToAsync directly.
+        ══════════════════════════════════════════════════════════
+    -->
+    <Shell.FlyoutContent>
+        <Grid BackgroundColor="#1a2236" RowDefinitions="Auto,*,Auto">
+
+            <!--  ── Header ──  -->
+            <Grid
+                Grid.Row="0"
+                Padding="20,48,20,0"
+                RowDefinitions="Auto,Auto,Auto">
+
+                <!--  Brand  -->
+                <HorizontalStackLayout Grid.Row="0" Spacing="10">
+                    <Label
+                        FontSize="26"
+                        Text="🚌"
+                        VerticalOptions="Center" />
+                    <Label VerticalOptions="Center">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span
+                                    FontAttributes="Bold"
+                                    FontSize="18"
+                                    Text="BusTrack "
+                                    TextColor="White" />
+                                <Span
+                                    FontSize="18"
+                                    Text="Admin"
+                                    TextColor="#94a3b8" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                </HorizontalStackLayout>
+
+                <!--  User row  -->
+                <HorizontalStackLayout
+                    Grid.Row="1"
+                    Margin="0,16,0,0"
+                    Spacing="12">
+                    <Border
+                        Padding="10"
+                        BackgroundColor="#2d3a52"
+                        StrokeShape="RoundRectangle 24"
+                        VerticalOptions="Center">
+                        <Label FontSize="18" Text="👤" />
+                    </Border>
+                    <VerticalStackLayout VerticalOptions="Center">
+                        <Label
+                            x:Name="LblUserName"
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            TextColor="White" />
+                        <Border
+                            Margin="0,3,0,0"
+                            Padding="8,3"
+                            BackgroundColor="#f59e0b"
+                            StrokeShape="RoundRectangle 20">
+                            <Label
+                                x:Name="LblRoleLabel"
+                                FontAttributes="Bold"
+                                FontSize="10"
+                                TextColor="White" />
+                        </Border>
+                    </VerticalStackLayout>
+                </HorizontalStackLayout>
+
+                <!--  Divider  -->
+                <BoxView
+                    Grid.Row="2"
+                    Margin="0,16,0,0"
+                    BackgroundColor="#2d3a52"
+                    HeightRequest="1" />
+            </Grid>
+
+            <!--  ── Menu items ──  -->
+            <CollectionView
+                x:Name="MenuList"
+                Grid.Row="1"
+                Margin="0,8,0,0"
+                SelectionChanged="OnMenuItemSelected"
+                SelectionMode="Single">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid
+                            Padding="16,13"
+                            ColumnDefinitions="36,*"
+                            ColumnSpacing="12">
+                            <Label
+                                Grid.Column="0"
+                                FontSize="20"
+                                HorizontalOptions="Center"
+                                Text="{Binding Icon}"
+                                VerticalOptions="Center" />
+                            <Label
+                                Grid.Column="1"
+                                FontSize="15"
+                                Text="{Binding Title}"
+                                TextColor="White"
+                                VerticalOptions="Center" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!--  ── Footer / Logout ──  -->
+            <Grid
+                Grid.Row="2"
+                Padding="14,8,14,40"
+                RowDefinitions="Auto,Auto">
+                <BoxView
+                    Grid.Row="0"
+                    Margin="0,0,0,12"
+                    BackgroundColor="#2d3a52"
+                    HeightRequest="1" />
+                <Border
+                    Grid.Row="1"
+                    Padding="14,13"
+                    BackgroundColor="Transparent"
+                    Stroke="#dc2626"
+                    StrokeShape="RoundRectangle 10"
+                    StrokeThickness="1">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnLogoutTapped" />
+                    </Border.GestureRecognizers>
+                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                        <Label
+                            FontSize="16"
+                            Text="🚪"
+                            VerticalOptions="Center" />
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            Text="Logout"
+                            TextColor="#dc2626"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+                </Border>
+            </Grid>
+
+        </Grid>
+    </Shell.FlyoutContent>
+
+    <!--
+        ══════════════════════════════════════════════════════════
+        AUTH — never shown in flyout, no navbar
+        ══════════════════════════════════════════════════════════
+    -->
     <ShellContent
         ContentTemplate="{DataTemplate auth:LoginPage}"
+        FlyoutItemIsVisible="False"
         Route="Login"
+        Shell.FlyoutBehavior="Disabled"
         Shell.NavBarIsVisible="False" />
 
-    <!--  ── Common ──  -->
     <ShellContent
         ContentTemplate="{DataTemplate common:MaintenancePage}"
+        FlyoutItemIsVisible="False"
         Route="Maintenance"
+        Shell.FlyoutBehavior="Disabled"
         Shell.NavBarIsVisible="False" />
 
-    <!--  ── SuperAdmin routes ──  -->
-    <ShellContent ContentTemplate="{DataTemplate admin:AdminDashboardPage}" Route="AdminDashboard" />
-    <ShellContent ContentTemplate="{DataTemplate admin:AdminBusListPage}" Route="AdminBusList" />
-    <ShellContent ContentTemplate="{DataTemplate admin:AdminBusFormPage}" Route="AdminBusForm" />
-    <ShellContent ContentTemplate="{DataTemplate admin:AdminDriverListPage}" Route="AdminDriverList" />
-    <ShellContent ContentTemplate="{DataTemplate admin:AdminStudentListPage}" Route="AdminStudentList" />
-    <ShellContent ContentTemplate="{DataTemplate admin:AdminParentListPage}" Route="AdminParentList" />
-    <ShellContent ContentTemplate="{DataTemplate admin:AdminCoordinatorListPage}" Route="AdminCoordinatorList" />
-    <ShellContent ContentTemplate="{DataTemplate admin:AdminCoordinatorFormPage}" Route="AdminCoordinatorForm" />
-    <ShellContent ContentTemplate="{DataTemplate admin:AdminTripListPage}" Route="AdminTripList" />
-    <ShellContent ContentTemplate="{DataTemplate admin:AdminConfigListPage}" Route="AdminConfigList" />
-    <ShellContent ContentTemplate="{DataTemplate admin:AdminConfigFormPage}" Route="AdminConfigForm" />
-    <ShellContent ContentTemplate="{DataTemplate auth:ChangePasswordPage}" Route="ChangePassword" />
+    <ShellContent
+        Title="Change Password"
+        ContentTemplate="{DataTemplate auth:ChangePasswordPage}"
+        FlyoutItemIsVisible="False"
+        Route="ChangePassword" />
 
-    <!--  ── Coordinator routes ──  -->
-    <ShellContent ContentTemplate="{DataTemplate coord:CoordinatorDashboardPage}" Route="CoordinatorDashboard" />
-    <ShellContent ContentTemplate="{DataTemplate coord:CoordBusListPage}" Route="CoordBusList" />
-    <ShellContent ContentTemplate="{DataTemplate coord:CoordTripListPage}" Route="CoordTripList" />
-    <ShellContent ContentTemplate="{DataTemplate coord:CoordStudentListPage}" Route="CoordStudentList" />
-    <ShellContent ContentTemplate="{DataTemplate coord:CoordParentListPage}" Route="CoordParentList" />
-    <ShellContent ContentTemplate="{DataTemplate coord:CoordDriverListPage}" Route="CoordDriverList" />
-    <ShellContent ContentTemplate="{DataTemplate coord:CoordRouteListPage}" Route="CoordRouteList" />
+    <!--
+        ══════════════════════════════════════════════════════════
+        ALL ROUTES — hidden from flyout.
+        Navigation happens via Shell.Current.GoToAsync("//Route")
+        triggered from OnMenuItemSelected in code-behind.
+        ══════════════════════════════════════════════════════════
+    -->
 
-    <!--  ── Driver routes ──  -->
-    <ShellContent ContentTemplate="{DataTemplate driver:DriverDashboardPage}" Route="DriverDashboard" />
-    <ShellContent ContentTemplate="{DataTemplate driver:DriverTripListPage}" Route="DriverTripList" />
-    <ShellContent ContentTemplate="{DataTemplate driver:DriverTrackingPage}" Route="DriverTracking" />
+    <!--  Super Admin  -->
+    <ShellContent
+        Title="Dashboard"
+        ContentTemplate="{DataTemplate admin:AdminDashboardPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminDashboard" />
+    <ShellContent
+        Title="App Config"
+        ContentTemplate="{DataTemplate admin:AdminConfigListPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminConfigList" />
+    <ShellContent
+        Title="Config"
+        ContentTemplate="{DataTemplate admin:AdminConfigFormPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminConfigForm" />
+    <ShellContent
+        Title="Bus Coordinators"
+        ContentTemplate="{DataTemplate admin:AdminCoordinatorListPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminCoordinatorList" />
+    <ShellContent
+        Title="Add Coordinator"
+        ContentTemplate="{DataTemplate admin:AdminCoordinatorFormPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminCoordinatorForm" />
+    <ShellContent
+        Title="Buses"
+        ContentTemplate="{DataTemplate admin:AdminBusListPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminBusList" />
+    <ShellContent
+        Title="Add Bus"
+        ContentTemplate="{DataTemplate admin:AdminBusFormPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminBusForm" />
+    <ShellContent
+        Title="Drivers"
+        ContentTemplate="{DataTemplate admin:AdminDriverListPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminDriverList" />
+    <ShellContent
+        Title="Parents"
+        ContentTemplate="{DataTemplate admin:AdminParentListPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminParentList" />
+    <ShellContent
+        Title="Students"
+        ContentTemplate="{DataTemplate admin:AdminStudentListPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminStudentList" />
+    <ShellContent
+        Title="Trips"
+        ContentTemplate="{DataTemplate admin:AdminTripListPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminTripList" />
 
-    <!--  ── Parent routes ──  -->
-    <ShellContent ContentTemplate="{DataTemplate parent:ParentDashboardPage}" Route="ParentDashboard" />
-    <ShellContent ContentTemplate="{DataTemplate parent:ParentTrackingPage}" Route="ParentTracking" />
+    <!--  Coordinator  -->
+    <ShellContent
+        Title="Dashboard"
+        ContentTemplate="{DataTemplate coord:CoordinatorDashboardPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordinatorDashboard" />
+    <ShellContent
+        Title="Routes"
+        ContentTemplate="{DataTemplate coord:CoordRouteListPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordRouteList" />
+    <ShellContent
+        Title="Buses"
+        ContentTemplate="{DataTemplate coord:CoordBusListPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordBusList" />
+    <ShellContent
+        Title="Drivers"
+        ContentTemplate="{DataTemplate coord:CoordDriverListPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordDriverList" />
+    <ShellContent
+        Title="Parents"
+        ContentTemplate="{DataTemplate coord:CoordParentListPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordParentList" />
+    <ShellContent
+        Title="Students"
+        ContentTemplate="{DataTemplate coord:CoordStudentListPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordStudentList" />
+    <ShellContent
+        Title="Trips"
+        ContentTemplate="{DataTemplate coord:CoordTripListPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordTripList" />
 
-    <!--  ── Student routes ──  -->
-    <ShellContent ContentTemplate="{DataTemplate student:StudentDashboardPage}" Route="StudentDashboard" />
-    <ShellContent ContentTemplate="{DataTemplate student:StudentTrackingPage}" Route="StudentTracking" />
-    <ShellContent ContentTemplate="{DataTemplate student:StudentAvailabilityPage}" Route="StudentAvailability" />
+    <!--  Driver  -->
+    <ShellContent
+        Title="Dashboard"
+        ContentTemplate="{DataTemplate driver:DriverDashboardPage}"
+        FlyoutItemIsVisible="False"
+        Route="DriverDashboard" />
+    <ShellContent
+        Title="My Trips"
+        ContentTemplate="{DataTemplate driver:DriverTripListPage}"
+        FlyoutItemIsVisible="False"
+        Route="DriverTripList" />
+    <ShellContent
+        Title="Live Tracking"
+        ContentTemplate="{DataTemplate driver:DriverTrackingPage}"
+        FlyoutItemIsVisible="False"
+        Route="DriverTracking" />
+
+    <!--  Parent  -->
+    <ShellContent
+        Title="Dashboard"
+        ContentTemplate="{DataTemplate parent:ParentDashboardPage}"
+        FlyoutItemIsVisible="False"
+        Route="ParentDashboard" />
+    <ShellContent
+        Title="Track Bus"
+        ContentTemplate="{DataTemplate parent:ParentTrackingPage}"
+        FlyoutItemIsVisible="False"
+        Route="ParentTracking" />
+
+    <!--  Student  -->
+    <ShellContent
+        Title="Dashboard"
+        ContentTemplate="{DataTemplate student:StudentDashboardPage}"
+        FlyoutItemIsVisible="False"
+        Route="StudentDashboard" />
+    <ShellContent
+        Title="Track My Bus"
+        ContentTemplate="{DataTemplate student:StudentTrackingPage}"
+        FlyoutItemIsVisible="False"
+        Route="StudentTracking" />
+    <ShellContent
+        Title="My Availability"
+        ContentTemplate="{DataTemplate student:StudentAvailabilityPage}"
+        FlyoutItemIsVisible="False"
+        Route="StudentAvailability" />
 
 </Shell>

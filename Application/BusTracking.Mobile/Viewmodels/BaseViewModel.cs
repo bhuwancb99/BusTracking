@@ -3,7 +3,6 @@
 /// <summary>
 /// Base ViewModel — all ViewModels inherit from this.
 /// Provides: IsBusy, Title, Error handling, Navigation helpers.
-/// Zero code in .xaml.cs — everything binds through here.
 /// </summary>
 public abstract partial class BaseViewModel : ObservableObject
 {
@@ -22,6 +21,16 @@ public abstract partial class BaseViewModel : ObservableObject
         Nav = nav;
     }
 
+    /// <summary>First-time load. Override in every ViewModel.</summary>
+    public virtual Task InitializeAsync() => Task.CompletedTask;
+
+    /// <summary>
+    /// Called every time a page re-appears (i.e. navigating back from a child page).
+    /// List ViewModels override this to reload their data so Add/Edit changes are visible.
+    /// Form ViewModels leave this as no-op (they will be popped off the stack).
+    /// </summary>
+    public virtual Task RefreshOnReturnAsync() => Task.CompletedTask;
+
     /// <summary>Run an async task with busy indicator and error handling.</summary>
     protected async Task RunAsync(Func<Task> work, string? busyMessage = null)
     {
@@ -29,31 +38,13 @@ public abstract partial class BaseViewModel : ObservableObject
         IsBusy = true;
         HasError = false;
         ErrorMessage = "";
-        try
-        {
-            await work();
-        }
-        catch (Exception ex)
-        {
-            SetError(ex.Message);
-        }
-        finally
-        {
-            IsBusy = false;
-        }
+        try { await work(); }
+        catch (Exception ex) { SetError(ex.Message); }
+        finally { IsBusy = false; }
     }
 
-    protected void SetError(string message)
-    {
-        ErrorMessage = message;
-        HasError = true;
-    }
-
-    protected void ClearError()
-    {
-        ErrorMessage = "";
-        HasError = false;
-    }
+    protected void SetError(string message) { ErrorMessage = message; HasError = true; }
+    protected void ClearError() { ErrorMessage = ""; HasError = false; }
 
     protected async Task ShowAlertAsync(string title, string message, string cancel = "OK")
     {
@@ -71,24 +62,14 @@ public abstract partial class BaseViewModel : ObservableObject
 
     protected async Task ShowToastAsync(string message)
     {
-        // Requires CommunityToolkit.Maui — falls back to DisplayAlert if not available
         try
         {
             var toast = CommunityToolkit.Maui.Alerts.Toast.Make(message);
             await toast.Show();
         }
-        catch
-        {
-            await ShowAlertAsync("Info", message);
-        }
+        catch { await ShowAlertAsync("Info", message); }
     }
 
     /// <summary>Check if user has permission. SuperAdmin always returns true.</summary>
     protected bool Can(string permissionKey) => Auth.HasPermission(permissionKey);
-}
-
-// Extension of BaseViewModel with lifecycle support
-public abstract partial class BaseViewModel
-{
-    public virtual Task InitializeAsync() => Task.CompletedTask;
 }

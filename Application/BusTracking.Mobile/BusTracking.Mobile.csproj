@@ -171,6 +171,9 @@
 	  <MauiXaml Update="Views\SuperAdmin\AdminParentListPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\SuperAdmin\AdminRouteListPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\SuperAdmin\AdminStudentListPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

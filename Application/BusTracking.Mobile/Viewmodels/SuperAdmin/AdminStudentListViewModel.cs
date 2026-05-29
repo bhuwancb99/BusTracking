@@ -16,6 +16,7 @@
             : base(auth, nav) { _students = students; Title = "Students"; }
 
         public override async Task InitializeAsync() => await LoadAsync();
+        public override async Task RefreshOnReturnAsync() => await LoadAsync();   // ← reload after Add/Edit
 
         [RelayCommand]
         private async Task LoadAsync()
@@ -34,9 +35,6 @@
         [RelayCommand]
         private Task EditAsync(StudentItem s) =>
             Nav.GoToAsync("AdminStudentForm", new Dictionary<string, object> { ["StudentId"] = s.StudentId });
-        [RelayCommand]
-        private Task ViewAsync(StudentItem s) =>
-            Nav.GoToAsync("AdminStudentDetail", new Dictionary<string, object> { ["StudentId"] = s.StudentId });
 
         [RelayCommand]
         private async Task ToggleAsync(StudentItem s)

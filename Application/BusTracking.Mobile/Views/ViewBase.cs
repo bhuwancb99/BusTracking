@@ -15,10 +15,17 @@ public abstract class ViewBase<TViewModel> : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
         if (!_initialized)
         {
+            // First visit — full init
             _initialized = true;
             await ViewModel.InitializeAsync();
+        }
+        else
+        {
+            // Returning from a child page (e.g. after Add/Edit form) — refresh list
+            await ViewModel.RefreshOnReturnAsync();
         }
     }
 
@@ -42,11 +49,6 @@ public abstract class ViewBase<TViewModel> : ContentPage
             (int)(c.Blue * 255));
 #endif
 
-    /// <summary>
-    /// Sets status bar color (top) and navigation bar color (bottom) independently.
-    /// Reads colors from BusTrackingAppColors.xaml — no hardcoded hex.
-    /// Safe no-op on iOS.
-    /// </summary>
     protected static void SetSystemBarsColor(
         string lightStatusKey,
         string darkStatusKey,
@@ -56,39 +58,31 @@ public abstract class ViewBase<TViewModel> : ContentPage
         bool useLightNavIcons = false)
     {
 #if ANDROID
-#pragma warning disable CA1422 // Validate platform compatibility
+#pragma warning disable CA1422
         var activity = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity;
         if (activity?.Window is null) return;
 
         var statusColor = ToAndroidColor(GetThemeColor(lightStatusKey, darkStatusKey));
         var navColor = ToAndroidColor(GetThemeColor(lightNavBarKey, darkNavBarKey));
 
-        // ── Set colors ────────────────────────────────────────────────
-
         activity.Window.SetStatusBarColor(statusColor);
         activity.Window.SetNavigationBarColor(navColor);
 
-        // ── Icon styles ───────────────────────────────────────────────
         if (OperatingSystem.IsAndroidVersionAtLeast(30))
         {
-            // API 30+ — use WindowInsetsController (recommended)
             var insetsController = activity.Window.InsetsController;
             if (insetsController != null)
             {
-                // Status bar icons
                 if (useLightStatusIcons)
-                    insetsController.SetSystemBarsAppearance(
-                        0,
+                    insetsController.SetSystemBarsAppearance(0,
                         (int)Android.Views.WindowInsetsControllerAppearance.LightStatusBars);
                 else
                     insetsController.SetSystemBarsAppearance(
                         (int)Android.Views.WindowInsetsControllerAppearance.LightStatusBars,
                         (int)Android.Views.WindowInsetsControllerAppearance.LightStatusBars);
 
-                // Nav bar icons
                 if (useLightNavIcons)
-                    insetsController.SetSystemBarsAppearance(
-                        0,
+                    insetsController.SetSystemBarsAppearance(0,
                         (int)Android.Views.WindowInsetsControllerAppearance.LightNavigationBars);
                 else
                     insetsController.SetSystemBarsAppearance(
@@ -98,22 +92,16 @@ public abstract class ViewBase<TViewModel> : ContentPage
         }
         else if (OperatingSystem.IsAndroidVersionAtLeast(26))
         {
-            // API 26–29 — use legacy SystemUiFlags
             var flags = activity.Window.DecorView.SystemUiFlags;
-
-            // Status bar icons
             flags = useLightStatusIcons
                 ? flags & ~Android.Views.SystemUiFlags.LightStatusBar
                 : flags | Android.Views.SystemUiFlags.LightStatusBar;
-
-            // Nav bar icons
             flags = useLightNavIcons
                 ? flags & ~Android.Views.SystemUiFlags.LightNavigationBar
                 : flags | Android.Views.SystemUiFlags.LightNavigationBar;
-
             activity.Window.DecorView.SystemUiFlags = flags;
         }
-#pragma warning restore CA1422 // Validate platform compatibility
+#pragma warning restore CA1422
 #endif
     }
 }

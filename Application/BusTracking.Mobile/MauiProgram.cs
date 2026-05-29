@@ -31,6 +31,7 @@
         private static void RegisterServices(IServiceCollection s)
         {
             // Infrastructure — Singletons (one instance for app lifetime)
+            s.AddSingleton<AppShell>();
             s.AddSingleton<LocalDatabase>();
             s.AddSingleton<ICacheService, CacheService>();
             s.AddSingleton<IApiService, ApiService>();
@@ -72,6 +73,7 @@
             s.AddTransient<AdminTripListViewModel>();
             s.AddTransient<AdminConfigListViewModel>();
             s.AddTransient<AdminConfigFormViewModel>();
+            s.AddTransient<AdminRouteListViewModel>();
 
             // Coordinator
             s.AddTransient<CoordinatorDashboardViewModel>();
@@ -116,6 +118,7 @@
             s.AddTransient<AdminTripListPage>();
             s.AddTransient<AdminConfigListPage>();
             s.AddTransient<AdminConfigFormPage>();
+            s.AddTransient<AdminRouteListPage>();
 
             // Coordinator
             s.AddTransient<CoordinatorDashboardPage>();
@@ -166,7 +169,7 @@
             });
             #endregion
 
-            #region Entry BorderLess
+            #region Entry
 
             Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("MyBorderlessEntryHandler", (handler, view) =>
             {
@@ -174,7 +177,6 @@
                 {
 #if ANDROID
                     handler.PlatformView.Background = null;
-                    handler.PlatformView.SetTextColor(Android.Graphics.Color.Black);
                     handler.PlatformView.SetBackgroundColor(Android.Graphics.Color.Transparent);
                     handler.PlatformView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
 #elif IOS
@@ -202,7 +204,6 @@
                         }
                     };
                     handler.PlatformView.Background = null;
-                    handler.PlatformView.SetTextColor(Android.Graphics.Color.Black);
                     handler.PlatformView.SetBackgroundColor(Android.Graphics.Color.Transparent);
                     handler.PlatformView.BackgroundTintList = Android.Content.Res.ColorStateList.ValueOf(Android.Graphics.Color.Transparent);
 #elif IOS
