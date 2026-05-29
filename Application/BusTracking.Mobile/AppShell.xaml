@@ -12,7 +12,8 @@
     xmlns:student="clr-namespace:BusTracking.Mobile.Views.Student"
     FlyoutBehavior="Flyout"
     FlyoutWidth="270"
-    Shell.BackgroundColor="#1a2236"
+    Shell.BackgroundColor="{AppThemeBinding Light={StaticResource LoginPageBgLight},
+                                            Dark={StaticResource LoginPageBgDark}}"
     Shell.ForegroundColor="White"
     Shell.TitleColor="White"
     Shell.UnselectedColor="#94a3b8">
@@ -28,7 +29,7 @@
         ══════════════════════════════════════════════════════════
     -->
     <Shell.FlyoutContent>
-        <Grid BackgroundColor="#1a2236" RowDefinitions="Auto,*,Auto">
+        <Grid BackgroundColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" RowDefinitions="Auto,*,Auto">
 
             <!--  ── Header ──  -->
             <Grid
@@ -142,8 +143,10 @@
                 <Border
                     Grid.Row="1"
                     Padding="14,13"
-                    BackgroundColor="Transparent"
-                    Stroke="#dc2626"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource Danger},
+                                                      Dark={StaticResource LoginPageBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource Danger},
+                                             Dark={StaticResource LoginPageBgDark}}"
                     StrokeShape="RoundRectangle 10"
                     StrokeThickness="1">
                     <Border.GestureRecognizers>
@@ -153,12 +156,15 @@
                         <Label
                             FontSize="16"
                             Text="🚪"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryDark},
+                                                        Dark={StaticResource LoginPageBgDark}}"
                             VerticalOptions="Center" />
                         <Label
                             FontAttributes="Bold"
                             FontSize="14"
                             Text="Logout"
-                            TextColor="#dc2626"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryDark},
+                                                        Dark={StaticResource LoginPageBgDark}}"
                             VerticalOptions="Center" />
                     </HorizontalStackLayout>
                 </Border>

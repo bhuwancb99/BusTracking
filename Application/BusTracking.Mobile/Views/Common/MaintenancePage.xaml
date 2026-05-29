@@ -3,8 +3,13 @@
     x:Class="BusTracking.Mobile.Views.Common.MaintenancePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     BackgroundColor="#1e3a5f"
     Shell.NavBarIsVisible="False">
+
+    <ContentPage.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+    </ContentPage.Behaviors>
 
     <VerticalStackLayout
         Padding="32"

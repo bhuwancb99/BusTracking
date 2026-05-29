@@ -64,13 +64,13 @@
         [RelayCommand]
         private async Task ToggleBoardingAsync(DriverTripStop stop)
         {
-            var req = new UpdateBoardingRequest
-            {
-                StudentId = stop.StudentId,
-                IsBoarded = !stop.IsBoarded
-            };
-            var r = await _driverTrips.UpdateBoardingAsync(TripId, req);
-            if (r.Success) await LoadAsync(); else SetError(r.Message);
+            //var req = new UpdateBoardingRequest
+            //{
+            //    StudentId = stop.StudentId,
+            //    IsBoarded = !stop.IsBoarded
+            //};
+            //var r = await _driverTrips.UpdateBoardingAsync(TripId, req);
+            //if (r.Success) await LoadAsync(); else SetError(r.Message);
         }
     }
 }
