@@ -192,17 +192,13 @@
         Shell.FlyoutBehavior="Disabled"
         Shell.NavBarIsVisible="False" />
 
-    <ShellContent
-        Title="Change Password"
-        ContentTemplate="{DataTemplate auth:ChangePasswordPage}"
-        FlyoutItemIsVisible="False"
-        Route="ChangePassword" />
-
     <!--
         ══════════════════════════════════════════════════════════
-        ALL ROUTES — hidden from flyout.
-        Navigation happens via Shell.Current.GoToAsync("//Route")
-        triggered from OnMenuItemSelected in code-behind.
+        TOP-LEVEL PAGES — reachable via //RouteName from flyout menu.
+        ONLY dashboards and list pages belong here.
+        All detail/form pages are global routes in MauiProgram.cs
+        and must NOT also appear here — double-registration breaks
+        the back stack (back button stops working, GoBack crashes).
         ══════════════════════════════════════════════════════════
     -->
 
@@ -218,30 +214,20 @@
         FlyoutItemIsVisible="False"
         Route="AdminConfigList" />
     <ShellContent
-        Title="Config"
-        ContentTemplate="{DataTemplate admin:AdminConfigFormPage}"
-        FlyoutItemIsVisible="False"
-        Route="AdminConfigForm" />
-    <ShellContent
         Title="Bus Coordinators"
         ContentTemplate="{DataTemplate admin:AdminCoordinatorListPage}"
         FlyoutItemIsVisible="False"
         Route="AdminCoordinatorList" />
     <ShellContent
-        Title="Add Coordinator"
-        ContentTemplate="{DataTemplate admin:AdminCoordinatorFormPage}"
+        Title="Routes"
+        ContentTemplate="{DataTemplate admin:AdminRouteListPage}"
         FlyoutItemIsVisible="False"
-        Route="AdminCoordinatorForm" />
+        Route="AdminRouteList" />
     <ShellContent
         Title="Buses"
         ContentTemplate="{DataTemplate admin:AdminBusListPage}"
         FlyoutItemIsVisible="False"
         Route="AdminBusList" />
-    <ShellContent
-        Title="Add Bus"
-        ContentTemplate="{DataTemplate admin:AdminBusFormPage}"
-        FlyoutItemIsVisible="False"
-        Route="AdminBusForm" />
     <ShellContent
         Title="Drivers"
         ContentTemplate="{DataTemplate admin:AdminDriverListPage}"
@@ -262,56 +248,6 @@
         ContentTemplate="{DataTemplate admin:AdminTripListPage}"
         FlyoutItemIsVisible="False"
         Route="AdminTripList" />
-    <ShellContent
-        Title="Routes"
-        ContentTemplate="{DataTemplate admin:AdminRouteListPage}"
-        FlyoutItemIsVisible="False"
-        Route="AdminRouteList" />
-    <ShellContent
-        Title="Route Form"
-        ContentTemplate="{DataTemplate admin:AdminRouteFormPage}"
-        FlyoutItemIsVisible="False"
-        Route="AdminRouteForm" />
-    <ShellContent
-        Title="Trip Form"
-        ContentTemplate="{DataTemplate admin:AdminTripFormPage}"
-        FlyoutItemIsVisible="False"
-        Route="AdminTripForm" />
-    <ShellContent
-        Title="Driver Form"
-        ContentTemplate="{DataTemplate admin:AdminDriverFormPage}"
-        FlyoutItemIsVisible="False"
-        Route="AdminDriverForm" />
-    <ShellContent
-        Title="Student Form"
-        ContentTemplate="{DataTemplate admin:AdminStudentFormPage}"
-        FlyoutItemIsVisible="False"
-        Route="AdminStudentForm" />
-    <ShellContent
-        Title="Parent Form"
-        ContentTemplate="{DataTemplate admin:AdminParentFormPage}"
-        FlyoutItemIsVisible="False"
-        Route="AdminParentForm" />
-    <ShellContent
-        Title="Bus Details"
-        ContentTemplate="{DataTemplate admin:AdminBusDetailPage}"
-        FlyoutItemIsVisible="False"
-        Route="AdminBusDetail" />
-    <ShellContent
-        Title="Coordinator Details"
-        ContentTemplate="{DataTemplate admin:AdminCoordinatorDetailPage}"
-        FlyoutItemIsVisible="False"
-        Route="AdminCoordinatorDetail" />
-    <ShellContent
-        Title="Route Details"
-        ContentTemplate="{DataTemplate admin:AdminRouteDetailPage}"
-        FlyoutItemIsVisible="False"
-        Route="AdminRouteDetail" />
-    <ShellContent
-        Title="Trip Details"
-        ContentTemplate="{DataTemplate admin:AdminTripDetailPage}"
-        FlyoutItemIsVisible="False"
-        Route="AdminTripDetail" />
 
     <!--  Coordinator  -->
     <ShellContent
@@ -349,56 +285,6 @@
         ContentTemplate="{DataTemplate coord:CoordTripListPage}"
         FlyoutItemIsVisible="False"
         Route="CoordTripList" />
-    <ShellContent
-        Title="Bus Form"
-        ContentTemplate="{DataTemplate coord:CoordBusFormPage}"
-        FlyoutItemIsVisible="False"
-        Route="CoordBusForm" />
-    <ShellContent
-        Title="Bus Details"
-        ContentTemplate="{DataTemplate coord:CoordBusDetailPage}"
-        FlyoutItemIsVisible="False"
-        Route="CoordBusDetail" />
-    <ShellContent
-        Title="Driver Details"
-        ContentTemplate="{DataTemplate coord:CoordDriverDetailPage}"
-        FlyoutItemIsVisible="False"
-        Route="CoordDriverDetail" />
-    <ShellContent
-        Title="Parent Details"
-        ContentTemplate="{DataTemplate coord:CoordParentDetailPage}"
-        FlyoutItemIsVisible="False"
-        Route="CoordParentDetail" />
-    <ShellContent
-        Title="Student Form"
-        ContentTemplate="{DataTemplate coord:CoordStudentFormPage}"
-        FlyoutItemIsVisible="False"
-        Route="CoordStudentForm" />
-    <ShellContent
-        Title="Student Details"
-        ContentTemplate="{DataTemplate coord:CoordStudentDetailPage}"
-        FlyoutItemIsVisible="False"
-        Route="CoordStudentDetail" />
-    <ShellContent
-        Title="Route Form"
-        ContentTemplate="{DataTemplate coord:CoordRouteFormPage}"
-        FlyoutItemIsVisible="False"
-        Route="CoordRouteForm" />
-    <ShellContent
-        Title="Route Details"
-        ContentTemplate="{DataTemplate coord:CoordRouteDetailPage}"
-        FlyoutItemIsVisible="False"
-        Route="CoordRouteDetail" />
-    <ShellContent
-        Title="Trip Form"
-        ContentTemplate="{DataTemplate coord:CoordTripFormPage}"
-        FlyoutItemIsVisible="False"
-        Route="CoordTripForm" />
-    <ShellContent
-        Title="Trip Details"
-        ContentTemplate="{DataTemplate coord:CoordTripDetailPage}"
-        FlyoutItemIsVisible="False"
-        Route="CoordTripDetail" />
 
     <!--  Driver  -->
     <ShellContent
@@ -416,11 +302,6 @@
         ContentTemplate="{DataTemplate driver:DriverTrackingPage}"
         FlyoutItemIsVisible="False"
         Route="DriverTracking" />
-    <ShellContent
-        Title="Trip Details"
-        ContentTemplate="{DataTemplate driver:DriverTripDetailPage}"
-        FlyoutItemIsVisible="False"
-        Route="DriverTripDetail" />
 
     <!--  Parent  -->
     <ShellContent

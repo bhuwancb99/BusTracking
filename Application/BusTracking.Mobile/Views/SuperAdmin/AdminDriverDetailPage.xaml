@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminDriverDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
+    x:DataType="vm:AdminDriverDetailViewModel"
+    x:TypeArguments="vm:AdminDriverDetailViewModel"
+    BackgroundColor="#F4F6FB">
+
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+    </views:ViewBase.Behaviors>
+
+    <Shell.TitleView>
+        <Grid
+            Padding="0,0,8,0"
+            ColumnDefinitions="*,Auto,Auto"
+            ColumnSpacing="8">
+            <Label
+                Grid.Column="0"
+                FontAttributes="Bold"
+                FontSize="17"
+                Text="Driver Details"
+                TextColor="White"
+                VerticalOptions="Center" />
+            <Button
+                Grid.Column="1"
+                Padding="12,6"
+                BackgroundColor="White"
+                Command="{Binding EditCommand}"
+                CornerRadius="20"
+                FontSize="13"
+                Text="Edit"
+                TextColor="#2563eb" />
+            <Button
+                Grid.Column="2"
+                Padding="12,6"
+                BackgroundColor="#ef4444"
+                Command="{Binding DeleteCommand}"
+                CornerRadius="20"
+                FontSize="13"
+                Text="Delete"
+                TextColor="White" />
+        </Grid>
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+
+            <ActivityIndicator
+                HorizontalOptions="Center"
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                VerticalOptions="Center"
+                Color="#2563eb" />
+
+            <Border
+                Padding="12,10"
+                BackgroundColor="#fef2f2"
+                IsVisible="{Binding HasError}"
+                Stroke="#fecaca"
+                StrokeShape="RoundRectangle 10">
+                <Label
+                    FontSize="13"
+                    Text="{Binding ErrorMessage}"
+                    TextColor="#ef4444" />
+            </Border>
+
+            <!--  Header card  -->
+            <Border
+                Padding="20"
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 16">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+                    <Border
+                        Grid.Column="0"
+                        Padding="14"
+                        BackgroundColor="#eff6ff"
+                        HeightRequest="60"
+                        StrokeShape="RoundRectangle 16"
+                        WidthRequest="60">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="20"
+                            HorizontalOptions="Center"
+                            Text="{Binding Driver.InitialsDisplay}"
+                            TextColor="#2563eb"
+                            VerticalOptions="Center" />
+                    </Border>
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Spacing="4"
+                        VerticalOptions="Center">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="18"
+                            Text="{Binding Driver.FullName}"
+                            TextColor="#1e293b" />
+                        <Label
+                            FontSize="13"
+                            Text="{Binding Driver.Email}"
+                            TextColor="#64748b" />
+                        <Border
+                            Padding="8,3"
+                            BackgroundColor="#f1f5f9"
+                            HorizontalOptions="Start"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 20">
+                            <Label
+                                FontSize="11"
+                                Text="{Binding Driver.StatusLabel}"
+                                TextColor="{Binding Driver.StatusColor}" />
+                        </Border>
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!--  Details card  -->
+            <Border
+                Padding="16"
+                BackgroundColor="White"
+                Stroke="#e2e8f0"
+                StrokeShape="RoundRectangle 16">
+                <VerticalStackLayout Spacing="14">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        Text="Details"
+                        TextColor="#374151" />
+                    <BoxView BackgroundColor="#f1f5f9" HeightRequest="1" />
+                    <Grid
+                        ColumnDefinitions="*,*"
+                        RowDefinitions="Auto,Auto,Auto"
+                        RowSpacing="14">
+                        <VerticalStackLayout
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Spacing="3">
+                            <Label
+                                FontSize="11"
+                                Text="PHONE"
+                                TextColor="#94a3b8" />
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="13"
+                                Text="{Binding Driver.PhoneNumber}"
+                                TextColor="#1e293b" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Spacing="3">
+                            <Label
+                                FontSize="11"
+                                Text="BUS"
+                                TextColor="#94a3b8" />
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="13"
+                                Text="{Binding Driver.BusDisplay}"
+                                TextColor="#1e293b" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Spacing="3">
+                            <Label
+                                FontSize="11"
+                                Text="LICENSE NO."
+                                TextColor="#94a3b8" />
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="14"
+                                Text="{Binding Driver.LicenseNumber}"
+                                TextColor="#1e293b" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Spacing="3">
+                            <Label
+                                FontSize="11"
+                                Text="LICENSE EXPIRY"
+                                TextColor="#94a3b8" />
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="14"
+                                Text="{Binding Driver.LicenseExpiry}"
+                                TextColor="#1e293b" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Actions  -->
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button
+                    Grid.Column="0"
+                    BackgroundColor="#f59e0b"
+                    Command="{Binding ToggleCommand}"
+                    CornerRadius="12"
+                    FontAttributes="Bold"
+                    HeightRequest="50"
+                    Text="Toggle Active"
+                    TextColor="White" />
+                <Button
+                    Grid.Column="1"
+                    BackgroundColor="#6366f1"
+                    Command="{Binding ResetPasswordCommand}"
+                    CornerRadius="12"
+                    FontAttributes="Bold"
+                    HeightRequest="50"
+                    Text="Reset Password"
+                    TextColor="White" />
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</views:ViewBase>

@@ -38,17 +38,7 @@
             // ── Auth ──────────────────────────────────────────────────────────
             Routing.RegisterRoute("ChangePassword", typeof(ChangePasswordPage));
 
-            // ── Super Admin — List pages (pushed from Dashboard icon taps) ────
-            Routing.RegisterRoute("AdminDashboard", typeof(AdminDashboardPage));
-            Routing.RegisterRoute("AdminConfigList", typeof(AdminConfigListPage));
-            Routing.RegisterRoute("AdminCoordinatorList", typeof(AdminCoordinatorListPage));
-            Routing.RegisterRoute("AdminBusList", typeof(AdminBusListPage));
-            Routing.RegisterRoute("AdminDriverList", typeof(AdminDriverListPage));
-            Routing.RegisterRoute("AdminParentList", typeof(AdminParentListPage));
-            Routing.RegisterRoute("AdminStudentList", typeof(AdminStudentListPage));
-            Routing.RegisterRoute("AdminTripList", typeof(AdminTripListPage));
-
-            // ── Super Admin — Form pages (pushed from list Add/Edit buttons) ──
+            // ── Super Admin — Form pages ──────────────────────────────────────
             Routing.RegisterRoute("AdminConfigForm", typeof(AdminConfigFormPage));
             Routing.RegisterRoute("AdminCoordinatorForm", typeof(AdminCoordinatorFormPage));
             Routing.RegisterRoute("AdminRouteForm", typeof(AdminRouteFormPage));
@@ -58,22 +48,15 @@
             Routing.RegisterRoute("AdminStudentForm", typeof(AdminStudentFormPage));
             Routing.RegisterRoute("AdminTripForm", typeof(AdminTripFormPage));
 
-            // ── Super Admin — Detail pages (pushed from list View buttons) ────
+            // ── Super Admin — Detail pages ────────────────────────────────────
             Routing.RegisterRoute("AdminBusDetail", typeof(AdminBusDetailPage));
             Routing.RegisterRoute("AdminCoordinatorDetail", typeof(AdminCoordinatorDetailPage));
+            Routing.RegisterRoute("AdminStudentDetail", typeof(AdminStudentDetailPage));
+            Routing.RegisterRoute("AdminDriverDetail", typeof(AdminDriverDetailPage));
             Routing.RegisterRoute("AdminRouteDetail", typeof(AdminRouteDetailPage));
             Routing.RegisterRoute("AdminTripDetail", typeof(AdminTripDetailPage));
 
-            // ── Coordinator — List pages (pushed from dashboard icon taps) ────
-            Routing.RegisterRoute("CoordinatorDashboard", typeof(CoordinatorDashboardPage));
-            Routing.RegisterRoute("CoordRouteList", typeof(CoordRouteListPage));
-            Routing.RegisterRoute("CoordBusList", typeof(CoordBusListPage));
-            Routing.RegisterRoute("CoordDriverList", typeof(CoordDriverListPage));
-            Routing.RegisterRoute("CoordParentList", typeof(CoordParentListPage));
-            Routing.RegisterRoute("CoordStudentList", typeof(CoordStudentListPage));
-            Routing.RegisterRoute("CoordTripList", typeof(CoordTripListPage));
-
-            // ── Coordinator — Form pages ───────────────────────────────────────
+            // ── Coordinator — Form pages ──────────────────────────────────────
             Routing.RegisterRoute("CoordBusForm", typeof(CoordBusFormPage));
             Routing.RegisterRoute("CoordRouteForm", typeof(CoordRouteFormPage));
             Routing.RegisterRoute("CoordStudentForm", typeof(CoordStudentFormPage));
@@ -87,20 +70,8 @@
             Routing.RegisterRoute("CoordRouteDetail", typeof(CoordRouteDetailPage));
             Routing.RegisterRoute("CoordTripDetail", typeof(CoordTripDetailPage));
 
-            // ── Driver ────────────────────────────────────────────────────────
-            Routing.RegisterRoute("DriverDashboard", typeof(DriverDashboardPage));
-            Routing.RegisterRoute("DriverTripList", typeof(DriverTripListPage));
+            // ── Driver — Detail page (list/dashboard/tracking in ShellContent) ─
             Routing.RegisterRoute("DriverTripDetail", typeof(DriverTripDetailPage));
-            Routing.RegisterRoute("DriverTracking", typeof(DriverTrackingPage));
-
-            // ── Parent ────────────────────────────────────────────────────────
-            Routing.RegisterRoute("ParentDashboard", typeof(ParentDashboardPage));
-            Routing.RegisterRoute("ParentTracking", typeof(ParentTrackingPage));
-
-            // ── Student ───────────────────────────────────────────────────────
-            Routing.RegisterRoute("StudentDashboard", typeof(StudentDashboardPage));
-            Routing.RegisterRoute("StudentTracking", typeof(StudentTrackingPage));
-            Routing.RegisterRoute("StudentAvailability", typeof(StudentAvailabilityPage));
         }
 
         // ── Services ──────────────────────────────────────────────────────────
@@ -140,8 +111,10 @@
             s.AddTransient<AdminBusDetailViewModel>();
             s.AddTransient<AdminDriverListViewModel>();
             s.AddTransient<AdminDriverFormViewModel>();
+            s.AddTransient<AdminDriverDetailViewModel>();
             s.AddTransient<AdminStudentListViewModel>();
             s.AddTransient<AdminStudentFormViewModel>();
+            s.AddTransient<AdminStudentDetailViewModel>();
             s.AddTransient<AdminParentListViewModel>();
             s.AddTransient<AdminParentFormViewModel>();
             s.AddTransient<AdminCoordinatorListViewModel>();
@@ -207,8 +180,10 @@
             s.AddTransient<AdminBusDetailPage>();
             s.AddTransient<AdminDriverListPage>();
             s.AddTransient<AdminDriverFormPage>();
+            s.AddTransient<AdminDriverDetailPage>();
             s.AddTransient<AdminStudentListPage>();
             s.AddTransient<AdminStudentFormPage>();
+            s.AddTransient<AdminStudentDetailPage>();
             s.AddTransient<AdminParentListPage>();
             s.AddTransient<AdminParentFormPage>();
             s.AddTransient<AdminCoordinatorListPage>();
