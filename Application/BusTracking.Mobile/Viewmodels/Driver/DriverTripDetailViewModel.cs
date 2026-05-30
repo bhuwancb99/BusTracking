@@ -61,16 +61,43 @@
             else SetError(r.Message);
         }
 
+        /// <summary>
+        /// Cycles a student's boarding status:
+        ///   Pending → PickedUp → NoShow → Pending
+        /// Sends StopId + BoardingStatus to the API (matches UpdateBoardingRequest model).
+        /// Bound to each student row's tap/button in the XAML via CommandParameter=student.
+        /// </summary>
         [RelayCommand]
-        private async Task ToggleBoardingAsync(DriverTripStop stop)
+        private async Task ToggleBoardingAsync(DriverStudentStatus student)
         {
-            //var req = new UpdateBoardingRequest
-            //{
-            //    StudentId = stop.StudentId,
-            //    IsBoarded = !stop.IsBoarded
-            //};
-            //var r = await _driverTrips.UpdateBoardingAsync(TripId, req);
-            //if (r.Success) await LoadAsync(); else SetError(r.Message);
+            // Determine the NEXT status in the cycle
+            var nextStatus = student.BoardingStatus switch
+            {
+                "Pending" => "PickedUp",
+                "PickedUp" => "NoShow",
+                _ => "Pending"     // NoShow | anything else → back to Pending
+            };
+
+            // Find the stop this student belongs to
+            var parentStop = Stops.FirstOrDefault(s => s.Students.Contains(student));
+            if (parentStop is null) return;
+
+            var req = new UpdateBoardingRequest
+            {
+                StudentId = student.StudentId,
+                StopId = parentStop.StopId,
+                BoardingStatus = nextStatus
+            };
+
+            var r = await _driverTrips.UpdateBoardingAsync(TripId, req);
+            if (r.Success)
+            {
+                // Update locally so the UI reflects immediately without a full reload
+                student.BoardingStatus = nextStatus;
+                // Force CollectionView to re-evaluate color/icon by rebuilding collection
+                await LoadAsync();
+            }
+            else SetError(r.Message);
         }
     }
 }

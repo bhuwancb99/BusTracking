@@ -16,7 +16,7 @@
         [ObservableProperty] private bool _isActive = true;
 
         [ObservableProperty] private List<RouteItem> _routeOptions = [];
-        [ObservableProperty] private List<DriverItem> _driverOptions = [];
+        [ObservableProperty] private List<DriverItem> _driverOptions = [];  // only active drivers
         [ObservableProperty] private RouteItem? _selectedRoute;
         [ObservableProperty] private DriverItem? _selectedDriver;
 
@@ -27,11 +27,7 @@
         public void ApplyQueryAttributes(IDictionary<string, object> query)
         {
             if (query.TryGetValue("BusId", out var id))
-            {
-                BusId = (int)id;
-                IsEditMode = true;
-                Title = "Edit Bus";
-            }
+            { BusId = (int)id; IsEditMode = true; Title = "Edit Bus"; }
             else Title = "Add Bus";
         }
 
@@ -40,7 +36,9 @@
             await RunAsync(async () =>
             {
                 RouteOptions = await _routes.GetAllAsync();
-                DriverOptions = await _drivers.GetAllAsync();
+
+                // Only ACTIVE drivers should be assignable to a bus
+                DriverOptions = await _drivers.GetAllAsync(isActive: true);
 
                 if (IsEditMode && BusId.HasValue)
                 {
@@ -62,9 +60,8 @@
         private async Task SaveAsync()
         {
             if (string.IsNullOrWhiteSpace(BusName) || string.IsNullOrWhiteSpace(BusNumber))
-            {
-                SetError("Bus name and number are required."); return;
-            }
+            { SetError("Bus name and number are required."); return; }
+
             await RunAsync(async () =>
             {
                 var req = new UpdateBusRequest
@@ -76,6 +73,7 @@
                     DriverUserId = SelectedDriver?.UserId,
                     IsActive = IsActive
                 };
+
                 ApiResponse<object> r = IsEditMode
                     ? await _buses.UpdateAsync(BusId!.Value, req)
                     : await _buses.CreateAsync(new CreateBusRequest
@@ -88,7 +86,8 @@
                         IsActive = IsActive
                     });
 
-                if (r.Success) { await ShowToastAsync(IsEditMode ? "Bus updated." : "Bus created."); await Nav.GoBackAsync(); }
+                if (r.Success)
+                { await ShowToastAsync(IsEditMode ? "Bus updated." : "Bus created."); await Nav.GoBackAsync(); }
                 else SetError(r.Message);
             });
         }

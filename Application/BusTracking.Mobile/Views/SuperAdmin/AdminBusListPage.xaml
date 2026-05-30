@@ -38,9 +38,9 @@
         </Grid>
     </Shell.TitleView>
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
 
-        <!--  Search bar  -->
+        <!--  Search  -->
         <Border
             Grid.Row="0"
             Margin="12,12,12,4"
@@ -74,9 +74,58 @@
             </Grid>
         </Border>
 
+        <!--  Active / Inactive / Both filter chips  -->
+        <HorizontalStackLayout
+            Grid.Row="1"
+            Margin="12,4,12,4"
+            Spacing="8">
+            <Border
+                Padding="12,6"
+                BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Active'}"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Active" />
+                </Border.GestureRecognizers>
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="12"
+                    Text="Active"
+                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Active'}" />
+            </Border>
+            <Border
+                Padding="12,6"
+                BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Inactive'}"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Inactive" />
+                </Border.GestureRecognizers>
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="12"
+                    Text="Inactive"
+                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Inactive'}" />
+            </Border>
+            <Border
+                Padding="12,6"
+                BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Both'}"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Both" />
+                </Border.GestureRecognizers>
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="12"
+                    Text="Both"
+                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Both'}" />
+            </Border>
+        </HorizontalStackLayout>
+
         <!--  Error  -->
         <Border
-            Grid.Row="0"
+            Grid.Row="2"
             Margin="12,0"
             Padding="12,8"
             BackgroundColor="#fef2f2"
@@ -91,16 +140,16 @@
 
         <!--  Loading  -->
         <ActivityIndicator
-            Grid.Row="1"
+            Grid.Row="3"
             HorizontalOptions="Center"
             IsRunning="{Binding IsBusy}"
             IsVisible="{Binding IsBusy}"
             VerticalOptions="Center"
             Color="#2563eb" />
 
-        <!--  Empty state  -->
+        <!--  Empty  -->
         <VerticalStackLayout
-            Grid.Row="1"
+            Grid.Row="3"
             HorizontalOptions="Center"
             IsVisible="{Binding IsEmpty}"
             Spacing="12"
@@ -118,7 +167,7 @@
 
         <!--  List  -->
         <CollectionView
-            Grid.Row="1"
+            Grid.Row="3"
             Margin="12,4,12,0"
             ItemsSource="{Binding Items}"
             RemainingItemsThreshold="3"
@@ -130,7 +179,11 @@
                         Margin="0,4"
                         Padding="16"
                         BackgroundColor="White"
-                        StrokeShape="RoundRectangle 0">
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBusListViewModel}}, Path=TapCommand}" CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
                         <Grid
                             ColumnDefinitions="Auto,*,Auto"
                             ColumnSpacing="12"
@@ -195,19 +248,22 @@
                                         TextColor="{Binding StatusColor}" />
                                 </Border>
                                 <HorizontalStackLayout HorizontalOptions="End" Spacing="6">
-                                    <!--  Edit button — bound to CanEdit on parent ViewModel via ancestor binding  -->
+                                    <!--  Edit — stop tap bubbling to row  -->
                                     <ImageButton
                                         BackgroundColor="Transparent"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBusListViewModel}}, Path=EditCommand}"
                                         CommandParameter="{Binding .}"
                                         HeightRequest="20"
+                                        IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBusListViewModel}}, Path=CanEdit}"
                                         Source="edit.png"
                                         WidthRequest="20" />
+                                    <!--  Delete — only visible for Active records  -->
                                     <ImageButton
                                         BackgroundColor="Transparent"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBusListViewModel}}, Path=DeleteCommand}"
                                         CommandParameter="{Binding .}"
                                         HeightRequest="20"
+                                        IsVisible="{Binding IsActive}"
                                         Source="delete.png"
                                         WidthRequest="20" />
                                 </HorizontalStackLayout>
@@ -227,5 +283,4 @@
         </CollectionView>
 
     </Grid>
-
 </views:ViewBase>

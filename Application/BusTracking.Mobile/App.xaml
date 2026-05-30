@@ -18,6 +18,8 @@
             <converters:BoolToStatusColorConverter x:Key="BoolToStatusColor" />
             <converters:PlatformToColorConverter x:Key="PlatformToColor" />
             <converters:StringToBoolConverter x:Key="StringToBool" />
+            <converters:FilterChipColorConverter x:Key="FilterChipColorConverter" />
+            <converters:FilterChipTextConverter x:Key="FilterChipTextConverter" />
 
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/BusTrackingAppColors.xaml" />

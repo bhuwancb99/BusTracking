@@ -5,9 +5,13 @@
         private readonly IApiService _api;
         public CoordinatorService(IApiService api) => _api = api;
 
-        public async Task<List<CoordinatorItem>> GetAllAsync(string? search = null, int page = 1)
+        public async Task<List<CoordinatorItem>> GetAllAsync(string? search = null, bool? isActive = null)
         {
-            var url = $"{Constants.Admin.Coordinators}?page={page}" + (search != null ? $"&search={Uri.EscapeDataString(search)}" : "");
+            var url = Constants.Admin.Coordinators + "?page=1";
+            if (!string.IsNullOrWhiteSpace(search))
+                url += $"&search={Uri.EscapeDataString(search)}";
+            if (isActive.HasValue)
+                url += $"&isActive={isActive.Value.ToString().ToLower()}";
             var r = await _api.GetAsync<PagedResult<CoordinatorItem>>(url);
             return r.Data?.Items ?? [];
         }
@@ -18,11 +22,20 @@
             return r.Data;
         }
 
-        public Task<ApiResponse<object>> CreateAsync(CreateCoordinatorRequest req) => _api.PostAsync<object>(Constants.Admin.Coordinators, req);
-        public Task<ApiResponse<object>> UpdateAsync(int id, UpdateCoordinatorRequest req) => _api.PutAsync<object>(string.Format(Constants.Admin.CoordinatorById, id), req);
-        public Task<ApiResponse<object>> DeleteAsync(int id) => _api.DeleteAsync<object>(string.Format(Constants.Admin.CoordinatorById, id));
-        public Task<ApiResponse<object>> ToggleAsync(int id) => _api.PostAsync<object>(string.Format(Constants.Admin.CoordinatorToggle, id));
-        public Task<ApiResponse<object>> ResetPasswordAsync(int id) => _api.PostAsync<object>(string.Format(Constants.Admin.CoordinatorReset, id));
+        public Task<ApiResponse<object>> CreateAsync(CreateCoordinatorRequest req)
+            => _api.PostAsync<object>(Constants.Admin.Coordinators, req);
+
+        public Task<ApiResponse<object>> UpdateAsync(int id, UpdateCoordinatorRequest req)
+            => _api.PutAsync<object>(string.Format(Constants.Admin.CoordinatorById, id), req);
+
+        public Task<ApiResponse<object>> DeleteAsync(int id)
+            => _api.DeleteAsync<object>(string.Format(Constants.Admin.CoordinatorById, id));
+
+        public Task<ApiResponse<object>> ToggleAsync(int id)
+            => _api.PostAsync<object>(string.Format(Constants.Admin.CoordinatorToggle, id));
+
+        public Task<ApiResponse<object>> ResetPasswordAsync(int id)
+            => _api.PostAsync<object>(string.Format(Constants.Admin.CoordinatorReset, id));
 
         public async Task<List<PermissionItem>> GetAllPermissionsAsync()
         {
@@ -32,8 +45,8 @@
 
         public async Task<List<int>> GetAssignedPermissionsAsync(int id)
         {
-            var r = await _api.GetAsync<dynamic>(string.Format(Constants.Admin.CoordinatorPerms, id));
-            return [];
+            var r = await _api.GetAsync<List<int>>(string.Format(Constants.Admin.CoordinatorPerms, id));
+            return r.Data ?? [];
         }
     }
 }

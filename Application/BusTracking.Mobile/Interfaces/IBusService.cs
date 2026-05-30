@@ -2,7 +2,7 @@
 {
     public interface IBusService
     {
-        Task<List<BusItem>> GetAllAsync(string? search = null, int page = 1);
+        Task<List<BusItem>> GetAllAsync(string? search = null, int page = 1, bool? isActive = true);
         Task<BusItem?> GetByIdAsync(int id);
         Task<ApiResponse<object>> CreateAsync(CreateBusRequest req);
         Task<ApiResponse<object>> UpdateAsync(int id, UpdateBusRequest req);

@@ -13,6 +13,7 @@
             : base(auth, nav) { _config = config; Title = "App Configuration"; }
 
         public override async Task InitializeAsync() => await LoadAsync();
+        public override async Task RefreshOnReturnAsync() => await LoadAsync();
 
         [RelayCommand]
         private async Task LoadAsync()
@@ -25,7 +26,16 @@
             });
         }
 
+        // Filter re-loads when platform picker changes
+        partial void OnSelectedPlatformChanged(string value) => LoadCommand.ExecuteAsync(null);
+
         [RelayCommand] private Task AddAsync() => Nav.GoToAsync("AdminConfigForm");
+
+        // Tap on row → Edit (AppConfig has no separate detail page)
+        [RelayCommand]
+        private Task TapAsync(AppConfigItem c) =>
+            Nav.GoToAsync("AdminConfigForm", new Dictionary<string, object> { ["ConfigId"] = c.ConfigId });
+
         [RelayCommand]
         private Task EditAsync(AppConfigItem c) =>
             Nav.GoToAsync("AdminConfigForm", new Dictionary<string, object> { ["ConfigId"] = c.ConfigId });

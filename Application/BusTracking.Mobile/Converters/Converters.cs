@@ -136,3 +136,40 @@ public class StringToBoolConverter : IValueConverter
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotImplementedException();
 }
+
+/// <summary>
+/// Returns the background color for a filter chip.
+/// Selected chip = blue (#2563eb), unselected = light grey (#f1f5f9).
+/// Usage: BackgroundColor="{Binding SelectedFilter,
+///         Converter={StaticResource FilterChipColorConverter},
+///         ConverterParameter='Active'}"
+/// </summary>
+public class FilterChipColorConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
+    {
+        var selected = value?.ToString() ?? "";
+        var chipLabel = parameter?.ToString() ?? "";
+        return selected == chipLabel ? Color.FromArgb("#2563eb") : Color.FromArgb("#f1f5f9");
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+/// <summary>
+/// Returns the text color for a filter chip.
+/// Selected = white, unselected = slate (#64748b).
+/// </summary>
+public class FilterChipTextConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
+    {
+        var selected = value?.ToString() ?? "";
+        var chipLabel = parameter?.ToString() ?? "";
+        return selected == chipLabel ? Colors.White : Color.FromArgb("#64748b");
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
+        => throw new NotImplementedException();
+}

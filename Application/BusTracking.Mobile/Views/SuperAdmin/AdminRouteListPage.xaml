@@ -38,8 +38,44 @@
         </Grid>
     </Shell.TitleView>
 
-    <Grid RowDefinitions="*">
+    <Grid RowDefinitions="Auto,*">
+
+        <!--  Search  -->
+        <Border
+            Grid.Row="0"
+            Margin="12,12,12,4"
+            Padding="12,0"
+            BackgroundColor="White"
+            Stroke="#e2e8f0"
+            StrokeShape="RoundRectangle 12">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <Label
+                    Grid.Column="0"
+                    Margin="0,0,8,0"
+                    Text="🔍"
+                    VerticalOptions="Center" />
+                <Entry
+                    Grid.Column="1"
+                    BackgroundColor="Transparent"
+                    Placeholder="Search routes…"
+                    PlaceholderColor="#94a3b8"
+                    ReturnCommand="{Binding SearchCommand}"
+                    Text="{Binding SearchText}"
+                    TextColor="#1e293b" />
+                <Button
+                    Grid.Column="2"
+                    Padding="10,4"
+                    BackgroundColor="#2563eb"
+                    Command="{Binding SearchCommand}"
+                    CornerRadius="8"
+                    FontSize="12"
+                    Text="Go"
+                    TextColor="White" />
+            </Grid>
+        </Border>
+
         <ActivityIndicator
+            Grid.Row="1"
             HorizontalOptions="Center"
             IsRunning="{Binding IsBusy}"
             IsVisible="{Binding IsBusy}"
@@ -47,11 +83,10 @@
             Color="#2563eb" />
 
         <CollectionView
-            Margin="12,12,12,0"
+            Grid.Row="1"
+            Margin="12,4,12,0"
             ItemsSource="{Binding Items}"
-            RemainingItemsThreshold="3"
             SelectionMode="None">
-
             <CollectionView.EmptyView>
                 <VerticalStackLayout
                     Padding="0,60"
@@ -69,7 +104,6 @@
                         TextColor="#64748b" />
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
-
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Route.RouteItem">
                     <Border
@@ -77,6 +111,10 @@
                         BackgroundColor="White"
                         StrokeShape="RoundRectangle 14"
                         StrokeThickness="0">
+                        <!--  Tap whole row → detail  -->
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteListViewModel}}, Path=TapCommand}" CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
                         <Grid
                             Padding="16"
                             ColumnDefinitions="Auto,*,Auto"
@@ -84,11 +122,12 @@
 
                             <Border
                                 Grid.Column="0"
+                                Padding="10"
                                 BackgroundColor="#eff6ff"
-                                HeightRequest="44"
-                                StrokeShape="RoundRectangle 22"
-                                StrokeThickness="0"
-                                WidthRequest="44">
+                                HeightRequest="48"
+                                StrokeShape="RoundRectangle 12"
+                                VerticalOptions="Center"
+                                WidthRequest="48">
                                 <Label
                                     FontSize="20"
                                     HorizontalOptions="Center"
@@ -123,55 +162,34 @@
                                     TextColor="#94a3b8" />
                             </VerticalStackLayout>
 
-                            <VerticalStackLayout
+                            <!--  Actions: Edit + Delete only  -->
+                            <HorizontalStackLayout
                                 Grid.Column="2"
-                                Spacing="8"
+                                Spacing="10"
                                 VerticalOptions="Center">
-                                <Border
-                                    Padding="8,3"
-                                    StrokeShape="RoundRectangle 12"
-                                    StrokeThickness="0">
-                                    <Border.BackgroundColor>
-                                        <Binding Converter="{StaticResource BoolToStatusColor}" Path="IsActive" />
-                                    </Border.BackgroundColor>
-                                    <Label
-                                        FontAttributes="Bold"
-                                        FontSize="10"
-                                        Text="{Binding StatusLabel}"
-                                        TextColor="White" />
-                                </Border>
-                                <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
-                                    <ImageButton
-                                        BackgroundColor="Transparent"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteListViewModel}}, Path=ViewCommand}"
-                                        CommandParameter="{Binding .}"
-                                        HeightRequest="20"
-                                        Source="view.png"
-                                        WidthRequest="20" />
-                                    <ImageButton
-                                        BackgroundColor="Transparent"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteListViewModel}}, Path=EditCommand}"
-                                        CommandParameter="{Binding .}"
-                                        HeightRequest="20"
-                                        IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteListViewModel}}, Path=CanEdit}"
-                                        Source="edit.png"
-                                        WidthRequest="20" />
-                                    <ImageButton
-                                        BackgroundColor="Transparent"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteListViewModel}}, Path=DeleteCommand}"
-                                        CommandParameter="{Binding .}"
-                                        HeightRequest="20"
-                                        IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteListViewModel}}, Path=CanDelete}"
-                                        Source="delete.png"
-                                        WidthRequest="20" />
-                                </HorizontalStackLayout>
-                            </VerticalStackLayout>
+                                <ImageButton
+                                    BackgroundColor="Transparent"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteListViewModel}}, Path=EditCommand}"
+                                    CommandParameter="{Binding .}"
+                                    HeightRequest="20"
+                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteListViewModel}}, Path=CanEdit}"
+                                    Source="edit.png"
+                                    WidthRequest="20" />
+                                <ImageButton
+                                    BackgroundColor="Transparent"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteListViewModel}}, Path=DeleteCommand}"
+                                    CommandParameter="{Binding .}"
+                                    HeightRequest="20"
+                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteListViewModel}}, Path=CanDelete}"
+                                    Source="delete.png"
+                                    WidthRequest="20" />
+                            </HorizontalStackLayout>
 
                         </Grid>
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
-    </Grid>
 
+    </Grid>
 </views:ViewBase>

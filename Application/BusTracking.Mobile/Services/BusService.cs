@@ -5,7 +5,6 @@
         private readonly IApiService _api;
         private readonly ICacheService _cache;
         private readonly IAuthService _auth;
-        private string AdminEndpoint(string t) => _auth.CurrentRole == Constants.Roles.SuperAdmin ? t.Replace("coordinator", "admin") : t;
 
         public BusService(IApiService api, ICacheService cache, IAuthService auth)
         { _api = api; _cache = cache; _auth = auth; }
@@ -13,9 +12,14 @@
         private string BaseEndpoint => _auth.CurrentRole == Constants.Roles.SuperAdmin
             ? Constants.Admin.Buses : Constants.Coordinator.Buses;
 
-        public async Task<List<BusItem>> GetAllAsync(string? search = null, int page = 1)
+        public async Task<List<BusItem>> GetAllAsync(string? search = null, int page = 1, bool? isActive = true)
         {
-            var url = $"{BaseEndpoint}?page={page}" + (search != null ? $"&search={Uri.EscapeDataString(search)}" : "");
+            var url = $"{BaseEndpoint}?page={page}";
+            if (!string.IsNullOrWhiteSpace(search))
+                url += $"&search={Uri.EscapeDataString(search)}";
+            // null = both, true = active only, false = inactive only
+            if (isActive.HasValue)
+                url += $"&isActive={isActive.Value.ToString().ToLower()}";
             var r = await _api.GetAsync<PagedResult<BusItem>>(url);
             return r.Data?.Items ?? [];
         }
@@ -41,9 +45,11 @@
         public async Task<ApiResponse<object>> ToggleAsync(int id)
             => await _api.PostAsync<object>(string.Format(Constants.Admin.BusToggle, id));
 
+        // Dropdown always returns only ACTIVE buses (for assignment in forms)
         public async Task<List<DropdownItem>> GetDropdownAsync(string? search = null)
         {
-            var url = Constants.Admin.BusDropdown + (search != null ? $"?search={Uri.EscapeDataString(search)}" : "");
+            var url = Constants.Admin.BusDropdown + "?isActive=true"
+                + (search != null ? $"&search={Uri.EscapeDataString(search)}" : "");
             var r = await _api.GetAsync<List<DropdownItem>>(url);
             return r.Data ?? [];
         }

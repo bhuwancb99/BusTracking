@@ -37,7 +37,7 @@
         </Grid>
     </Shell.TitleView>
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,Auto,*">
 
         <!--  Platform filter  -->
         <Border
@@ -55,8 +55,23 @@
                 SelectedItem="{Binding SelectedPlatform}" />
         </Border>
 
-        <ActivityIndicator
+        <!--  Error  -->
+        <Border
             Grid.Row="1"
+            Margin="12,0"
+            Padding="12,8"
+            BackgroundColor="#fef2f2"
+            IsVisible="{Binding HasError}"
+            Stroke="#fecaca"
+            StrokeShape="RoundRectangle 10">
+            <Label
+                FontSize="13"
+                Text="{Binding ErrorMessage}"
+                TextColor="#ef4444" />
+        </Border>
+
+        <ActivityIndicator
+            Grid.Row="2"
             HorizontalOptions="Center"
             IsRunning="{Binding IsBusy}"
             IsVisible="{Binding IsBusy}"
@@ -64,7 +79,7 @@
             Color="#2563eb" />
 
         <CollectionView
-            Grid.Row="1"
+            Grid.Row="2"
             Margin="12,4,12,0"
             ItemsSource="{Binding Items}"
             SelectionMode="None">
@@ -92,6 +107,10 @@
                         BackgroundColor="White"
                         StrokeShape="RoundRectangle 14"
                         StrokeThickness="0">
+                        <!--  Tap row → edit (AppConfig has no separate detail)  -->
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminConfigListViewModel}}, Path=TapCommand}" CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
                         <Grid
                             Padding="16"
                             RowDefinitions="Auto,Auto,Auto"
@@ -120,7 +139,7 @@
                                 </Border>
                             </Grid>
 
-                            <!--  Value (truncated)  -->
+                            <!--  Value  -->
                             <Label
                                 Grid.Row="1"
                                 FontSize="13"
@@ -129,7 +148,7 @@
                                 Text="{Binding ConfigValue}"
                                 TextColor="#64748b" />
 
-                            <!--  Description + Actions  -->
+                            <!--  Description + status + actions  -->
                             <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto,Auto">
                                 <Label
                                     Grid.Column="0"
@@ -137,8 +156,6 @@
                                     Text="{Binding Description, FallbackValue='No description'}"
                                     TextColor="#94a3b8"
                                     VerticalOptions="Center" />
-
-                                <!--  Active badge  -->
                                 <Border
                                     Grid.Column="1"
                                     Margin="4,0"
@@ -152,7 +169,6 @@
                                         Text="{Binding StatusLabel}"
                                         TextColor="White" />
                                 </Border>
-
                                 <ImageButton
                                     Grid.Column="2"
                                     Margin="4,0"
@@ -179,5 +195,4 @@
         </CollectionView>
 
     </Grid>
-
 </views:ViewBase>

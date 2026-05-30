@@ -2,7 +2,7 @@
 {
     public interface IStudentService
     {
-        Task<List<StudentItem>> GetAllAsync(string? search = null, int page = 1);
+        Task<List<StudentItem>> GetAllAsync(string? search = null, int page = 1, bool? isActive = true);
         Task<StudentItem?> GetByIdAsync(int id);
         Task<ApiResponse<object>> CreateAsync(CreateStudentRequest req);
         Task<ApiResponse<object>> UpdateAsync(int id, UpdateStudentRequest req);

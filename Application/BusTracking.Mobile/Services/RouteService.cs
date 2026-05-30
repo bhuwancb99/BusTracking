@@ -6,6 +6,8 @@
         private readonly ICacheService _cache;
         private readonly IAuthService _auth;
 
+        private const string ListCacheKey = "routes_list";
+
         public RouteService(IApiService api, ICacheService cache, IAuthService auth)
         { _api = api; _cache = cache; _auth = auth; }
 
@@ -14,12 +16,9 @@
 
         public async Task<List<RouteItem>> GetAllAsync()
         {
-            const string key = "routes_list";
-            if (_cache.Has(key)) return _cache.Get<List<RouteItem>>(key) ?? [];
+            // Always fetch fresh from API — don't cache to avoid stale data on list page
             var r = await _api.GetAsync<PagedResult<RouteItem>>(BaseUrl);
-            var list = r.Data?.Items ?? [];
-            _cache.Set(key, list, TimeSpan.FromMinutes(Constants.Cache.ListTtlM));
-            return list;
+            return r.Data?.Items ?? [];
         }
 
         public async Task<List<StopItem>> GetStopsAsync(int routeId)
@@ -35,8 +34,25 @@
             return list;
         }
 
-        public Task<ApiResponse<object>> CreateAsync(CreateRouteRequest req) => _api.PostAsync<object>(Constants.Admin.Routes, req);
-        public Task<ApiResponse<object>> UpdateAsync(int id, UpdateRouteRequest req) => _api.PutAsync<object>(string.Format(Constants.Admin.RouteById, id), req);
-        public Task<ApiResponse<object>> DeleteAsync(int id) => _api.DeleteAsync<object>(string.Format(Constants.Admin.RouteById, id));
+        public async Task<ApiResponse<object>> CreateAsync(CreateRouteRequest req)
+        {
+            var result = await _api.PostAsync<object>(BaseUrl, req);
+            if (result.Success) _cache.Remove(ListCacheKey);
+            return result;
+        }
+
+        public async Task<ApiResponse<object>> UpdateAsync(int id, UpdateRouteRequest req)
+        {
+            var result = await _api.PutAsync<object>(string.Format(Constants.Admin.RouteById, id), req);
+            if (result.Success) { _cache.Remove(ListCacheKey); _cache.Remove($"route_stops_{id}"); }
+            return result;
+        }
+
+        public async Task<ApiResponse<object>> DeleteAsync(int id)
+        {
+            var result = await _api.DeleteAsync<object>(string.Format(Constants.Admin.RouteById, id));
+            if (result.Success) { _cache.Remove(ListCacheKey); _cache.Remove($"route_stops_{id}"); }
+            return result;
+        }
     }
 }

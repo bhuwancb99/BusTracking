@@ -7,7 +7,7 @@
     xmlns:models="clr-namespace:BusTracking.Mobile.Models"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
-    Title="Coordinators"
+    Title="Bus Coordinators"
     x:DataType="vm:AdminCoordinatorListViewModel"
     x:TypeArguments="vm:AdminCoordinatorListViewModel"
     BackgroundColor="#F4F6FB">
@@ -37,23 +37,22 @@
         </Grid>
     </Shell.TitleView>
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,Auto,*">
 
+        <!--  Search  -->
         <Border
             Grid.Row="0"
             Margin="12,12,12,4"
+            Padding="12,0"
             BackgroundColor="White"
             Stroke="#e2e8f0"
-            StrokeShape="RoundRectangle 12"
-            StrokeThickness="1">
-            <Grid Padding="14,0" ColumnDefinitions="Auto,*,Auto">
-                <Image
+            StrokeShape="RoundRectangle 12">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <Label
                     Grid.Column="0"
                     Margin="0,0,8,0"
-                    HeightRequest="18"
-                    Source="search.png"
-                    VerticalOptions="Center"
-                    WidthRequest="18" />
+                    Text="🔍"
+                    VerticalOptions="Center" />
                 <Entry
                     Grid.Column="1"
                     BackgroundColor="Transparent"
@@ -74,8 +73,57 @@
             </Grid>
         </Border>
 
-        <ActivityIndicator
+        <!--  Filter chips: Active | Inactive | Both  -->
+        <HorizontalStackLayout
             Grid.Row="1"
+            Margin="12,4,12,4"
+            Spacing="8">
+            <Border
+                Padding="12,6"
+                BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Active'}"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Active" />
+                </Border.GestureRecognizers>
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="12"
+                    Text="Active"
+                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Active'}" />
+            </Border>
+            <Border
+                Padding="12,6"
+                BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Inactive'}"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Inactive" />
+                </Border.GestureRecognizers>
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="12"
+                    Text="Inactive"
+                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Inactive'}" />
+            </Border>
+            <Border
+                Padding="12,6"
+                BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Both'}"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Both" />
+                </Border.GestureRecognizers>
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="12"
+                    Text="Both"
+                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Both'}" />
+            </Border>
+        </HorizontalStackLayout>
+
+        <ActivityIndicator
+            Grid.Row="2"
             HorizontalOptions="Center"
             IsRunning="{Binding IsBusy}"
             IsVisible="{Binding IsBusy}"
@@ -83,7 +131,7 @@
             Color="#2563eb" />
 
         <CollectionView
-            Grid.Row="1"
+            Grid.Row="2"
             Margin="12,4,12,0"
             ItemsSource="{Binding Items}"
             SelectionMode="None">
@@ -111,14 +159,19 @@
                         BackgroundColor="White"
                         StrokeShape="RoundRectangle 14"
                         StrokeThickness="0">
+                        <!--  Tap whole row → detail page which shows permissions  -->
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminCoordinatorListViewModel}}, Path=TapCommand}" CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
                         <Grid
                             Padding="14"
                             ColumnDefinitions="Auto,*,Auto"
                             ColumnSpacing="12">
 
+                            <!--  Avatar circle  -->
                             <Border
                                 Grid.Column="0"
-                                BackgroundColor="#fef3c7"
+                                BackgroundColor="#ede9fe"
                                 HeightRequest="44"
                                 StrokeShape="RoundRectangle 22"
                                 StrokeThickness="0"
@@ -128,10 +181,11 @@
                                     FontSize="14"
                                     HorizontalOptions="Center"
                                     Text="{Binding InitialsDisplay}"
-                                    TextColor="#d97706"
+                                    TextColor="#7c3aed"
                                     VerticalOptions="Center" />
                             </Border>
 
+                            <!--  Info  -->
                             <VerticalStackLayout
                                 Grid.Column="1"
                                 Spacing="3"
@@ -148,9 +202,10 @@
                                 <Label
                                     FontSize="11"
                                     Text="{Binding PermCount}"
-                                    TextColor="#d97706" />
+                                    TextColor="#7c3aed" />
                             </VerticalStackLayout>
 
+                            <!--  Status + Actions  -->
                             <VerticalStackLayout
                                 Grid.Column="2"
                                 Spacing="8"
@@ -181,11 +236,13 @@
                                         HeightRequest="20"
                                         Source="key.png"
                                         WidthRequest="20" />
+                                    <!--  Delete only for active coordinators  -->
                                     <ImageButton
                                         BackgroundColor="Transparent"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminCoordinatorListViewModel}}, Path=DeleteCommand}"
                                         CommandParameter="{Binding .}"
                                         HeightRequest="20"
+                                        IsVisible="{Binding IsActive}"
                                         Source="delete.png"
                                         WidthRequest="20" />
                                 </HorizontalStackLayout>
@@ -198,5 +255,4 @@
         </CollectionView>
 
     </Grid>
-
 </views:ViewBase>
