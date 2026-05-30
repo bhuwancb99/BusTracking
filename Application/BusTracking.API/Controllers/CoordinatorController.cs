@@ -340,9 +340,38 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<object>.Ok(students));
         }
 
-        // ══════════════════════════════════════════════════════════
-        // REQUEST MODELS
-        // ══════════════════════════════════════════════════════════
+        // ── GET api/coordinator/students/{id} ─────────────────────
+        [HttpGet("students/{id:int}")]
+        public async Task<IActionResult> StudentById(int id)
+        {
+            var s = await _db.Students
+                .Include(s => s.User)
+                .Include(s => s.Bus).ThenInclude(b => b!.Route)
+                .Include(s => s.ParentStudents).ThenInclude(ps => ps.Parent).ThenInclude(p => p.User)
+                .FirstOrDefaultAsync(s => s.StudentId == id);
+
+            if (s is null) return NotFound(ApiResponse<object>.Fail("Student not found."));
+
+            return Ok(ApiResponse<object>.Ok(new
+            {
+                s.StudentId,
+                s.StudentCode,
+                FullName = s.User.FullName,
+                s.User.Email,
+                s.User.PhoneNumber,
+                s.Standard,
+                s.User.IsActive,
+                Bus = s.Bus is null ? null : new { s.Bus.BusId, s.Bus.BusName, s.Bus.BusNumber },
+                Route = s.Bus?.Route is null ? null : new { s.Bus.Route.RouteId, s.Bus.Route.RouteName },
+                Parents = s.ParentStudents.Select(ps => new
+                {
+                    ps.Parent.UserId,
+                    FullName = ps.Parent.User.FullName,
+                    ps.Parent.User.PhoneNumber
+                })
+            }));
+        }
+
         public class CreateTripRequest
         {
             public int BusId { get; set; }

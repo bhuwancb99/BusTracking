@@ -7,22 +7,38 @@
         public DriverTripService(IApiService api) => _api = api;
 
         // ── Dashboard ─────────────────────────────────────────────────────
-        // NOTE: No /api/driver/dashboard endpoint exists in the API.
-        // DriverDashboardPage should derive its data from GetMyTripsAsync instead,
-        // or a dedicated endpoint needs to be added to the API.
+        // GET /api/trips/my-trip returns { Bus:{...}, Route:{...}, Trip:{...} }
+        // We map this directly into DriverDashboardData.
         public async Task<DriverDashboardData?> GetDashboardAsync()
         {
-            // Fallback: build summary from today's trip
-            var trips = await GetMyTripsAsync();
-            var today = trips.FirstOrDefault();
-            if (today is null) return null;
-            return new DriverDashboardData
+            var r = await _api.GetAsync<MyTripResponse>(Constants.Driver.Trips); // /api/trips/my-trip
+            if (r.Data is null) return null;
+
+            var resp = r.Data;
+            var dashboard = new DriverDashboardData
             {
-                TripId = today.TripId,
-                RouteName = today.RouteName,
-                BusName = today.BusName,
-                Status = today.Status
+                BusName = resp.Bus?.BusName ?? "",
+                BusNumber = resp.Bus?.BusNumber ?? "",
+                RouteName = resp.Route?.RouteName ?? "",
+                TotalStudents = 0  // not returned by my-trip; set to 0 or fetch separately
             };
+
+            if (resp.Trip is not null)
+            {
+                dashboard.ActiveTrip = new DriverTripItem
+                {
+                    TripId = resp.Trip.TripId,
+                    BusName = dashboard.BusName,
+                    BusNumber = dashboard.BusNumber,
+                    RouteName = dashboard.RouteName,
+                    TripType = resp.Trip.TripType ?? "",
+                    Status = resp.Trip.Status ?? "",
+                    StartedAt = resp.Trip.StartedAt,
+                    EndedAt = resp.Trip.EndedAt
+                };
+            }
+
+            return dashboard;
         }
 
         // ── Trips  →  TripsController  [Route("api/[controller]")] ───────
@@ -30,12 +46,25 @@
         /// <summary>GET /api/trips/my-trip — returns today's assigned trip</summary>
         public async Task<List<DriverTripItem>> GetMyTripsAsync(string? date = null)
         {
-            // The real API returns a single trip object, not a list.
+            // The real API returns a single nested object, not a list.
             // We wrap it so callers don't need to change.
             var url = Constants.Driver.Trips;  // /api/trips/my-trip
             if (date != null) url += $"?date={Uri.EscapeDataString(date)}";
-            var r = await _api.GetAsync<DriverTripItem>(url);
-            return r.Data is not null ? [r.Data] : [];
+            var r = await _api.GetAsync<MyTripResponse>(url);
+            if (r.Data?.Trip is null) return [];
+
+            var t = r.Data.Trip;
+            return [new DriverTripItem
+            {
+                TripId    = t.TripId,
+                BusName   = r.Data.Bus?.BusName   ?? "",
+                BusNumber = r.Data.Bus?.BusNumber  ?? "",
+                RouteName = r.Data.Route?.RouteName ?? "",
+                TripType  = t.TripType  ?? "",
+                Status    = t.Status    ?? "",
+                StartedAt = t.StartedAt,
+                EndedAt   = t.EndedAt
+            }];
         }
 
         /// <summary>GET /api/trips/{tripId}/stops</summary>

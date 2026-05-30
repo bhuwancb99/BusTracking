@@ -49,7 +49,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
                 ConfigKey = r.Data!.ConfigKey,
                 ConfigValue = r.Data.ConfigValue,
                 Description = r.Data.Description,
-                Platform = Enum.Parse<ConfigPlatform>(r.Data.Platform),
+                Platform = r.Data.Platform,
                 IsActive = r.Data.IsActive
             });
         }

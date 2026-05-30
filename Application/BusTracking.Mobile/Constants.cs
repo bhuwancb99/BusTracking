@@ -137,8 +137,9 @@ public static class Constants
         // Parents  (list only — no /{id} endpoint in API)
         public const string Parents = "/api/coordinator/parents";
 
-        // Students  (list only — no /{id} endpoint in API)
+        // Students  (list + detail both exist)
         public const string Students = "/api/coordinator/students";
+        public const string StudentById = "/api/coordinator/students/{0}";
     }
 
     // ── Driver  →  TripsController     [Route("api/[controller]")] = api/trips

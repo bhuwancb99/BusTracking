@@ -66,7 +66,7 @@
         {
             // Ensure unique key per platform
             var exists = await _db.AppConfigurations
-                .AnyAsync(c => c.ConfigKey == dto.ConfigKey && c.Platform == dto.Platform);
+                .AnyAsync(c => c.ConfigKey == dto.ConfigKey && c.Platform == dto.PlatformEnum);
             if (exists)
                 return ApiResponse<bool>.Fail($"Key '{dto.ConfigKey}' already exists for platform '{dto.Platform}'.");
 
@@ -75,7 +75,7 @@
                 ConfigKey = dto.ConfigKey.Trim(),
                 ConfigValue = dto.ConfigValue.Trim(),
                 Description = dto.Description?.Trim(),
-                Platform = dto.Platform,
+                Platform = dto.PlatformEnum,
                 IsActive = dto.IsActive,
                 CreatedBy = createdBy,
                 CreatedAt = DateTime.UtcNow,
@@ -93,11 +93,11 @@
                 return ApiResponse<bool>.Fail("Configuration not found.");
 
             // Check uniqueness only if key or platform changed
-            if (c.ConfigKey != dto.ConfigKey || c.Platform != dto.Platform)
+            if (c.ConfigKey != dto.ConfigKey || c.Platform != dto.PlatformEnum)
             {
                 var exists = await _db.AppConfigurations
                     .AnyAsync(x => x.ConfigKey == dto.ConfigKey
-                                && x.Platform == dto.Platform
+                                && x.Platform == dto.PlatformEnum
                                 && x.ConfigId != configId);
                 if (exists)
                     return ApiResponse<bool>.Fail($"Key '{dto.ConfigKey}' already exists for platform '{dto.Platform}'.");
@@ -106,7 +106,7 @@
             c.ConfigKey = dto.ConfigKey.Trim();
             c.ConfigValue = dto.ConfigValue.Trim();
             c.Description = dto.Description?.Trim();
-            c.Platform = dto.Platform;
+            c.Platform = dto.PlatformEnum;
             c.IsActive = dto.IsActive;
             c.UpdatedAt = DateTime.UtcNow;
 
