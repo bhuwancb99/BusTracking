@@ -263,6 +263,11 @@
         FlyoutItemIsVisible="False"
         Route="AdminTripList" />
     <ShellContent
+        Title="Routes"
+        ContentTemplate="{DataTemplate admin:AdminRouteListPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminRouteList" />
+    <ShellContent
         Title="Route Form"
         ContentTemplate="{DataTemplate admin:AdminRouteFormPage}"
         FlyoutItemIsVisible="False"

@@ -45,8 +45,12 @@
 
         public async Task<List<int>> GetAssignedPermissionsAsync(int id)
         {
-            var r = await _api.GetAsync<List<int>>(string.Format(Constants.Admin.CoordinatorPerms, id));
-            return r.Data ?? [];
+            // GET /api/admin/coordinators/{id}/permissions returns a combined object:
+            //   { "assignedPermissionIds": [...], "allPermissions": [...] }
+            // NOT a plain List<int> — deserialize the wrapper and extract the ids.
+            var r = await _api.GetAsync<CoordinatorPermissionsResponse>(
+                string.Format(Constants.Admin.CoordinatorPerms, id));
+            return r.Data?.AssignedPermissionIds ?? [];
         }
     }
 }

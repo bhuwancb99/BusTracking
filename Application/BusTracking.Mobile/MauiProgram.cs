@@ -42,7 +42,6 @@
             Routing.RegisterRoute("AdminDashboard", typeof(AdminDashboardPage));
             Routing.RegisterRoute("AdminConfigList", typeof(AdminConfigListPage));
             Routing.RegisterRoute("AdminCoordinatorList", typeof(AdminCoordinatorListPage));
-            Routing.RegisterRoute("AdminRouteList", typeof(AdminRouteListPage));
             Routing.RegisterRoute("AdminBusList", typeof(AdminBusListPage));
             Routing.RegisterRoute("AdminDriverList", typeof(AdminDriverListPage));
             Routing.RegisterRoute("AdminParentList", typeof(AdminParentListPage));
