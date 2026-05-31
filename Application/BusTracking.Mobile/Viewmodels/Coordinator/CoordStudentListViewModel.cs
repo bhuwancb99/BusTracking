@@ -7,6 +7,9 @@
         [ObservableProperty] private ObservableCollection<StudentItem> _items = [];
         [ObservableProperty] private string _searchText = "";
 
+        public string SearchPlaceholder => "Search students…";
+        public bool CanLoadMore => false;
+        [RelayCommand] private async Task LoadMoreAsync() { }
         public bool CanAdd => Can("student.add");
         public bool CanEdit => Can("student.edit");
         public bool CanDelete => Can("student.delete");

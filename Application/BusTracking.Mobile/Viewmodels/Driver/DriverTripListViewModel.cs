@@ -4,7 +4,13 @@
     {
         private readonly IDriverTripService _driverTrip;
 
-        [ObservableProperty] private ObservableCollection<DriverTripItem> _trips = [];
+        [ObservableProperty] private ObservableCollection<DriverTripItem> _items = [];
+        [ObservableProperty] private string _searchText = "";
+        public string SearchPlaceholder => "Search trips…";
+        public bool CanLoadMore => false;
+        [RelayCommand] private async Task LoadMoreAsync() { }
+        [RelayCommand] private async Task SearchAsync() => await RefreshAsync();
+        [RelayCommand] private Task ViewAsync(DriverTripItem t) => OpenTripAsync(t);
         [ObservableProperty] private string _selectedDate = DateTime.Today.ToString("yyyy-MM-dd");
 
         public DriverTripListViewModel(IAuthService auth, INavigationService nav,
@@ -22,8 +28,8 @@
             await RunAsync(async () =>
             {
                 var list = await _driverTrip.GetMyTripsAsync(SelectedDate);
-                Trips = new ObservableCollection<DriverTripItem>(list);
-                IsEmpty = Trips.Count == 0;
+                Items = new ObservableCollection<DriverTripItem>(list);
+                IsEmpty = Items.Count == 0;
             });
         }
 

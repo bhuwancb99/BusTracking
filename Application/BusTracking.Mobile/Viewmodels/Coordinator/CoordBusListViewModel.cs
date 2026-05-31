@@ -7,16 +7,18 @@
         [ObservableProperty] private ObservableCollection<BusItem> _items = [];
         [ObservableProperty] private string _searchText = "";
 
-        public bool CanView => Can("bus.view");
+        public string SearchPlaceholder => "Search buses…";
+        public bool CanLoadMore => false;
+        [RelayCommand] private async Task LoadMoreAsync() { }
         public bool CanAdd => Can("bus.add");
         public bool CanEdit => Can("bus.edit");
         public bool CanDelete => Can("bus.delete");
+        public bool CanView => Can("bus.view");
 
         public CoordBusListViewModel(IAuthService auth, INavigationService nav, IBusService buses)
             : base(auth, nav) { _buses = buses; Title = "Buses"; }
 
         public override async Task InitializeAsync() => await LoadAsync();
-        public override async Task RefreshOnReturnAsync() => await LoadAsync();
 
         [RelayCommand]
         private async Task LoadAsync()
@@ -30,36 +32,12 @@
         }
 
         [RelayCommand] private async Task SearchAsync() => await LoadAsync();
-
+        [RelayCommand] private Task AddAsync() => Nav.GoToAsync("CoordBusForm");
         [RelayCommand]
-        private Task AddAsync()
-        {
-            if (!CanAdd) return Task.CompletedTask;
-            return Nav.GoToAsync("CoordBusForm");
-        }
-
+        private Task EditAsync(BusItem b) =>
+            Nav.GoToAsync("CoordBusForm", new Dictionary<string, object> { ["BusId"] = b.BusId });
         [RelayCommand]
-        private Task EditAsync(BusItem b)
-        {
-            if (!CanEdit) return Task.CompletedTask;
-            return Nav.GoToAsync("CoordBusForm", new Dictionary<string, object> { ["BusId"] = b.BusId });
-        }
-
-        [RelayCommand]
-        private Task ViewAsync(BusItem b)
-        {
-            if (!CanView) return Task.CompletedTask;
-            return Nav.GoToAsync("CoordBusDetail", new Dictionary<string, object> { ["BusId"] = b.BusId });
-        }
-
-        [RelayCommand]
-        private async Task DeleteAsync(BusItem b)
-        {
-            if (!CanDelete) return;
-            if (!await ConfirmAsync("Delete Bus", $"Delete '{b.BusName}'?")) return;
-            var r = await _buses.DeleteAsync(b.BusId);
-            if (r.Success) { Items.Remove(b); await ShowToastAsync("Bus deleted."); }
-            else SetError(r.Message);
-        }
+        private Task ViewAsync(BusItem b) =>
+            Nav.GoToAsync("CoordBusDetail", new Dictionary<string, object> { ["BusId"] = b.BusId });
     }
 }

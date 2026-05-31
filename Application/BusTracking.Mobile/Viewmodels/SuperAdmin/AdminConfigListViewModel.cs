@@ -5,8 +5,14 @@
         private readonly IAdminConfigService _config;
 
         [ObservableProperty] private ObservableCollection<AppConfigItem> _items = [];
+        [ObservableProperty] private string _searchText = "";
         [ObservableProperty] private string _selectedPlatform = "";
 
+        public string SearchPlaceholder => "Search configs…";
+        public bool CanAdd => true;
+        public bool CanLoadMore => false;
+        [RelayCommand] private async Task LoadMoreAsync() { }
+        [RelayCommand] private async Task SearchAsync() => await LoadAsync();
         public List<string> PlatformOptions => ["", "Mobile", "Web", "Both"];
 
         public AdminConfigListViewModel(IAuthService auth, INavigationService nav, IAdminConfigService config)

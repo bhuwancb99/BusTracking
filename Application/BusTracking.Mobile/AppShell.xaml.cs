@@ -1,15 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Text.Json;
-
-namespace BusTracking.Mobile;
-
-// Simple model for each flyout row
-public class FlyoutMenuItem
-{
-    public string Icon { get; init; } = "";
-    public string Title { get; init; } = "";
-    public string Route { get; init; } = "";
-}
+﻿namespace BusTracking.Mobile;
 
 public partial class AppShell : Shell
 {
@@ -17,7 +6,6 @@ public partial class AppShell : Shell
     private readonly INavigationService _nav;
     int _backPressCounter = 0;
 
-    // ─────────────────────────────────────────────────────────────────────
     public AppShell(IAuthService auth, INavigationService nav)
     {
         _auth = auth;
@@ -31,7 +19,6 @@ public partial class AppShell : Shell
         var user = await _auth.GetCurrentUserAsync();
         if (user is null) return;
 
-        // Update name + role badge labels (named elements in XAML)
         LblUserName.Text = user.FullName ?? "User";
         LblRoleLabel.Text = user.Role switch
         {
@@ -43,32 +30,39 @@ public partial class AppShell : Shell
             _ => user.Role ?? ""
         };
 
+        // Initials for avatar circle
+        var parts = (user.FullName ?? "U").Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        LblInitials.Text = string.Concat(parts.Take(2).Select(w => char.ToUpper(w[0]).ToString()));
+
         BuildMenuForRole(user.Role ?? "", user.Permissions ?? "");
     }
 
-    // ── Populate the CollectionView with the correct menu items ───────────
     private void BuildMenuForRole(string role, string permissionsJson)
     {
         var items = GetMenuForRole(role, permissionsJson);
+        // Mark first item (Dashboard) as active
+        if (items.Count > 0) items[0].IsActive = true;
         MenuList.ItemsSource = new ObservableCollection<FlyoutMenuItem>(items);
-        MenuList.SelectedItem = null;   // no item highlighted yet
+        MenuList.SelectedItem = null;
     }
 
     // ── CollectionView tap → navigate and close drawer ────────────────────
-    private async void OnMenuItemSelected(object sender, SelectionChangedEventArgs e)
+    private async void OnMenuItemSelected(object? sender, SelectionChangedEventArgs e)
     {
-        if (e.CurrentSelection.FirstOrDefault() is not FlyoutMenuItem item
-            || string.IsNullOrEmpty(item.Route))
-            return;
+        if (e.CurrentSelection.FirstOrDefault() is not FlyoutMenuItem item) return;
 
-        // Deselect immediately so tapping the same item again works
+        // Update IsActive on all items
+        if (MenuList.ItemsSource is ObservableCollection<FlyoutMenuItem> list)
+            foreach (var i in list) i.IsActive = (i == item);
+
         MenuList.SelectedItem = null;
         FlyoutIsPresented = false;
 
-        await Shell.Current.GoToAsync("//" + item.Route);
+        if (!string.IsNullOrEmpty(item.Route))
+            await Shell.Current.GoToAsync("//" + item.Route);
     }
 
-    // ── Menu definitions — mirrors web SidebarHelper exactly ─────────────
+    // ── Menu definitions ──────────────────────────────────────────────────
     private static List<FlyoutMenuItem> GetMenuForRole(string role, string permissionsJson)
         => role switch
         {
@@ -80,21 +74,21 @@ public partial class AppShell : Shell
             _ => []
         };
 
-    // SuperAdmin — full menu, no permission gate
     private static List<FlyoutMenuItem> SuperAdminMenu() =>
     [
-        new() { Icon = "🏠",  Title = "Dashboard",        Route = "AdminDashboard"      },
-        new() { Icon = "⚙️",  Title = "App Config",       Route = "AdminConfigList"     },
-        new() { Icon = "📋",  Title = "Bus Coordinators", Route = "AdminCoordinatorList"},
-        new() { Icon = "🗺️", Title = "Routes",            Route = "AdminRouteList"      },
-        new() { Icon = "🚌",  Title = "Buses",            Route = "AdminBusList"        },
-        new() { Icon = "🧑‍✈️",Title = "Drivers",           Route = "AdminDriverList"     },
-        new() { Icon = "👨‍👩‍👧",Title = "Parents",          Route = "AdminParentList"     },
-        new() { Icon = "🎒",  Title = "Students",         Route = "AdminStudentList"    },
-        new() { Icon = "🚐",  Title = "Trips",            Route = "AdminTripList"       },
+        new() { IconSvg = "dashboard.png",   Title = "Dashboard",        Route = "AdminDashboard"       },
+        new() { IconSvg = "config.png",      Title = "App Config",       Route = "AdminConfigList"      },
+        new() { IconSvg = "coordinator.png", Title = "Bus Coordinators", Route = "AdminCoordinatorList" },
+        new() { IconSvg = "route.png",       Title = "Routes",           Route = "AdminRouteList"       },
+        new() { IconSvg = "bus.png",         Title = "Buses",            Route = "AdminBusList"         },
+        new() { IconSvg = "driver.png",      Title = "Drivers",          Route = "AdminDriverList"      },
+        new() { IconSvg = "parent.png",      Title = "Parents",          Route = "AdminParentList"      },
+        new() { IconSvg = "student.png",     Title = "Students",         Route = "AdminStudentList"     },
+        new() { IconSvg = "trip.png",        Title = "Trips",            Route = "AdminTripList"        },
+        new() { IconSvg = "notification.png",Title = "Notifications",    Route = ""                     },
+        new() { IconSvg = "help.png",        Title = "Help & Support",   Route = ""                     },
     ];
 
-    // Coordinator — permission-filtered, mirrors web CoordinatorMenu()
     private static List<FlyoutMenuItem> CoordinatorMenu(string permissionsJson)
     {
         HashSet<string> perms = [];
@@ -105,57 +99,46 @@ public partial class AppShell : Shell
                 var arr = JsonSerializer.Deserialize<List<string>>(permissionsJson);
                 if (arr is not null) perms = [.. arr];
             }
-            catch { /* malformed — treat as empty */ }
+            catch { }
         }
-
         bool Has(string key) => perms.Contains(key);
-        bool fallback = perms.Count == 0; // old session: show everything
+        bool fallback = perms.Count == 0;
 
         var menu = new List<FlyoutMenuItem>
         {
-            new() { Icon = "🏠", Title = "Dashboard", Route = "CoordinatorDashboard" }
+            new() { IconSvg = "dashboard.png", Title = "Dashboard", Route = "CoordinatorDashboard" }
         };
-
-        if (Has("route.view") || fallback)
-            menu.Add(new() { Icon = "🗺️", Title = "Routes", Route = "CoordRouteList" });
-        if (Has("bus.view") || fallback)
-            menu.Add(new() { Icon = "🚌", Title = "Buses", Route = "CoordBusList" });
-        if (Has("driver.view") || fallback)
-            menu.Add(new() { Icon = "🧑‍✈️", Title = "Drivers", Route = "CoordDriverList" });
-        if (Has("parent.view") || fallback)
-            menu.Add(new() { Icon = "👨‍👩‍👧", Title = "Parents", Route = "CoordParentList" });
-        if (Has("student.view") || fallback)
-            menu.Add(new() { Icon = "🎒", Title = "Students", Route = "CoordStudentList" });
+        if (Has("route.view") || fallback) menu.Add(new() { IconSvg = "route.png", Title = "Routes", Route = "CoordRouteList" });
+        if (Has("bus.view") || fallback) menu.Add(new() { IconSvg = "bus.png", Title = "Buses", Route = "CoordBusList" });
+        if (Has("driver.view") || fallback) menu.Add(new() { IconSvg = "driver.png", Title = "Drivers", Route = "CoordDriverList" });
+        if (Has("parent.view") || fallback) menu.Add(new() { IconSvg = "parent.png", Title = "Parents", Route = "CoordParentList" });
+        if (Has("student.view") || fallback) menu.Add(new() { IconSvg = "student.png", Title = "Students", Route = "CoordStudentList" });
         if (Has("trip.view") || Has("trip.manage") || fallback)
-            menu.Add(new() { Icon = "🚐", Title = "Trips", Route = "CoordTripList" });
-
+            menu.Add(new() { IconSvg = "trip.png", Title = "Trips", Route = "CoordTripList" });
         return menu;
     }
 
-    // Parent — mirrors web ParentMenu()
     private static List<FlyoutMenuItem> ParentMenu() =>
     [
-        new() { Icon = "🏠", Title = "Dashboard",  Route = "ParentDashboard" },
-        new() { Icon = "📍", Title = "Track Bus",  Route = "ParentTracking"  },
+        new() { IconSvg = "dashboard.png", Title = "My Dashboard", Route = "ParentDashboard" },
+        new() { IconSvg = "tracking.png",  Title = "Track Bus",    Route = "ParentTracking"  },
     ];
 
-    // Student — mirrors web StudentMenu()
     private static List<FlyoutMenuItem> StudentMenu() =>
     [
-        new() { Icon = "🏠", Title = "Dashboard",      Route = "StudentDashboard"   },
-        new() { Icon = "📍", Title = "Track My Bus",   Route = "StudentTracking"    },
-        new() { Icon = "📅", Title = "My Availability",Route = "StudentAvailability"},
+        new() { IconSvg = "dashboard.png",   Title = "My Dashboard",    Route = "StudentDashboard"    },
+        new() { IconSvg = "tracking.png",    Title = "Track My Bus",    Route = "StudentTracking"     },
+        new() { IconSvg = "availability.png",Title = "My Availability", Route = "StudentAvailability" },
     ];
 
-    // Driver
     private static List<FlyoutMenuItem> DriverMenu() =>
     [
-        new() { Icon = "🏠", Title = "Dashboard", Route = "DriverDashboard" },
-        new() { Icon = "📋", Title = "My Trips",  Route = "DriverTripList"  },
+        new() { IconSvg = "dashboard.png", Title = "Dashboard", Route = "DriverDashboard" },
+        new() { IconSvg = "trip.png",      Title = "My Trips",  Route = "DriverTripList"  },
     ];
 
     // ── Logout ────────────────────────────────────────────────────────────
-    private async void OnLogoutTapped(object sender, EventArgs e)
+    private async void OnLogoutTapped(object? sender, EventArgs e)
     {
         FlyoutIsPresented = false;
 
@@ -167,11 +150,10 @@ public partial class AppShell : Shell
         if (!confirmed) return;
 
         await _auth.LogoutAsync();
-
-        // Clear menu for next user
         MenuList.ItemsSource = null;
         LblUserName.Text = "";
         LblRoleLabel.Text = "";
+        LblInitials.Text = "";
 
         await _nav.GoToLoginAsync();
     }
@@ -182,11 +164,7 @@ public partial class AppShell : Shell
     {
         try
         {
-            if (FlyoutIsPresented)
-            {
-                FlyoutIsPresented = false;
-                return true;
-            }
+            if (FlyoutIsPresented) { FlyoutIsPresented = false; return true; }
 
             if (_backPressCounter >= 2)
             {
@@ -204,15 +182,9 @@ public partial class AppShell : Shell
                     Android.Widget.ToastLength.Long)?.Show();
 #endif
             }
-            else
-            {
-                Navigation.PopAsync();
-            }
+            else { Navigation.PopAsync(); }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine(ex.Message);
-        }
+        catch (Exception ex) { Console.WriteLine(ex.Message); }
         return true;
     }
 #pragma warning restore CS8602

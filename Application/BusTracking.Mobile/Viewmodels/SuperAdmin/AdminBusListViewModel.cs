@@ -10,6 +10,7 @@
         [ObservableProperty] private bool _canLoadMore;
         [ObservableProperty] private string _selectedFilter = "Active";   // Active | Inactive | Both
 
+        public string SearchPlaceholder => "Search buses…";
         public List<string> FilterOptions => ["Active", "Inactive", "Both"];
 
         // null = both, true = active, false = inactive

@@ -8,7 +8,7 @@
     <Application.Resources>
         <ResourceDictionary>
 
-            <!--  ── Converters ───────────────────────────────────────  -->
+            <!--  ── Converters ─────────────────────────────────────────  -->
             <converters:InvertBoolConverter x:Key="InvertBool" />
             <converters:NullToBoolConverter x:Key="NullToBool" />
             <converters:NullToVisibleConverter x:Key="NullToVisible" />
@@ -20,9 +20,29 @@
             <converters:StringToBoolConverter x:Key="StringToBool" />
             <converters:FilterChipColorConverter x:Key="FilterChipColorConverter" />
             <converters:FilterChipTextConverter x:Key="FilterChipTextConverter" />
+            <converters:ColorToTranslucentConverter x:Key="ColorToTranslucentConverter" />
+            <converters:DrawerItemBgConverter x:Key="DrawerItemBgConverter" />
+            <converters:DrawerIconColorConverter x:Key="DrawerIconColorConverter" />
+            <converters:DrawerTextColorConverter x:Key="DrawerTextColorConverter" />
+            <converters:DrawerFontAttribConverter x:Key="DrawerFontAttribConverter" />
 
             <ResourceDictionary.MergedDictionaries>
+                <!--
+                    1. MAUI default platform colors (Gray*, White, Black, etc.)
+                    Must come FIRST so our overrides below take precedence
+                -->
+                <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
+
+                <!--
+                    2. MAUI default control styles (Button, Entry, Label, etc.)
+                    Depends on Colors.xaml being loaded first
+                -->
+                <ResourceDictionary Source="Resources/Styles/Styles.xaml" />
+
+                <!--  3. BusTrack brand colors — overrides Primary etc. from Colors.xaml  -->
                 <ResourceDictionary Source="Resources/Styles/BusTrackingAppColors.xaml" />
+
+                <!--  4. BusTrack named styles — depends on BusTrackingAppColors.xaml  -->
                 <ResourceDictionary Source="Resources/Styles/BusTrackingAppStyles.xaml" />
             </ResourceDictionary.MergedDictionaries>
 

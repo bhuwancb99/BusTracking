@@ -173,3 +173,50 @@ public class FilterChipTextConverter : IValueConverter
     public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
         => throw new NotImplementedException();
 }
+
+/// <summary>
+/// Makes any Color translucent at 15% alpha — used for trip/status chip backgrounds.
+/// </summary>
+public class ColorToTranslucentConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is Color c ? c.WithAlpha(0.15f) : Colors.Transparent;
+    public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
+         => throw new NotImplementedException();
+}
+
+/// Background: Primary blue when IsActive=true, Transparent when false
+public class DrawerItemBgConverter : IValueConverter
+{
+    public object? Convert(object? value, Type t, object? p, CultureInfo c)
+        => (bool)(value ?? false) ? Color.FromArgb("#2563eb") : Colors.Transparent;
+    public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
+         => throw new NotImplementedException();
+}
+
+/// Icon tint: White when active, DrawerIcon (#60a5fa) when inactive
+public class DrawerIconColorConverter : IValueConverter
+{
+    public object? Convert(object? value, Type t, object? p, CultureInfo c)
+        => (bool)(value ?? false) ? Colors.White : Color.FromArgb("#60a5fa");
+    public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+/// Label text colour: White when active, DrawerText (#cbd5e1) when inactive
+public class DrawerTextColorConverter : IValueConverter
+{
+    public object? Convert(object? value, Type t, object? p, CultureInfo c)
+        => (bool)(value ?? false) ? Colors.White : Color.FromArgb("#cbd5e1");
+    public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+/// FontAttributes: Bold when active, None when inactive
+public class DrawerFontAttribConverter : IValueConverter
+{
+    public object? Convert(object? value, Type t, object? p, CultureInfo c)
+        => (bool)(value ?? false) ? FontAttributes.Bold : FontAttributes.None;
+    public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
+        => throw new NotImplementedException();
+}

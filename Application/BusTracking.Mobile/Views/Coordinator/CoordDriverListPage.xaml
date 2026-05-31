@@ -7,168 +7,198 @@
     xmlns:models="clr-namespace:BusTracking.Mobile.Models"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
-    Title="Drivers"
     x:DataType="vm:CoordDriverListViewModel"
     x:TypeArguments="vm:CoordDriverListViewModel"
-    BackgroundColor="#F4F6FB">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
-        <Label
-            FontAttributes="Bold"
-            FontSize="17"
-            Text="Drivers"
-            TextColor="White"
-            VerticalOptions="Center" />
+        <Grid Padding="0,0,10,0" ColumnDefinitions="*,Auto">
+            <Label
+                Grid.Column="0"
+                FontAttributes="Bold"
+                FontSize="18"
+                Text="Drivers"
+                TextColor="White"
+                VerticalOptions="Center" />
+        </Grid>
     </Shell.TitleView>
 
-    <Grid RowDefinitions="Auto,*">
+    <Grid RowDefinitions="Auto,Auto,*">
 
+        <!--  Search  -->
         <Border
             Grid.Row="0"
-            Margin="12,12,12,4"
-            BackgroundColor="White"
-            Stroke="#e2e8f0"
-            StrokeShape="RoundRectangle 12"
-            StrokeThickness="1">
-            <Grid Padding="14,0" ColumnDefinitions="Auto,*,Auto">
-                <Label
+            Margin="14,12,14,4"
+            Style="{StaticResource SearchBarBorder}">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                <Image
                     Grid.Column="0"
-                    Margin="0,0,8,0"
-                    Text="🔍"
-                    VerticalOptions="Center" />
+                    HeightRequest="18"
+                    Source="search.png"
+                    VerticalOptions="Center"
+                    WidthRequest="18">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                    </Image.Behaviors>
+                </Image>
                 <Entry
                     Grid.Column="1"
-                    BackgroundColor="Transparent"
-                    Placeholder="Search drivers…"
-                    PlaceholderColor="#94a3b8"
+                    Placeholder="{Binding SearchPlaceholder}"
                     ReturnCommand="{Binding SearchCommand}"
-                    Text="{Binding SearchText}"
-                    TextColor="#1e293b" />
+                    Text="{Binding SearchText}" />
                 <Button
                     Grid.Column="2"
-                    Padding="10,4"
-                    BackgroundColor="#2563eb"
                     Command="{Binding SearchCommand}"
-                    CornerRadius="8"
-                    FontSize="12"
-                    Text="Search"
-                    TextColor="White" />
+                    Style="{StaticResource SearchGoButton}"
+                    Text="Go" />
             </Grid>
         </Border>
 
-        <ActivityIndicator
+        <!--  Error  -->
+        <Border
             Grid.Row="1"
+            Margin="14,0"
+            IsVisible="{Binding HasError}"
+            Style="{StaticResource ErrorBannerBorder}">
+            <Label
+                FontSize="13"
+                Text="{Binding ErrorMessage}"
+                TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
+                                            Dark={StaticResource ErrorTextDark}}" />
+        </Border>
+        <!--  Busy  -->
+        <ActivityIndicator
+            Grid.Row="2"
             HorizontalOptions="Center"
             IsRunning="{Binding IsBusy}"
             IsVisible="{Binding IsBusy}"
-            VerticalOptions="Center"
-            Color="#2563eb" />
+            VerticalOptions="Center" />
 
-        <CollectionView
-            Grid.Row="1"
-            Margin="12,4,12,0"
-            ItemsSource="{Binding Items}"
-            SelectionMode="None">
-            <CollectionView.EmptyView>
-                <VerticalStackLayout
-                    Padding="0,60"
+        <!--  Empty  -->
+        <VerticalStackLayout
+            Grid.Row="2"
+            HorizontalOptions="Center"
+            IsVisible="{Binding IsEmpty}"
+            Spacing="14"
+            VerticalOptions="Center">
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource StatDriverBg},
+                                                  Dark={StaticResource StatDriverBgDark}}"
+                HeightRequest="72"
+                HorizontalOptions="Center"
+                StrokeShape="RoundRectangle 36"
+                StrokeThickness="0"
+                WidthRequest="72">
+                <Image
+                    HeightRequest="36"
                     HorizontalOptions="Center"
-                    Spacing="12"
-                    VerticalOptions="Center">
-                    <Label
-                        FontSize="48"
-                        HorizontalOptions="Center"
-                        Text="🧑‍✈️" />
-                    <Label
-                        FontSize="15"
-                        HorizontalOptions="Center"
-                        Text="No drivers found"
-                        TextColor="#64748b" />
-                </VerticalStackLayout>
-            </CollectionView.EmptyView>
+                    Source="driver.png"
+                    VerticalOptions="Center"
+                    WidthRequest="36">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="{StaticResource Info}" />
+                    </Image.Behaviors>
+                </Image>
+            </Border>
+            <Label
+                FontSize="16"
+                HorizontalOptions="Center"
+                Text="No drivers found"
+                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                            Dark={StaticResource TextSecondaryDark}}" />
+        </VerticalStackLayout>
+
+        <!--  List  -->
+        <CollectionView
+            Grid.Row="2"
+            Margin="14,4,14,0"
+            ItemsSource="{Binding Items}"
+            RemainingItemsThreshold="3"
+            RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
+            SelectionMode="None">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Driver.DriverItem">
-                    <Border
-                        Margin="0,0,0,10"
-                        BackgroundColor="White"
-                        StrokeShape="RoundRectangle 14"
-                        StrokeThickness="0">
+                    <Border Style="{StaticResource ListItemBorder}">
                         <Grid
                             Padding="14"
                             ColumnDefinitions="Auto,*,Auto"
                             ColumnSpacing="12">
-
                             <Border
                                 Grid.Column="0"
-                                BackgroundColor="#f0fdf4"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource StatDriverBg},
+                                                                  Dark={StaticResource StatDriverBgDark}}"
                                 HeightRequest="44"
                                 StrokeShape="RoundRectangle 22"
                                 StrokeThickness="0"
+                                VerticalOptions="Center"
                                 WidthRequest="44">
                                 <Label
                                     FontAttributes="Bold"
                                     FontSize="14"
                                     HorizontalOptions="Center"
                                     Text="{Binding InitialsDisplay}"
-                                    TextColor="#059669"
+                                    TextColor="{StaticResource Info}"
                                     VerticalOptions="Center" />
                             </Border>
-
                             <VerticalStackLayout
                                 Grid.Column="1"
-                                Spacing="3"
+                                Spacing="4"
                                 VerticalOptions="Center">
                                 <Label
                                     FontAttributes="Bold"
-                                    FontSize="14"
+                                    FontSize="15"
                                     Text="{Binding FullName}"
-                                    TextColor="#1e293b" />
-                                <Label
-                                    FontSize="12"
-                                    Text="{Binding PhoneNumber}"
-                                    TextColor="#64748b" />
+                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                Dark={StaticResource TextPrimaryDark}}" />
+                                <Label Style="{StaticResource SubLabel}" Text="{Binding Email}" />
                                 <Label
                                     FontSize="11"
                                     Text="{Binding BusDisplay}"
-                                    TextColor="#2563eb" />
+                                    TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                Dark={StaticResource TextMutedDark}}" />
                             </VerticalStackLayout>
-
                             <VerticalStackLayout
                                 Grid.Column="2"
-                                Spacing="6"
+                                Spacing="8"
                                 VerticalOptions="Center">
                                 <Border
                                     Padding="8,3"
-                                    BackgroundColor="{Binding StatusColor}"
-                                    StrokeShape="RoundRectangle 10"
-                                    StrokeThickness="0">
+                                    BackgroundColor="{Binding StatusBgColor}"
+                                    Stroke="Transparent"
+                                    StrokeShape="RoundRectangle 20">
                                     <Label
                                         FontAttributes="Bold"
                                         FontSize="10"
                                         Text="{Binding StatusLabel}"
-                                        TextColor="White" />
+                                        TextColor="{Binding StatusTextColor}" />
                                 </Border>
                                 <ImageButton
                                     BackgroundColor="Transparent"
                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordDriverListViewModel}}, Path=ViewCommand}"
                                     CommandParameter="{Binding .}"
-                                    HeightRequest="20"
-                                    HorizontalOptions="End"
-                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordDriverListViewModel}}, Path=CanView}"
+                                    HeightRequest="22"
                                     Source="view.png"
-                                    WidthRequest="20" />
+                                    WidthRequest="22">
+                                    <ImageButton.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{StaticResource Info}" />
+                                    </ImageButton.Behaviors>
+                                </ImageButton>
                             </VerticalStackLayout>
-
                         </Grid>
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
+            <CollectionView.Footer>
+                <ActivityIndicator
+                    Margin="0,8"
+                    IsRunning="{Binding CanLoadMore}"
+                    IsVisible="{Binding CanLoadMore}" />
+            </CollectionView.Footer>
         </CollectionView>
-
     </Grid>
-
 </views:ViewBase>

@@ -6,8 +6,15 @@
 
         [ObservableProperty] private ObservableCollection<CoordinatorItem> _items = [];
         [ObservableProperty] private string _searchText = "";
-        [ObservableProperty] private bool _canLoadMore;
         [ObservableProperty] private string _selectedFilter = "Active";
+
+        // CoordinatorService returns all results in one call — no pagination
+        public bool CanLoadMore => false;
+
+        public string SearchPlaceholder => "Search coordinators…";
+        public bool CanAdd => Can("coordinator.add");
+        public bool CanEdit => Can("coordinator.edit");
+        public bool CanDelete => Can("coordinator.delete");
 
         public List<string> FilterOptions => ["Active", "Inactive", "Both"];
 
@@ -37,10 +44,12 @@
             });
         }
 
+        // No-op: service does not support pagination
+        [RelayCommand] private Task LoadMoreAsync() => Task.CompletedTask;
+
         [RelayCommand] private async Task SearchAsync() => await LoadAsync();
         [RelayCommand] private Task AddAsync() => Nav.GoToAsync("AdminCoordinatorForm");
 
-        // Tap row → Detail page (shows permissions)
         [RelayCommand]
         private Task TapAsync(CoordinatorItem c) =>
             Nav.GoToAsync("AdminCoordinatorDetail", new Dictionary<string, object> { ["UserId"] = c.UserId });
@@ -65,7 +74,6 @@
             else SetError(r.Message);
         }
 
-        // Only active coordinators can be deleted
         [RelayCommand]
         private async Task DeleteAsync(CoordinatorItem c)
         {

@@ -5,9 +5,15 @@
         private readonly ITripService _trips;
 
         [ObservableProperty] private ObservableCollection<TripItem> _items = [];
+        [ObservableProperty] private string _searchText = "";
         [ObservableProperty] private string _selectedStatus = "";
         [ObservableProperty] private string _selectedDate = "";
 
+        public string SearchPlaceholder => "Search trips…";
+        public bool CanAdd => Can("trip.manage");
+        public bool CanLoadMore => false;
+        [RelayCommand] private async Task LoadMoreAsync() { }
+        [RelayCommand] private async Task SearchAsync() => await LoadAsync();
         public List<string> StatusOptions => ["", "Scheduled", "InProgress", "Completed", "Cancelled"];
 
         public AdminTripListViewModel(IAuthService auth, INavigationService nav, ITripService trips)

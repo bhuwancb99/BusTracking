@@ -8,6 +8,8 @@
     xmlns:common="clr-namespace:BusTracking.Mobile.Views.Common"
     xmlns:coord="clr-namespace:BusTracking.Mobile.Views.Coordinator"
     xmlns:driver="clr-namespace:BusTracking.Mobile.Views.Driver"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:model="clr-namespace:BusTracking.Mobile.Models"
     xmlns:parent="clr-namespace:BusTracking.Mobile.Views.Parent"
     xmlns:student="clr-namespace:BusTracking.Mobile.Views.Student"
     FlyoutBehavior="Flyout"
@@ -29,60 +31,83 @@
         ══════════════════════════════════════════════════════════
     -->
     <Shell.FlyoutContent>
-        <Grid BackgroundColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" RowDefinitions="Auto,*,Auto">
+        <Grid BackgroundColor="{AppThemeBinding Light={StaticResource DrawerBg}, Dark={StaticResource DrawerBgDark}}" RowDefinitions="Auto,*,Auto">
 
-            <!--  ── Header ──  -->
+            <!--  ══ HEADER ══════════════════════════════════════════════════  -->
             <Grid
                 Grid.Row="0"
-                Padding="20,48,20,0"
+                Padding="20,52,20,0"
                 RowDefinitions="Auto,Auto,Auto">
 
-                <!--  Brand  -->
+                <!--  Brand row  -->
                 <HorizontalStackLayout Grid.Row="0" Spacing="10">
-                    <Label
-                        FontSize="26"
-                        Text="🚌"
-                        VerticalOptions="Center" />
+                    <Border
+                        BackgroundColor="{StaticResource Primary}"
+                        HeightRequest="36"
+                        StrokeShape="RoundRectangle 10"
+                        StrokeThickness="0"
+                        WidthRequest="36">
+                        <Image
+                            HeightRequest="20"
+                            HorizontalOptions="Center"
+                            Source="bus.png"
+                            VerticalOptions="Center"
+                            WidthRequest="20">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="White" />
+                            </Image.Behaviors>
+                        </Image>
+                    </Border>
                     <Label VerticalOptions="Center">
                         <Label.FormattedText>
                             <FormattedString>
                                 <Span
                                     FontAttributes="Bold"
-                                    FontSize="18"
+                                    FontSize="19"
                                     Text="BusTrack "
                                     TextColor="White" />
                                 <Span
-                                    FontSize="18"
+                                    FontSize="19"
                                     Text="Admin"
-                                    TextColor="#94a3b8" />
+                                    TextColor="{StaticResource DrawerTextMuted}" />
                             </FormattedString>
                         </Label.FormattedText>
                     </Label>
                 </HorizontalStackLayout>
 
-                <!--  User row  -->
+                <!--  User avatar + info  -->
                 <HorizontalStackLayout
                     Grid.Row="1"
-                    Margin="0,16,0,0"
+                    Margin="0,20,0,0"
                     Spacing="12">
+                    <!--  Initials circle  -->
                     <Border
-                        Padding="10"
-                        BackgroundColor="#2d3a52"
-                        StrokeShape="RoundRectangle 24"
-                        VerticalOptions="Center">
-                        <Label FontSize="18" Text="👤" />
+                        BackgroundColor="{StaticResource Primary}"
+                        HeightRequest="46"
+                        StrokeShape="RoundRectangle 23"
+                        StrokeThickness="0"
+                        VerticalOptions="Center"
+                        WidthRequest="46">
+                        <Label
+                            x:Name="LblInitials"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="Center"
+                            TextColor="White"
+                            VerticalOptions="Center" />
                     </Border>
-                    <VerticalStackLayout VerticalOptions="Center">
+                    <VerticalStackLayout Spacing="4" VerticalOptions="Center">
                         <Label
                             x:Name="LblUserName"
                             FontAttributes="Bold"
                             FontSize="14"
                             TextColor="White" />
                         <Border
-                            Margin="0,3,0,0"
                             Padding="8,3"
-                            BackgroundColor="#f59e0b"
-                            StrokeShape="RoundRectangle 20">
+                            BackgroundColor="{StaticResource Accent}"
+                            HorizontalOptions="Start"
+                            StrokeShape="RoundRectangle 20"
+                            StrokeThickness="0">
                             <Label
                                 x:Name="LblRoleLabel"
                                 FontAttributes="Bold"
@@ -95,76 +120,86 @@
                 <!--  Divider  -->
                 <BoxView
                     Grid.Row="2"
-                    Margin="0,16,0,0"
-                    BackgroundColor="#2d3a52"
+                    Margin="0,18,0,0"
+                    BackgroundColor="{StaticResource DrawerDivider}"
                     HeightRequest="1" />
             </Grid>
 
-            <!--  ── Menu items ──  -->
+            <!--  ══ NAV ITEMS ═══════════════════════════════════════════════  -->
             <CollectionView
                 x:Name="MenuList"
                 Grid.Row="1"
-                Margin="0,8,0,0"
+                Margin="0,6,0,0"
                 SelectionChanged="OnMenuItemSelected"
                 SelectionMode="Single">
                 <CollectionView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid
-                            Padding="16,13"
-                            ColumnDefinitions="36,*"
-                            ColumnSpacing="12">
-                            <Label
-                                Grid.Column="0"
-                                FontSize="20"
-                                HorizontalOptions="Center"
-                                Text="{Binding Icon}"
-                                VerticalOptions="Center" />
-                            <Label
-                                Grid.Column="1"
-                                FontSize="15"
-                                Text="{Binding Title}"
-                                TextColor="White"
-                                VerticalOptions="Center" />
-                        </Grid>
+                    <DataTemplate x:DataType="model:Common.FlyoutMenuItem">
+                        <Border
+                            Margin="10,2"
+                            Padding="14,13"
+                            BackgroundColor="{Binding IsActive, Converter={StaticResource DrawerItemBgConverter}}"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 12">
+                            <Grid ColumnDefinitions="24,*" ColumnSpacing="14">
+                                <Image
+                                    Grid.Column="0"
+                                    HeightRequest="20"
+                                    Source="{Binding IconSvg}"
+                                    VerticalOptions="Center"
+                                    WidthRequest="20">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{Binding IsActive, Converter={StaticResource DrawerIconColorConverter}}" />
+                                    </Image.Behaviors>
+                                </Image>
+                                <Label
+                                    Grid.Column="1"
+                                    FontAttributes="{Binding IsActive, Converter={StaticResource DrawerFontAttribConverter}}"
+                                    FontSize="14"
+                                    Text="{Binding Title}"
+                                    TextColor="{Binding IsActive, Converter={StaticResource DrawerTextColorConverter}}"
+                                    VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <!--  ── Footer / Logout ──  -->
+            <!--  ══ FOOTER / LOGOUT ══════════════════════════════════════════  -->
             <Grid
                 Grid.Row="2"
-                Padding="14,8,14,40"
+                Padding="14,0,14,44"
                 RowDefinitions="Auto,Auto">
                 <BoxView
                     Grid.Row="0"
-                    Margin="0,0,0,12"
-                    BackgroundColor="#2d3a52"
+                    Margin="0,0,0,14"
+                    BackgroundColor="{StaticResource DrawerDivider}"
                     HeightRequest="1" />
                 <Border
                     Grid.Row="1"
-                    Padding="14,13"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource Danger},
-                                                      Dark={StaticResource LoginPageBgDark}}"
-                    Stroke="{AppThemeBinding Light={StaticResource Danger},
-                                             Dark={StaticResource LoginPageBgDark}}"
-                    StrokeShape="RoundRectangle 10"
+                    Padding="16,14"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource DangerLight},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{StaticResource Danger}"
+                    StrokeShape="RoundRectangle 14"
                     StrokeThickness="1">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnLogoutTapped" />
                     </Border.GestureRecognizers>
                     <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
-                        <Label
-                            FontSize="16"
-                            Text="🚪"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryDark},
-                                                        Dark={StaticResource LoginPageBgDark}}"
-                            VerticalOptions="Center" />
+                        <Image
+                            HeightRequest="18"
+                            Source="logout.png"
+                            VerticalOptions="Center"
+                            WidthRequest="18">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                            </Image.Behaviors>
+                        </Image>
                         <Label
                             FontAttributes="Bold"
                             FontSize="14"
                             Text="Logout"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimaryDark},
-                                                        Dark={StaticResource LoginPageBgDark}}"
+                            TextColor="{StaticResource Danger}"
                             VerticalOptions="Center" />
                     </HorizontalStackLayout>
                 </Border>

@@ -8,6 +8,7 @@
         [ObservableProperty] private string _searchText = "";
         [ObservableProperty] private bool _canLoadMore;
 
+        public string SearchPlaceholder => "Search parents…";
         public bool CanAdd => Can("parent.add");
         public bool CanEdit => Can("parent.edit");
         public bool CanDelete => Can("parent.delete");
@@ -26,6 +27,18 @@
                 var data = await _parents.GetAllAsync(SearchText.Trim().Length > 0 ? SearchText : null);
                 Items = new ObservableCollection<ParentItem>(data);
                 IsEmpty = !Items.Any();
+                CanLoadMore = data.Count == 20;
+            });
+        }
+
+        [RelayCommand]
+        private async Task LoadMoreAsync()
+        {
+            if (!CanLoadMore || IsBusy) return;
+            await RunAsync(async () =>
+            {
+                var data = await _parents.GetAllAsync(SearchText);
+                foreach (var item in data) Items.Add(item);
                 CanLoadMore = data.Count == 20;
             });
         }

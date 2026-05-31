@@ -10,6 +10,7 @@
         [ObservableProperty] private int _currentPage = 1;
         [ObservableProperty] private string _selectedFilter = "Active";
 
+        public string SearchPlaceholder => "Search drivers…";
         public List<string> FilterOptions => ["Active", "Inactive", "Both"];
 
         private bool? ActiveFilter => SelectedFilter switch
@@ -41,6 +42,19 @@
                     SearchText.Trim().Length > 0 ? SearchText : null, 1, ActiveFilter);
                 Items = new ObservableCollection<DriverItem>(data);
                 IsEmpty = !Items.Any();
+                CanLoadMore = data.Count == 20;
+            });
+        }
+
+        [RelayCommand]
+        private async Task LoadMoreAsync()
+        {
+            if (!CanLoadMore || IsBusy) return;
+            await RunAsync(async () =>
+            {
+                CurrentPage++;
+                var data = await _drivers.GetAllAsync(SearchText, CurrentPage, ActiveFilter);
+                foreach (var item in data) Items.Add(item);
                 CanLoadMore = data.Count == 20;
             });
         }
