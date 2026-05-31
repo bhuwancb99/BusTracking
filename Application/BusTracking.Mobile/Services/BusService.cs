@@ -12,16 +12,26 @@
         private string BaseEndpoint => _auth.CurrentRole == Constants.Roles.SuperAdmin
             ? Constants.Admin.Buses : Constants.Coordinator.Buses;
 
+        private bool IsCoordinator => _auth.CurrentRole == Constants.Roles.BusCoordinator;
+
         public async Task<List<BusItem>> GetAllAsync(string? search = null, int page = 1, bool? isActive = true)
         {
-            var url = $"{BaseEndpoint}?page={page}";
-            if (!string.IsNullOrWhiteSpace(search))
-                url += $"&search={Uri.EscapeDataString(search)}";
-            // null = both, true = active only, false = inactive only
-            if (isActive.HasValue)
-                url += $"&isActive={isActive.Value.ToString().ToLower()}";
-            var r = await _api.GetAsync<PagedResult<BusItem>>(url);
-            return r.Data?.Items ?? [];
+            if (IsCoordinator)
+            {
+                var url = BaseEndpoint + (search != null ? $"?search={Uri.EscapeDataString(search)}" : "");
+                var r = await _api.GetAsync<List<BusItem>>(url);
+                return r.Data ?? [];
+            }
+            else
+            {
+                var url = $"{BaseEndpoint}?page={page}";
+                if (!string.IsNullOrWhiteSpace(search))
+                    url += $"&search={Uri.EscapeDataString(search)}";
+                if (isActive.HasValue)
+                    url += $"&isActive={isActive.Value.ToString().ToLower()}";
+                var r = await _api.GetAsync<PagedResult<BusItem>>(url);
+                return r.Data?.Items ?? [];
+            }
         }
 
         public async Task<BusItem?> GetByIdAsync(int id)

@@ -7,7 +7,10 @@
         [ObservableProperty] private DashboardSummary? _summary;
         [ObservableProperty] private string _welcomeText = "";
 
-        // Menu visibility based on permissions
+        // ── Permission-based visibility ───────────────────────────────────────
+        // These are computed from Auth.HasPermission() which reads _currentUser.
+        // We must call NotifyPermissionsChanged() after the user/session loads
+        // so that MAUI re-evaluates these bindings and shows the correct cards.
         public bool ShowRoutes => Can("route.view");
         public bool ShowBuses => Can("bus.view");
         public bool ShowDrivers => Can("driver.view");
@@ -29,6 +32,12 @@
         {
             var user = await Auth.GetCurrentUserAsync();
             WelcomeText = $"Hi, {user?.FullName?.Split(' ')[0] ?? "Coordinator"}";
+
+            // Fire OnPropertyChanged for every computed permission property now
+            // that _currentUser is fully loaded — this makes the stat cards and
+            // menu items show/hide correctly based on the coordinator's actual permissions.
+            NotifyPermissionsChanged();
+
             await RefreshCommand.ExecuteAsync(null);
         }
 
@@ -41,12 +50,32 @@
             });
         }
 
-        [RelayCommand] private Task GoToRoutesAsync() => Nav.GoToAsync("CoordRouteList");
-        [RelayCommand] private Task GoToBusesAsync() => Nav.GoToAsync("CoordBusList");
-        [RelayCommand] private Task GoToDriversAsync() => Nav.GoToAsync("CoordDriverList");
-        [RelayCommand] private Task GoToParentsAsync() => Nav.GoToAsync("CoordParentList");
-        [RelayCommand] private Task GoToStudentsAsync() => Nav.GoToAsync("CoordStudentList");
-        [RelayCommand] private Task GoToTripsAsync() => Nav.GoToAsync("CoordTripList");
+        /// <summary>
+        /// Re-notifies all permission-bound properties so the UI re-evaluates
+        /// IsVisible bindings after the session user has been loaded.
+        /// </summary>
+        private void NotifyPermissionsChanged()
+        {
+            OnPropertyChanged(nameof(ShowRoutes));
+            OnPropertyChanged(nameof(ShowBuses));
+            OnPropertyChanged(nameof(ShowDrivers));
+            OnPropertyChanged(nameof(ShowParents));
+            OnPropertyChanged(nameof(ShowStudents));
+            OnPropertyChanged(nameof(ShowTrips));
+            OnPropertyChanged(nameof(ShowNotifs));
+            OnPropertyChanged(nameof(ShowSupport));
+            OnPropertyChanged(nameof(CanAddStudent));
+            OnPropertyChanged(nameof(CanAddBus));
+            OnPropertyChanged(nameof(CanCreateTrip));
+        }
+
+        // List pages are ShellContent — must use // absolute prefix
+        [RelayCommand] private Task GoToRoutesAsync() => Nav.GoToAsync("//CoordRouteList");
+        [RelayCommand] private Task GoToBusesAsync() => Nav.GoToAsync("//CoordBusList");
+        [RelayCommand] private Task GoToDriversAsync() => Nav.GoToAsync("//CoordDriverList");
+        [RelayCommand] private Task GoToParentsAsync() => Nav.GoToAsync("//CoordParentList");
+        [RelayCommand] private Task GoToStudentsAsync() => Nav.GoToAsync("//CoordStudentList");
+        [RelayCommand] private Task GoToTripsAsync() => Nav.GoToAsync("//CoordTripList");
 
         [RelayCommand]
         private async Task LogoutAsync()

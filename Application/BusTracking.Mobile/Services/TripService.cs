@@ -16,8 +16,26 @@
             if (status != null) q.Add($"status={status}");
             if (date != null) q.Add($"date={date}");
             if (q.Count > 0) url += "?" + string.Join("&", q);
-            var r = await _api.GetAsync<PagedResult<TripItem>>(url);
-            return r.Data?.Items ?? [];
+
+            if (!IsAdmin)
+            {
+                var r = await _api.GetAsync<List<TripItem>>(url);
+                return r.Data ?? [];
+            }
+            else
+            {
+                var r = await _api.GetAsync<PagedResult<TripItem>>(url);
+                return r.Data?.Items ?? [];
+            }
+        }
+
+        public async Task<TripItem?> GetByIdAsync(int id)
+        {
+            var url = IsAdmin
+                ? string.Format(Constants.Admin.TripById, id)
+                : string.Format(Constants.Coordinator.TripById, id);
+            var r = await _api.GetAsync<TripItem>(url);
+            return r.Data;
         }
 
         public Task<ApiResponse<object>> CreateAsync(CreateTripRequest req) => _api.PostAsync<object>(

@@ -55,14 +55,21 @@
         public async Task<SessionUser?> GetCurrentUserAsync()
         {
             // Return from memory if still valid
+            // Return cached user — but if it's a BusCoordinator with no permissions yet
+            // (logged in before the API started sending them), fall through to patch it.
             if (_currentUser != null && DateTime.UtcNow < _currentUser.Expiry)
-                return _currentUser;
+            {
+                bool needsPermPatch = _currentUser.Role == Constants.Roles.BusCoordinator
+                                   && string.IsNullOrWhiteSpace(_currentUser.Permissions);
+                if (!needsPermPatch)
+                    return _currentUser;
+            }
 
             // Try restoring from DB (handles app close/reopen)
             try
             {
                 var session = await _db.GetSessionAsync();
-                if (session is null) 
+                if (session is null)
                     return null;
 
                 // Validate token is not empty/corrupt after decrypt
@@ -72,8 +79,35 @@
                     return null;
                 }
 
-                _currentUser = session;
                 _api.SetToken(session.Token);
+
+                // If this is a BusCoordinator with no permissions stored (old session
+                // saved before the API started returning Permissions at login), fetch
+                // them now and patch the stored session so the dashboard shows correctly.
+                if (session.Role == Constants.Roles.BusCoordinator
+                    && string.IsNullOrWhiteSpace(session.Permissions))
+                {
+                    try
+                    {
+                        // GET /api/admin/coordinators/{id}/permissions returns:
+                        // { assignedPermissionIds: [1,3], allPermissions: [{id,key,...}] }
+                        // Cross-reference to get the permission key strings.
+                        var url = string.Format(Constants.Admin.CoordinatorPerms, session.UserId);
+                        var r = await _api.GetAsync<PermissionsResponse>(url);
+                        if (r.Success && r.Data is not null)
+                        {
+                            var assignedKeys = r.Data.AllPermissions
+                                .Where(p => r.Data.AssignedPermissionIds.Contains(p.Id))
+                                .Select(p => p.Key)
+                                .ToList();
+                            session.Permissions = JsonSerializer.Serialize(assignedKeys);
+                            await _db.SaveSessionAsync(session);
+                        }
+                    }
+                    catch { /* non-fatal — carry on with empty permissions */ }
+                }
+
+                _currentUser = session;
                 return session;
             }
             catch

@@ -29,14 +29,15 @@
         }
 
         // ── Navigation ────────────────────────────────────────────────────
-        [RelayCommand] private Task GoToBusesAsync() => Nav.GoToAsync("AdminBusList");
-        [RelayCommand] private Task GoToDriversAsync() => Nav.GoToAsync("AdminDriverList");
-        [RelayCommand] private Task GoToStudentsAsync() => Nav.GoToAsync("AdminStudentList");
-        [RelayCommand] private Task GoToParentsAsync() => Nav.GoToAsync("AdminParentList");
-        [RelayCommand] private Task GoToRoutesAsync() => Nav.GoToAsync("AdminRouteList");
-        [RelayCommand] private Task GoToTripsAsync() => Nav.GoToAsync("AdminTripList");
-        [RelayCommand] private Task GoToCoordinatorsAsync() => Nav.GoToAsync("AdminCoordinatorList");
-        [RelayCommand] private Task GoToConfigAsync() => Nav.GoToAsync("AdminConfigList");
+        // List pages are ShellContent — must use // absolute prefix
+        [RelayCommand] private Task GoToBusesAsync() => Nav.GoToAsync("//AdminBusList");
+        [RelayCommand] private Task GoToDriversAsync() => Nav.GoToAsync("//AdminDriverList");
+        [RelayCommand] private Task GoToStudentsAsync() => Nav.GoToAsync("//AdminStudentList");
+        [RelayCommand] private Task GoToParentsAsync() => Nav.GoToAsync("//AdminParentList");
+        [RelayCommand] private Task GoToRoutesAsync() => Nav.GoToAsync("//AdminRouteList");
+        [RelayCommand] private Task GoToTripsAsync() => Nav.GoToAsync("//AdminTripList");
+        [RelayCommand] private Task GoToCoordinatorsAsync() => Nav.GoToAsync("//AdminCoordinatorList");
+        [RelayCommand] private Task GoToConfigAsync() => Nav.GoToAsync("//AdminConfigList");
 
         // ── Quick Actions (jump directly to Add form) ─────────────────────
         [RelayCommand] private Task QuickAddCoordinatorAsync() => Nav.GoToAsync("AdminCoordinatorForm");

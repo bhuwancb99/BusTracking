@@ -7,7 +7,7 @@
         [ObservableProperty] private ObservableCollection<DriverItem> _items = [];
         [ObservableProperty] private string _searchText = "";
 
-        public bool CanEdit => Can("driver.edit");
+        // Coordinator can only VIEW drivers — no add/edit/delete via coordinator API
         public bool CanView => Can("driver.view");
 
         public CoordDriverListViewModel(IAuthService auth, INavigationService nav, IDriverService drivers)
@@ -27,8 +27,12 @@
         }
 
         [RelayCommand] private async Task SearchAsync() => await LoadAsync();
+
         [RelayCommand]
-        private Task ViewAsync(DriverItem d) =>
-            Nav.GoToAsync("CoordDriverDetail", new Dictionary<string, object> { ["UserId"] = d.UserId });
+        private Task ViewAsync(DriverItem d)
+        {
+            if (!CanView) return Task.CompletedTask;
+            return Nav.GoToAsync("CoordDriverDetail", new Dictionary<string, object> { ["UserId"] = d.UserId });
+        }
     }
 }

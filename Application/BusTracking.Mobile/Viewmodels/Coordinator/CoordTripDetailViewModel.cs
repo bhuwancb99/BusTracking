@@ -21,8 +21,8 @@
         {
             await RunAsync(async () =>
             {
-                var all = await _trips.GetAllAsync();
-                Trip = all.FirstOrDefault(t => t.TripId == TripId);
+                // Use the dedicated detail endpoint instead of fetching all trips
+                Trip = await _trips.GetByIdAsync(TripId);
             });
         }
 

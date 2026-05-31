@@ -10,11 +10,22 @@
         private string BaseUrl => _auth.CurrentRole == Constants.Roles.SuperAdmin
             ? Constants.Admin.Parents : Constants.Coordinator.Parents;
 
+        private bool IsCoordinator => _auth.CurrentRole == Constants.Roles.BusCoordinator;
+
         public async Task<List<ParentItem>> GetAllAsync(string? search = null, int page = 1)
         {
-            var url = $"{BaseUrl}?page={page}" + (search != null ? $"&search={Uri.EscapeDataString(search)}" : "");
-            var r = await _api.GetAsync<PagedResult<ParentItem>>(url);
-            return r.Data?.Items ?? [];
+            if (IsCoordinator)
+            {
+                var url = $"{BaseUrl}?page={page}" + (search != null ? $"&search={Uri.EscapeDataString(search)}" : "");
+                var r = await _api.GetAsync<List<ParentItem>>(url);
+                return r.Data ?? [];
+            }
+            else
+            {
+                var url = $"{BaseUrl}?page={page}" + (search != null ? $"&search={Uri.EscapeDataString(search)}" : "");
+                var r = await _api.GetAsync<PagedResult<ParentItem>>(url);
+                return r.Data?.Items ?? [];
+            }
         }
 
         public async Task<ParentItem?> GetByIdAsync(int id)

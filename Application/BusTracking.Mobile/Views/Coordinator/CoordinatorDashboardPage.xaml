@@ -15,21 +15,12 @@
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
-        <Grid Padding="0,0,12,0" ColumnDefinitions="*,Auto">
-            <Label
-                Grid.Column="0"
-                FontAttributes="Bold"
-                FontSize="17"
-                Text="Bus Coordinator"
-                TextColor="White"
-                VerticalOptions="Center" />
-            <ImageButton
-                Grid.Column="1"
-                BackgroundColor="Transparent"
-                Command="{Binding LogoutCommand}"
-                Source="logout.png"
-                WidthRequest="22" />
-        </Grid>
+        <Label
+            FontAttributes="Bold"
+            FontSize="17"
+            Text="Bus Coordinator"
+            TextColor="White"
+            VerticalOptions="Center" />
     </Shell.TitleView>
 
     <RefreshView Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsBusy}">

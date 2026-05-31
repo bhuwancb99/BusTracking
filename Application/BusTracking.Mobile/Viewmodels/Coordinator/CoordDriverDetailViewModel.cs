@@ -1,5 +1,6 @@
 ﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
+    // Coordinator role is view-only for drivers — no edit/delete/toggle in coordinator API
     public partial class CoordDriverDetailViewModel : BaseViewModel, IQueryAttributable
     {
         private readonly IDriverService _drivers;

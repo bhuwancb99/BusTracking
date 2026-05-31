@@ -6,6 +6,9 @@
         [ObservableProperty] private int _studentId;
         [ObservableProperty] private StudentItem? _student;
 
+        public bool CanEdit => Can("student.edit");
+        public bool CanDelete => Can("student.delete");
+
         public CoordStudentDetailViewModel(IAuthService auth, INavigationService nav, IStudentService students)
             : base(auth, nav) { _students = students; Title = "Student Details"; }
 
@@ -20,7 +23,29 @@
         }
 
         [RelayCommand]
-        private Task EditAsync() =>
-            Nav.GoToAsync("CoordStudentForm", new Dictionary<string, object> { ["StudentId"] = StudentId });
+        private Task EditAsync()
+        {
+            if (!CanEdit) return Task.CompletedTask;
+            return Nav.GoToAsync("CoordStudentForm", new Dictionary<string, object> { ["StudentId"] = StudentId });
+        }
+
+        [RelayCommand]
+        private async Task ToggleAsync()
+        {
+            if (Student is null) return;
+            var r = await _students.ToggleAsync(StudentId);
+            if (r.Success) { await ShowToastAsync(r.Message); await InitializeAsync(); }
+            else SetError(r.Message);
+        }
+
+        [RelayCommand]
+        private async Task DeleteAsync()
+        {
+            if (!CanDelete) return;
+            if (!await ConfirmAsync("Delete Student", $"Delete '{Student?.FullName}'?")) return;
+            var r = await _students.DeleteAsync(StudentId);
+            if (r.Success) { await ShowToastAsync("Student deleted."); await Nav.GoBackAsync(); }
+            else SetError(r.Message);
+        }
     }
 }

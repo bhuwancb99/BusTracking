@@ -16,9 +16,16 @@
 
         public async Task<List<RouteItem>> GetAllAsync()
         {
-            // Always fetch fresh from API — don't cache to avoid stale data on list page
-            var r = await _api.GetAsync<PagedResult<RouteItem>>(BaseUrl);
-            return r.Data?.Items ?? [];
+            if (_auth.CurrentRole == Constants.Roles.BusCoordinator)
+            {
+                var r = await _api.GetAsync<List<RouteItem>>(BaseUrl);
+                return r.Data ?? [];
+            }
+            else
+            {
+                var r = await _api.GetAsync<PagedResult<RouteItem>>(BaseUrl);
+                return r.Data?.Items ?? [];
+            }
         }
 
         public async Task<List<StopItem>> GetStopsAsync(int routeId)

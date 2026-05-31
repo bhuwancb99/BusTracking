@@ -8,9 +8,9 @@
         private readonly IEmailService _email;
 
         public AuthService(AppDbContext db, IJwtService jwt, IPasswordService pwd, IEmailService email)
-        { 
+        {
             _db = db;
-            _jwt = jwt; 
+            _jwt = jwt;
             _pwd = pwd;
             _email = email;
         }
@@ -27,6 +27,15 @@
             user.LastLoginAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
 
+            // Load permissions for BusCoordinator — all other roles either have
+            // no permission system (Driver/Parent/Student) or have all permissions (SuperAdmin).
+            var permissions = "";
+            if (user.Role.RoleName == "BusCoordinator")
+            {
+                var keys = await GetCoordinatorPermissionsAsync(user.UserId);
+                permissions = System.Text.Json.JsonSerializer.Serialize(keys);
+            }
+
             var token = _jwt.GenerateToken(user.UserId, user.Email, user.Role.RoleName);
             return ApiResponse<LoginResponseDto>.Ok(new LoginResponseDto
             {
@@ -35,7 +44,8 @@
                 Email = user.Email,
                 Role = user.Role.RoleName,
                 Token = token,
-                Expiry = DateTime.UtcNow.AddHours(8)
+                Expiry = DateTime.UtcNow.AddHours(8),
+                Permissions = permissions
             });
         }
 

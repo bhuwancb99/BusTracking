@@ -8,5 +8,6 @@
         public string Role { get; set; } = "";
         public string Token { get; set; } = "";
         public DateTime Expiry { get; set; }
+        public string Permissions { get; set; } = "";
     }
 }

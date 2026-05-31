@@ -10,15 +10,26 @@
         private string BaseUrl => _auth.CurrentRole == Constants.Roles.SuperAdmin
             ? Constants.Admin.Drivers : Constants.Coordinator.Drivers;
 
+        private bool IsCoordinator => _auth.CurrentRole == Constants.Roles.BusCoordinator;
+
         public async Task<List<DriverItem>> GetAllAsync(string? search = null, int page = 1, bool? isActive = true)
         {
-            var url = $"{BaseUrl}?page={page}";
-            if (!string.IsNullOrWhiteSpace(search))
-                url += $"&search={Uri.EscapeDataString(search)}";
-            if (isActive.HasValue)
-                url += $"&isActive={isActive.Value.ToString().ToLower()}";
-            var r = await _api.GetAsync<PagedResult<DriverItem>>(url);
-            return r.Data?.Items ?? [];
+            if (IsCoordinator)
+            {
+                var url = BaseUrl + (search != null ? $"?search={Uri.EscapeDataString(search)}" : "");
+                var r = await _api.GetAsync<List<DriverItem>>(url);
+                return r.Data ?? [];
+            }
+            else
+            {
+                var url = $"{BaseUrl}?page={page}";
+                if (!string.IsNullOrWhiteSpace(search))
+                    url += $"&search={Uri.EscapeDataString(search)}";
+                if (isActive.HasValue)
+                    url += $"&isActive={isActive.Value.ToString().ToLower()}";
+                var r = await _api.GetAsync<PagedResult<DriverItem>>(url);
+                return r.Data?.Items ?? [];
+            }
         }
 
         public async Task<DriverItem?> GetByIdAsync(int id)
