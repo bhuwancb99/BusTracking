@@ -112,6 +112,10 @@ CREATE TABLE Users (
 );
 GO
 
+INSERT INTO Users VALUES(1,'Super Admin','admin@bustracking.com',NULL,'$2a$12$gRiCpH9Cj4ztBpZsTgntH.BM2d/G9mO6VmcbIKD7gRdkk4vT3PpoW',
+'$2a$12$gRiCpH9Cj4ztBpZsTgntH.',NULL,1,1,GETDATE(),GETDATE(),GETDATE(),1)
+GO
+
 -- ============================================================
 -- 4. PASSWORD RESET TOKENS
 -- ============================================================
@@ -464,6 +468,7 @@ WHERE NOT EXISTS (
     SELECT 1 FROM AppConfigurations
     WHERE ConfigKey = v.ConfigKey AND Platform = v.Platform
 );
+GO
 
 -- ============================================================
 -- VIEWS
@@ -655,9 +660,6 @@ CREATE NONCLUSTERED INDEX IX_Availability_Student ON StudentAvailabilities (Stud
 CREATE NONCLUSTERED INDEX IX_Feedbacks_Status     ON Feedbacks (Status, CreatedAt DESC);
 CREATE NONCLUSTERED INDEX IX_Notifications_Read   ON Notifications (RecipientUserId, IsRead);
 GO
-
-INSERT INTO Users VALUES(1,'Super Admin','admin@bustracking.com',NULL,'$2a$12$gRiCpH9Cj4ztBpZsTgntH.BM2d/G9mO6VmcbIKD7gRdkk4vT3PpoW',
-'$2a$12$gRiCpH9Cj4ztBpZsTgntH.',NULL,1,1,GETDATE(),GETDATE(),GETDATE(),1)
 
 PRINT 'BusTrackingDB created successfully with all tables, views, stored procedures, and indexes.';
 GO
