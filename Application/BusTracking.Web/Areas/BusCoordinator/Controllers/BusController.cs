@@ -14,8 +14,11 @@
 
         public async Task<IActionResult> Index(int page = 1, string? search = null, string? status = "Active")
         {
-            ViewBag.Search = search; ViewBag.Status = status;
-            var r0 = await _bus.GetAllAsync(page, 10, search, status);
+            // Normalise: "Both" and null both mean no status filter for the service
+            var normalised = (status == "Both" || string.IsNullOrEmpty(status)) ? null : status;
+            ViewBag.Search = search;
+            ViewBag.Status = status ?? "Active"; // keep selection stable; default to Active on first load
+            var r0 = await _bus.GetAllAsync(page, 10, search, normalised);
             return View(r0.Data);
         }
 

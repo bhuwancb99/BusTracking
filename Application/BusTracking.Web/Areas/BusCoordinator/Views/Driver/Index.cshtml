@@ -1,4 +1,4 @@
-﻿@model BusTracking.Common.DTOs.Common.PagedResult<BusTracking.Common.DTOs.Driver.DriverListDto>
+@model BusTracking.Common.DTOs.Common.PagedResult<BusTracking.Common.DTOs.Driver.DriverListDto>
 @using BusTracking.Web.Helpers
 @{
     ViewData["Title"] = "Drivers";
@@ -6,6 +6,9 @@
     bool canEdit   = PermissionHelper.Can(User, "driver.edit");
     bool canDelete = PermissionHelper.Can(User, "driver.delete");
     bool canView   = PermissionHelper.Can(User, "driver.view");
+
+    // Normalise so null and "" both mean "Both"
+    var currentStatus = (ViewBag.Status as string) ?? "";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -23,12 +26,12 @@
         <form asp-area="BusCoordinator" asp-action="Index" method="get"
               class="d-flex align-items-center gap-3 flex-wrap flex-grow-1">
             <div class="d-flex gap-3">
-                @foreach (var s in new[] { ("Active", "Active"), ("Inactive", "Inactive"), ("", "Both") })
+                @foreach (var s in new[] { ("Active", "Active"), ("Inactive", "Inactive"), ("Both", "Both") })
                 {
                     <div class="form-check mb-0">
                         <input class="form-check-input" type="radio" name="status"
                                value="@s.Item1" id="st_@s.Item1"
-                        @((ViewBag.Status as string) == s.Item1 ? "checked" : "")
+                               @(currentStatus == s.Item1 ? "checked" : "")
                                onchange="this.form.submit()" />
                         <label class="form-check-label small" for="st_@s.Item1">@s.Item2</label>
                     </div>
@@ -86,7 +89,6 @@
                                 }
                                 else
                                 {
-
                                     <span class="text-muted small">–</span>
                                 }
                             </td>
