@@ -9,7 +9,8 @@
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
     x:DataType="vm:CoordParentDetailViewModel"
     x:TypeArguments="vm:CoordParentDetailViewModel"
-    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
@@ -27,26 +28,50 @@
                 Text="Parent Details"
                 TextColor="White"
                 VerticalOptions="Center" />
-            <Button
+            <Border
                 Grid.Column="1"
-                Padding="12,6"
+                Padding="7"
                 BackgroundColor="White"
-                Command="{Binding EditCommand}"
-                CornerRadius="20"
-                FontSize="13"
                 IsVisible="{Binding CanEdit}"
-                Text="Edit"
-                TextColor="{StaticResource Primary}" />
-            <Button
+                StrokeShape="RoundRectangle 18"
+                StrokeThickness="0"
+                VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding EditCommand}" />
+                </Border.GestureRecognizers>
+                <Image
+                    HeightRequest="18"
+                    HorizontalOptions="Center"
+                    Source="edit.png"
+                    VerticalOptions="Center"
+                    WidthRequest="18">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                    </Image.Behaviors>
+                </Image>
+            </Border>
+            <Border
                 Grid.Column="2"
-                Padding="12,6"
+                Padding="7"
                 BackgroundColor="{StaticResource Danger}"
-                Command="{Binding DeleteCommand}"
-                CornerRadius="20"
-                FontSize="13"
                 IsVisible="{Binding CanDelete}"
-                Text="Delete"
-                TextColor="White" />
+                StrokeShape="RoundRectangle 18"
+                StrokeThickness="0"
+                VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding DeleteCommand}" />
+                </Border.GestureRecognizers>
+                <Image
+                    HeightRequest="18"
+                    HorizontalOptions="Center"
+                    Source="delete.png"
+                    VerticalOptions="Center"
+                    WidthRequest="18">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="White" />
+                    </Image.Behaviors>
+                </Image>
+            </Border>
         </Grid>
     </Shell.TitleView>
 
@@ -62,9 +87,11 @@
 
             <Border
                 Padding="12,10"
-                BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight},
+                                                  Dark={StaticResource ErrorBannerBgDark}}"
                 IsVisible="{Binding HasError}"
-                Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
+                                         Dark={StaticResource ErrorBannerBorderDark}}"
                 StrokeShape="RoundRectangle 10">
                 <Label
                     FontSize="13"
@@ -75,7 +102,10 @@
             <!--  Header  -->
             <Border
                 Padding="20"
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 16">
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
                     <Border
@@ -100,11 +130,13 @@
                             FontAttributes="Bold"
                             FontSize="18"
                             Text="{Binding Parent.FullName}"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
                         <Label
                             FontSize="13"
                             Text="{Binding Parent.Email}"
-                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
                         <Label
                             FontSize="13"
                             Text="{Binding Parent.ChildrenLabel}"
@@ -116,25 +148,31 @@
             <!--  Info  -->
             <Border
                 Padding="16"
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 16">
                 <VerticalStackLayout Spacing="14">
                     <Label
                         FontAttributes="Bold"
                         FontSize="14"
                         Text="Contact"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
                     <BoxView BackgroundColor="{AppThemeBinding Light={StaticResource StatusInactiveBg}, Dark={StaticResource StatusInactiveBgDark}}" HeightRequest="1" />
                     <VerticalStackLayout Spacing="3">
                         <Label
                             FontSize="11"
                             Text="PHONE"
-                            TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
                         <Label
                             FontAttributes="Bold"
                             FontSize="14"
                             Text="{Binding Parent.PhoneNumber}"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
                     </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
@@ -142,14 +180,18 @@
             <!--  Linked students  -->
             <Border
                 Padding="16"
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 16">
                 <VerticalStackLayout Spacing="10">
                     <Label
                         FontAttributes="Bold"
                         FontSize="14"
                         Text="Linked Students"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
                     <BoxView BackgroundColor="{AppThemeBinding Light={StaticResource StatusInactiveBg}, Dark={StaticResource StatusInactiveBgDark}}" HeightRequest="1" />
                     <CollectionView ItemsSource="{Binding Parent.Students}" SelectionMode="None">
                         <CollectionView.EmptyView>
@@ -157,15 +199,18 @@
                                 FontSize="13"
                                 HorizontalOptions="Center"
                                 Text="No students linked"
-                                TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                            Dark={StaticResource TextSecondaryDark}}" />
                         </CollectionView.EmptyView>
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:Parent.LinkedStudent">
                                 <Border
                                     Margin="0,3"
                                     Padding="12,8"
-                                    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource CardBgDark}}"
-                                    Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                                                      Dark={StaticResource CardBgDark}}"
+                                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                             Dark={StaticResource BorderColorDark}}"
                                     StrokeShape="RoundRectangle 10">
                                     <Grid ColumnDefinitions="*,Auto">
                                         <Label
@@ -173,7 +218,8 @@
                                             FontAttributes="Bold"
                                             FontSize="14"
                                             Text="{Binding FullName}"
-                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                        Dark={StaticResource TextPrimaryDark}}" />
                                         <Label
                                             Grid.Column="1"
                                             FontSize="12"

@@ -9,12 +9,20 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         public string SearchPlaceholder => "Search drivers…";
         public bool CanLoadMore => false;
-        public bool CanEdit => Can("driver.edit");
+        public bool CanAdd    => Can("driver.add");
+        public bool CanEdit   => Can("driver.edit");
+        public bool CanDelete => Can("driver.delete");
 
         public CoordDriverListViewModel(IAuthService auth, INavigationService nav, IDriverService drivers)
             : base(auth, nav) { _drivers = drivers; Title = "Drivers"; }
 
-        public override async Task InitializeAsync() => await LoadAsync();
+        public override async Task InitializeAsync()
+        {
+            OnPropertyChanged(nameof(CanAdd));
+            OnPropertyChanged(nameof(CanEdit));
+            OnPropertyChanged(nameof(CanDelete));
+            await LoadAsync();
+        }
 
         [RelayCommand]
         private async Task LoadAsync()
@@ -29,6 +37,10 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         [RelayCommand] private async Task LoadMoreAsync() { }
         [RelayCommand] private async Task SearchAsync() => await LoadAsync();
+        [RelayCommand] private Task AddAsync()    => Nav.GoToAsync("CoordDriverForm");
+        [RelayCommand]
+        private Task EditAsync(DriverItem d) =>
+            Nav.GoToAsync("CoordDriverForm", new Dictionary<string, object> { ["UserId"] = d.UserId });
         [RelayCommand]
         private Task DetailAsync(DriverItem d) =>
             Nav.GoToAsync("CoordDriverDetail", new Dictionary<string, object> { ["UserId"] = d.UserId });

@@ -25,6 +25,22 @@
                 Text="Parents"
                 TextColor="White"
                 VerticalOptions="Center" />
+            <Border
+                Grid.Column="1"
+                IsVisible="{Binding CanAdd}"
+                Style="{StaticResource NavAddBorder}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding AddCommand}" />
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        Text="+ Add"
+                        TextColor="White"
+                        VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
         </Grid>
     </Shell.TitleView>
 
@@ -125,11 +141,9 @@
                 <DataTemplate x:DataType="models:Parent.ParentItem">
                     <Border Style="{StaticResource ListItemBorder}">
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordParentListViewModel}}, Path=DetailCommand}"
-                                CommandParameter="{Binding .}" />
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordParentListViewModel}}, Path=DetailCommand}" CommandParameter="{Binding .}" />
                         </Border.GestureRecognizers>
-<Grid
+                        <Grid
                             Padding="14"
                             ColumnDefinitions="Auto,*,Auto"
                             ColumnSpacing="12">

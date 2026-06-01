@@ -1,6 +1,5 @@
 namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
-    // Coordinator role is view-only for drivers — no edit/delete/toggle in coordinator API
     public partial class CoordDriverDetailViewModel : BaseViewModel, IQueryAttributable
     {
         private readonly IDriverService _drivers;
@@ -20,21 +19,29 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         public override async Task InitializeAsync()
         {
-            await RunAsync(async () => { Driver = await _drivers.GetByIdAsync(UserId); });
+            await RunAsync(async () =>
+            {
+                Driver = await _drivers.GetByIdAsync(UserId);
+                OnPropertyChanged(nameof(CanEdit));
+                OnPropertyChanged(nameof(CanDelete));
+            });
         }
-    
+
         [RelayCommand]
-        private Task EditAsync() =>
-            Nav.GoToAsync("CoordDriverForm", new Dictionary<string, object> { ["UserId"] = UserId });
+        private Task EditAsync()
+        {
+            if (!CanEdit) return Task.CompletedTask;
+            return Nav.GoToAsync("CoordDriverForm", new Dictionary<string, object> { ["UserId"] = UserId });
+        }
 
         [RelayCommand]
         private async Task DeleteAsync()
         {
+            if (!CanDelete) return;
             if (!await ConfirmAsync("Delete Driver", $"Delete '{Driver?.FullName}'?")) return;
             var r = await _drivers.DeleteAsync(UserId);
             if (r.Success) { await ShowToastAsync("Driver deleted."); await Nav.GoBackAsync(); }
             else SetError(r.Message);
         }
-
     }
 }

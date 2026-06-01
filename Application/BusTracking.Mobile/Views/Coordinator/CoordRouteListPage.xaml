@@ -17,7 +17,7 @@
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
-        <Grid Padding="0,0,10,0" ColumnDefinitions="*,Auto">
+        <Grid Padding="0,0,8,0" ColumnDefinitions="*,Auto">
             <Label
                 Grid.Column="0"
                 FontAttributes="Bold"
@@ -26,19 +26,24 @@
                 TextColor="White"
                 VerticalOptions="Center" />
             <Border
+                Grid.Column="1"
+                Padding="8"
+                BackgroundColor="White"
                 IsVisible="{Binding CanAdd}"
-                Style="{StaticResource NavAddBorder}">
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0"
+                VerticalOptions="Center">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding AddCommand}" />
                 </Border.GestureRecognizers>
-                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="13"
-                        Text="+ Add"
-                        TextColor="White"
-                        VerticalOptions="Center" />
-                </HorizontalStackLayout>
+                <Image
+                    HeightRequest="20"
+                    Source="add.png"
+                    WidthRequest="20">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                    </Image.Behaviors>
+                </Image>
             </Border>
         </Grid>
     </Shell.TitleView>
@@ -50,7 +55,7 @@
             Grid.Row="0"
             Margin="14,12,14,4"
             Style="{StaticResource SearchBarBorder}">
-            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
                 <Image
                     Grid.Column="0"
                     HeightRequest="18"
@@ -66,11 +71,20 @@
                     Placeholder="{Binding SearchPlaceholder}"
                     ReturnCommand="{Binding SearchCommand}"
                     Text="{Binding SearchText}" />
-                <Button
+                <ImageButton
                     Grid.Column="2"
+                    Padding="8"
+                    BackgroundColor="{StaticResource Primary}"
                     Command="{Binding SearchCommand}"
-                    Style="{StaticResource SearchGoButton}"
-                    Text="Go" />
+                    CornerRadius="10"
+                    HeightRequest="36"
+                    HorizontalOptions="End"
+                    Source="search.png"
+                    WidthRequest="36">
+                    <ImageButton.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="White" />
+                    </ImageButton.Behaviors>
+                </ImageButton>
             </Grid>
         </Border>
 
@@ -147,9 +161,7 @@
                 <DataTemplate x:DataType="models:Route.RouteItem">
                     <Border Style="{StaticResource ListItemBorder}">
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordRouteListViewModel}}, Path=DetailCommand}"
-                                CommandParameter="{Binding .}" />
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordRouteListViewModel}}, Path=DetailCommand}" CommandParameter="{Binding .}" />
                         </Border.GestureRecognizers>
                         <Grid
                             Padding="14"
@@ -215,7 +227,8 @@
                                         FontSize="10"
                                         Text="{Binding StatusLabel}"
                                         TextColor="{Binding StatusTextColor}" />
-                                </Border>                            </VerticalStackLayout>
+                                </Border>
+                            </VerticalStackLayout>
                         </Grid>
                     </Border>
                 </DataTemplate>

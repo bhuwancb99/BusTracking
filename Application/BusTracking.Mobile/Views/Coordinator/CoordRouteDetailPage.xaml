@@ -9,7 +9,8 @@
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
     x:DataType="vm:CoordRouteDetailViewModel"
     x:TypeArguments="vm:CoordRouteDetailViewModel"
-    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
@@ -28,26 +29,50 @@
                 Text="Route Details"
                 TextColor="White"
                 VerticalOptions="Center" />
-            <Button
+            <Border
                 Grid.Column="1"
-                Padding="12,6"
+                Padding="7"
                 BackgroundColor="White"
-                Command="{Binding EditCommand}"
-                CornerRadius="20"
-                FontSize="13"
                 IsVisible="{Binding CanEdit}"
-                Text="Edit"
-                TextColor="{StaticResource Primary}" />
-            <Button
+                StrokeShape="RoundRectangle 18"
+                StrokeThickness="0"
+                VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding EditCommand}" />
+                </Border.GestureRecognizers>
+                <Image
+                    HeightRequest="18"
+                    HorizontalOptions="Center"
+                    Source="edit.png"
+                    VerticalOptions="Center"
+                    WidthRequest="18">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                    </Image.Behaviors>
+                </Image>
+            </Border>
+            <Border
                 Grid.Column="2"
-                Padding="12,6"
+                Padding="7"
                 BackgroundColor="{StaticResource Danger}"
-                Command="{Binding DeleteCommand}"
-                CornerRadius="20"
-                FontSize="13"
                 IsVisible="{Binding CanDelete}"
-                Text="Delete"
-                TextColor="White" />
+                StrokeShape="RoundRectangle 18"
+                StrokeThickness="0"
+                VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding DeleteCommand}" />
+                </Border.GestureRecognizers>
+                <Image
+                    HeightRequest="18"
+                    HorizontalOptions="Center"
+                    Source="delete.png"
+                    VerticalOptions="Center"
+                    WidthRequest="18">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="White" />
+                    </Image.Behaviors>
+                </Image>
+            </Border>
         </Grid>
     </Shell.TitleView>
 
@@ -63,9 +88,11 @@
 
             <Border
                 Padding="12,10"
-                BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight},
+                                                  Dark={StaticResource ErrorBannerBgDark}}"
                 IsVisible="{Binding HasError}"
-                Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
+                                         Dark={StaticResource ErrorBannerBorderDark}}"
                 StrokeShape="RoundRectangle 10">
                 <Label
                     FontSize="13"
@@ -76,13 +103,17 @@
             <!--  Header  -->
             <Border
                 Padding="20"
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 16">
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
                     <Border
                         Grid.Column="0"
                         Padding="14"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg}, Dark={StaticResource StatBusBgDark}}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
+                                                          Dark={StaticResource StatBusBgDark}}"
                         HeightRequest="60"
                         StrokeShape="RoundRectangle 16"
                         WidthRequest="60">
@@ -100,7 +131,8 @@
                             FontAttributes="Bold"
                             FontSize="18"
                             Text="{Binding Route.RouteName}"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
                         <Label
                             FontSize="13"
                             Text="{Binding Route.RouteCode}"
@@ -108,7 +140,8 @@
                         <Label
                             FontSize="12"
                             Text="{Binding Route.TimingDisplay}"
-                            TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
                     </VerticalStackLayout>
                 </Grid>
             </Border>
@@ -116,7 +149,10 @@
             <!--  Stops  -->
             <Border
                 Padding="16"
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 16">
                 <VerticalStackLayout Spacing="10">
                     <Label>
@@ -126,11 +162,13 @@
                                     FontAttributes="Bold"
                                     FontSize="14"
                                     Text="Stops  "
-                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                Dark={StaticResource TextPrimaryDark}}" />
                                 <Span
                                     FontSize="13"
                                     Text="{Binding Route.StopCount, StringFormat='({0})'}"
-                                    TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                                    TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                Dark={StaticResource TextSecondaryDark}}" />
                             </FormattedString>
                         </Label.FormattedText>
                     </Label>
@@ -141,7 +179,8 @@
                                 FontSize="13"
                                 HorizontalOptions="Center"
                                 Text="No stops"
-                                TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                            Dark={StaticResource TextSecondaryDark}}" />
                         </CollectionView.EmptyView>
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:Route.StopItem">
@@ -167,13 +206,15 @@
                                         Grid.Column="1"
                                         FontSize="14"
                                         Text="{Binding StopName}"
-                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                    Dark={StaticResource TextPrimaryDark}}"
                                         VerticalOptions="Center" />
                                     <Label
                                         Grid.Column="2"
                                         FontSize="12"
                                         Text="{Binding MorningTime}"
-                                        TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                    Dark={StaticResource TextSecondaryDark}}"
                                         VerticalOptions="Center" />
                                 </Grid>
                             </DataTemplate>

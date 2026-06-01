@@ -24,8 +24,9 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         {
             await RunAsync(async () =>
             {
-                // Use the dedicated detail endpoint instead of fetching all trips
                 Trip = await _trips.GetByIdAsync(TripId);
+                OnPropertyChanged(nameof(CanEdit));
+                OnPropertyChanged(nameof(CanDelete));
             });
         }
 

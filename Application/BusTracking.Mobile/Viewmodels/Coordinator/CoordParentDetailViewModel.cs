@@ -19,7 +19,12 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         public override async Task InitializeAsync()
         {
-            await RunAsync(async () => { Parent = await _parents.GetByIdAsync(UserId); });
+            await RunAsync(async () =>
+            {
+                Parent = await _parents.GetByIdAsync(UserId);
+                OnPropertyChanged(nameof(CanEdit));
+                OnPropertyChanged(nameof(CanDelete));
+            });
         }
 
         [RelayCommand]

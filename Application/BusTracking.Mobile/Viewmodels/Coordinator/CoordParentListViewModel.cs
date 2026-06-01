@@ -9,12 +9,20 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         public string SearchPlaceholder => "Search parents…";
         public bool CanLoadMore => false;
-        public bool CanEdit => Can("parent.edit");
+        public bool CanAdd    => Can("parent.add");
+        public bool CanEdit   => Can("parent.edit");
+        public bool CanDelete => Can("parent.delete");
 
         public CoordParentListViewModel(IAuthService auth, INavigationService nav, IParentService parents)
             : base(auth, nav) { _parents = parents; Title = "Parents"; }
 
-        public override async Task InitializeAsync() => await LoadAsync();
+        public override async Task InitializeAsync()
+        {
+            OnPropertyChanged(nameof(CanAdd));
+            OnPropertyChanged(nameof(CanEdit));
+            OnPropertyChanged(nameof(CanDelete));
+            await LoadAsync();
+        }
 
         [RelayCommand]
         private async Task LoadAsync()
@@ -29,6 +37,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         [RelayCommand] private async Task LoadMoreAsync() { }
         [RelayCommand] private async Task SearchAsync() => await LoadAsync();
+        [RelayCommand] private Task AddAsync()    => Nav.GoToAsync("CoordParentForm");
         [RelayCommand]
         private Task DetailAsync(ParentItem p) =>
             Nav.GoToAsync("CoordParentDetail", new Dictionary<string, object> { ["UserId"] = p.UserId });

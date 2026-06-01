@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Services
+namespace BusTracking.Mobile.Services
 {
     public class ParentService : IParentService
     {
@@ -30,15 +30,30 @@
 
         public async Task<ParentItem?> GetByIdAsync(int id)
         {
+            // Coordinator has no /{id} endpoint — fetch from list and find by id
+            if (IsCoordinator)
+            {
+                var list = await GetAllAsync();
+                return list.FirstOrDefault(p => p.UserId == id);
+            }
             var r = await _api.GetAsync<ParentItem>(string.Format(Constants.Admin.ParentById, id));
             return r.Data;
         }
 
-        public Task<ApiResponse<object>> CreateAsync(CreateParentRequest req) => _api.PostAsync<object>(BaseUrl, req);
-        public Task<ApiResponse<object>> UpdateAsync(int id, UpdateParentRequest req) => _api.PutAsync<object>(string.Format(Constants.Admin.ParentById, id), req);
-        public Task<ApiResponse<object>> DeleteAsync(int id) => _api.DeleteAsync<object>(string.Format(Constants.Admin.ParentById, id));
-        public Task<ApiResponse<object>> ToggleAsync(int id) => _api.PostAsync<object>(string.Format(Constants.Admin.ParentToggle, id));
-        public Task<ApiResponse<object>> ResetPasswordAsync(int id) => _api.PostAsync<object>(string.Format(Constants.Admin.ParentReset, id));
+        public Task<ApiResponse<object>> CreateAsync(CreateParentRequest req)
+            => _api.PostAsync<object>(BaseUrl, req);
+
+        public Task<ApiResponse<object>> UpdateAsync(int id, UpdateParentRequest req)
+            => _api.PutAsync<object>(string.Format(Constants.Admin.ParentById, id), req);
+
+        public Task<ApiResponse<object>> DeleteAsync(int id)
+            => _api.DeleteAsync<object>(string.Format(Constants.Admin.ParentById, id));
+
+        public Task<ApiResponse<object>> ToggleAsync(int id)
+            => _api.PostAsync<object>(string.Format(Constants.Admin.ParentToggle, id));
+
+        public Task<ApiResponse<object>> ResetPasswordAsync(int id)
+            => _api.PostAsync<object>(string.Format(Constants.Admin.ParentReset, id));
 
         public async Task<object?> GetDashboardAsync()
         {

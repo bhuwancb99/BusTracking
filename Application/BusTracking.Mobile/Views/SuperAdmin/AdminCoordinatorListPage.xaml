@@ -223,7 +223,7 @@
                                         FontSize="10"
                                         Text="{Binding StatusLabel}"
                                         TextColor="{Binding StatusTextColor}" />
-                                </Border>                            
+                                </Border>
                             </VerticalStackLayout>
                         </Grid>
                     </Border>

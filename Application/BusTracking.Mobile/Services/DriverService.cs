@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Services
+namespace BusTracking.Mobile.Services
 {
     public class DriverService : IDriverService
     {
@@ -34,6 +34,12 @@
 
         public async Task<DriverItem?> GetByIdAsync(int id)
         {
+            // Coordinator has no /{id} endpoint — fetch from list and find by id
+            if (IsCoordinator)
+            {
+                var list = await GetAllAsync();
+                return list.FirstOrDefault(d => d.UserId == id);
+            }
             var r = await _api.GetAsync<DriverItem>(string.Format(Constants.Admin.DriverById, id));
             return r.Data;
         }
@@ -53,7 +59,6 @@
         public Task<ApiResponse<object>> ResetPasswordAsync(int id)
             => _api.PostAsync<object>(string.Format(Constants.Admin.DriverReset, id));
 
-        // Dropdown always only ACTIVE drivers (for bus assignment)
         public async Task<List<DropdownItem>> GetDropdownAsync(string? search = null)
         {
             var url = Constants.Admin.DriverDropdown + "?isActive=true"

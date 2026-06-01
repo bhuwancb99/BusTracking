@@ -25,21 +25,26 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                 var all = await _routes.GetAllAsync();
                 Route = all.FirstOrDefault(r => r.RouteId == RouteId);
                 Stops = new ObservableCollection<StopItem>(await _routes.GetStopsAsync(RouteId));
+                OnPropertyChanged(nameof(CanEdit));
+                OnPropertyChanged(nameof(CanDelete));
             });
         }
 
         [RelayCommand]
-        private Task EditAsync() =>
-            Nav.GoToAsync("CoordRouteForm", new Dictionary<string, object> { ["RouteId"] = RouteId });
-    
+        private Task EditAsync()
+        {
+            if (!CanEdit) return Task.CompletedTask;
+            return Nav.GoToAsync("CoordRouteForm", new Dictionary<string, object> { ["RouteId"] = RouteId });
+        }
+
         [RelayCommand]
         private async Task DeleteAsync()
         {
+            if (!CanDelete) return;
             if (!await ConfirmAsync("Delete Route", "Delete this route? This cannot be undone.")) return;
             var r = await _routes.DeleteAsync(RouteId);
             if (r.Success) { await ShowToastAsync("Route deleted."); await Nav.GoBackAsync(); }
             else SetError(r.Message);
         }
-
     }
 }
