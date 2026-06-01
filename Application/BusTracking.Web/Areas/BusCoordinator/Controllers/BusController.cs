@@ -23,6 +23,13 @@
         }
 
         [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var r = await _bus.GetByIdAsync(id);
+            return r.Success ? View(r.Data) : NotFound();
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Create()
         {
             await LoadRoutes();
