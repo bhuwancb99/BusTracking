@@ -9,7 +9,7 @@
     Title="Driver Dashboard"
     x:DataType="vm:DriverDashboardViewModel"
     x:TypeArguments="vm:DriverDashboardViewModel"
-    BackgroundColor="#F4F6FB">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
@@ -42,19 +42,19 @@
                     FontAttributes="Bold"
                     FontSize="22"
                     Text="{Binding WelcomeText}"
-                    TextColor="#1e293b" />
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
 
                 <!--  Bus / Route card  -->
                 <Border
                     Padding="20"
-                    BackgroundColor="#1e3a5f"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource HeroCardBgLight}, Dark={StaticResource HeroCardBgDark}}"
                     StrokeShape="RoundRectangle 20">
                     <VerticalStackLayout Spacing="8">
                         <Label
                             FontAttributes="Bold"
                             FontSize="13"
                             Text="MY BUS"
-                            TextColor="#93c5fd" />
+                            TextColor="{StaticResource HeroCardSubText}" />
                         <Label
                             FontAttributes="Bold"
                             FontSize="20"
@@ -63,12 +63,12 @@
                         <Label
                             FontSize="14"
                             Text="{Binding RouteDisplay}"
-                            TextColor="#93c5fd" />
+                            TextColor="{StaticResource HeroCardSubText}" />
                         <BoxView
                             Margin="0,4"
                             BackgroundColor="#ffffff22"
                             HeightRequest="1" />
-                        <Label FontSize="13" TextColor="#cbd5e1">
+                        <Label FontSize="13" TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}">
                             <Label.FormattedText>
                                 <FormattedString>
                                     <Span Text="👥 " />
@@ -76,7 +76,7 @@
                                         FontAttributes="Bold"
                                         Text="{Binding TotalStudents}"
                                         TextColor="White" />
-                                    <Span Text=" students on route" TextColor="#cbd5e1" />
+                                    <Span Text=" students on route" TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>
@@ -86,7 +86,7 @@
                 <!--  Active trip card  -->
                 <Border
                     Padding="20"
-                    BackgroundColor="White"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
                     IsVisible="{Binding ActiveTrip, Converter={StaticResource NotNull}}"
                     StrokeShape="RoundRectangle 16">
                     <VerticalStackLayout Spacing="10">
@@ -94,18 +94,18 @@
                             FontAttributes="Bold"
                             FontSize="15"
                             Text="🚌 Today's Trip"
-                            TextColor="#1e293b" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
 
                         <Grid ColumnDefinitions="*,Auto">
                             <VerticalStackLayout Grid.Column="0" Spacing="4">
                                 <Label
                                     FontSize="13"
                                     Text="{Binding ActiveTrip.TripType, StringFormat='Type: {0}'}"
-                                    TextColor="#64748b" />
+                                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                                 <Label
                                     FontSize="13"
                                     Text="{Binding ActiveTrip.TripDate, StringFormat='Date: {0}'}"
-                                    TextColor="#64748b" />
+                                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                             </VerticalStackLayout>
                             <Border
                                 Grid.Column="1"
@@ -123,19 +123,19 @@
                         <!--  Error banner  -->
                         <Border
                             Padding="10,6"
-                            BackgroundColor="#fef2f2"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
                             IsVisible="{Binding HasError}"
-                            Stroke="#fecaca"
+                            Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}"
                             StrokeShape="RoundRectangle 8">
                             <Label
                                 FontSize="12"
                                 Text="{Binding ErrorMessage}"
-                                TextColor="#ef4444" />
+                                TextColor="{StaticResource Danger}" />
                         </Border>
 
                         <!--  Start button  -->
                         <Button
-                            BackgroundColor="#2563eb"
+                            BackgroundColor="{StaticResource Primary}"
                             Command="{Binding StartActiveTripCommand}"
                             CornerRadius="12"
                             FontAttributes="Bold"
@@ -146,7 +146,7 @@
 
                         <!--  Go to tracking button  -->
                         <Button
-                            BackgroundColor="#16a34a"
+                            BackgroundColor="{StaticResource Success}"
                             Command="{Binding GoToActiveTrackingCommand}"
                             CornerRadius="12"
                             FontAttributes="Bold"
@@ -160,27 +160,27 @@
                 <!--  No trip placeholder  -->
                 <Border
                     Padding="20"
-                    BackgroundColor="White"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
                     IsVisible="{Binding ActiveTrip, Converter={StaticResource IsNull}}"
                     StrokeShape="RoundRectangle 16">
                     <Label
                         FontSize="14"
                         HorizontalOptions="Center"
                         Text="No trip scheduled for today"
-                        TextColor="#94a3b8" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
                 </Border>
 
                 <!--  View all trips  -->
                 <Button
-                    BackgroundColor="White"
-                    BorderColor="#2563eb"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
+                    BorderColor="{StaticResource Primary}"
                     BorderWidth="1.5"
                     Command="{Binding ViewTripsCommand}"
                     CornerRadius="14"
                     FontAttributes="Bold"
                     HeightRequest="50"
                     Text="📋 View All Trips"
-                    TextColor="#2563eb" />
+                    TextColor="{StaticResource Primary}" />
 
             </VerticalStackLayout>
         </ScrollView>

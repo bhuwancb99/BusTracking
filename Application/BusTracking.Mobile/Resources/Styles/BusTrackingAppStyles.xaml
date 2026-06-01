@@ -17,7 +17,7 @@
         <Setter Property="Shell.ForegroundColor" Value="White" />
         <Setter Property="Shell.TitleColor" Value="White" />
         <Setter Property="Shell.DisabledColor" Value="#B4FFFFFF" />
-        <Setter Property="Shell.UnselectedColor" Value="#95FFFFFF" />
+        <Setter Property="Shell.UnselectedColor" Value="#60FFFFFF" />
         <Setter Property="Shell.NavBarHasShadow" Value="False" />
     </Style>
     <Style TargetType="NavigationPage">
@@ -42,7 +42,7 @@
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
     </Style>
     <Style x:Key="SectionLabel" TargetType="Label">
-        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontSize" Value="15" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
     </Style>
@@ -61,12 +61,12 @@
     </Style>
     <Style x:Key="CaptionLabel" TargetType="Label">
         <Setter Property="FontSize" Value="11" />
-        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
     </Style>
     <Style x:Key="FieldLabel" TargetType="Label">
-        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontSize" Value="11" />
         <Setter Property="FontAttributes" Value="Bold" />
-        <Setter Property="CharacterSpacing" Value="0.5" />
+        <Setter Property="CharacterSpacing" Value="0.8" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
         <Setter Property="Margin" Value="0,0,0,6" />
     </Style>
@@ -115,9 +115,9 @@
     <Style x:Key="StatCardBorder" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" />
         <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 18" />
         <Setter Property="StrokeThickness" Value="1" />
-        <Setter Property="Padding" Value="14" />
+        <Setter Property="Padding" Value="12" />
     </Style>
     <Style x:Key="ListItemBorder" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" />
@@ -136,10 +136,10 @@
     <Style x:Key="SearchBarBorder" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" />
         <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 14" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
         <Setter Property="StrokeThickness" Value="1.5" />
-        <Setter Property="Padding" Value="12,0" />
-        <Setter Property="HeightRequest" Value="50" />
+        <Setter Property="Padding" Value="14,0" />
+        <Setter Property="HeightRequest" Value="52" />
     </Style>
     <Style x:Key="ErrorBannerBorder" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}" />
@@ -151,7 +151,7 @@
     </Style>
     <Style x:Key="QuickActionChip" TargetType="Border">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 12" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 14" />
         <Setter Property="StrokeThickness" Value="1.5" />
     </Style>
     <Style x:Key="IconTileBorder" TargetType="Border">
@@ -160,6 +160,14 @@
         <Setter Property="StrokeShape" Value="RoundRectangle 12" />
         <Setter Property="StrokeThickness" Value="0" />
         <Setter Property="Stroke" Value="Transparent" />
+    </Style>
+
+    <!--  ══ FORM FIELD CARD ════════════════════════════════════════════════  -->
+    <Style x:Key="FormFieldCard" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 14" />
+        <Setter Property="StrokeThickness" Value="1" />
     </Style>
 
     <!--  ══ BUTTONS ════════════════════════════════════════════════════════  -->
@@ -200,23 +208,37 @@
         <Setter Property="FontSize" Value="15" />
         <Setter Property="BorderWidth" Value="0" />
     </Style>
+
+    <!--  ══ NAV ADD BUTTON (Icon pill in Shell header) ════════════════════  -->
+    <!--  Used as wrapper — see NavAddBorder below for replacement  -->
     <Style x:Key="NavPillButton" TargetType="Button">
-        <Setter Property="BackgroundColor" Value="White" />
-        <Setter Property="TextColor" Value="{StaticResource Primary}" />
+        <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+        <Setter Property="TextColor" Value="White" />
         <Setter Property="CornerRadius" Value="20" />
         <Setter Property="FontAttributes" Value="Bold" />
         <Setter Property="FontSize" Value="13" />
-        <Setter Property="Padding" Value="16,6" />
+        <Setter Property="Padding" Value="14,6" />
         <Setter Property="BorderWidth" Value="0" />
     </Style>
+
+    <!--  Stylish icon-pill border used as Add button in Shell headers  -->
+    <Style x:Key="NavAddBorder" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="Padding" Value="12,7" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
     <Style x:Key="SearchGoButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
         <Setter Property="TextColor" Value="White" />
-        <Setter Property="CornerRadius" Value="10" />
+        <Setter Property="CornerRadius" Value="12" />
         <Setter Property="FontSize" Value="13" />
-        <Setter Property="Padding" Value="12,0" />
-        <Setter Property="HeightRequest" Value="36" />
+        <Setter Property="Padding" Value="14,0" />
+        <Setter Property="HeightRequest" Value="38" />
         <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="FontAttributes" Value="Bold" />
     </Style>
     <Style x:Key="LoginSignInButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
@@ -300,6 +322,15 @@
         <Setter Property="StrokeShape" Value="RoundRectangle 12" />
         <Setter Property="Padding" Value="12,13" />
         <Setter Property="Margin" Value="8,2" />
+    </Style>
+
+    <!--  ══ HERO CARD (dark banner used on Driver/Student/Parent pages) ══  -->
+    <Style x:Key="HeroCard" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource HeroCardBgLight}, Dark={StaticResource HeroCardBgDark}}" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 20" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="Padding" Value="20" />
     </Style>
 
     <!--  ══ DIVIDER ════════════════════════════════════════════════════════  -->

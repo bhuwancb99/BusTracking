@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminParentListViewModel : BaseViewModel
     {
@@ -73,5 +73,10 @@
             if (r.Success) { Items.Remove(p); await ShowToastAsync("Parent deleted."); }
             else SetError(r.Message);
         }
+    
+        [RelayCommand]
+        private Task DetailAsync(ParentItem p) =>
+            Nav.GoToAsync("AdminParentDetail", new Dictionary<string, object> { ["ParentId"] = p.UserId });
+
     }
 }

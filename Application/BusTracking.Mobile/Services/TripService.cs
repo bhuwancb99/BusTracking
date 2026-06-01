@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Services
+namespace BusTracking.Mobile.Services
 {
     public class TripService : ITripService
     {
@@ -49,6 +49,9 @@
 
         public Task<ApiResponse<object>> CancelAsync(int id) => _api.PostAsync<object>(
             string.Format(IsAdmin ? Constants.Admin.TripCancel : Constants.Coordinator.TripCancel, id));
+
+        public Task<ApiResponse<object>> DeleteAsync(int id) => _api.DeleteAsync<object>(
+            string.Format(IsAdmin ? Constants.Admin.TripById : Constants.Coordinator.TripById, id));
 
         public async Task<BusLocation?> GetLocationAsync(int tripId)
         {

@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Interfaces
+namespace BusTracking.Mobile.Interfaces
 {
     public interface ITripService
     {
@@ -8,6 +8,7 @@
         Task<ApiResponse<object>> StartAsync(int id);
         Task<ApiResponse<object>> EndAsync(int id);
         Task<ApiResponse<object>> CancelAsync(int id);
+        Task<ApiResponse<object>> DeleteAsync(int id);
         Task<BusLocation?> GetLocationAsync(int tripId);
     }
 }

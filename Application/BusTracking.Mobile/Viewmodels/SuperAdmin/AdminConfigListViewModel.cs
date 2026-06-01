@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminConfigListViewModel : BaseViewModel
     {
@@ -39,7 +39,7 @@
 
         // Tap on row → Edit (AppConfig has no separate detail page)
         [RelayCommand]
-        private Task TapAsync(AppConfigItem c) =>
+        private Task DetailAsync(AppConfigItem c) =>
             Nav.GoToAsync("AdminConfigForm", new Dictionary<string, object> { ["ConfigId"] = c.ConfigId });
 
         [RelayCommand]

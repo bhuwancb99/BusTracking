@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminBusListViewModel : BaseViewModel
     {
@@ -66,7 +66,7 @@
 
         // Tap row → Detail page
         [RelayCommand]
-        private Task TapAsync(BusItem bus) =>
+        private Task DetailAsync(BusItem bus) =>
             Nav.GoToAsync("AdminBusDetail", new Dictionary<string, object> { ["BusId"] = bus.BusId });
 
         [RelayCommand]

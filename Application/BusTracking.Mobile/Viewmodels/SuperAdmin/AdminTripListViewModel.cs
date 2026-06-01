@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminTripListViewModel : BaseViewModel
     {
@@ -36,7 +36,7 @@
 
         [RelayCommand] private Task AddAsync() => Nav.GoToAsync("AdminTripForm");
         [RelayCommand]
-        private Task ViewAsync(TripItem t) =>
+        private Task DetailAsync(TripItem t) =>
             Nav.GoToAsync("AdminTripDetail", new Dictionary<string, object> { ["TripId"] = t.TripId });
 
         [RelayCommand]

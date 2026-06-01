@@ -9,7 +9,7 @@
     Title="My Dashboard"
     x:DataType="vm:StudentDashboardViewModel"
     x:TypeArguments="vm:StudentDashboardViewModel"
-    BackgroundColor="#F4F6FB">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
@@ -42,19 +42,19 @@
                     FontAttributes="Bold"
                     FontSize="22"
                     Text="{Binding WelcomeText}"
-                    TextColor="#1e293b" />
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
 
                 <!--  Bus info card  -->
                 <Border
                     Padding="20"
-                    BackgroundColor="#1e3a5f"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource HeroCardBgLight}, Dark={StaticResource HeroCardBgDark}}"
                     StrokeShape="RoundRectangle 20">
                     <VerticalStackLayout Spacing="8">
                         <Label
                             FontAttributes="Bold"
                             FontSize="13"
                             Text="My Bus"
-                            TextColor="#93c5fd" />
+                            TextColor="{StaticResource HeroCardSubText}" />
                         <Label
                             FontAttributes="Bold"
                             FontSize="20"
@@ -63,7 +63,7 @@
                         <Label
                             FontSize="13"
                             Text="{Binding StopDisplay}"
-                            TextColor="#93c5fd" />
+                            TextColor="{StaticResource HeroCardSubText}" />
                         <BoxView
                             Margin="0,4"
                             BackgroundColor="#ffffff22"
@@ -79,7 +79,7 @@
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
                     <Button
                         Grid.Column="0"
-                        BackgroundColor="#2563eb"
+                        BackgroundColor="{StaticResource Primary}"
                         Command="{Binding TrackBusCommand}"
                         CornerRadius="14"
                         FontAttributes="Bold"
@@ -88,15 +88,15 @@
                         TextColor="White" />
                     <Button
                         Grid.Column="1"
-                        BackgroundColor="White"
-                        BorderColor="#2563eb"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
+                        BorderColor="{StaticResource Primary}"
                         BorderWidth="1.5"
                         Command="{Binding ViewAvailabilityCommand}"
                         CornerRadius="14"
                         FontAttributes="Bold"
                         HeightRequest="54"
                         Text="📅 Availability"
-                        TextColor="#2563eb" />
+                        TextColor="{StaticResource Primary}" />
                 </Grid>
 
             </VerticalStackLayout>

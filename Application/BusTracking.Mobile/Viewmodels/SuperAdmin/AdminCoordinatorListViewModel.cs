@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminCoordinatorListViewModel : BaseViewModel
     {
@@ -51,7 +51,7 @@
         [RelayCommand] private Task AddAsync() => Nav.GoToAsync("AdminCoordinatorForm");
 
         [RelayCommand]
-        private Task TapAsync(CoordinatorItem c) =>
+        private Task DetailAsync(CoordinatorItem c) =>
             Nav.GoToAsync("AdminCoordinatorDetail", new Dictionary<string, object> { ["UserId"] = c.UserId });
 
         [RelayCommand]

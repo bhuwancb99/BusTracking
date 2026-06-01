@@ -10,7 +10,7 @@
     Title="Routes"
     x:DataType="vm:AdminRouteListViewModel"
     x:TypeArguments="vm:AdminRouteListViewModel"
-    BackgroundColor="#F4F6FB">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
@@ -34,7 +34,7 @@
                 FontSize="13"
                 IsVisible="{Binding CanAdd}"
                 Text="+ Add"
-                TextColor="#2563eb" />
+                TextColor="{StaticResource Primary}" />
         </Grid>
     </Shell.TitleView>
 
@@ -45,10 +45,9 @@
             Grid.Row="0"
             Margin="12,12,12,4"
             Padding="12,0"
-            BackgroundColor="White"
-            Stroke="#e2e8f0"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
             StrokeShape="RoundRectangle 12">
-            <Grid ColumnDefinitions="Auto,*,Auto">
+            <Grid ColumnDefinitions="Auto,*">
                 <Label
                     Grid.Column="0"
                     Margin="0,0,8,0"
@@ -58,14 +57,14 @@
                     Grid.Column="1"
                     BackgroundColor="Transparent"
                     Placeholder="Search routes…"
-                    PlaceholderColor="#94a3b8"
+                    PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                     ReturnCommand="{Binding SearchCommand}"
                     Text="{Binding SearchText}"
-                    TextColor="#1e293b" />
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 <Button
                     Grid.Column="2"
                     Padding="10,4"
-                    BackgroundColor="#2563eb"
+                    BackgroundColor="{StaticResource Primary}"
                     Command="{Binding SearchCommand}"
                     CornerRadius="8"
                     FontSize="12"
@@ -80,7 +79,7 @@
             IsRunning="{Binding IsBusy}"
             IsVisible="{Binding IsBusy}"
             VerticalOptions="Center"
-            Color="#2563eb" />
+            Color="{StaticResource Primary}" />
 
         <CollectionView
             Grid.Row="1"
@@ -101,29 +100,28 @@
                         FontSize="15"
                         HorizontalOptions="Center"
                         Text="No routes found"
-                        TextColor="#64748b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>
             </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Route.RouteItem">
                     <Border
                         Margin="0,0,0,10"
-                        BackgroundColor="White"
-                        StrokeShape="RoundRectangle 14"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" StrokeShape="RoundRectangle 14"
                         StrokeThickness="0">
                         <!--  Tap whole row → detail  -->
                         <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteListViewModel}}, Path=TapCommand}" CommandParameter="{Binding .}" />
+                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteListViewModel}}, Path=DetailCommand}" CommandParameter="{Binding .}" />
                         </Border.GestureRecognizers>
                         <Grid
                             Padding="16"
-                            ColumnDefinitions="Auto,*,Auto"
+                            ColumnDefinitions="Auto,*"
                             ColumnSpacing="12">
 
                             <Border
                                 Grid.Column="0"
                                 Padding="10"
-                                BackgroundColor="#eff6ff"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg}, Dark={StaticResource StatBusBgDark}}"
                                 HeightRequest="48"
                                 StrokeShape="RoundRectangle 12"
                                 VerticalOptions="Center"
@@ -143,14 +141,14 @@
                                     FontAttributes="Bold"
                                     FontSize="14"
                                     Text="{Binding RouteName}"
-                                    TextColor="#1e293b" />
-                                <Label FontSize="12" TextColor="#64748b">
+                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                                <Label FontSize="12" TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}">
                                     <Label.FormattedText>
                                         <FormattedString>
                                             <Span
                                                 FontAttributes="Bold"
                                                 Text="{Binding RouteCode}"
-                                                TextColor="#2563eb" />
+                                                TextColor="{StaticResource Primary}" />
                                             <Span Text=" · " />
                                             <Span Text="{Binding StopCount, StringFormat='{0} stops'}" />
                                         </FormattedString>
@@ -159,31 +157,10 @@
                                 <Label
                                     FontSize="11"
                                     Text="{Binding TimingDisplay}"
-                                    TextColor="#94a3b8" />
+                                    TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
                             </VerticalStackLayout>
 
                             <!--  Actions: Edit + Delete only  -->
-                            <HorizontalStackLayout
-                                Grid.Column="2"
-                                Spacing="10"
-                                VerticalOptions="Center">
-                                <ImageButton
-                                    BackgroundColor="Transparent"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteListViewModel}}, Path=EditCommand}"
-                                    CommandParameter="{Binding .}"
-                                    HeightRequest="20"
-                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteListViewModel}}, Path=CanEdit}"
-                                    Source="edit.png"
-                                    WidthRequest="20" />
-                                <ImageButton
-                                    BackgroundColor="Transparent"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteListViewModel}}, Path=DeleteCommand}"
-                                    CommandParameter="{Binding .}"
-                                    HeightRequest="20"
-                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteListViewModel}}, Path=CanDelete}"
-                                    Source="delete.png"
-                                    WidthRequest="20" />
-                            </HorizontalStackLayout>
 
                         </Grid>
                     </Border>

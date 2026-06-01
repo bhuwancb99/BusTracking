@@ -9,101 +9,96 @@
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Auth"
     x:DataType="vm:LoginViewModel"
     x:TypeArguments="vm:LoginViewModel"
-    BackgroundColor="{AppThemeBinding Light={StaticResource LoginCardBgLight},
-                                      Dark={StaticResource LoginCardBgDark}}">
+    BackgroundColor="{AppThemeBinding Light={StaticResource LoginCardBgLight}, Dark={StaticResource LoginCardBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
     </views:ViewBase.Behaviors>
 
-    <!--
-        KEY FIX: Page BackgroundColor is now WHITE/DARK (card color), NOT blue.
-        The blue header is painted by the VerticalStackLayout in Row 0.
-        This stops the blue from showing behind the Android bottom nav bar.
-    -->
-
     <ScrollView>
-        <Grid RowDefinitions="Auto,Auto">
+        <Grid RowDefinitions="Auto,*">
 
-            <!--
-                ══════════════════════════════════════════════════════
-                ROW 0 — Blue header (self-contained blue background)
-                ═══════════════════════════════════════════════════════════
-            -->
+            <!--  ══════ ROW 0 — Dark hero header ══════  -->
             <VerticalStackLayout
                 Grid.Row="0"
-                Padding="24,52,24,36"
-                BackgroundColor="{AppThemeBinding Light={StaticResource LoginPageBgLight},
-                                                  Dark={StaticResource LoginPageBgDark}}"
+                Padding="28,56,28,40"
+                BackgroundColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}"
                 Spacing="0">
 
                 <!--  SECURE pill  -->
                 <Border
-                    Margin="0,0,0,22"
+                    Margin="0,0,0,24"
                     Padding="14,7"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource SecurePillBgLight},
-                                                      Dark={StaticResource SecurePillBgDark}}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource SecurePillBgLight}, Dark={StaticResource SecurePillBgDark}}"
                     HorizontalOptions="Center"
                     Stroke="Transparent"
                     StrokeShape="RoundRectangle 20">
                     <HorizontalStackLayout Spacing="6">
-                        <Label
-                            FontSize="11"
-                            Text="🛡"
-                            TextColor="{AppThemeBinding Light={StaticResource SecurePillTextLight},
-                                                        Dark={StaticResource SecurePillTextDark}}"
-                            VerticalOptions="Center" />
+                        <Image
+                            HeightRequest="14"
+                            HorizontalOptions="Center"
+                            Source="lock.png"
+                            VerticalOptions="Center"
+                            WidthRequest="14">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource SecurePillTextLight}, Dark={StaticResource SecurePillTextDark}}" />
+                            </Image.Behaviors>
+                        </Image>
                         <Label
                             CharacterSpacing="1.5"
                             FontAttributes="Bold"
                             FontSize="11"
-                            Text="SECURE"
-                            TextColor="{AppThemeBinding Light={StaticResource SecurePillTextLight},
-                                                        Dark={StaticResource SecurePillTextDark}}"
+                            Text="SECURE LOGIN"
+                            TextColor="{AppThemeBinding Light={StaticResource SecurePillTextLight}, Dark={StaticResource SecurePillTextDark}}"
                             VerticalOptions="Center" />
                     </HorizontalStackLayout>
                 </Border>
 
                 <!--  Bus icon with glow rings  -->
                 <Grid
-                    Margin="0,0,0,22"
-                    HeightRequest="90"
+                    Margin="0,0,0,24"
+                    HeightRequest="88"
                     HorizontalOptions="Center"
-                    WidthRequest="90">
+                    WidthRequest="88">
                     <Ellipse
-                        Fill="#FFFFFF"
-                        HeightRequest="90"
-                        Opacity="0.1"
-                        WidthRequest="90" />
+                        Fill="{StaticResource Primary}"
+                        HeightRequest="88"
+                        Opacity="0.12"
+                        WidthRequest="88" />
                     <Ellipse
-                        Fill="#FFFFFF"
-                        HeightRequest="72"
+                        Fill="{StaticResource Primary}"
+                        HeightRequest="68"
                         HorizontalOptions="Center"
-                        Opacity="0.15"
+                        Opacity="0.18"
                         VerticalOptions="Center"
-                        WidthRequest="72" />
+                        WidthRequest="68" />
                     <Border
                         BackgroundColor="{StaticResource PrimaryDark}"
-                        HeightRequest="60"
+                        HeightRequest="56"
                         HorizontalOptions="Center"
                         Stroke="White"
                         StrokeShape="RoundRectangle 18"
-                        StrokeThickness="2"
+                        StrokeThickness="1.5"
                         VerticalOptions="Center"
-                        WidthRequest="60">
-                        <Label
-                            FontSize="30"
+                        WidthRequest="56">
+                        <Image
+                            HeightRequest="28"
                             HorizontalOptions="Center"
-                            Text="🚌"
-                            VerticalOptions="Center" />
+                            Source="bus.png"
+                            VerticalOptions="Center"
+                            WidthRequest="28">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="White" />
+                            </Image.Behaviors>
+                        </Image>
                     </Border>
                 </Grid>
 
                 <!--  App name  -->
                 <Label
-                    CharacterSpacing="2"
+                    CharacterSpacing="3"
                     FontAttributes="Bold"
-                    FontSize="30"
+                    FontSize="28"
                     HorizontalOptions="Center"
                     Text="BUSTRACK"
                     TextColor="White" />
@@ -114,22 +109,16 @@
                     FontSize="13"
                     HorizontalOptions="Center"
                     Text="Safe journeys, every day"
-                    TextColor="#93C5FD" />
+                    TextColor="{StaticResource HeroCardSubText}" />
 
             </VerticalStackLayout>
 
-            <!--
-                ══════════════════════════════════════════════════════
-                ROW 1 — White / Dark card (top corners only rounded)
-                ═══════════════════════════════════════════════════════════
-            -->
+            <!--  ══════ ROW 1 — Card panel ══════  -->
             <Border
                 Grid.Row="1"
-                Padding="24,28,24,28"
-                BackgroundColor="{AppThemeBinding Light={StaticResource LoginCardBgLight},
-                                                  Dark={StaticResource LoginCardBgDark}}"
-                Stroke="{AppThemeBinding Light={StaticResource LoginInputBorderLight},
-                                         Dark={StaticResource LoginInputBorderDark}}"
+                Padding="24,28,24,32"
+                BackgroundColor="{AppThemeBinding Light={StaticResource LoginCardBgLight}, Dark={StaticResource LoginCardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource LoginInputBorderLight}, Dark={StaticResource LoginInputBorderDark}}"
                 StrokeThickness="1">
                 <Border.StrokeShape>
                     <RoundRectangle CornerRadius="28,28,0,0" />
@@ -137,14 +126,14 @@
                 <Border.Shadow>
                     <Shadow
                         Brush="Black"
-                        Opacity="0.14"
-                        Radius="20"
-                        Offset="0,-4" />
+                        Opacity="0.18"
+                        Radius="24"
+                        Offset="0,-6" />
                 </Border.Shadow>
 
                 <VerticalStackLayout Spacing="0">
 
-                    <!--  Welcome + STAFF badge row  -->
+                    <!--  Welcome + key badge  -->
                     <Grid ColumnDefinitions="*,Auto">
                         <VerticalStackLayout
                             Grid.Column="0"
@@ -152,42 +141,38 @@
                             VerticalOptions="Center">
                             <Label
                                 FontAttributes="Bold"
-                                FontSize="23"
+                                FontSize="22"
                                 Text="Welcome back"
-                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                            Dark={StaticResource TextPrimaryDark}}" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                             <Label
                                 FontSize="13"
                                 Text="Sign in to continue"
-                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                            Dark={StaticResource TextSecondaryDark}}" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                         </VerticalStackLayout>
 
-                        <!--  🔑 STAFF badge  -->
                         <Border
                             Grid.Column="1"
-                            Padding="14,10"
-                            BackgroundColor="{AppThemeBinding Light={StaticResource RoleBadgeBgLight},
-                                                              Dark={StaticResource RoleBadgeBgDark}}"
-                            Stroke="{AppThemeBinding Light={StaticResource RoleBadgeBorderLight},
-                                                     Dark={StaticResource RoleBadgeBorderDark}}"
+                            Padding="12,10"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource RoleBadgeBgLight}, Dark={StaticResource RoleBadgeBgDark}}"
+                            Stroke="{AppThemeBinding Light={StaticResource RoleBadgeBorderLight}, Dark={StaticResource RoleBadgeBorderDark}}"
                             StrokeShape="RoundRectangle 14"
-                            StrokeThickness="2"
+                            StrokeThickness="1.5"
                             VerticalOptions="Center">
-                            <VerticalStackLayout HorizontalOptions="Center" Spacing="3">
-                                <Label
-                                    FontSize="22"
-                                    HorizontalOptions="Center"
-                                    Text="🔑" />
-                            </VerticalStackLayout>
+                            <Image
+                                HeightRequest="22"
+                                HorizontalOptions="Center"
+                                Source="key.png"
+                                WidthRequest="22">
+                                <Image.Behaviors>
+                                    <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource RoleBadgeTextLight}, Dark={StaticResource RoleBadgeTextDark}}" />
+                                </Image.Behaviors>
+                            </Image>
                         </Border>
                     </Grid>
 
-                    <!--  Divider  -->
                     <BoxView
                         Margin="0,16,0,22"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource BorderColor},
-                                                          Dark={StaticResource BorderColorDark}}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                         HeightRequest="1" />
 
                     <!--  Maintenance overlay  -->
@@ -195,24 +180,27 @@
                         Padding="0,8"
                         IsVisible="{Binding IsMaintenanceMode}"
                         Spacing="14">
-                        <Label
-                            FontSize="52"
+                        <Image
+                            HeightRequest="64"
                             HorizontalOptions="Center"
-                            Text="🔧" />
+                            Source="config.png"
+                            WidthRequest="64">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{StaticResource Accent}" />
+                            </Image.Behaviors>
+                        </Image>
                         <Label
                             FontAttributes="Bold"
                             FontSize="20"
                             HorizontalOptions="Center"
                             Text="Under Maintenance"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                        Dark={StaticResource TextPrimaryDark}}" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                         <Label
                             FontSize="14"
                             HorizontalOptions="Center"
                             HorizontalTextAlignment="Center"
                             Text="{Binding MaintenanceMessage}"
-                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                        Dark={StaticResource TextSecondaryDark}}" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                     </VerticalStackLayout>
 
                     <!--  Login form  -->
@@ -222,25 +210,27 @@
                         <Border
                             Margin="0,0,0,16"
                             Padding="14,10"
-                            BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight},
-                                                              Dark={StaticResource ErrorBannerBgDark}}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
                             IsVisible="{Binding HasError}"
-                            Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
-                                                     Dark={StaticResource ErrorBannerBorderDark}}"
+                            Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}"
                             StrokeShape="RoundRectangle 12"
                             StrokeThickness="1">
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
-                                <Label
+                                <Image
                                     Grid.Column="0"
-                                    FontSize="16"
-                                    Text="⚠️"
-                                    VerticalOptions="Center" />
+                                    HeightRequest="16"
+                                    Source="notification.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="16">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                    </Image.Behaviors>
+                                </Image>
                                 <Label
                                     Grid.Column="1"
                                     FontSize="13"
                                     Text="{Binding ErrorMessage}"
-                                    TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
-                                                                Dark={StaticResource ErrorTextDark}}"
+                                    TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight}, Dark={StaticResource ErrorTextDark}}"
                                     VerticalOptions="Center" />
                             </Grid>
                         </Border>
@@ -252,32 +242,40 @@
                             FontAttributes="Bold"
                             FontSize="11"
                             Text="EMAIL ADDRESS"
-                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                        Dark={StaticResource TextSecondaryDark}}" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
 
                         <!--  Email Entry  -->
                         <Border
                             Margin="0,0,0,18"
                             Padding="16,0"
-                            BackgroundColor="{AppThemeBinding Light={StaticResource LoginInputBgLight},
-                                                              Dark={StaticResource LoginInputBgDark}}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource LoginInputBgLight}, Dark={StaticResource LoginInputBgDark}}"
                             HeightRequest="52"
-                            Stroke="{AppThemeBinding Light={StaticResource LoginInputBorderLight},
-                                                     Dark={StaticResource LoginInputBorderDark}}"
+                            Stroke="{AppThemeBinding Light={StaticResource LoginInputBorderLight}, Dark={StaticResource LoginInputBorderDark}}"
                             StrokeShape="RoundRectangle 14"
                             StrokeThickness="1.5">
-                            <Entry
-                                BackgroundColor="Transparent"
-                                HeightRequest="52"
-                                Keyboard="Email"
-                                Placeholder="you@example.com"
-                                PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                                   Dark={StaticResource TextMutedDark}}"
-                                ReturnType="Next"
-                                Text="{Binding Email}"
-                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                            Dark={StaticResource TextPrimaryDark}}"
-                                VerticalOptions="Center" />
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                                <Image
+                                    Grid.Column="0"
+                                    HeightRequest="16"
+                                    Source="user.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="16">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                                    </Image.Behaviors>
+                                </Image>
+                                <Entry
+                                    Grid.Column="1"
+                                    BackgroundColor="Transparent"
+                                    HeightRequest="52"
+                                    Keyboard="Email"
+                                    Placeholder="you@example.com"
+                                    PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                                    ReturnType="Next"
+                                    Text="{Binding Email}"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                                    VerticalOptions="Center" />
+                            </Grid>
                         </Border>
 
                         <!--  PASSWORD label  -->
@@ -287,32 +285,40 @@
                             FontAttributes="Bold"
                             FontSize="11"
                             Text="PASSWORD"
-                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                        Dark={StaticResource TextSecondaryDark}}" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
 
-                        <!--  Password Entry  -->
+                        <!--  Password Entry with eye icon  -->
                         <Border
                             Margin="0,0,0,10"
                             Padding="16,0"
-                            BackgroundColor="{AppThemeBinding Light={StaticResource LoginInputBgLight},
-                                                              Dark={StaticResource LoginInputBgDark}}"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource LoginInputBgLight}, Dark={StaticResource LoginInputBgDark}}"
                             HeightRequest="52"
-                            Stroke="{AppThemeBinding Light={StaticResource LoginInputBorderLight},
-                                                     Dark={StaticResource LoginInputBorderDark}}"
+                            Stroke="{AppThemeBinding Light={StaticResource LoginInputBorderLight}, Dark={StaticResource LoginInputBorderDark}}"
                             StrokeShape="RoundRectangle 14"
                             StrokeThickness="1.5">
-                            <Entry
-                                BackgroundColor="Transparent"
-                                HeightRequest="52"
-                                IsPassword="True"
-                                Placeholder="••••••••"
-                                PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                                   Dark={StaticResource TextMutedDark}}"
-                                ReturnType="Done"
-                                Text="{Binding Password}"
-                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                            Dark={StaticResource TextPrimaryDark}}"
-                                VerticalOptions="Center" />
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                                <Image
+                                    Grid.Column="0"
+                                    HeightRequest="16"
+                                    Source="lock.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="16">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                                    </Image.Behaviors>
+                                </Image>
+                                <Entry
+                                    Grid.Column="1"
+                                    BackgroundColor="Transparent"
+                                    HeightRequest="52"
+                                    IsPassword="True"
+                                    Placeholder="••••••••"
+                                    PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                                    ReturnType="Done"
+                                    Text="{Binding Password}"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                                    VerticalOptions="Center" />
+                            </Grid>
                         </Border>
 
                         <!--  Forgot password  -->
@@ -322,8 +328,7 @@
                                     <Span
                                         FontSize="13"
                                         Text="Forgot password?"
-                                        TextColor="{AppThemeBinding Light={StaticResource TextLink},
-                                                                    Dark={StaticResource TextLinkDark}}">
+                                        TextColor="{AppThemeBinding Light={StaticResource TextLink}, Dark={StaticResource TextLinkDark}}">
                                         <Span.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding ForgotPasswordCommand}" />
                                         </Span.GestureRecognizers>
@@ -363,8 +368,7 @@
                             IsVisible="{Binding IsBusy}"
                             ProgressFill="{StaticResource Primary}"
                             TrackCornerRadius="2"
-                            TrackFill="{AppThemeBinding Light={StaticResource LoginInputBorderLight},
-                                                        Dark={StaticResource LoginInputBorderDark}}" />
+                            TrackFill="{AppThemeBinding Light={StaticResource LoginInputBorderLight}, Dark={StaticResource LoginInputBorderDark}}" />
 
                     </VerticalStackLayout>
                 </VerticalStackLayout>

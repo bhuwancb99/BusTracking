@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
+namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordTripListViewModel : BaseViewModel
     {
@@ -6,15 +6,11 @@
 
         [ObservableProperty] private ObservableCollection<TripItem> _items = [];
         [ObservableProperty] private string _selectedStatus = "";
+        [ObservableProperty] private string _searchText = "";
+        [ObservableProperty] private bool _canLoadMore;
 
         public string SearchPlaceholder => "Search trips…";
         public bool CanAdd => Can("trip.manage");
-        public bool CanLoadMore => false;
-        [RelayCommand] private async Task LoadMoreAsync() { }
-        public bool CanManage => Can("trip.manage");
-        public bool CanView => Can("trip.view") || Can("trip.manage");
-        [ObservableProperty] private string _searchText = "";
-        [RelayCommand] private async Task SearchAsync() => await LoadAsync();
         public List<string> StatusOptions => ["", "Scheduled", "InProgress", "Completed", "Cancelled"];
 
         public CoordTripListViewModel(IAuthService auth, INavigationService nav, ITripService trips)
@@ -30,12 +26,15 @@
                 var data = await _trips.GetAllAsync(SelectedStatus.Length > 0 ? SelectedStatus : null);
                 Items = new ObservableCollection<TripItem>(data);
                 IsEmpty = !Items.Any();
+                CanLoadMore = false;
             });
         }
 
+        [RelayCommand] private async Task LoadMoreAsync() { }
+        [RelayCommand] private async Task SearchAsync() => await LoadAsync();
         [RelayCommand] private Task AddAsync() => Nav.GoToAsync("CoordTripForm");
         [RelayCommand]
-        private Task ViewAsync(TripItem t) =>
+        private Task DetailAsync(TripItem t) =>
             Nav.GoToAsync("CoordTripDetail", new Dictionary<string, object> { ["TripId"] = t.TripId });
 
         [RelayCommand]

@@ -124,7 +124,12 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Driver.DriverItem">
                     <Border Style="{StaticResource ListItemBorder}">
-                        <Grid
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordDriverListViewModel}}, Path=DetailCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+<Grid
                             Padding="14"
                             ColumnDefinitions="Auto,*,Auto"
                             ColumnSpacing="12">
@@ -177,17 +182,6 @@
                                         Text="{Binding StatusLabel}"
                                         TextColor="{Binding StatusTextColor}" />
                                 </Border>
-                                <ImageButton
-                                    BackgroundColor="Transparent"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordDriverListViewModel}}, Path=ViewCommand}"
-                                    CommandParameter="{Binding .}"
-                                    HeightRequest="22"
-                                    Source="view.png"
-                                    WidthRequest="22">
-                                    <ImageButton.Behaviors>
-                                        <mct:IconTintColorBehavior TintColor="{StaticResource Info}" />
-                                    </ImageButton.Behaviors>
-                                </ImageButton>
                             </VerticalStackLayout>
                         </Grid>
                     </Border>

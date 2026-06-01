@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
+namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordDriverListViewModel : BaseViewModel
     {
@@ -9,9 +9,7 @@
 
         public string SearchPlaceholder => "Search drivers…";
         public bool CanLoadMore => false;
-        [RelayCommand] private async Task LoadMoreAsync() { }
         public bool CanEdit => Can("driver.edit");
-        public bool CanView => Can("driver.view");
 
         public CoordDriverListViewModel(IAuthService auth, INavigationService nav, IDriverService drivers)
             : base(auth, nav) { _drivers = drivers; Title = "Drivers"; }
@@ -29,9 +27,10 @@
             });
         }
 
+        [RelayCommand] private async Task LoadMoreAsync() { }
         [RelayCommand] private async Task SearchAsync() => await LoadAsync();
         [RelayCommand]
-        private Task ViewAsync(DriverItem d) =>
+        private Task DetailAsync(DriverItem d) =>
             Nav.GoToAsync("CoordDriverDetail", new Dictionary<string, object> { ["UserId"] = d.UserId });
     }
 }

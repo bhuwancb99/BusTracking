@@ -124,7 +124,12 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Parent.ParentItem">
                     <Border Style="{StaticResource ListItemBorder}">
-                        <Grid
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordParentListViewModel}}, Path=DetailCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+<Grid
                             Padding="14"
                             ColumnDefinitions="Auto,*,Auto"
                             ColumnSpacing="12">
@@ -176,17 +181,6 @@
                                         Text="{Binding StatusLabel}"
                                         TextColor="{Binding StatusTextColor}" />
                                 </Border>
-                                <ImageButton
-                                    BackgroundColor="Transparent"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordParentListViewModel}}, Path=ViewCommand}"
-                                    CommandParameter="{Binding .}"
-                                    HeightRequest="22"
-                                    Source="view.png"
-                                    WidthRequest="22">
-                                    <ImageButton.Behaviors>
-                                        <mct:IconTintColorBehavior TintColor="{StaticResource Success}" />
-                                    </ImageButton.Behaviors>
-                                </ImageButton>
                             </VerticalStackLayout>
                         </Grid>
                     </Border>

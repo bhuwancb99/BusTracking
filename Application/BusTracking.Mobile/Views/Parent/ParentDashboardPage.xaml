@@ -10,7 +10,7 @@
     Title="My Dashboard"
     x:DataType="vm:ParentDashboardViewModel"
     x:TypeArguments="vm:ParentDashboardViewModel"
-    BackgroundColor="#F4F6FB">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
@@ -43,11 +43,11 @@
                     FontAttributes="Bold"
                     FontSize="22"
                     Text="{Binding WelcomeText}"
-                    TextColor="#1e293b" />
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 <Label
                     FontSize="13"
                     Text="Track your children's buses below"
-                    TextColor="#64748b" />
+                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
 
                 <!--  Children list  -->
                 <Label
@@ -55,7 +55,7 @@
                     FontAttributes="Bold"
                     FontSize="16"
                     Text="My Children"
-                    TextColor="#1e293b" />
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
 
                 <CollectionView ItemsSource="{Binding Children}" SelectionMode="None">
                     <CollectionView.EmptyView>
@@ -71,15 +71,14 @@
                                 FontSize="14"
                                 HorizontalOptions="Center"
                                 Text="No children linked to your account"
-                                TextColor="#64748b" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                         </VerticalStackLayout>
                     </CollectionView.EmptyView>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:Parent.LinkedStudent">
                             <Border
                                 Margin="0,0,0,10"
-                                BackgroundColor="White"
-                                StrokeShape="RoundRectangle 16"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" StrokeShape="RoundRectangle 16"
                                 StrokeThickness="0">
                                 <Grid
                                     Padding="16"
@@ -89,7 +88,7 @@
                                     <!--  Avatar  -->
                                     <Border
                                         Grid.Column="0"
-                                        BackgroundColor="#eff6ff"
+                                        BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg}, Dark={StaticResource StatBusBgDark}}"
                                         HeightRequest="48"
                                         StrokeShape="RoundRectangle 24"
                                         StrokeThickness="0"
@@ -99,7 +98,7 @@
                                             FontSize="18"
                                             HorizontalOptions="Center"
                                             Text="{Binding FullName}"
-                                            TextColor="#2563eb"
+                                            TextColor="{StaticResource Primary}"
                                             VerticalOptions="Center" />
                                     </Border>
 
@@ -112,22 +111,22 @@
                                             FontAttributes="Bold"
                                             FontSize="15"
                                             Text="{Binding FullName}"
-                                            TextColor="#1e293b" />
+                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                                         <Label
                                             FontSize="12"
                                             Text="{Binding StudentCode}"
-                                            TextColor="#64748b" />
+                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                                         <Label
                                             FontSize="12"
                                             Text="{Binding BusDisplay}"
-                                            TextColor="#2563eb" />
+                                            TextColor="{StaticResource Primary}" />
                                     </VerticalStackLayout>
 
                                     <!--  Track button  -->
                                     <Button
                                         Grid.Column="2"
                                         Padding="14,8"
-                                        BackgroundColor="#2563eb"
+                                        BackgroundColor="{StaticResource Primary}"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ParentDashboardViewModel}}, Path=TrackChildCommand}"
                                         CommandParameter="{Binding .}"
                                         CornerRadius="20"

@@ -2,44 +2,44 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <!--  ══ BRAND / SEMANTIC ══════════════════════════════════════════════  -->
-    <Color x:Key="Primary">#2563eb</Color>
-    <Color x:Key="PrimaryDark">#1d4ed8</Color>
+    <Color x:Key="Primary">#3b82f6</Color>
+    <Color x:Key="PrimaryDark">#2563eb</Color>
     <Color x:Key="PrimaryLight">#eff6ff</Color>
-    <Color x:Key="PrimaryMid">#3b82f6</Color>
+    <Color x:Key="PrimaryMid">#60a5fa</Color>
     <Color x:Key="Accent">#f59e0b</Color>
     <Color x:Key="AccentDark">#d97706</Color>
     <Color x:Key="AccentLight">#fef3c7</Color>
-    <Color x:Key="Success">#059669</Color>
-    <Color x:Key="SuccessDark">#047857</Color>
+    <Color x:Key="Success">#10b981</Color>
+    <Color x:Key="SuccessDark">#059669</Color>
     <Color x:Key="SuccessLight">#d1fae5</Color>
-    <Color x:Key="Danger">#dc2626</Color>
-    <Color x:Key="DangerDark">#b91c1c</Color>
+    <Color x:Key="Danger">#ef4444</Color>
+    <Color x:Key="DangerDark">#dc2626</Color>
     <Color x:Key="DangerLight">#fee2e2</Color>
-    <Color x:Key="Warning">#d97706</Color>
+    <Color x:Key="Warning">#f59e0b</Color>
     <Color x:Key="WarningLight">#fef3c7</Color>
-    <Color x:Key="Info">#0891b2</Color>
+    <Color x:Key="Info">#06b6d4</Color>
     <Color x:Key="InfoLight">#e0f2fe</Color>
-    <Color x:Key="Purple">#7c3aed</Color>
+    <Color x:Key="Purple">#8b5cf6</Color>
     <Color x:Key="PurpleLight">#ede9fe</Color>
 
     <!--  ══ NAVBAR / DRAWER ═══════════════════════════════════════════════  -->
-    <Color x:Key="NavBarBg">#1e3a5f</Color>
-    <Color x:Key="DrawerBg">#1c2e4a</Color>
-    <Color x:Key="DrawerBgDark">#0d1520</Color>
-    <Color x:Key="DrawerItemActive">#2563eb</Color>
-    <Color x:Key="DrawerDivider">#2d4a6e</Color>
+    <Color x:Key="NavBarBg">#0f172a</Color>
+    <Color x:Key="DrawerBg">#0f172a</Color>
+    <Color x:Key="DrawerBgDark">#080d18</Color>
+    <Color x:Key="DrawerItemActive">#3b82f6</Color>
+    <Color x:Key="DrawerDivider">#1e293b</Color>
     <Color x:Key="DrawerIcon">#60a5fa</Color>
-    <Color x:Key="DrawerText">#cbd5e1</Color>
-    <Color x:Key="DrawerTextMuted">#64748b</Color>
+    <Color x:Key="DrawerText">#e2e8f0</Color>
+    <Color x:Key="DrawerTextMuted">#475569</Color>
 
     <!--  ══ PAGE BACKGROUNDS ══════════════════════════════════════════════  -->
-    <Color x:Key="PageBg">#f0f4fa</Color>
-    <Color x:Key="PageBgDark">#0a0f1e</Color>
+    <Color x:Key="PageBg">#f1f5f9</Color>
+    <Color x:Key="PageBgDark">#080d18</Color>
 
     <!--  ══ CARD / SURFACE ════════════════════════════════════════════════  -->
     <Color x:Key="CardBg">#ffffff</Color>
-    <Color x:Key="CardBgDark">#111827</Color>
-    <Color x:Key="CardBgElevatedDark">#1a2234</Color>
+    <Color x:Key="CardBgDark">#0f172a</Color>
+    <Color x:Key="CardBgElevatedDark">#141d2e</Color>
 
     <!--  ══ TYPOGRAPHY ════════════════════════════════════════════════════  -->
     <Color x:Key="TextPrimary">#0f172a</Color>
@@ -47,27 +47,27 @@
     <Color x:Key="TextSecondary">#475569</Color>
     <Color x:Key="TextSecondaryDark">#94a3b8</Color>
     <Color x:Key="TextMuted">#94a3b8</Color>
-    <Color x:Key="TextMutedDark">#475569</Color>
+    <Color x:Key="TextMutedDark">#334155</Color>
 
     <!--  ══ BORDERS ═══════════════════════════════════════════════════════  -->
     <Color x:Key="BorderColor">#e2e8f0</Color>
-    <Color x:Key="BorderColorDark">#1e3a5f</Color>
+    <Color x:Key="BorderColorDark">#1e293b</Color>
 
     <!--  ══ INPUT FIELDS ══════════════════════════════════════════════════  -->
     <Color x:Key="InputBorder">#cbd5e1</Color>
-    <Color x:Key="InputBorderDark">#1e3a5f</Color>
+    <Color x:Key="InputBorderDark">#1e293b</Color>
     <Color x:Key="InputText">#0f172a</Color>
     <Color x:Key="InputTextDark">#f1f5f9</Color>
     <Color x:Key="InputPlaceholder">#94a3b8</Color>
-    <Color x:Key="InputPlaceholderDark">#475569</Color>
+    <Color x:Key="InputPlaceholderDark">#334155</Color>
 
     <!--  ══ STAT CARD ICON BACKGROUNDS ════════════════════════════════════  -->
     <Color x:Key="StatBusBg">#dbeafe</Color>
-    <Color x:Key="StatBusBgDark">#1e3a5f</Color>
-    <Color x:Key="StatDriverBg">#e0f2fe</Color>
+    <Color x:Key="StatBusBgDark">#172554</Color>
+    <Color x:Key="StatDriverBg">#cffafe</Color>
     <Color x:Key="StatDriverBgDark">#0c2a3a</Color>
     <Color x:Key="StatCoordBg">#fef3c7</Color>
-    <Color x:Key="StatCoordBgDark">#1a1200</Color>
+    <Color x:Key="StatCoordBgDark">#1c1500</Color>
     <Color x:Key="StatParentBg">#d1fae5</Color>
     <Color x:Key="StatParentBgDark">#052e16</Color>
     <Color x:Key="StatStudentBg">#ede9fe</Color>
@@ -77,18 +77,18 @@
 
     <!--  ══ QUICK ACTION CHIPS ════════════════════════════════════════════  -->
     <Color x:Key="ChipCoord">#f59e0b</Color>
-    <Color x:Key="ChipDriver">#0891b2</Color>
-    <Color x:Key="ChipStudent">#7c3aed</Color>
-    <Color x:Key="ChipParent">#059669</Color>
-    <Color x:Key="ChipBus">#2563eb</Color>
+    <Color x:Key="ChipDriver">#06b6d4</Color>
+    <Color x:Key="ChipStudent">#8b5cf6</Color>
+    <Color x:Key="ChipParent">#10b981</Color>
+    <Color x:Key="ChipBus">#3b82f6</Color>
     <Color x:Key="ChipRoute">#64748b</Color>
-    <Color x:Key="ChipTrip">#2563eb</Color>
+    <Color x:Key="ChipTrip">#3b82f6</Color>
 
     <!--  ══ STATUS BADGES ═════════════════════════════════════════════════  -->
     <Color x:Key="StatusActiveBg">#d1fae5</Color>
     <Color x:Key="StatusActiveBgDark">#052e16</Color>
     <Color x:Key="StatusActiveText">#065f46</Color>
-    <Color x:Key="StatusActiveTextDark">#6ee7b7</Color>
+    <Color x:Key="StatusActiveTextDark">#34d399</Color>
     <Color x:Key="StatusInactiveBg">#f1f5f9</Color>
     <Color x:Key="StatusInactiveBgDark">#1e293b</Color>
     <Color x:Key="StatusInactiveText">#475569</Color>
@@ -96,34 +96,34 @@
 
     <!--  ══ ERROR BANNER ══════════════════════════════════════════════════  -->
     <Color x:Key="ErrorBannerBgLight">#fff5f5</Color>
-    <Color x:Key="ErrorBannerBgDark">#1a0a0a</Color>
+    <Color x:Key="ErrorBannerBgDark">#1a0505</Color>
     <Color x:Key="ErrorBannerBorderLight">#fecaca</Color>
     <Color x:Key="ErrorBannerBorderDark">#7f1d1d</Color>
-    <Color x:Key="ErrorTextLight">#b91c1c</Color>
+    <Color x:Key="ErrorTextLight">#dc2626</Color>
     <Color x:Key="ErrorTextDark">#fca5a5</Color>
 
     <!--  ══ LOGIN ══════════════════════════════════════════════════════════  -->
-    <Color x:Key="LoginHeaderTop">#1a2f6e</Color>
-    <Color x:Key="LoginHeaderMid">#1c3fa0</Color>
-    <Color x:Key="LoginHeaderBottom">#2563eb</Color>
-    <Color x:Key="LoginPageBgLight">#1c3fa0</Color>
-    <Color x:Key="LoginPageBgDark">#0a0f1e</Color>
+    <Color x:Key="LoginHeaderTop">#0f172a</Color>
+    <Color x:Key="LoginHeaderMid">#1e3a5f</Color>
+    <Color x:Key="LoginHeaderBottom">#3b82f6</Color>
+    <Color x:Key="LoginPageBgLight">#0f172a</Color>
+    <Color x:Key="LoginPageBgDark">#080d18</Color>
     <Color x:Key="LoginCardBgLight">#ffffff</Color>
-    <Color x:Key="LoginCardBgDark">#111827</Color>
-    <Color x:Key="LoginInputBgLight">#f0f4ff</Color>
-    <Color x:Key="LoginInputBgDark">#0d1526</Color>
-    <Color x:Key="LoginInputBorderLight">#c7d7f7</Color>
+    <Color x:Key="LoginCardBgDark">#0f172a</Color>
+    <Color x:Key="LoginInputBgLight">#f8faff</Color>
+    <Color x:Key="LoginInputBgDark">#0a1220</Color>
+    <Color x:Key="LoginInputBorderLight">#dbeafe</Color>
     <Color x:Key="LoginInputBorderDark">#1e3a5f</Color>
-    <Color x:Key="LoginSecureBadgeBgLight">#e8effe</Color>
+    <Color x:Key="LoginSecureBadgeBgLight">#eff6ff</Color>
     <Color x:Key="LoginSecureBadgeBgDark">#0d1a2e</Color>
-    <Color x:Key="LoginSecureBadgeBorderLight">#b8d0fb</Color>
+    <Color x:Key="LoginSecureBadgeBorderLight">#bfdbfe</Color>
     <Color x:Key="LoginSecureBadgeBorderDark">#1e3a5f</Color>
 
     <!--  ══ ROLE BADGE ════════════════════════════════════════════════════  -->
     <Color x:Key="RoleBadgeBg">#f59e0b</Color>
-    <Color x:Key="RoleBadgeBgLight">#fff9ec</Color>
+    <Color x:Key="RoleBadgeBgLight">#fffbeb</Color>
     <Color x:Key="RoleBadgeBgDark">#1a1200</Color>
-    <Color x:Key="RoleBadgeBorderLight">#fcd34d</Color>
+    <Color x:Key="RoleBadgeBorderLight">#fde68a</Color>
     <Color x:Key="RoleBadgeBorderDark">#78540f</Color>
     <Color x:Key="RoleBadgeTextLight">#92400e</Color>
     <Color x:Key="RoleBadgeTextDark">#fcd34d</Color>
@@ -132,11 +132,16 @@
     <Color x:Key="SecurePillBgLight">#dbeafe</Color>
     <Color x:Key="SecurePillBgDark">#0d1a2e</Color>
     <Color x:Key="SecurePillTextLight">#1d4ed8</Color>
-    <Color x:Key="SecurePillTextDark">#60a5fa</Color>
-
+    <Color x:Key="SecurePillTextDark">#93c5fd</Color>
 
     <!--  ══ TEXT LINKS ═══════════════════════════════════════════════════  -->
-    <Color x:Key="TextLink">#2563eb</Color>
-    <Color x:Key="TextLinkDark">#60a5fa</Color>
+    <Color x:Key="TextLink">#3b82f6</Color>
+    <Color x:Key="TextLinkDark">#93c5fd</Color>
+
+    <!--  ══ HERO CARD (Driver/Student/Parent dark banner) ═══════════════  -->
+    <Color x:Key="HeroCardBgLight">#0f172a</Color>
+    <Color x:Key="HeroCardBgDark">#080d18</Color>
+    <Color x:Key="HeroCardAccent">#3b82f6</Color>
+    <Color x:Key="HeroCardSubText">#93c5fd</Color>
 
 </ResourceDictionary>

@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
+namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordBusDetailViewModel : BaseViewModel, IQueryAttributable
     {

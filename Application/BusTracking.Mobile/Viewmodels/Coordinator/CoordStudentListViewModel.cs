@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
+namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordStudentListViewModel : BaseViewModel
     {
@@ -9,11 +9,9 @@
 
         public string SearchPlaceholder => "Search students…";
         public bool CanLoadMore => false;
-        [RelayCommand] private async Task LoadMoreAsync() { }
         public bool CanAdd => Can("student.add");
         public bool CanEdit => Can("student.edit");
         public bool CanDelete => Can("student.delete");
-        public bool CanView => Can("student.view");
 
         public CoordStudentListViewModel(IAuthService auth, INavigationService nav, IStudentService students)
             : base(auth, nav) { _students = students; Title = "Students"; }
@@ -31,13 +29,14 @@
             });
         }
 
+        [RelayCommand] private async Task LoadMoreAsync() { }
         [RelayCommand] private async Task SearchAsync() => await LoadAsync();
         [RelayCommand] private Task AddAsync() => Nav.GoToAsync("CoordStudentForm");
         [RelayCommand]
         private Task EditAsync(StudentItem s) =>
             Nav.GoToAsync("CoordStudentForm", new Dictionary<string, object> { ["StudentId"] = s.StudentId });
         [RelayCommand]
-        private Task ViewAsync(StudentItem s) =>
+        private Task DetailAsync(StudentItem s) =>
             Nav.GoToAsync("CoordStudentDetail", new Dictionary<string, object> { ["StudentId"] = s.StudentId });
     }
 }

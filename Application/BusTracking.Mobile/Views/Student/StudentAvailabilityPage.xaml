@@ -9,7 +9,7 @@
     Title="My Availability"
     x:DataType="vm:StudentAvailabilityViewModel"
     x:TypeArguments="vm:StudentAvailabilityViewModel"
-    BackgroundColor="#F4F6FB">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
@@ -21,7 +21,7 @@
 
             <!--  Header card  -->
             <Border
-                BackgroundColor="#1e3a5f"
+                BackgroundColor="{AppThemeBinding Light={StaticResource NavBarBg}, Dark={StaticResource DrawerBgDark}}"
                 StrokeShape="RoundRectangle 20"
                 StrokeThickness="0">
                 <VerticalStackLayout Padding="20" Spacing="6">
@@ -33,14 +33,13 @@
                     <Label
                         FontSize="13"
                         Text="Let your coordinator know when you'll be travelling."
-                        TextColor="#93c5fd" />
+                        TextColor="{StaticResource HeroCardSubText}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Date picker  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="10">
@@ -48,20 +47,19 @@
                         FontAttributes="Bold"
                         FontSize="13"
                         Text="Date"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <DatePicker
                         BackgroundColor="Transparent"
                         Date="{Binding SelectedDate}"
                         FontSize="15"
                         MinimumDate="{Binding MinimumDate}"
-                        TextColor="#1e293b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Morning toggle  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14"
                 StrokeThickness="1">
                 <Grid Padding="16" ColumnDefinitions="Auto,*,Auto">
@@ -78,16 +76,16 @@
                             FontAttributes="Bold"
                             FontSize="15"
                             Text="Morning Trip"
-                            TextColor="#1e293b" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                         <Label
                             FontSize="12"
                             Text="Available for pickup"
-                            TextColor="#64748b" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                     </VerticalStackLayout>
                     <Switch
                         Grid.Column="2"
                         IsToggled="{Binding MorningAvailable}"
-                        OnColor="#2563eb"
+                        OnColor="{StaticResource Primary}"
                         ThumbColor="White"
                         VerticalOptions="Center" />
                 </Grid>
@@ -95,8 +93,7 @@
 
             <!--  Evening toggle  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14"
                 StrokeThickness="1">
                 <Grid Padding="16" ColumnDefinitions="Auto,*,Auto">
@@ -113,16 +110,16 @@
                             FontAttributes="Bold"
                             FontSize="15"
                             Text="Evening Trip"
-                            TextColor="#1e293b" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                         <Label
                             FontSize="12"
                             Text="Available for drop-off"
-                            TextColor="#64748b" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                     </VerticalStackLayout>
                     <Switch
                         Grid.Column="2"
                         IsToggled="{Binding EveningAvailable}"
-                        OnColor="#2563eb"
+                        OnColor="{StaticResource Primary}"
                         ThumbColor="White"
                         VerticalOptions="Center" />
                 </Grid>
@@ -130,8 +127,7 @@
 
             <!--  Reason  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
@@ -139,35 +135,35 @@
                         FontAttributes="Bold"
                         FontSize="13"
                         Text="Reason (optional)"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Editor
                         AutoSize="TextChanges"
                         BackgroundColor="Transparent"
                         MinimumHeightRequest="80"
                         Placeholder="e.g. School holiday, sick leave…"
-                        PlaceholderColor="#94a3b8"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                         Text="{Binding Reason}"
-                        TextColor="#1e293b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Error  -->
             <Border
-                BackgroundColor="#fef2f2"
+                BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
                 IsVisible="{Binding HasError}"
-                Stroke="#fecaca"
+                Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}"
                 StrokeShape="RoundRectangle 10"
                 StrokeThickness="1">
                 <Label
                     Padding="12,8"
                     FontSize="13"
                     Text="{Binding ErrorMessage}"
-                    TextColor="#ef4444" />
+                    TextColor="{StaticResource Danger}" />
             </Border>
 
             <!--  Save button  -->
             <Button
-                BackgroundColor="#2563eb"
+                BackgroundColor="{StaticResource Primary}"
                 Command="{Binding SaveCommand}"
                 CornerRadius="14"
                 FontAttributes="Bold"
@@ -190,7 +186,7 @@
                 HorizontalOptions="Center"
                 IsRunning="{Binding IsBusy}"
                 IsVisible="{Binding IsBusy}"
-                Color="#2563eb" />
+                Color="{StaticResource Primary}" />
 
         </VerticalStackLayout>
     </ScrollView>

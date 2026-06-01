@@ -25,12 +25,21 @@
                 Text="Trips"
                 TextColor="White"
                 VerticalOptions="Center" />
-            <Button
-                Grid.Column="1"
-                Command="{Binding AddCommand}"
+            <Border
                 IsVisible="{Binding CanAdd}"
-                Style="{StaticResource NavPillButton}"
-                Text="+ Add" />
+                Style="{StaticResource NavAddBorder}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding AddCommand}" />
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        Text="+ Add"
+                        TextColor="White"
+                        VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
         </Grid>
     </Shell.TitleView>
 
@@ -137,6 +146,11 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Trip.TripItem">
                     <Border Style="{StaticResource ListItemBorder}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminTripListViewModel}}, Path=DetailCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
                         <Grid
                             Padding="14"
                             ColumnDefinitions="Auto,*,Auto"

@@ -25,12 +25,21 @@
                 Text="App Config"
                 TextColor="White"
                 VerticalOptions="Center" />
-            <Button
-                Grid.Column="1"
-                Command="{Binding AddCommand}"
+            <Border
                 IsVisible="{Binding CanAdd}"
-                Style="{StaticResource NavPillButton}"
-                Text="+ Add" />
+                Style="{StaticResource NavAddBorder}">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding AddCommand}" />
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        Text="+ Add"
+                        TextColor="White"
+                        VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
         </Grid>
     </Shell.TitleView>
 
@@ -137,6 +146,11 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:AppConfig.AppConfigItem">
                     <Border Style="{StaticResource ListItemBorder}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminConfigListViewModel}}, Path=DetailCommand}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
                         <Grid
                             Padding="14"
                             ColumnDefinitions="Auto,*,Auto"
@@ -173,25 +187,6 @@
                                     MaxLines="1"
                                     Style="{StaticResource SubLabel}"
                                     Text="{Binding ConfigValue}" />
-                                <HorizontalStackLayout Spacing="6">
-                                    <Border
-                                        Padding="6,2"
-                                        BackgroundColor="{Binding PlatformColor, Converter={StaticResource ColorToTranslucentConverter}}"
-                                        Stroke="Transparent"
-                                        StrokeShape="RoundRectangle 8">
-                                        <Label
-                                            FontAttributes="Bold"
-                                            FontSize="10"
-                                            Text="{Binding Platform}"
-                                            TextColor="{Binding PlatformColor}" />
-                                    </Border>
-                                    <Label
-                                        LineBreakMode="TailTruncation"
-                                        MaxLines="1"
-                                        Style="{StaticResource CaptionLabel}"
-                                        Text="{Binding Description}"
-                                        VerticalOptions="Center" />
-                                </HorizontalStackLayout>
                             </VerticalStackLayout>
                             <VerticalStackLayout
                                 Grid.Column="2"
@@ -207,32 +202,7 @@
                                         FontSize="10"
                                         Text="{Binding StatusLabel}"
                                         TextColor="{Binding StatusTextColor}" />
-                                </Border>
-                                <HorizontalStackLayout HorizontalOptions="End" Spacing="10">
-                                    <ImageButton
-                                        BackgroundColor="Transparent"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminConfigListViewModel}}, Path=EditCommand}"
-                                        CommandParameter="{Binding .}"
-                                        HeightRequest="22"
-                                        Source="edit.png"
-                                        WidthRequest="22">
-                                        <ImageButton.Behaviors>
-                                            <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
-                                        </ImageButton.Behaviors>
-                                    </ImageButton>
-                                    <ImageButton
-                                        BackgroundColor="Transparent"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminConfigListViewModel}}, Path=DeleteCommand}"
-                                        CommandParameter="{Binding .}"
-                                        HeightRequest="22"
-                                        Source="delete.png"
-                                        WidthRequest="22">
-                                        <ImageButton.Behaviors>
-                                            <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
-                                        </ImageButton.Behaviors>
-                                    </ImageButton>
-                                </HorizontalStackLayout>
-                            </VerticalStackLayout>
+                                </Border>                            </VerticalStackLayout>
                         </Grid>
                     </Border>
                 </DataTemplate>

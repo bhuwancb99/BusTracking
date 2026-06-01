@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminTripDetailViewModel : BaseViewModel, IQueryAttributable
     {
@@ -6,6 +6,9 @@
 
         [ObservableProperty] private int _tripId;
         [ObservableProperty] private TripItem? _trip;
+
+        public bool CanEdit   => Can("trip.manage");
+        public bool CanDelete => Can("trip.manage");
 
         public AdminTripDetailViewModel(IAuthService auth, INavigationService nav, ITripService trips)
             : base(auth, nav) { _trips = trips; Title = "Trip Details"; }
@@ -22,8 +25,7 @@
         {
             await RunAsync(async () =>
             {
-                var all = await _trips.GetAllAsync();
-                Trip = all.FirstOrDefault(t => t.TripId == TripId);
+                Trip = await _trips.GetByIdAsync(TripId);
             });
         }
 
@@ -41,6 +43,19 @@
             if (!await ConfirmAsync("Cancel Trip", "Cancel this trip?")) return;
             var r = await _trips.CancelAsync(TripId);
             if (r.Success) await LoadAsync(); else SetError(r.Message);
+        }
+
+        [RelayCommand]
+        private Task EditAsync() =>
+            Nav.GoToAsync("AdminTripForm", new Dictionary<string, object> { ["TripId"] = TripId });
+
+        [RelayCommand]
+        private async Task DeleteAsync()
+        {
+            if (!await ConfirmAsync("Delete Trip", $"Delete trip #{TripId}? This cannot be undone.")) return;
+            var r = await _trips.DeleteAsync(TripId);
+            if (r.Success) { await ShowToastAsync("Trip deleted."); await Nav.GoBackAsync(); }
+            else SetError(r.Message);
         }
     }
 }

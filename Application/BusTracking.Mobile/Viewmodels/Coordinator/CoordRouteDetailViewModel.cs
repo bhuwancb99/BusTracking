@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
+namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordRouteDetailViewModel : BaseViewModel, IQueryAttributable
     {
@@ -6,6 +6,9 @@
         [ObservableProperty] private int _routeId;
         [ObservableProperty] private RouteItem? _route;
         [ObservableProperty] private ObservableCollection<StopItem> _stops = [];
+
+        public bool CanEdit   => Can("route.edit");
+        public bool CanDelete => Can("route.delete");
 
         public CoordRouteDetailViewModel(IAuthService auth, INavigationService nav, IRouteService routes)
             : base(auth, nav) { _routes = routes; Title = "Route Details"; }
@@ -28,5 +31,15 @@
         [RelayCommand]
         private Task EditAsync() =>
             Nav.GoToAsync("CoordRouteForm", new Dictionary<string, object> { ["RouteId"] = RouteId });
+    
+        [RelayCommand]
+        private async Task DeleteAsync()
+        {
+            if (!await ConfirmAsync("Delete Route", "Delete this route? This cannot be undone.")) return;
+            var r = await _routes.DeleteAsync(RouteId);
+            if (r.Success) { await ShowToastAsync("Route deleted."); await Nav.GoBackAsync(); }
+            else SetError(r.Message);
+        }
+
     }
 }

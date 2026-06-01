@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminParentDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
+    x:DataType="vm:AdminParentDetailViewModel"
+    x:TypeArguments="vm:AdminParentDetailViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
+
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+    </views:ViewBase.Behaviors>
+
+    <Shell.TitleView>
+        <Grid
+            Padding="0,0,8,0"
+            ColumnDefinitions="*,Auto,Auto"
+            ColumnSpacing="8">
+            <Label
+                Grid.Column="0"
+                FontAttributes="Bold"
+                FontSize="17"
+                Text="Parent Details"
+                TextColor="White"
+                VerticalOptions="Center" />
+            <Button
+                Grid.Column="1"
+                Padding="12,6"
+                BackgroundColor="White"
+                Command="{Binding EditCommand}"
+                CornerRadius="20"
+                FontSize="13"
+                IsVisible="{Binding CanEdit}"
+                Text="Edit"
+                TextColor="{StaticResource Primary}" />
+            <Button
+                Grid.Column="2"
+                Padding="12,6"
+                BackgroundColor="{StaticResource Danger}"
+                Command="{Binding DeleteCommand}"
+                CornerRadius="20"
+                FontSize="13"
+                IsVisible="{Binding CanDelete}"
+                Text="Delete"
+                TextColor="White" />
+        </Grid>
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+
+            <ActivityIndicator
+                HorizontalOptions="Center"
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                VerticalOptions="Center"
+                Color="{StaticResource Primary}" />
+
+            <Border
+                IsVisible="{Binding HasError}"
+                Style="{StaticResource ErrorBannerBorder}">
+                <Label
+                    FontSize="13"
+                    Text="{Binding ErrorMessage}"
+                    TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight}, Dark={StaticResource ErrorTextDark}}" />
+            </Border>
+
+            <Border Style="{StaticResource DetailCardBorder}">
+                <VerticalStackLayout Padding="16" Spacing="12">
+
+                    <HorizontalStackLayout Spacing="14" VerticalOptions="Center">
+                        <Border
+                            BackgroundColor="{AppThemeBinding Light={StaticResource StatParentBg}, Dark={StaticResource StatParentBgDark}}"
+                            HeightRequest="52"
+                            StrokeShape="RoundRectangle 26"
+                            StrokeThickness="0"
+                            WidthRequest="52">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="18"
+                                HorizontalOptions="Center"
+                                Text="{Binding Parent.InitialsDisplay}"
+                                TextColor="{StaticResource Secondary}"
+                                VerticalOptions="Center" />
+                        </Border>
+                        <VerticalStackLayout Spacing="2" VerticalOptions="Center">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="17"
+                                Text="{Binding Parent.FullName}"
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                            <Label
+                                FontSize="12"
+                                Text="{Binding Parent.Email}"
+                                TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                        </VerticalStackLayout>
+                    </HorizontalStackLayout>
+
+                    <BoxView
+                        HeightRequest="1"
+                        Color="{AppThemeBinding Light={StaticResource DividerLight}, Dark={StaticResource DividerDark}}" />
+
+                    <Grid
+                        ColumnDefinitions="120,*"
+                        ColumnSpacing="12"
+                        RowDefinitions="Auto,Auto,Auto"
+                        RowSpacing="10">
+
+                        <Label Grid.Row="0" Grid.Column="0" FontSize="13" Text="Phone" TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                        <Label Grid.Row="0" Grid.Column="1" FontAttributes="Bold" FontSize="13" Text="{Binding Parent.PhoneNumber}" />
+
+                        <Label Grid.Row="1" Grid.Column="0" FontSize="13" Text="Children" TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                        <Label Grid.Row="1" Grid.Column="1" FontSize="13" Text="{Binding Parent.ChildrenLabel}" />
+
+                        <Label Grid.Row="2" Grid.Column="0" FontSize="13" Text="Status" TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                        <Border
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            Padding="8,3"
+                            BackgroundColor="{Binding Parent.StatusBgColor}"
+                            HorizontalOptions="Start"
+                            StrokeShape="RoundRectangle 20"
+                            StrokeThickness="0">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="10"
+                                Text="{Binding Parent.StatusLabel}"
+                                TextColor="{Binding Parent.StatusTextColor}" />
+                        </Border>
+                    </Grid>
+
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</views:ViewBase>

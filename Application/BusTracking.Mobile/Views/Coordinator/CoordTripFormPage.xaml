@@ -9,7 +9,7 @@
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
     x:DataType="vm:CoordTripFormViewModel"
     x:TypeArguments="vm:CoordTripFormViewModel"
-    BackgroundColor="#F4F6FB">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
@@ -29,94 +29,90 @@
 
             <Border
                 Padding="12,10"
-                BackgroundColor="#fef2f2"
+                BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
                 IsVisible="{Binding HasError}"
-                Stroke="#fecaca"
+                Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}"
                 StrokeShape="RoundRectangle 10">
                 <Label
                     FontSize="13"
                     Text="{Binding ErrorMessage}"
-                    TextColor="#ef4444" />
+                    TextColor="{StaticResource Danger}" />
             </Border>
 
             <!--  Bus  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Bus *"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Picker
                         BackgroundColor="Transparent"
                         ItemDisplayBinding="{Binding BusName}"
                         ItemsSource="{Binding BusOptions}"
                         SelectedItem="{Binding SelectedBus}"
-                        TextColor="#1e293b"
-                        TitleColor="#94a3b8" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                        TitleColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Route  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Route *"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Picker
                         BackgroundColor="Transparent"
                         ItemDisplayBinding="{Binding RouteName}"
                         ItemsSource="{Binding RouteOptions}"
                         SelectedItem="{Binding SelectedRoute}"
-                        TextColor="#1e293b"
-                        TitleColor="#94a3b8" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                        TitleColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Trip Type  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Trip Type *"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Picker
                         BackgroundColor="Transparent"
                         ItemsSource="{Binding TripTypes}"
                         SelectedItem="{Binding TripType}"
-                        TextColor="#1e293b"
-                        TitleColor="#94a3b8" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                        TitleColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Trip Date  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Trip Date *"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <DatePicker
                         BackgroundColor="Transparent"
                         Date="{Binding TripDate}"
                         MinimumDate="{x:Static sys:DateTime.Today}"
-                        TextColor="#1e293b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
@@ -128,17 +124,17 @@
                 <Button
                     Grid.Column="0"
                     BackgroundColor="White"
-                    BorderColor="#e2e8f0"
+                    BorderColor="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                     BorderWidth="1.5"
                     Command="{Binding CancelCommand}"
                     CornerRadius="12"
                     FontAttributes="Bold"
                     HeightRequest="50"
                     Text="Cancel"
-                    TextColor="#64748b" />
+                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                 <Button
                     Grid.Column="1"
-                    BackgroundColor="#2563eb"
+                    BackgroundColor="{StaticResource Primary}"
                     Command="{Binding SaveCommand}"
                     CornerRadius="12"
                     FontAttributes="Bold"

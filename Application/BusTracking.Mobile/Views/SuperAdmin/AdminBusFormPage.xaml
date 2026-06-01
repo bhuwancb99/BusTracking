@@ -9,7 +9,7 @@
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
     x:DataType="vm:AdminBusFormViewModel"
     x:TypeArguments="vm:AdminBusFormViewModel"
-    BackgroundColor="#F4F6FB">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
@@ -29,22 +29,21 @@
 
             <!--  Error  -->
             <Border
-                BackgroundColor="#fef2f2"
+                BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
                 IsVisible="{Binding HasError}"
-                Stroke="#fecaca"
+                Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}"
                 StrokeShape="RoundRectangle 10"
                 StrokeThickness="1">
                 <Label
                     Padding="12,10"
                     FontSize="13"
                     Text="{Binding ErrorMessage}"
-                    TextColor="#ef4444" />
+                    TextColor="{StaticResource Danger}" />
             </Border>
 
             <!--  Bus Name  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
@@ -52,20 +51,19 @@
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Bus Name *"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Entry
                         BackgroundColor="Transparent"
                         Placeholder="e.g. Red Falcon"
-                        PlaceholderColor="#94a3b8"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                         Text="{Binding BusName}"
-                        TextColor="#1e293b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Bus Number  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
@@ -73,20 +71,19 @@
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Bus Number *"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Entry
                         BackgroundColor="Transparent"
                         Placeholder="e.g. MH-01-RF-1234"
-                        PlaceholderColor="#94a3b8"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                         Text="{Binding BusNumber}"
-                        TextColor="#1e293b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Capacity  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
@@ -94,21 +91,20 @@
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Capacity (seats)"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Entry
                         BackgroundColor="Transparent"
                         Keyboard="Numeric"
                         Placeholder="e.g. 40"
-                        PlaceholderColor="#94a3b8"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                         Text="{Binding Capacity}"
-                        TextColor="#1e293b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Assign Route  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
@@ -116,21 +112,20 @@
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Assign Route"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Picker
                         Title="Select a route…"
                         BackgroundColor="Transparent"
                         ItemDisplayBinding="{Binding RouteName}"
                         ItemsSource="{Binding RouteOptions}"
                         SelectedItem="{Binding SelectedRoute}"
-                        TextColor="#1e293b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Assign Driver  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
@@ -138,27 +133,26 @@
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Assign Driver"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Picker
                         Title="Select a driver…"
                         BackgroundColor="Transparent"
                         ItemDisplayBinding="{Binding FullName}"
                         ItemsSource="{Binding DriverOptions}"
                         SelectedItem="{Binding SelectedDriver}"
-                        TextColor="#1e293b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <!--  Show selected driver display  -->
                     <Label
                         FontSize="11"
                         IsVisible="{Binding SelectedDriver, Converter={StaticResource NullToBool}}"
                         Text="{Binding SelectedDriver.BusDisplay}"
-                        TextColor="#2563eb" />
+                        TextColor="{StaticResource Primary}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Is Active  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14"
                 StrokeThickness="1">
                 <Grid Padding="16" ColumnDefinitions="*,Auto">
@@ -167,16 +161,16 @@
                             FontAttributes="Bold"
                             FontSize="14"
                             Text="Active"
-                            TextColor="#1e293b" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                         <Label
                             FontSize="12"
                             Text="Inactive buses won't appear in trips"
-                            TextColor="#64748b" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                     </VerticalStackLayout>
                     <Switch
                         Grid.Column="1"
                         IsToggled="{Binding IsActive}"
-                        OnColor="#2563eb"
+                        OnColor="{StaticResource Primary}"
                         ThumbColor="White"
                         VerticalOptions="Center" />
                 </Grid>
@@ -190,17 +184,17 @@
                 <Button
                     Grid.Column="0"
                     BackgroundColor="White"
-                    BorderColor="#e2e8f0"
+                    BorderColor="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                     BorderWidth="1.5"
                     Command="{Binding CancelCommand}"
                     CornerRadius="12"
                     FontAttributes="Bold"
                     HeightRequest="50"
                     Text="Cancel"
-                    TextColor="#64748b" />
+                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                 <Button
                     Grid.Column="1"
-                    BackgroundColor="#2563eb"
+                    BackgroundColor="{StaticResource Primary}"
                     Command="{Binding SaveCommand}"
                     CornerRadius="12"
                     FontAttributes="Bold"
@@ -234,7 +228,7 @@
                 HorizontalOptions="Center"
                 IsRunning="{Binding IsBusy}"
                 IsVisible="{Binding IsBusy}"
-                Color="#2563eb" />
+                Color="{StaticResource Primary}" />
 
         </VerticalStackLayout>
     </ScrollView>

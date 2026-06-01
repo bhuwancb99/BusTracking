@@ -8,7 +8,7 @@
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
     x:DataType="vm:AdminConfigFormViewModel"
     x:TypeArguments="vm:AdminConfigFormViewModel"
-    BackgroundColor="#F4F6FB">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
@@ -28,22 +28,21 @@
 
             <!--  Error  -->
             <Border
-                BackgroundColor="#fef2f2"
+                BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
                 IsVisible="{Binding HasError}"
-                Stroke="#fecaca"
+                Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}"
                 StrokeShape="RoundRectangle 10"
                 StrokeThickness="1">
                 <Label
                     Padding="12,10"
                     FontSize="13"
                     Text="{Binding ErrorMessage}"
-                    TextColor="#ef4444" />
+                    TextColor="{StaticResource Danger}" />
             </Border>
 
             <!--  Config Key  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
@@ -51,21 +50,20 @@
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Config Key *"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Entry
                         BackgroundColor="Transparent"
                         FontFamily="Monospace"
                         Placeholder="e.g. IsMaintencePage, Android_Update_Url"
-                        PlaceholderColor="#94a3b8"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                         Text="{Binding ConfigKey}"
-                        TextColor="#1e293b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Config Value  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
@@ -73,23 +71,22 @@
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Value *"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Editor
                         AutoSize="TextChanges"
                         BackgroundColor="Transparent"
                         FontFamily="Monospace"
                         MinimumHeightRequest="70"
                         Placeholder="e.g. 1, https://play.google.com/…"
-                        PlaceholderColor="#94a3b8"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                         Text="{Binding ConfigValue}"
-                        TextColor="#1e293b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Description  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
@@ -97,20 +94,19 @@
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Description"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Entry
                         BackgroundColor="Transparent"
                         Placeholder="What does this config key do?"
-                        PlaceholderColor="#94a3b8"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                         Text="{Binding Description}"
-                        TextColor="#1e293b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Platform  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14"
                 StrokeThickness="1">
                 <Grid Padding="16" ColumnDefinitions="*,Auto">
@@ -119,7 +115,7 @@
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Platform"
-                        TextColor="#374151"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
                         VerticalOptions="Center" />
                     <Picker
                         Grid.Column="1"
@@ -127,14 +123,13 @@
                         ItemsSource="{Binding PlatformOptions}"
                         MinimumWidthRequest="130"
                         SelectedItem="{Binding Platform}"
-                        TextColor="#1e293b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 </Grid>
             </Border>
 
             <!--  Is Active  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14"
                 StrokeThickness="1">
                 <Grid Padding="16" ColumnDefinitions="*,Auto">
@@ -143,16 +138,16 @@
                             FontAttributes="Bold"
                             FontSize="14"
                             Text="Active"
-                            TextColor="#1e293b" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                         <Label
                             FontSize="12"
                             Text="Inactive configs are ignored by apps"
-                            TextColor="#64748b" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                     </VerticalStackLayout>
                     <Switch
                         Grid.Column="1"
                         IsToggled="{Binding IsActive}"
-                        OnColor="#2563eb"
+                        OnColor="{StaticResource Primary}"
                         ThumbColor="White"
                         VerticalOptions="Center" />
                 </Grid>
@@ -166,17 +161,17 @@
                 <Button
                     Grid.Column="0"
                     BackgroundColor="White"
-                    BorderColor="#e2e8f0"
+                    BorderColor="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                     BorderWidth="1.5"
                     Command="{Binding CancelCommand}"
                     CornerRadius="12"
                     FontAttributes="Bold"
                     HeightRequest="50"
                     Text="Cancel"
-                    TextColor="#64748b" />
+                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                 <Button
                     Grid.Column="1"
-                    BackgroundColor="#2563eb"
+                    BackgroundColor="{StaticResource Primary}"
                     Command="{Binding SaveCommand}"
                     CornerRadius="12"
                     FontAttributes="Bold"
@@ -199,7 +194,7 @@
                 HorizontalOptions="Center"
                 IsRunning="{Binding IsBusy}"
                 IsVisible="{Binding IsBusy}"
-                Color="#2563eb" />
+                Color="{StaticResource Primary}" />
 
         </VerticalStackLayout>
     </ScrollView>

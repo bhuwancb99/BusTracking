@@ -8,7 +8,7 @@
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
     x:DataType="vm:AdminCoordinatorDetailViewModel"
     x:TypeArguments="vm:AdminCoordinatorDetailViewModel"
-    BackgroundColor="#F4F6FB">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
@@ -34,11 +34,11 @@
                 CornerRadius="20"
                 FontSize="13"
                 Text="Edit"
-                TextColor="#2563eb" />
+                TextColor="{StaticResource Primary}" />
             <Button
                 Grid.Column="2"
                 Padding="12,6"
-                BackgroundColor="#f59e0b"
+                BackgroundColor="{StaticResource Accent}"
                 Command="{Binding ResetPasswordCommand}"
                 CornerRadius="20"
                 FontSize="13"
@@ -47,7 +47,7 @@
             <Button
                 Grid.Column="3"
                 Padding="12,6"
-                BackgroundColor="#ef4444"
+                BackgroundColor="{StaticResource Danger}"
                 Command="{Binding DeleteCommand}"
                 CornerRadius="20"
                 FontSize="13"
@@ -64,31 +64,30 @@
                 IsRunning="{Binding IsBusy}"
                 IsVisible="{Binding IsBusy}"
                 VerticalOptions="Center"
-                Color="#2563eb" />
+                Color="{StaticResource Primary}" />
 
             <!--  Error  -->
             <Border
                 Padding="12,10"
-                BackgroundColor="#fef2f2"
+                BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
                 IsVisible="{Binding HasError}"
-                Stroke="#fecaca"
+                Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}"
                 StrokeShape="RoundRectangle 10">
                 <Label
                     FontSize="13"
                     Text="{Binding ErrorMessage}"
-                    TextColor="#ef4444" />
+                    TextColor="{StaticResource Danger}" />
             </Border>
 
             <!--  Header  -->
             <Border
                 Padding="20"
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 16">
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
                     <Border
                         Grid.Column="0"
-                        BackgroundColor="#7c3aed"
+                        BackgroundColor="{StaticResource Purple}"
                         HeightRequest="60"
                         StrokeShape="RoundRectangle 30"
                         WidthRequest="60">
@@ -108,14 +107,14 @@
                             FontAttributes="Bold"
                             FontSize="18"
                             Text="{Binding Coordinator.FullName}"
-                            TextColor="#1e293b" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                         <Label
                             FontSize="13"
                             Text="{Binding Coordinator.Email}"
-                            TextColor="#64748b" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                         <Border
                             Padding="8,3"
-                            BackgroundColor="#f1f5f9"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource StatusInactiveBg}, Dark={StaticResource StatusInactiveBgDark}}"
                             HorizontalOptions="Start"
                             Stroke="Transparent"
                             StrokeShape="RoundRectangle 20">
@@ -131,16 +130,15 @@
             <!--  Info  -->
             <Border
                 Padding="16"
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 16">
                 <VerticalStackLayout Spacing="14">
                     <Label
                         FontAttributes="Bold"
                         FontSize="14"
                         Text="Info"
-                        TextColor="#374151" />
-                    <BoxView BackgroundColor="#f1f5f9" HeightRequest="1" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                    <BoxView BackgroundColor="{AppThemeBinding Light={StaticResource StatusInactiveBg}, Dark={StaticResource StatusInactiveBgDark}}" HeightRequest="1" />
                     <Grid
                         ColumnDefinitions="*,*"
                         RowDefinitions="Auto,Auto"
@@ -152,12 +150,12 @@
                             <Label
                                 FontSize="11"
                                 Text="PHONE"
-                                TextColor="#94a3b8" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
                             <Label
                                 FontAttributes="Bold"
                                 FontSize="14"
                                 Text="{Binding Coordinator.PhoneNumber}"
-                                TextColor="#1e293b" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                         </VerticalStackLayout>
                         <VerticalStackLayout
                             Grid.Row="0"
@@ -166,12 +164,12 @@
                             <Label
                                 FontSize="11"
                                 Text="PERMISSIONS"
-                                TextColor="#94a3b8" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
                             <Label
                                 FontAttributes="Bold"
                                 FontSize="14"
                                 Text="{Binding Coordinator.PermCount}"
-                                TextColor="#1e293b" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                         </VerticalStackLayout>
                         <VerticalStackLayout
                             Grid.Row="1"
@@ -180,12 +178,12 @@
                             <Label
                                 FontSize="11"
                                 Text="JOINED"
-                                TextColor="#94a3b8" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
                             <Label
                                 FontAttributes="Bold"
                                 FontSize="13"
                                 Text="{Binding Coordinator.CreatedAt, StringFormat='{0:dd MMM yyyy}'}"
-                                TextColor="#1e293b" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                         </VerticalStackLayout>
                     </Grid>
                 </VerticalStackLayout>
@@ -194,29 +192,28 @@
             <!--  Permissions list  -->
             <Border
                 Padding="16"
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 16">
                 <VerticalStackLayout Spacing="10">
                     <Label
                         FontAttributes="Bold"
                         FontSize="14"
                         Text="Permissions"
-                        TextColor="#374151" />
-                    <BoxView BackgroundColor="#f1f5f9" HeightRequest="1" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                    <BoxView BackgroundColor="{AppThemeBinding Light={StaticResource StatusInactiveBg}, Dark={StaticResource StatusInactiveBgDark}}" HeightRequest="1" />
                     <CollectionView ItemsSource="{Binding Coordinator.Permissions}" SelectionMode="None">
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="x:String">
                                 <Border
                                     Margin="0,3"
                                     Padding="10,6"
-                                    BackgroundColor="#f8fafc"
-                                    Stroke="#e2e8f0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource CardBgDark}}"
+                                    Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                                     StrokeShape="RoundRectangle 8">
                                     <Label
                                         FontSize="13"
                                         Text="{Binding .}"
-                                        TextColor="#374151" />
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                                 </Border>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
@@ -225,7 +222,7 @@
             </Border>
 
             <Button
-                BackgroundColor="#f59e0b"
+                BackgroundColor="{StaticResource Accent}"
                 Command="{Binding ToggleCommand}"
                 CornerRadius="12"
                 FontAttributes="Bold"

@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminDriverListViewModel : BaseViewModel
     {
@@ -64,7 +64,7 @@
 
         // Tap row → Detail page
         [RelayCommand]
-        private Task TapAsync(DriverItem d) =>
+        private Task DetailAsync(DriverItem d) =>
             Nav.GoToAsync("AdminDriverDetail", new Dictionary<string, object> { ["UserId"] = d.UserId });
 
         [RelayCommand]

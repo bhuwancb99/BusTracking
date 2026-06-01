@@ -613,7 +613,7 @@
                     <Border
                         Grid.Row="3"
                         Grid.Column="1"
-                        BackgroundColor="{StaticResource NavBarBg}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource NavBarBg}, Dark={StaticResource DrawerBgDark}}"
                         Stroke="Transparent"
                         StrokeShape="RoundRectangle 12">
                         <Border.GestureRecognizers>

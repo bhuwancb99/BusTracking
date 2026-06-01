@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminRouteListViewModel : BaseViewModel
     {
@@ -38,7 +38,7 @@
 
         // Tap row → Detail
         [RelayCommand]
-        private Task TapAsync(RouteItem r) =>
+        private Task DetailAsync(RouteItem r) =>
             Nav.GoToAsync("AdminRouteDetail", new Dictionary<string, object> { ["RouteId"] = r.RouteId });
 
         [RelayCommand]

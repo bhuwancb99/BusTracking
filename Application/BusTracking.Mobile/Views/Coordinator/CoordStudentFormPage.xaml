@@ -8,7 +8,7 @@
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
     x:DataType="vm:CoordStudentFormViewModel"
     x:TypeArguments="vm:CoordStudentFormViewModel"
-    BackgroundColor="#F4F6FB">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
@@ -28,55 +28,53 @@
 
             <Border
                 Padding="12,10"
-                BackgroundColor="#fef2f2"
+                BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
                 IsVisible="{Binding HasError}"
-                Stroke="#fecaca"
+                Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}"
                 StrokeShape="RoundRectangle 10">
                 <Label
                     FontSize="13"
                     Text="{Binding ErrorMessage}"
-                    TextColor="#ef4444" />
+                    TextColor="{StaticResource Danger}" />
             </Border>
 
             <!--  Full Name  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Full Name *"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Entry
                         BackgroundColor="Transparent"
                         Placeholder="Student's full name"
-                        PlaceholderColor="#94a3b8"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                         Text="{Binding FullName}"
-                        TextColor="#1e293b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Email  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Email *"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Entry
                         BackgroundColor="Transparent"
                         IsEnabled="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}"
                         Keyboard="Email"
                         Placeholder="student@example.com"
-                        PlaceholderColor="#94a3b8"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                         Text="{Binding Email}"
-                        TextColor="#1e293b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
@@ -84,111 +82,106 @@
             <Border
                 BackgroundColor="White"
                 IsVisible="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}"
-                Stroke="#e2e8f0"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Password *"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Entry
                         BackgroundColor="Transparent"
                         IsPassword="True"
                         Placeholder="Initial password"
-                        PlaceholderColor="#94a3b8"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                         Text="{Binding Password}"
-                        TextColor="#1e293b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Phone  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Phone"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Entry
                         BackgroundColor="Transparent"
                         Keyboard="Telephone"
                         Placeholder="+91 00000 00000"
-                        PlaceholderColor="#94a3b8"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                         Text="{Binding PhoneNumber}"
-                        TextColor="#1e293b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Standard/Class  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Standard / Class"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Entry
                         BackgroundColor="Transparent"
                         Placeholder="e.g. Grade 5"
-                        PlaceholderColor="#94a3b8"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                         Text="{Binding Standard}"
-                        TextColor="#1e293b" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Bus  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Bus"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Picker
                         BackgroundColor="Transparent"
                         ItemDisplayBinding="{Binding BusName}"
                         ItemsSource="{Binding BusOptions}"
                         SelectedItem="{Binding SelectedBus}"
-                        TextColor="#1e293b"
-                        TitleColor="#94a3b8" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                        TitleColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Stop  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Stop"
-                        TextColor="#374151" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Picker
                         BackgroundColor="Transparent"
                         ItemDisplayBinding="{Binding StopName}"
                         ItemsSource="{Binding StopOptions}"
                         SelectedItem="{Binding SelectedStop}"
-                        TextColor="#1e293b"
-                        TitleColor="#94a3b8" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                        TitleColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  Active  -->
             <Border
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 14">
                 <Grid Padding="16" ColumnDefinitions="*,Auto">
                     <Label
@@ -196,12 +189,12 @@
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="Active"
-                        TextColor="#374151"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
                         VerticalOptions="Center" />
                     <Switch
                         Grid.Column="1"
                         IsToggled="{Binding IsActive}"
-                        OnColor="#2563eb" />
+                        OnColor="{StaticResource Primary}" />
                 </Grid>
             </Border>
 
@@ -213,17 +206,17 @@
                 <Button
                     Grid.Column="0"
                     BackgroundColor="White"
-                    BorderColor="#e2e8f0"
+                    BorderColor="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                     BorderWidth="1.5"
                     Command="{Binding CancelCommand}"
                     CornerRadius="12"
                     FontAttributes="Bold"
                     HeightRequest="50"
                     Text="Cancel"
-                    TextColor="#64748b" />
+                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                 <Button
                     Grid.Column="1"
-                    BackgroundColor="#2563eb"
+                    BackgroundColor="{StaticResource Primary}"
                     Command="{Binding SaveCommand}"
                     CornerRadius="12"
                     FontAttributes="Bold"

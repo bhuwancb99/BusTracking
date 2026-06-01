@@ -8,14 +8,17 @@
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
     x:DataType="vm:CoordStudentDetailViewModel"
     x:TypeArguments="vm:CoordStudentDetailViewModel"
-    BackgroundColor="#F4F6FB">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
-        <Grid Padding="0,0,8,0" ColumnDefinitions="*,Auto">
+        <Grid
+            Padding="0,0,8,0"
+            ColumnDefinitions="*,Auto,Auto"
+            ColumnSpacing="8">
             <Label
                 Grid.Column="0"
                 FontAttributes="Bold"
@@ -30,8 +33,19 @@
                 Command="{Binding EditCommand}"
                 CornerRadius="20"
                 FontSize="13"
+                IsVisible="{Binding CanEdit}"
                 Text="Edit"
-                TextColor="#2563eb" />
+                TextColor="{StaticResource Primary}" />
+            <Button
+                Grid.Column="2"
+                Padding="12,6"
+                BackgroundColor="{StaticResource Danger}"
+                Command="{Binding DeleteCommand}"
+                CornerRadius="20"
+                FontSize="13"
+                IsVisible="{Binding CanDelete}"
+                Text="Delete"
+                TextColor="White" />
         </Grid>
     </Shell.TitleView>
 
@@ -43,30 +57,29 @@
                 IsRunning="{Binding IsBusy}"
                 IsVisible="{Binding IsBusy}"
                 VerticalOptions="Center"
-                Color="#2563eb" />
+                Color="{StaticResource Primary}" />
 
             <Border
                 Padding="12,10"
-                BackgroundColor="#fef2f2"
+                BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
                 IsVisible="{Binding HasError}"
-                Stroke="#fecaca"
+                Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}"
                 StrokeShape="RoundRectangle 10">
                 <Label
                     FontSize="13"
                     Text="{Binding ErrorMessage}"
-                    TextColor="#ef4444" />
+                    TextColor="{StaticResource Danger}" />
             </Border>
 
             <!--  Header  -->
             <Border
                 Padding="20"
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 16">
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
                     <Border
                         Grid.Column="0"
-                        BackgroundColor="#0ea5e9"
+                        BackgroundColor="{StaticResource Info}"
                         HeightRequest="60"
                         StrokeShape="RoundRectangle 30"
                         WidthRequest="60">
@@ -86,15 +99,15 @@
                             FontAttributes="Bold"
                             FontSize="18"
                             Text="{Binding Student.FullName}"
-                            TextColor="#1e293b" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                         <Label
                             FontSize="13"
                             Text="{Binding Student.Email}"
-                            TextColor="#64748b" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                         <Label
                             FontSize="12"
                             Text="{Binding Student.StudentCode}"
-                            TextColor="#2563eb" />
+                            TextColor="{StaticResource Primary}" />
                     </VerticalStackLayout>
                 </Grid>
             </Border>
@@ -102,16 +115,15 @@
             <!--  Details  -->
             <Border
                 Padding="16"
-                BackgroundColor="White"
-                Stroke="#e2e8f0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 16">
                 <VerticalStackLayout Spacing="14">
                     <Label
                         FontAttributes="Bold"
                         FontSize="14"
                         Text="Details"
-                        TextColor="#374151" />
-                    <BoxView BackgroundColor="#f1f5f9" HeightRequest="1" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                    <BoxView BackgroundColor="{AppThemeBinding Light={StaticResource StatusInactiveBg}, Dark={StaticResource StatusInactiveBgDark}}" HeightRequest="1" />
                     <Grid
                         ColumnDefinitions="*,*"
                         RowDefinitions="Auto,Auto,Auto"
@@ -123,12 +135,12 @@
                             <Label
                                 FontSize="11"
                                 Text="STANDARD"
-                                TextColor="#94a3b8" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
                             <Label
                                 FontAttributes="Bold"
                                 FontSize="14"
                                 Text="{Binding Student.Standard}"
-                                TextColor="#1e293b" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                         </VerticalStackLayout>
                         <VerticalStackLayout
                             Grid.Row="0"
@@ -137,7 +149,7 @@
                             <Label
                                 FontSize="11"
                                 Text="STATUS"
-                                TextColor="#94a3b8" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
                             <Label
                                 FontAttributes="Bold"
                                 FontSize="14"
@@ -151,12 +163,12 @@
                             <Label
                                 FontSize="11"
                                 Text="BUS"
-                                TextColor="#94a3b8" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
                             <Label
                                 FontAttributes="Bold"
                                 FontSize="13"
                                 Text="{Binding Student.BusDisplay}"
-                                TextColor="#1e293b" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                         </VerticalStackLayout>
                         <VerticalStackLayout
                             Grid.Row="1"
@@ -165,12 +177,12 @@
                             <Label
                                 FontSize="11"
                                 Text="STOP"
-                                TextColor="#94a3b8" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
                             <Label
                                 FontAttributes="Bold"
                                 FontSize="14"
                                 Text="{Binding Student.StopName}"
-                                TextColor="#1e293b" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                         </VerticalStackLayout>
                         <VerticalStackLayout
                             Grid.Row="2"
@@ -179,12 +191,12 @@
                             <Label
                                 FontSize="11"
                                 Text="PHONE"
-                                TextColor="#94a3b8" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
                             <Label
                                 FontAttributes="Bold"
                                 FontSize="14"
                                 Text="{Binding Student.PhoneNumber}"
-                                TextColor="#1e293b" />
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                         </VerticalStackLayout>
                     </Grid>
                 </VerticalStackLayout>
