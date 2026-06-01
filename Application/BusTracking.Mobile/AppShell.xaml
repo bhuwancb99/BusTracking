@@ -349,6 +349,16 @@
         ContentTemplate="{DataTemplate parent:ParentTrackingPage}"
         FlyoutItemIsVisible="False"
         Route="ParentTracking" />
+    <ShellContent
+        Title="Availability"
+        ContentTemplate="{DataTemplate parent:ParentAvailabilityPage}"
+        FlyoutItemIsVisible="False"
+        Route="ParentAvailability" />
+    <ShellContent
+        Title="Help &amp; Support"
+        ContentTemplate="{DataTemplate parent:ParentFeedbackPage}"
+        FlyoutItemIsVisible="False"
+        Route="ParentFeedback" />
 
     <!--  Student  -->
     <ShellContent

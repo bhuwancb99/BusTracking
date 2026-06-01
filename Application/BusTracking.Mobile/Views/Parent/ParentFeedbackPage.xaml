@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.Parent.ParentFeedbackPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Parent"
+    Title="Help &amp; Support"
+    x:DataType="vm:ParentFeedbackViewModel"
+    x:TypeArguments="vm:ParentFeedbackViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
+
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+    </views:ViewBase.Behaviors>
+
+    <Shell.TitleView>
+        <Label
+            FontAttributes="Bold"
+            FontSize="17"
+            Text="Help &amp; Support"
+            TextColor="White"
+            VerticalOptions="Center" />
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,20,16,40" Spacing="12">
+
+            <!--  ══ Hero banner  -->
+            <Border Margin="0,0,0,4" Style="{StaticResource HeroCard}">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                    <Border
+                        Grid.Column="0"
+                        BackgroundColor="{StaticResource Purple}"
+                        HeightRequest="48"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="0"
+                        VerticalOptions="Center"
+                        WidthRequest="48">
+                        <Image
+                            HeightRequest="26"
+                            HorizontalOptions="Center"
+                            Source="headphones.png"
+                            VerticalOptions="Center"
+                            WidthRequest="26">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="White" />
+                            </Image.Behaviors>
+                        </Image>
+                    </Border>
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Spacing="4"
+                        VerticalOptions="Center">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="17"
+                            Text="Help &amp; Support"
+                            TextColor="White" />
+                        <Label
+                            FontSize="13"
+                            Text="Have a question or concern? Send us a message and we'll respond soon."
+                            TextColor="{StaticResource HeroCardSubText}" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!--  ══ Category  -->
+            <Border Style="{StaticResource FormFieldCard}">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label Style="{StaticResource FieldLabel}" Text="CATEGORY" />
+                    <Picker
+                        Title="Select a topic…"
+                        ItemsSource="{Binding Categories}"
+                        SelectedItem="{Binding SelectedCategory}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  ══ Subject  -->
+            <Border Style="{StaticResource FormFieldCard}">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label Style="{StaticResource FieldLabel}" Text="SUBJECT" />
+                    <Entry Placeholder="Brief description of your issue…" Text="{Binding Subject}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  ══ Message  -->
+            <Border Style="{StaticResource FormFieldCard}">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label Style="{StaticResource FieldLabel}" Text="MESSAGE" />
+                    <Editor
+                        AutoSize="TextChanges"
+                        MinimumHeightRequest="120"
+                        Placeholder="Describe your question or concern in detail…"
+                        Text="{Binding Message}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  ══ Error banner  -->
+            <Border IsVisible="{Binding HasError}" Style="{StaticResource ErrorBannerBorder}">
+                <Label
+                    FontSize="13"
+                    Text="{Binding ErrorMessage}"
+                    TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
+                                                Dark={StaticResource ErrorTextDark}}" />
+            </Border>
+
+            <!--  ══ Submit button  -->
+            <Button
+                Command="{Binding SubmitCommand}"
+                Style="{StaticResource PrimaryButton}"
+                Text="Submit Feedback">
+                <Button.Triggers>
+                    <DataTrigger
+                        Binding="{Binding IsBusy}"
+                        TargetType="Button"
+                        Value="True">
+                        <Setter Property="Text" Value="Submitting…" />
+                        <Setter Property="IsEnabled" Value="False" />
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+
+            <ActivityIndicator
+                HorizontalOptions="Center"
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</views:ViewBase>

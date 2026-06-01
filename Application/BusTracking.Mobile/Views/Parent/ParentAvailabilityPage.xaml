@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.Parent.ParentAvailabilityPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Parent"
+    Title="Availability"
+    x:DataType="vm:ParentAvailabilityViewModel"
+    x:TypeArguments="vm:ParentAvailabilityViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
+
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+    </views:ViewBase.Behaviors>
+
+    <Shell.TitleView>
+        <Label
+            FontAttributes="Bold"
+            FontSize="17"
+            Text="Availability"
+            TextColor="White"
+            VerticalOptions="Center" />
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,20,16,40" Spacing="12">
+
+            <!--  ══ Hero banner  -->
+            <Border Margin="0,0,0,4" Style="{StaticResource HeroCard}">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                    <Border
+                        Grid.Column="0"
+                        BackgroundColor="{StaticResource Primary}"
+                        HeightRequest="48"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="0"
+                        VerticalOptions="Center"
+                        WidthRequest="48">
+                        <Image
+                            HeightRequest="26"
+                            HorizontalOptions="Center"
+                            Source="calendar_check.png"
+                            VerticalOptions="Center"
+                            WidthRequest="26">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="White" />
+                            </Image.Behaviors>
+                        </Image>
+                    </Border>
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Spacing="4"
+                        VerticalOptions="Center">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="17"
+                            Text="Set Availability"
+                            TextColor="White" />
+                        <Label
+                            FontSize="13"
+                            Text="Let your coordinator know when your child won't be travelling."
+                            TextColor="{StaticResource HeroCardSubText}" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+
+            <!--  ══ Select Child  -->
+            <Border Style="{StaticResource FormFieldCard}">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label Style="{StaticResource FieldLabel}" Text="SELECT CHILD" />
+                    <Picker
+                        Title="Choose a child…"
+                        ItemDisplayBinding="{Binding FullName}"
+                        ItemsSource="{Binding Children}"
+                        SelectedItem="{Binding SelectedChild}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  ══ Date  -->
+            <Border Style="{StaticResource FormFieldCard}">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label Style="{StaticResource FieldLabel}" Text="DATE" />
+                    <DatePicker Date="{Binding SelectedDate}" MinimumDate="{Binding MinimumDate}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  ══ Morning toggle  -->
+            <Border Style="{StaticResource CardBorder}">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border
+                        Grid.Column="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight},
+                                                          Dark={StaticResource StatCoordBgDark}}"
+                        HeightRequest="44"
+                        StrokeShape="RoundRectangle 12"
+                        StrokeThickness="0"
+                        VerticalOptions="Center"
+                        WidthRequest="44">
+                        <Image
+                            HeightRequest="22"
+                            HorizontalOptions="Center"
+                            Source="notification.png"
+                            VerticalOptions="Center"
+                            WidthRequest="22">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{StaticResource Accent}" />
+                            </Image.Behaviors>
+                        </Image>
+                    </Border>
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Spacing="2"
+                        VerticalOptions="Center">
+                        <Label Style="{StaticResource CardTitleLabel}" Text="Morning Trip" />
+                        <Label Style="{StaticResource SubLabel}" Text="Available for pickup" />
+                    </VerticalStackLayout>
+                    <Switch
+                        Grid.Column="2"
+                        IsToggled="{Binding MorningAvailable}"
+                        VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <!--  ══ Evening toggle  -->
+            <Border Style="{StaticResource CardBorder}">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border
+                        Grid.Column="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
+                                                          Dark={StaticResource StatBusBgDark}}"
+                        HeightRequest="44"
+                        StrokeShape="RoundRectangle 12"
+                        StrokeThickness="0"
+                        VerticalOptions="Center"
+                        WidthRequest="44">
+                        <Image
+                            HeightRequest="22"
+                            HorizontalOptions="Center"
+                            Source="bus.png"
+                            VerticalOptions="Center"
+                            WidthRequest="22">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                            </Image.Behaviors>
+                        </Image>
+                    </Border>
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Spacing="2"
+                        VerticalOptions="Center">
+                        <Label Style="{StaticResource CardTitleLabel}" Text="Evening Trip" />
+                        <Label Style="{StaticResource SubLabel}" Text="Available for drop-off" />
+                    </VerticalStackLayout>
+                    <Switch
+                        Grid.Column="2"
+                        IsToggled="{Binding EveningAvailable}"
+                        VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <!--  ══ Reason  -->
+            <Border Style="{StaticResource FormFieldCard}">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label Style="{StaticResource FieldLabel}" Text="REASON (OPTIONAL)" />
+                    <Editor
+                        AutoSize="TextChanges"
+                        MinimumHeightRequest="80"
+                        Placeholder="e.g. School holiday, sick leave, parent pickup…"
+                        Text="{Binding Reason}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  ══ Error banner  -->
+            <Border IsVisible="{Binding HasError}" Style="{StaticResource ErrorBannerBorder}">
+                <Label
+                    FontSize="13"
+                    Text="{Binding ErrorMessage}"
+                    TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
+                                                Dark={StaticResource ErrorTextDark}}" />
+            </Border>
+
+            <!--  ══ Save button  -->
+            <Button
+                Command="{Binding SaveCommand}"
+                Style="{StaticResource PrimaryButton}"
+                Text="Save Availability">
+                <Button.Triggers>
+                    <DataTrigger
+                        Binding="{Binding IsBusy}"
+                        TargetType="Button"
+                        Value="True">
+                        <Setter Property="Text" Value="Saving…" />
+                        <Setter Property="IsEnabled" Value="False" />
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+
+            <ActivityIndicator
+                HorizontalOptions="Center"
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</views:ViewBase>

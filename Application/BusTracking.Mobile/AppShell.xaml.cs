@@ -120,8 +120,10 @@ public partial class AppShell : Shell
 
     private static List<FlyoutMenuItem> ParentMenu() =>
     [
-        new() { IconSvg = "dashboard.png", Title = "My Dashboard", Route = "ParentDashboard" },
-        new() { IconSvg = "tracking.png",  Title = "Track Bus",    Route = "ParentTracking"  },
+        new() { IconSvg = "dashboard.png",    Title = "My Dashboard",   Route = "ParentDashboard"  },
+        new() { IconSvg = "tracking.png",     Title = "Track Bus",      Route = "ParentTracking"   },
+        new() { IconSvg = "availability.png", Title = "Availability",   Route = "ParentAvailability" },
+        new() { IconSvg = "feedback.png",     Title = "Help & Support", Route = "ParentFeedback"   },
     ];
 
     private static List<FlyoutMenuItem> StudentMenu() =>

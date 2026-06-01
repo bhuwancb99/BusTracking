@@ -7,10 +7,11 @@
     xmlns:models="clr-namespace:BusTracking.Mobile.Models"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Parent"
-    Title="My Dashboard"
+    Title="Parent Portal"
     x:DataType="vm:ParentDashboardViewModel"
     x:TypeArguments="vm:ParentDashboardViewModel"
-    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
@@ -36,109 +37,358 @@
 
     <RefreshView Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsBusy}">
         <ScrollView>
-            <VerticalStackLayout Padding="16,16,16,32" Spacing="16">
+            <VerticalStackLayout Padding="16,20,16,40" Spacing="0">
 
-                <!--  Welcome  -->
+                <!--  ══ Welcome Header ══════════════════════════════════  -->
+                <Label Style="{StaticResource HeadingLabel}" Text="{Binding WelcomeText}" />
                 <Label
-                    FontAttributes="Bold"
-                    FontSize="22"
-                    Text="{Binding WelcomeText}"
-                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
-                <Label
-                    FontSize="13"
-                    Text="Track your children's buses below"
-                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                    Margin="0,4,0,24"
+                    Style="{StaticResource SubLabel}"
+                    Text="{Binding TodayLabel}" />
 
-                <!--  Children list  -->
-                <Label
-                    Margin="0,4,0,4"
-                    FontAttributes="Bold"
-                    FontSize="16"
-                    Text="My Children"
-                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                <!--  ══ Quick Action Cards — full-width vertical stack ══  -->
 
-                <CollectionView ItemsSource="{Binding Children}" SelectionMode="None">
-                    <CollectionView.EmptyView>
+                <!--  Track Bus Card  -->
+                <Border Margin="0,0,0,12" Style="{StaticResource CardBorder}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToTrackingCommand}" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+
+                        <!--  Icon tile  -->
+                        <Border
+                            Grid.Column="0"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg},
+                                                              Dark={StaticResource StatTripBgDark}}"
+                            HeightRequest="52"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="0"
+                            VerticalOptions="Center"
+                            WidthRequest="52">
+                            <Image
+                                HeightRequest="26"
+                                HorizontalOptions="Center"
+                                Source="map_pin.png"
+                                VerticalOptions="Center"
+                                WidthRequest="26">
+                                <Image.Behaviors>
+                                    <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                </Image.Behaviors>
+                            </Image>
+                        </Border>
+
+                        <!--  Text  -->
                         <VerticalStackLayout
-                            Padding="0,32"
-                            HorizontalOptions="Center"
-                            Spacing="12">
-                            <Label
-                                FontSize="48"
-                                HorizontalOptions="Center"
-                                Text="👶" />
-                            <Label
-                                FontSize="14"
-                                HorizontalOptions="Center"
-                                Text="No children linked to your account"
-                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                            Grid.Column="1"
+                            Spacing="3"
+                            VerticalOptions="Center">
+                            <Label Style="{StaticResource SectionLabel}" Text="Track Bus" />
+                            <Label Style="{StaticResource SubLabel}" Text="See where your child's bus is right now." />
                         </VerticalStackLayout>
-                    </CollectionView.EmptyView>
-                    <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="models:Parent.LinkedStudent">
+
+                        <!--  Arrow  -->
+                        <Image
+                            Grid.Column="2"
+                            HeightRequest="16"
+                            HorizontalOptions="End"
+                            Source="view.png"
+                            VerticalOptions="Center"
+                            WidthRequest="16">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                            </Image.Behaviors>
+                        </Image>
+
+                    </Grid>
+                </Border>
+
+                <!--  Manage Availability Card  -->
+                <Border Margin="0,0,0,12" Style="{StaticResource CardBorder}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToAvailabilityCommand}" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+
+                        <!--  Icon tile  -->
+                        <Border
+                            Grid.Column="0"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
+                                                              Dark={StaticResource StatBusBgDark}}"
+                            HeightRequest="52"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="0"
+                            VerticalOptions="Center"
+                            WidthRequest="52">
+                            <Image
+                                HeightRequest="26"
+                                HorizontalOptions="Center"
+                                Source="calendar_check.png"
+                                VerticalOptions="Center"
+                                WidthRequest="26">
+                                <Image.Behaviors>
+                                    <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                </Image.Behaviors>
+                            </Image>
+                        </Border>
+
+                        <!--  Text  -->
+                        <VerticalStackLayout
+                            Grid.Column="1"
+                            Spacing="3"
+                            VerticalOptions="Center">
+                            <Label Style="{StaticResource SectionLabel}" Text="Manage Availability" />
+                            <Label Style="{StaticResource SubLabel}" Text="Mark leave, holiday or parent pickup days." />
+                        </VerticalStackLayout>
+
+                        <!--  Arrow  -->
+                        <Image
+                            Grid.Column="2"
+                            HeightRequest="16"
+                            Source="view.png"
+                            VerticalOptions="Center"
+                            WidthRequest="16">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                            </Image.Behaviors>
+                        </Image>
+
+                    </Grid>
+                </Border>
+
+                <!--  Help & Support Card  -->
+                <Border Margin="0,0,0,28" Style="{StaticResource CardBorder}">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToFeedbackCommand}" />
+                    </Border.GestureRecognizers>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+
+                        <!--  Icon tile  -->
+                        <Border
+                            Grid.Column="0"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource StatStudentBg},
+                                                              Dark={StaticResource StatStudentBgDark}}"
+                            HeightRequest="52"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="0"
+                            VerticalOptions="Center"
+                            WidthRequest="52">
+                            <Image
+                                HeightRequest="26"
+                                HorizontalOptions="Center"
+                                Source="headphones.png"
+                                VerticalOptions="Center"
+                                WidthRequest="26">
+                                <Image.Behaviors>
+                                    <mct:IconTintColorBehavior TintColor="{StaticResource Purple}" />
+                                </Image.Behaviors>
+                            </Image>
+                        </Border>
+
+                        <!--  Text  -->
+                        <VerticalStackLayout
+                            Grid.Column="1"
+                            Spacing="3"
+                            VerticalOptions="Center">
+                            <Label Style="{StaticResource SectionLabel}" Text="Help &amp; Support" />
+                            <Label Style="{StaticResource SubLabel}" Text="Have a question or concern? Contact us." />
+                        </VerticalStackLayout>
+
+                        <!--  Arrow  -->
+                        <Image
+                            Grid.Column="2"
+                            HeightRequest="16"
+                            Source="view.png"
+                            VerticalOptions="Center"
+                            WidthRequest="16">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{StaticResource Purple}" />
+                            </Image.Behaviors>
+                        </Image>
+
+                    </Grid>
+                </Border>
+
+                <!--  ══ My Children Section ══════════════════════════════  -->
+                <Border Style="{StaticResource CardBorder}">
+                    <VerticalStackLayout Spacing="14">
+
+                        <!--  Section header  -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                            <Image
+                                Grid.Column="0"
+                                HeightRequest="18"
+                                Source="student.png"
+                                VerticalOptions="Center"
+                                WidthRequest="18">
+                                <Image.Behaviors>
+                                    <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                                </Image.Behaviors>
+                            </Image>
+                            <Label
+                                Grid.Column="1"
+                                Style="{StaticResource SectionLabel}"
+                                Text="My Children"
+                                VerticalOptions="Center" />
                             <Border
-                                Margin="0,0,0,10"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" StrokeShape="RoundRectangle 16"
-                                StrokeThickness="0">
-                                <Grid
-                                    Padding="16"
-                                    ColumnDefinitions="Auto,*,Auto"
-                                    ColumnSpacing="12">
-
-                                    <!--  Avatar  -->
-                                    <Border
-                                        Grid.Column="0"
-                                        BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg}, Dark={StaticResource StatBusBgDark}}"
-                                        HeightRequest="48"
-                                        StrokeShape="RoundRectangle 24"
-                                        StrokeThickness="0"
-                                        WidthRequest="48">
-                                        <Label
-                                            FontAttributes="Bold"
-                                            FontSize="18"
-                                            HorizontalOptions="Center"
-                                            Text="{Binding FullName}"
-                                            TextColor="{StaticResource Primary}"
-                                            VerticalOptions="Center" />
-                                    </Border>
-
-                                    <!--  Info  -->
-                                    <VerticalStackLayout
-                                        Grid.Column="1"
-                                        Spacing="4"
-                                        VerticalOptions="Center">
-                                        <Label
-                                            FontAttributes="Bold"
-                                            FontSize="15"
-                                            Text="{Binding FullName}"
-                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
-                                        <Label
-                                            FontSize="12"
-                                            Text="{Binding StudentCode}"
-                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
-                                        <Label
-                                            FontSize="12"
-                                            Text="{Binding BusDisplay}"
-                                            TextColor="{StaticResource Primary}" />
-                                    </VerticalStackLayout>
-
-                                    <!--  Track button  -->
-                                    <Button
-                                        Grid.Column="2"
-                                        Padding="14,8"
-                                        BackgroundColor="{StaticResource Primary}"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ParentDashboardViewModel}}, Path=TrackChildCommand}"
-                                        CommandParameter="{Binding .}"
-                                        CornerRadius="20"
-                                        FontSize="12"
-                                        Text="Track"
-                                        TextColor="White"
-                                        VerticalOptions="Center" />
-                                </Grid>
+                                Grid.Column="2"
+                                Padding="10,4"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
+                                                                  Dark={StaticResource StatBusBgDark}}"
+                                Stroke="Transparent"
+                                StrokeShape="RoundRectangle 12">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="12"
+                                    Text="{Binding ChildrenCountLabel}"
+                                    TextColor="{StaticResource Primary}" />
                             </Border>
-                        </DataTemplate>
-                    </CollectionView.ItemTemplate>
-                </CollectionView>
+                        </Grid>
+
+                        <!--  Divider  -->
+                        <BoxView Margin="0" Style="{StaticResource DividerBox}" />
+
+                        <!--  Children CollectionView  -->
+                        <CollectionView ItemsSource="{Binding Children}" SelectionMode="None">
+                            <CollectionView.EmptyView>
+                                <VerticalStackLayout
+                                    Padding="0,20"
+                                    HorizontalOptions="Center"
+                                    Spacing="10">
+                                    <Image
+                                        HeightRequest="48"
+                                        HorizontalOptions="Center"
+                                        Source="student.png"
+                                        WidthRequest="48">
+                                        <Image.Behaviors>
+                                            <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                                        </Image.Behaviors>
+                                    </Image>
+                                    <Label
+                                        HorizontalOptions="Center"
+                                        Style="{StaticResource SubLabel}"
+                                        Text="No children linked to your account" />
+                                </VerticalStackLayout>
+                            </CollectionView.EmptyView>
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate x:DataType="models:Parent.LinkedStudent">
+                                    <Border
+                                        Margin="0,0,0,10"
+                                        BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                                                          Dark={StaticResource PageBgDark}}"
+                                        Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                                 Dark={StaticResource BorderColorDark}}"
+                                        StrokeShape="RoundRectangle 14"
+                                        StrokeThickness="1">
+                                        <VerticalStackLayout Padding="14" Spacing="12">
+
+                                            <!--  Student info row  -->
+                                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+
+                                                <!--  Avatar circle  -->
+                                                <Border
+                                                    Grid.Column="0"
+                                                    BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
+                                                                                      Dark={StaticResource StatBusBgDark}}"
+                                                    HeightRequest="48"
+                                                    StrokeShape="RoundRectangle 24"
+                                                    StrokeThickness="0"
+                                                    VerticalOptions="Center"
+                                                    WidthRequest="48">
+                                                    <Label
+                                                        FontAttributes="Bold"
+                                                        FontSize="16"
+                                                        HorizontalOptions="Center"
+                                                        Text="{Binding Initials}"
+                                                        TextColor="{StaticResource Primary}"
+                                                        VerticalOptions="Center" />
+                                                </Border>
+
+                                                <!--  Name / code / class / bus  -->
+                                                <VerticalStackLayout
+                                                    Grid.Column="1"
+                                                    Spacing="3"
+                                                    VerticalOptions="Center">
+                                                    <Grid ColumnDefinitions="*,Auto">
+                                                        <Label
+                                                            Grid.Column="0"
+                                                            Style="{StaticResource CardTitleLabel}"
+                                                            Text="{Binding FullName}"
+                                                            VerticalOptions="Center" />
+                                                        <Border
+                                                            Grid.Column="1"
+                                                            Padding="8,3"
+                                                            BackgroundColor="{AppThemeBinding Light={StaticResource StatusActiveBg},
+                                                                                              Dark={StaticResource StatusActiveBgDark}}"
+                                                            Stroke="Transparent"
+                                                            StrokeShape="RoundRectangle 10"
+                                                            VerticalOptions="Center">
+                                                            <Label
+                                                                FontAttributes="Bold"
+                                                                FontSize="11"
+                                                                Text="Active"
+                                                                TextColor="{AppThemeBinding Light={StaticResource StatusActiveText},
+                                                                                            Dark={StaticResource StatusActiveTextDark}}" />
+                                                        </Border>
+                                                    </Grid>
+                                                    <Label Style="{StaticResource CaptionLabel}" Text="{Binding StudentCode}" />
+                                                    <Label Style="{StaticResource SubLabel}" Text="{Binding Standard, StringFormat='Class: {0}'}" />
+                                                    <Border
+                                                        Padding="8,3"
+                                                        BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
+                                                                                          Dark={StaticResource StatBusBgDark}}"
+                                                        HorizontalOptions="Start"
+                                                        Stroke="Transparent"
+                                                        StrokeShape="RoundRectangle 8">
+                                                        <Label
+                                                            FontAttributes="Bold"
+                                                            FontSize="11"
+                                                            Text="{Binding BusDisplay}"
+                                                            TextColor="{StaticResource Primary}" />
+                                                    </Border>
+                                                </VerticalStackLayout>
+                                            </Grid>
+
+                                            <!--  Action buttons row  -->
+                                            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                                <!--  Track  -->
+                                                <Button
+                                                    Grid.Column="0"
+                                                    BackgroundColor="Transparent"
+                                                    BorderColor="{StaticResource Danger}"
+                                                    BorderWidth="1.5"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ParentDashboardViewModel}}, Path=TrackChildCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    CornerRadius="10"
+                                                    FontAttributes="Bold"
+                                                    FontSize="13"
+                                                    HeightRequest="40"
+                                                    Text="Track"
+                                                    TextColor="{StaticResource Danger}" />
+                                                <!--  Leave  -->
+                                                <Button
+                                                    Grid.Column="1"
+                                                    BackgroundColor="Transparent"
+                                                    BorderColor="{StaticResource Primary}"
+                                                    BorderWidth="1.5"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ParentDashboardViewModel}}, Path=LeaveChildCommand}"
+                                                    CommandParameter="{Binding .}"
+                                                    CornerRadius="10"
+                                                    FontAttributes="Bold"
+                                                    FontSize="13"
+                                                    HeightRequest="40"
+                                                    Text="Leave"
+                                                    TextColor="{StaticResource Primary}" />
+                                            </Grid>
+
+                                        </VerticalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                    </VerticalStackLayout>
+                </Border>
 
             </VerticalStackLayout>
         </ScrollView>

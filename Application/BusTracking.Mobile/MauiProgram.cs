@@ -157,6 +157,8 @@
             // Parent
             s.AddTransient<ParentDashboardViewModel>();
             s.AddTransient<ParentTrackingViewModel>();
+            s.AddTransient<ParentAvailabilityViewModel>();
+            s.AddTransient<ParentFeedbackViewModel>();
 
             // Student
             s.AddTransient<StudentDashboardViewModel>();
@@ -226,6 +228,8 @@
             // Parent
             s.AddTransient<ParentDashboardPage>();
             s.AddTransient<ParentTrackingPage>();
+            s.AddTransient<ParentAvailabilityPage>();
+            s.AddTransient<ParentFeedbackPage>();
 
             // Student
             s.AddTransient<StudentDashboardPage>();

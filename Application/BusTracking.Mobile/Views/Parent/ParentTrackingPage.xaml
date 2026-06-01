@@ -9,7 +9,8 @@
     Title="Track Bus"
     x:DataType="vm:ParentTrackingViewModel"
     x:TypeArguments="vm:ParentTrackingViewModel"
-    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
@@ -21,7 +22,8 @@
         <Border
             Grid.Row="0"
             Margin="12,12,12,6"
-            BackgroundColor="{AppThemeBinding Light={StaticResource NavBarBg}, Dark={StaticResource DrawerBgDark}}"
+            BackgroundColor="{AppThemeBinding Light={StaticResource NavBarBg},
+                                              Dark={StaticResource DrawerBgDark}}"
             StrokeShape="RoundRectangle 16"
             StrokeThickness="0">
             <Grid Padding="16,14" ColumnDefinitions="Auto,*,Auto">
@@ -89,7 +91,8 @@
         <Border
             Grid.Row="1"
             Margin="12,6"
-            BackgroundColor="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+            BackgroundColor="{AppThemeBinding Light={StaticResource BorderColor},
+                                              Dark={StaticResource BorderColorDark}}"
             StrokeShape="RoundRectangle 20"
             StrokeThickness="0">
             <Grid>
@@ -106,12 +109,14 @@
                         FontSize="14"
                         HorizontalOptions="Center"
                         Text="Live Map"
-                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
                     <Label
                         FontSize="11"
                         HorizontalOptions="Center"
                         Text="Bus location updates every 10 seconds"
-                        TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>
 
                 <!--  Animated bus marker — position driven by BusLatitude/BusLongitude  -->
@@ -133,7 +138,10 @@
         <Border
             Grid.Row="2"
             Margin="12,6,12,16"
-            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                              Dark={StaticResource CardBgDark}}"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                     Dark={StaticResource BorderColorDark}}"
             StrokeShape="RoundRectangle 16"
             StrokeThickness="1">
             <Grid Padding="16,14" ColumnDefinitions="*,*,*">
@@ -146,12 +154,14 @@
                         FontSize="14"
                         HorizontalOptions="Center"
                         Text="{Binding BusLatitude, StringFormat='{0:F4}'}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
                     <Label
                         FontSize="10"
                         HorizontalOptions="Center"
                         Text="Lat"
-                        TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>
                 <VerticalStackLayout
                     Grid.Column="1"
@@ -162,12 +172,14 @@
                         FontSize="14"
                         HorizontalOptions="Center"
                         Text="{Binding BusLongitude, StringFormat='{0:F4}'}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
                     <Label
                         FontSize="10"
                         HorizontalOptions="Center"
                         Text="Lng"
-                        TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>
                 <VerticalStackLayout
                     Grid.Column="2"
@@ -178,12 +190,14 @@
                         FontSize="14"
                         HorizontalOptions="Center"
                         Text="{Binding Tracking.Location.SpeedDisplay, FallbackValue='– km/h'}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
                     <Label
                         FontSize="10"
                         HorizontalOptions="Center"
                         Text="Speed"
-                        TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>
             </Grid>
         </Border>
