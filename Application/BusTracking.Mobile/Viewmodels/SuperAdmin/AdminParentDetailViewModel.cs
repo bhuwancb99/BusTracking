@@ -6,10 +6,8 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 
         [ObservableProperty] private int _userId;
         [ObservableProperty] private ParentItem? _parent;
-        [ObservableProperty] private bool _hasError;
-        [ObservableProperty] private string _errorMessage = string.Empty;
 
-        public bool CanEdit   => Can("parent.edit");
+        public bool CanEdit => Can("parent.edit");
         public bool CanDelete => Can("parent.delete");
 
         public AdminParentDetailViewModel(IAuthService auth, INavigationService nav, IParentService parents)
@@ -41,6 +39,15 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         {
             var r = await _parents.ToggleAsync(UserId);
             if (r.Success) { await ShowToastAsync(r.Message); await LoadAsync(); }
+            else SetError(r.Message);
+        }
+
+        [RelayCommand]
+        private async Task ResetPasswordAsync()
+        {
+            if (!await ConfirmAsync("Reset Password", $"Reset password for {Parent?.FullName}?")) return;
+            var r = await _parents.ResetPasswordAsync(UserId);
+            if (r.Success) await ShowAlertAsync("Password Reset", r.Message);
             else SetError(r.Message);
         }
 

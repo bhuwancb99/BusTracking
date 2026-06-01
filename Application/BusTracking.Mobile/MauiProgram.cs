@@ -55,6 +55,7 @@
             Routing.RegisterRoute("AdminDriverDetail", typeof(AdminDriverDetailPage));
             Routing.RegisterRoute("AdminRouteDetail", typeof(AdminRouteDetailPage));
             Routing.RegisterRoute("AdminTripDetail", typeof(AdminTripDetailPage));
+            Routing.RegisterRoute("AdminParentDetail", typeof(AdminParentDetailPage));
 
             // ── Coordinator — Form pages ──────────────────────────────────────
             Routing.RegisterRoute("CoordBusForm", typeof(CoordBusFormPage));
@@ -117,6 +118,7 @@
             s.AddTransient<AdminStudentDetailViewModel>();
             s.AddTransient<AdminParentListViewModel>();
             s.AddTransient<AdminParentFormViewModel>();
+            s.AddTransient<AdminParentDetailViewModel>();
             s.AddTransient<AdminCoordinatorListViewModel>();
             s.AddTransient<AdminCoordinatorFormViewModel>();
             s.AddTransient<AdminCoordinatorDetailViewModel>();
@@ -188,6 +190,7 @@
             s.AddTransient<AdminStudentDetailPage>();
             s.AddTransient<AdminParentListPage>();
             s.AddTransient<AdminParentFormPage>();
+            s.AddTransient<AdminParentDetailPage>();
             s.AddTransient<AdminCoordinatorListPage>();
             s.AddTransient<AdminCoordinatorFormPage>();
             s.AddTransient<AdminCoordinatorDetailPage>();

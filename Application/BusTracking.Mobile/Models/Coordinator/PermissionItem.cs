@@ -1,11 +1,11 @@
-﻿namespace BusTracking.Mobile.Models.Coordinator
+namespace BusTracking.Mobile.Models.Coordinator
 {
-    public class PermissionItem
+    public partial class PermissionItem : ObservableObject
     {
         public int Id { get; set; }
         public string ModuleName { get; set; } = "";
         public string Key { get; set; } = "";
         public string Description { get; set; } = "";
-        public bool IsSelected { get; set; }
+        [ObservableProperty] private bool _isSelected;
     }
 }

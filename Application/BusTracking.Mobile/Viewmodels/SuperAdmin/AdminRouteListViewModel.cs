@@ -7,6 +7,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [ObservableProperty] private ObservableCollection<RouteItem> _items = [];
         [ObservableProperty] private string _searchText = "";
 
+        public string SearchPlaceholder => "Search routes…";
         public bool CanAdd => true;
         public bool CanEdit => true;
         public bool CanDelete => true;

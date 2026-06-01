@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminCoordinatorDetailViewModel : BaseViewModel, IQueryAttributable
     {
@@ -6,6 +6,7 @@
 
         [ObservableProperty] private int _userId;
         [ObservableProperty] private CoordinatorItem? _coordinator;
+        [ObservableProperty] private ObservableCollection<PermissionGroup> _permissionGroups = [];
 
         public AdminCoordinatorDetailViewModel(IAuthService auth, INavigationService nav, ICoordinatorService coords)
             : base(auth, nav) { _coords = coords; Title = "Coordinator Details"; }
@@ -23,7 +24,44 @@
             await RunAsync(async () =>
             {
                 Coordinator = await _coords.GetByIdAsync(UserId);
+                BuildPermissionGroups();
             });
+        }
+
+        private void BuildPermissionGroups()
+        {
+            if (Coordinator?.Permissions == null) { PermissionGroups = []; return; }
+
+            var groups = Coordinator.Permissions
+                .Select(p => new PermissionItem { Key = p, Description = FormatDescription(p), IsSelected = true })
+                .GroupBy(p => ExtractModule(p.Key))
+                .Select(g => new PermissionGroup
+                {
+                    ModuleName = g.Key,
+                    Permissions = new ObservableCollection<PermissionItem>(g)
+                });
+            PermissionGroups = new ObservableCollection<PermissionGroup>(groups);
+        }
+
+        private static string ExtractModule(string key)
+        {
+            var parts = key.Split('.');
+            if (parts.Length < 1) return key;
+            var raw = parts[0];
+            return raw.Length > 0
+                ? char.ToUpper(raw[0]) + raw.Substring(1)
+                : raw;
+        }
+
+        private static string FormatDescription(string key)
+        {
+            var parts = key.Split('.');
+            if (parts.Length < 2) return key;
+            var action = parts[1];
+            var module = parts[0];
+            var actionStr = action.Length > 0 ? char.ToUpper(action[0]) + action.Substring(1) : action;
+            var moduleStr = module.Length > 0 ? char.ToUpper(module[0]) + module.Substring(1) : module;
+            return $"{actionStr} {moduleStr}";
         }
 
         [RelayCommand]
