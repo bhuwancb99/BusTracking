@@ -119,7 +119,15 @@ public class AuthController : Controller
         return RedirectToAction("Index", "Profile");
     }
 
-    [HttpGet] public IActionResult AccessDenied() => View();
+    [HttpGet]
+    public IActionResult AccessDenied(string? returnUrl = null)
+    {
+        // Coordinators get a richer, in-layout denied page inside their own area
+        if (User.IsInRole("BusCoordinator"))
+            return Redirect($"/BusCoordinator/AccessDenied/Index?returnUrl={Uri.EscapeDataString(returnUrl ?? "")}");
+
+        return View();
+    }
 
     // ── Helper: role → absolute area path ───────────────────────────
     // Use absolute path strings — safest way to redirect into an Area

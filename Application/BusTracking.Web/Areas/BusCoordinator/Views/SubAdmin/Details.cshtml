@@ -1,0 +1,93 @@
+@model BusTracking.Common.DTOs.SubAdmin.SubAdminListDto
+@using BusTracking.Web.Helpers
+@{
+    ViewData["Title"] = "Sub-Admin Details";
+    bool canEdit  = PermissionHelper.Can(User, "subadmin.edit");
+    bool canDelete = PermissionHelper.Can(User, "subadmin.delete");
+    int  currentUserId = int.Parse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) ?? "0");
+    bool isSelf   = Model?.UserId == currentUserId;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-person-badge me-2 text-warning"></i>Sub-Admin Details</h4>
+    <div class="d-flex gap-2 align-items-center">
+        @if (isSelf)
+        {
+            <span class="badge bg-warning-subtle text-warning px-3 py-2" style="font-size:.8rem">
+                <i class="bi bi-person-check me-1"></i>This is your account
+            </span>
+        }
+        @if (canEdit && !isSelf)
+        {
+            <a asp-area="BusCoordinator" asp-controller="SubAdmin" asp-action="Edit"
+               asp-route-id="@Model?.UserId" class="btn btn-outline-warning btn-sm">
+                <i class="bi bi-pencil me-1"></i>Edit
+            </a>
+        }
+        <a asp-area="BusCoordinator" asp-controller="SubAdmin" asp-action="Index"
+           class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back
+        </a>
+    </div>
+</div>
+
+@if (Model is not null)
+{
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4 text-center">
+                    <div class="bg-warning-subtle text-warning mx-auto rounded-circle d-flex align-items-center justify-content-center mb-3"
+                         style="width:72px;height:72px;font-size:1.8rem;font-weight:700">
+                        @Model.FullName.Substring(0, 1).ToUpper()
+                    </div>
+                    <h5 class="fw-bold mb-1">@Model.FullName</h5>
+                    <span class="badge bg-warning-subtle text-warning">Bus Coordinator</span>
+                    <span class="badge @(Model.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger") ms-1">
+                        @(Model.IsActive ? "Active" : "Inactive")
+                    </span>
+                    <hr />
+                    <table class="table table-borderless small text-start mb-0">
+                        <tr><th class="text-muted">Email</th><td>@Model.Email</td></tr>
+                        <tr><th class="text-muted">Phone</th><td>@(Model.PhoneNumber ?? "–")</td></tr>
+                        <tr><th class="text-muted">Created</th><td>@Model.CreatedAt.ToString("dd MMM yyyy")</td></tr>
+                        <tr><th class="text-muted">Permissions</th><td><span class="badge bg-primary-subtle text-primary">@Model.Permissions.Count</span></td></tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+                    <i class="bi bi-shield-check me-2 text-primary"></i>Assigned Permissions (@Model.Permissions.Count)
+                </div>
+                <div class="card-body p-4">
+                    @if (!Model.Permissions.Any())
+                    {
+                        <div class="text-muted text-center py-3">No permissions assigned.</div>
+                    }
+                    else
+                    {
+                        var grouped = Model.Permissions
+                            .GroupBy(p => p.Split('.')[0])
+                            .ToDictionary(g => g.Key, g => g.ToList());
+                        <div class="row g-3">
+                            @foreach (var (module, perms) in grouped)
+                            {
+                                <div class="col-md-6">
+                                    <div class="border rounded p-3">
+                                        <div class="fw-semibold small text-uppercase text-muted mb-2">@module</div>
+                                        @foreach (var p in perms)
+                                        {
+                                            <span class="badge bg-primary-subtle text-primary me-1 mb-1">@p.Split('.').Last()</span>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}

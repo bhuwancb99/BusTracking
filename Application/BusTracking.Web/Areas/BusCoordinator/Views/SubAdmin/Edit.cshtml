@@ -1,0 +1,169 @@
+@model BusTracking.Common.DTOs.SubAdmin.UpdateSubAdminDto
+@using BusTracking.Web.Helpers
+@{
+    ViewData["Title"] = "Edit Sub-Admin";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+                <i class="bi bi-pencil me-2 text-warning"></i>Edit Sub-Admin
+            </div>
+            <div class="card-body p-4">
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div asp-validation-summary="All" class="alert alert-danger py-2 border-0"></div>
+                }
+                <form asp-area="BusCoordinator" asp-controller="SubAdmin" asp-action="Edit"
+                      asp-route-id="@ViewBag.SubAdminId" method="post" id="editForm">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label asp-for="FullName" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                            <input asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number</label>
+                            <input asp-for="PhoneNumber" class="form-control" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Status</label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="IsActive" value="true"
+                                           id="isActiveTrue" @(Model.IsActive ? "checked" : "") />
+                                    <label class="form-check-label text-success fw-semibold" for="isActiveTrue">
+                                        <i class="bi bi-check-circle me-1"></i>Active
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="IsActive" value="false"
+                                           id="isActiveFalse" @(!Model.IsActive ? "checked" : "") />
+                                    <label class="form-check-label text-danger fw-semibold" for="isActiveFalse">
+                                        <i class="bi bi-x-circle me-1"></i>Inactive
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <label class="fw-semibold">Assign Permissions</label>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="btnSelectAll">Select All</button>
+                        </div>
+                        @{
+                            var allPerms   = ViewBag.AllPermissions as List<(int Id, string ModuleName, string Key, string Description)>
+                                             ?? new List<(int, string, string, string)>();
+                            var permGroups = allPerms.GroupBy(p => p.ModuleName).OrderBy(g => g.Key);
+                        }
+                        <div class="row g-3">
+                            @foreach (var group in permGroups)
+                            {
+                                var modKey = group.Key.Replace(" ", "_").Replace("&", "");
+                                <div class="col-md-6">
+                                    <div class="border rounded p-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="fw-semibold small text-uppercase text-muted">
+                                                @group.Key.Replace("Manage", "")
+                                            </span>
+                                            <button type="button" class="btn btn-link btn-sm p-0 text-primary btn-module-all"
+                                                    data-mod="@modKey">All</button>
+                                        </div>
+                                        @foreach (var perm in group)
+                                        {
+                                            <div class="form-check">
+                                                <input class="form-check-input perm-@modKey" type="checkbox"
+                                                       name="PermissionIds" value="@perm.Id" id="perm_@perm.Id"
+                                                       @(Model.PermissionIds.Contains(perm.Id) ? "checked" : "") />
+                                                <label class="form-check-label small" for="perm_@perm.Id">@perm.Description</label>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning px-4">
+                            <i class="bi bi-check2 me-1"></i>Update Sub-Admin
+                        </button>
+                        <a asp-area="BusCoordinator" asp-controller="SubAdmin" asp-action="Index"
+                           class="btn btn-outline-secondary px-4">Cancel</a>
+                        <button type="button" class="btn btn-outline-danger px-4 ms-auto"
+                                onclick="confirmResetPassword()">
+                            <i class="bi bi-key me-1"></i>Reset Password
+                        </button>
+                    </div>
+                </form>
+
+                <div id="pwdResult" class="mt-3" style="display:none;">
+                    <div class="alert alert-success border-0 d-flex align-items-start gap-3">
+                        <i class="bi bi-shield-check fs-4 text-success mt-1"></i>
+                        <div>
+                            <div class="fw-semibold mb-1">Password Reset Successfully</div>
+                            <div class="mb-1 small text-muted">New password for <span id="pwdName" class="fw-semibold text-dark"></span></div>
+                            <div class="d-flex align-items-center gap-2 mt-2">
+                                <code id="pwdValue" class="fs-5 px-3 py-1 bg-white border rounded text-danger fw-bold"></code>
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyPwd()" title="Copy">
+                                    <i class="bi bi-clipboard"></i>
+                                </button>
+                            </div>
+                            <div class="text-muted small mt-2">
+                                <i class="bi bi-exclamation-triangle me-1 text-warning"></i>Copy this password now — it will not be shown again.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.querySelectorAll('.btn-module-all').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const mod = this.dataset.mod;
+                const checks = [...document.querySelectorAll(`.perm-${mod}`)];
+                const allChecked = checks.every(c => c.checked);
+                checks.forEach(c => c.checked = !allChecked);
+                this.textContent = allChecked ? 'All' : 'None';
+            });
+        });
+        document.getElementById('btnSelectAll').addEventListener('click', function () {
+            const checks = [...document.querySelectorAll('input[name="PermissionIds"]')];
+            const allChecked = checks.every(c => c.checked);
+            checks.forEach(c => c.checked = !allChecked);
+            this.textContent = allChecked ? 'Select All' : 'Deselect All';
+        });
+
+        function confirmResetPassword() {
+            if (!confirm('Reset password for this sub-admin? A new password will be generated and shown once.')) return;
+            doResetPassword();
+        }
+        async function doResetPassword() {
+            const id    = @ViewBag.SubAdminId;
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            const res   = await fetch(`/BusCoordinator/SubAdmin/ResetPassword?id=${id}`, {
+                method: 'POST', headers: { 'RequestVerificationToken': token }
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('pwdName').textContent  = data.fullName + ' (' + data.email + ')';
+                document.getElementById('pwdValue').textContent = data.password;
+                document.getElementById('pwdResult').style.display = '';
+                document.getElementById('pwdResult').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert('Error: ' + data.message);
+            }
+        }
+        function copyPwd() {
+            navigator.clipboard.writeText(document.getElementById('pwdValue').textContent);
+        }
+    </script>
+}

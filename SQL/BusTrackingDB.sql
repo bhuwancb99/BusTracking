@@ -57,6 +57,10 @@ GO
 
 INSERT INTO Permissions (ModuleName, PermissionKey, Description) VALUES
 ('Dashboard',           'dashboard.view',           'View dashboard'),
+('AppConfig',           'appconfig.view',           'View app configurations'),
+('AppConfig',           'appconfig.add',            'Add app configuration'),
+('AppConfig',           'appconfig.edit',           'Edit app configuration'),
+('AppConfig',           'appconfig.delete',         'Delete app configuration'),
 ('ManageSubAdmins',     'subadmin.view',            'View sub-admins'),
 ('ManageSubAdmins',     'subadmin.add',             'Add sub-admin'),
 ('ManageSubAdmins',     'subadmin.edit',            'Edit sub-admin'),

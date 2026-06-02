@@ -28,30 +28,47 @@
                 bool Has(string key) => perms.Contains(key);
 
                 // Dashboard always visible
-                // bool showDashboard = true;
-                bool showRoutes = Has("route.view");
-                bool showBuses = Has("bus.view");
-                bool showDrivers = Has("driver.view");
-                bool showParents = Has("parent.view");
-                bool showStudents = Has("student.view");
-                bool showNotif   = Has("notification.manage");
-                bool showTrips   = Has("trip.view") || Has("trip.manage");
-                bool showSupport = Has("helpsupport.view") || Has("helpsupport.manage");
-
-                // If NO permission claims exist yet (older session / all-access assigned)
-                // fall back to showing everything so coordinator is never locked out.
-                bool fallback = !perms.Any();
+                bool showAppConfig  = Has("appconfig.view");
+                bool showSubAdmins  = Has("subadmin.view");
+                bool showRoutes     = Has("route.view");
+                bool showBuses      = Has("bus.view");
+                bool showDrivers    = Has("driver.view");
+                bool showParents    = Has("parent.view");
+                bool showStudents   = Has("student.view");
+                bool showTrips      = Has("trip.view") || Has("trip.manage");
+                bool showNotif      = Has("notification.manage");
+                bool showSupport    = Has("helpsupport.view") || Has("helpsupport.manage");
             }
 
-            @* Dashboard *@
+            @* Dashboard — always visible *@
             <li class="sidebar-item @(ctrl == "Dashboard" ? "active" : "")">
                 <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="Dashboard" asp-action="Index">
                     <i class="bi bi-speedometer2"></i><span>Dashboard</span>
                 </a>
             </li>
 
+            @* App Config — mirrors SuperAdmin position 2 *@
+            @if (showAppConfig)
+            {
+                <li class="sidebar-item @(ctrl == "AppConfig" ? "active" : "")">
+                    <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="AppConfig" asp-action="Index">
+                        <i class="bi bi-sliders"></i><span>App Config</span>
+                    </a>
+                </li>
+            }
+
+            @* Sub-Admins — mirrors SuperAdmin position 3 *@
+            @if (showSubAdmins)
+            {
+                <li class="sidebar-item @(ctrl == "SubAdmin" ? "active" : "")">
+                    <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="SubAdmin" asp-action="Index">
+                        <i class="bi bi-person-badge"></i><span>Sub-Admins</span>
+                    </a>
+                </li>
+            }
+
             @* Routes *@
-            @if (showRoutes || fallback)
+            @if (showRoutes)
             {
                 <li class="sidebar-item @(ctrl == "Route" ? "active" : "")">
                     <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="Route" asp-action="Index">
@@ -61,7 +78,7 @@
             }
 
             @* Buses *@
-            @if (showBuses || fallback)
+            @if (showBuses)
             {
                 <li class="sidebar-item @(ctrl == "Bus" ? "active" : "")">
                     <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="Bus" asp-action="Index">
@@ -71,7 +88,7 @@
             }
 
             @* Drivers *@
-            @if (showDrivers || fallback)
+            @if (showDrivers)
             {
                 <li class="sidebar-item @(ctrl == "Driver" ? "active" : "")">
                     <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="Driver" asp-action="Index">
@@ -81,7 +98,7 @@
             }
 
             @* Parents *@
-            @if (showParents || fallback)
+            @if (showParents)
             {
                 <li class="sidebar-item @(ctrl == "Parent" ? "active" : "")">
                     <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="Parent" asp-action="Index">
@@ -91,7 +108,7 @@
             }
 
             @* Students *@
-            @if (showStudents || fallback)
+            @if (showStudents)
             {
                 <li class="sidebar-item @(ctrl == "Student" ? "active" : "")">
                     <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="Student" asp-action="Index">
@@ -101,7 +118,7 @@
             }
 
             @* Trips *@
-            @if (showTrips || fallback)
+            @if (showTrips)
             {
                 <li class="sidebar-item @(ctrl == "Trip" ? "active" : "")">
                     <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="Trip" asp-action="Index">
@@ -110,9 +127,8 @@
                 </li>
             }
 
-
             @* Notifications *@
-            @if (showNotif || fallback)
+            @if (showNotif)
             {
                 <li class="sidebar-item @(ctrl == "Notification" ? "active" : "")">
                     <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="Notification" asp-action="Index">
@@ -122,7 +138,7 @@
             }
 
             @* Help & Support *@
-            @if (showSupport || fallback)
+            @if (showSupport)
             {
                 <li class="sidebar-item @(ctrl == "Feedback" ? "active" : "")">
                     <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="Feedback" asp-action="Index">

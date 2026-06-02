@@ -39,25 +39,46 @@ public static class SidebarHelper
             .ToHashSet();
 
         bool Has(string key) => perms.Contains(key);
-        // If no permission claims in cookie (old session), show everything
-        bool fallback = !perms.Any();
 
         var menu = new List<SidebarMenuItem>
         {
+            // Dashboard always visible
             new() { Label = "Dashboard", Icon = "bi-speedometer2", Controller = "Dashboard", Action = "Index", Area = "BusCoordinator" }
         };
 
-        if (Has("route.view") || fallback) menu.Add(new() { Label = "Routes", Icon = "bi-map", Controller = "Route", Action = "Index", Area = "BusCoordinator" });
-        if (Has("bus.view") || fallback) menu.Add(new() { Label = "Buses", Icon = "bi-bus-front", Controller = "Bus", Action = "Index", Area = "BusCoordinator" });
-        if (Has("driver.view") || fallback) menu.Add(new() { Label = "Drivers", Icon = "bi-person-video2", Controller = "Driver", Action = "Index", Area = "BusCoordinator" });
-        if (Has("parent.view") || fallback) menu.Add(new() { Label = "Parents", Icon = "bi-people", Controller = "Parent", Action = "Index", Area = "BusCoordinator" });
-        if (Has("student.view") || fallback) menu.Add(new() { Label = "Students", Icon = "bi-mortarboard", Controller = "Student", Action = "Index", Area = "BusCoordinator" });
-        if (Has("trip.view") || Has("trip.manage") || fallback)
-            menu.Add(new() { Label = "Trips", Icon = "bi-signpost-split", Controller = "Trip", Action = "Index", Area = "BusCoordinator" });
-        if (Has("notification.manage") || fallback)
-            menu.Add(new() { Label = "Notifications", Icon = "bi-bell", Controller = "Notification", Action = "Index", Area = "BusCoordinator" });
-        if (Has("helpsupport.view") || Has("helpsupport.manage") || fallback)
-            menu.Add(new() { Label = "Support", Icon = "bi-headset", Controller = "Feedback", Action = "Index", Area = "BusCoordinator" });
+        // ── Order mirrors SuperAdmin sidebar exactly ──────────────────
+        // Dashboard → App Config → Sub-Admins → Routes → Buses → Drivers
+        // → Parents → Students → Trips → Notifications → Help & Support
+
+        if (Has("appconfig.view"))
+            menu.Add(new() { Label = "App Config",    Icon = "bi-sliders",       Controller = "AppConfig",    Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("subadmin.view"))
+            menu.Add(new() { Label = "Sub-Admins",    Icon = "bi-person-badge",  Controller = "SubAdmin",     Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("route.view"))
+            menu.Add(new() { Label = "Routes",        Icon = "bi-map",           Controller = "Route",        Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("bus.view"))
+            menu.Add(new() { Label = "Buses",         Icon = "bi-bus-front",     Controller = "Bus",          Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("driver.view"))
+            menu.Add(new() { Label = "Drivers",       Icon = "bi-person-video2", Controller = "Driver",       Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("parent.view"))
+            menu.Add(new() { Label = "Parents",       Icon = "bi-people",        Controller = "Parent",       Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("student.view"))
+            menu.Add(new() { Label = "Students",      Icon = "bi-mortarboard",   Controller = "Student",      Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("trip.view") || Has("trip.manage"))
+            menu.Add(new() { Label = "Trips",         Icon = "bi-signpost-split",Controller = "Trip",         Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("notification.manage"))
+            menu.Add(new() { Label = "Notifications", Icon = "bi-bell",          Controller = "Notification", Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("helpsupport.view") || Has("helpsupport.manage"))
+            menu.Add(new() { Label = "Help & Support",Icon = "bi-headset",       Controller = "Feedback",     Action = "Index", Area = "BusCoordinator" });
 
         return menu;
     }
