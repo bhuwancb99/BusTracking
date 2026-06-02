@@ -1,7 +1,9 @@
 @* ── Driver/Create.cshtml ─────────────────────────────────────────── *@
 @model BusTracking.Common.DTOs.Driver.CreateDriverDto
+@using BusTracking.Web.Helpers
 @{
     ViewData["Title"] = "Add Driver";
+    if (!PermissionHelper.Can(User, "driver.add")) { Context.Response.Redirect("/BusCoordinator/Driver"); return; }
 }
 
 <div class="row justify-content-center">

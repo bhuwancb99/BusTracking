@@ -1,7 +1,9 @@
 @* ── Driver/Edit.cshtml ──────────────────────────────────── *@
 @model BusTracking.Common.DTOs.Driver.UpdateDriverDto
+@using BusTracking.Web.Helpers
 @{
     ViewData["Title"] = "Edit Driver";
+    if (!PermissionHelper.Can(User, "driver.edit")) { Context.Response.Redirect("/BusCoordinator/Driver"); return; }
 }
 
 <div class="row justify-content-center">

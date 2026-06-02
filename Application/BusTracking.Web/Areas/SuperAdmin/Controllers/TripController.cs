@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Web.Areas.SuperAdmin.Controllers
+namespace BusTracking.Web.Areas.SuperAdmin.Controllers
 {
     [Area("SuperAdmin"), Authorize(Roles = "SuperAdmin")]
     public class TripController : Controller
@@ -19,7 +19,7 @@
 
         public async Task<IActionResult> Index(int page = 1, string? busId = null, string? status = null)
         {
-            ViewBag.BusId = busId;
+            var normalised = (status == "All" || string.IsNullOrEmpty(status)) ? null : status;
             ViewBag.Status = status;
             var r = await _trip.GetAllAsync(page, 15, busId);
             // filter by status client-side via ViewBag

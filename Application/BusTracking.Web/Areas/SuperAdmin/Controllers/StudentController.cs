@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BusTracking.Web.Areas.SuperAdmin.Controllers
 {
@@ -18,9 +18,10 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
 
         public async Task<IActionResult> Index(int page = 1, string? search = null, string? status = "Active")
         {
-            ViewBag.Search = search;
+            var normalised = (status == "Both" || string.IsNullOrEmpty(status)) ? null : status;
             ViewBag.Status = status;
-            return View(await _student.GetAllAsync(page, 10, search, status).D());
+            // Keep submitted value in ViewBag so radio stays selected
+            return View(await _student.GetAllAsync(page, 10, search, normalised).D());
         }
 
         public async Task<IActionResult> Details(int id)

@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Web.Areas.BusCoordinator.Controllers
+namespace BusTracking.Web.Areas.BusCoordinator.Controllers
 {
     [Area("BusCoordinator"), Authorize(Roles = "BusCoordinator")]
     public class BusController : Controller
@@ -14,10 +14,10 @@
 
         public async Task<IActionResult> Index(int page = 1, string? search = null, string? status = "Active")
         {
-            // Normalise: "Both" and null both mean no status filter for the service
+            if (!PermissionHelper.Can(User, "bus.view")) return Forbid();
             var normalised = (status == "Both" || string.IsNullOrEmpty(status)) ? null : status;
             ViewBag.Search = search;
-            ViewBag.Status = status ?? "Active"; // keep selection stable; default to Active on first load
+            ViewBag.Status = status ?? "Active";
             var r0 = await _bus.GetAllAsync(page, 10, search, normalised);
             return View(r0.Data);
         }
@@ -25,6 +25,7 @@
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
+            if (!PermissionHelper.Can(User, "bus.view")) return Forbid();
             var r = await _bus.GetByIdAsync(id);
             return r.Success ? View(r.Data) : NotFound();
         }
@@ -32,6 +33,7 @@
         [HttpGet]
         public async Task<IActionResult> Create()
         {
+            if (!PermissionHelper.Can(User, "bus.add")) return Forbid();
             await LoadRoutes();
             return View(new CreateBusDto());
         }
@@ -39,11 +41,8 @@
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateBusDto m)
         {
-            if (!ModelState.IsValid)
-            {
-                await LoadRoutes();
-                return View(m);
-            }
+            if (!PermissionHelper.Can(User, "bus.add")) return Forbid();
+            if (!ModelState.IsValid) { await LoadRoutes(); return View(m); }
             var r = await _bus.CreateAsync(m, UserId);
             if (!r.Success)
             {
@@ -58,24 +57,25 @@
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
+            if (!PermissionHelper.Can(User, "bus.edit")) return Forbid();
             var r = await _bus.GetByIdAsync(id);
-            if (!r.Success)
-                return NotFound();
+            if (!r.Success) return NotFound();
             ViewBag.BusId = id;
             await LoadRoutes(r.Data!.RouteId);
             return View(new UpdateBusDto
             {
-                BusName = r.Data.BusName,
+                BusName   = r.Data.BusName,
                 BusNumber = r.Data.BusNumber,
-                RouteId = r.Data.RouteId,
-                Capacity = r.Data.Capacity,
-                IsActive = r.Data.IsActive
+                RouteId   = r.Data.RouteId,
+                Capacity  = r.Data.Capacity,
+                IsActive  = r.Data.IsActive
             });
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, UpdateBusDto m)
         {
+            if (!PermissionHelper.Can(User, "bus.edit")) return Forbid();
             if (!ModelState.IsValid)
             {
                 ViewBag.BusId = id;
@@ -97,9 +97,19 @@
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
+            if (!PermissionHelper.Can(User, "bus.delete")) return Forbid();
             await _bus.DeleteAsync(id);
             TempData["SuccessMessage"] = "Marked inactive.";
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Toggle(int id)
+        {
+            if (!PermissionHelper.Can(User, "bus.edit"))
+                return Json(new { Success = false, Message = "Permission denied." });
+            var r = await _bus.ToggleActiveAsync(id);
+            return Json(new { r.Success, r.Message });
         }
 
         private async Task LoadRoutes(int? selectedId = null)
@@ -108,8 +118,8 @@
             ViewBag.Routes = (routes.Data?.Items ?? [])
                 .Select(r => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
                 {
-                    Value = r.RouteId.ToString(),
-                    Text = $"{r.RouteName} ({r.RouteCode})",
+                    Value    = r.RouteId.ToString(),
+                    Text     = $"{r.RouteName} ({r.RouteCode})",
                     Selected = r.RouteId == selectedId
                 }).ToList();
         }

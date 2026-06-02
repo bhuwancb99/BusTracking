@@ -1,11 +1,13 @@
 @model List<BusTracking.Common.DTOs.Notification.NotificationDto>
+@using BusTracking.Web.Helpers
 @{
     ViewData["Title"] = "Notifications"; ViewData["Breadcrumb"] = "Notifications";
+    bool canManageNotif = PermissionHelper.Can(User, "notification.manage");
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="fw-bold mb-0"><i class="bi bi-bell me-2 text-primary"></i>Notifications</h4>
-    @if (Model?.Any(n => !n.IsRead) == true)
+    @if (canManageNotif && Model?.Any(n => !n.IsRead) == true)
     {
         <form asp-action="MarkAllRead" method="post">
             @Html.AntiForgeryToken()
@@ -55,7 +57,7 @@
                         </div>
                         <p class="mb-0 small text-muted mt-1">@n.Body</p>
                     </div>
-                    @if (!n.IsRead)
+                    @if (!n.IsRead && canManageNotif)
                     {
                         <form asp-action="MarkRead" asp-route-id="@n.NotificationId" method="post" class="flex-shrink-0">
                             @Html.AntiForgeryToken()

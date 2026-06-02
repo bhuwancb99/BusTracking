@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Web.Areas.BusCoordinator.Controllers
+namespace BusTracking.Web.Areas.BusCoordinator.Controllers
 {
     [Area("BusCoordinator"), Authorize(Roles = "BusCoordinator")]
     public class DriverController : Controller
@@ -14,32 +14,35 @@
 
         public async Task<IActionResult> Index(int page = 1, string? search = null, string? status = "Active")
         {
-            // Normalise: "Both" and null both mean no status filter for the service
+            if (!PermissionHelper.Can(User, "driver.view")) return Forbid();
             var normalised = (status == "Both" || string.IsNullOrEmpty(status)) ? null : status;
             ViewBag.Search = search;
-            ViewBag.Status = status ?? "Active"; // keep selection stable; default to Active on first load
+            ViewBag.Status = status ?? "Active";
             var r = await _driver.GetAllAsync(page, 10, search, normalised);
             return View(r.Data);
         }
+
         public async Task<IActionResult> Details(int id)
         {
+            if (!PermissionHelper.Can(User, "driver.view")) return Forbid();
             var r = await _driver.GetByIdAsync(id);
             return r.Success ? View(r.Data) : NotFound();
         }
 
-        [HttpGet] public IActionResult Create() => View();
+        [HttpGet]
+        public IActionResult Create()
+        {
+            if (!PermissionHelper.Can(User, "driver.add")) return Forbid();
+            return View();
+        }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateDriverDto m)
         {
-            if (!ModelState.IsValid)
-                return View(m);
+            if (!PermissionHelper.Can(User, "driver.add")) return Forbid();
+            if (!ModelState.IsValid) return View(m);
             var r = await _driver.CreateAsync(m, UserId);
-            if (!r.Success)
-            {
-                ModelState.AddModelError("", r.Message);
-                return View(m);
-            }
+            if (!r.Success) { ModelState.AddModelError("", r.Message); return View(m); }
             TempData["CreatedUser"] = System.Text.Json.JsonSerializer.Serialize(r.Data);
             TempData["SuccessMessage"] = "Driver created.";
             return RedirectToAction(nameof(Index));
@@ -48,44 +51,38 @@
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
+            if (!PermissionHelper.Can(User, "driver.edit")) return Forbid();
             var r = await _driver.GetByIdAsync(id);
-            if (!r.Success)
-                return NotFound();
+            if (!r.Success) return NotFound();
             ViewBag.DriverId = id;
-            // Pass the human-readable bus display so the textbox shows name not ID
             if (r.Data!.BusId.HasValue && r.Data.BusName != null)
                 ViewBag.BusDisplay = $"{r.Data.BusName} ({r.Data.BusNumber})";
             return View(new UpdateDriverDto
             {
-                FullName = r.Data!.FullName,
-                PhoneNumber = r.Data.PhoneNumber,
+                FullName      = r.Data!.FullName,
+                PhoneNumber   = r.Data.PhoneNumber,
                 LicenseNumber = r.Data.LicenseNumber,
                 LicenseExpiry = r.Data.LicenseExpiry,
-                BusId = r.Data.BusId,
-                IsActive = r.Data.IsActive
+                BusId         = r.Data.BusId,
+                IsActive      = r.Data.IsActive
             });
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, UpdateDriverDto m)
         {
-            if (!ModelState.IsValid)
-            {
-                ViewBag.DriverId = id;
-                return View(m);
-            }
+            if (!PermissionHelper.Can(User, "driver.edit")) return Forbid();
+            if (!ModelState.IsValid) { ViewBag.DriverId = id; return View(m); }
             var r = await _driver.UpdateAsync(id, m);
-            if (!r.Success)
-            {
-                ModelState.AddModelError("", r.Message);
-                ViewBag.DriverId = id; return View(m);
-            }
+            if (!r.Success) { ModelState.AddModelError("", r.Message); ViewBag.DriverId = id; return View(m); }
             TempData["SuccessMessage"] = r.Message;
             return RedirectToAction(nameof(Index));
         }
+
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id)
         {
+            if (!PermissionHelper.Can(User, "driver.delete")) return Forbid();
             await _driver.DeleteAsync(id);
             TempData["SuccessMessage"] = "Marked inactive.";
             return RedirectToAction(nameof(Index));
@@ -94,6 +91,8 @@
         [HttpPost]
         public async Task<IActionResult> Toggle(int id)
         {
+            if (!PermissionHelper.Can(User, "driver.edit"))
+                return Json(new { Success = false, Message = "Permission denied." });
             var r = await _driver.ToggleActiveAsync(id);
             return Json(new { r.Success, r.Message });
         }
@@ -108,6 +107,8 @@
         [HttpPost]
         public async Task<IActionResult> AssignBus([FromBody] AssignBusToDriverDto dto)
         {
+            if (!PermissionHelper.Can(User, "driver.edit"))
+                return Json(new { Success = false, Message = "Permission denied." });
             var r = await _driver.AssignBusAsync(dto);
             return Json(new { r.Success, r.Message });
         }

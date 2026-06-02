@@ -1,7 +1,9 @@
 @* ── Route/Create.cshtml ────────────────────────────────────────────── *@
 @model BusTracking.Common.DTOs.Route.CreateRouteDto
+@using BusTracking.Web.Helpers
 @{
     ViewData["Title"] = "Add Route"; ViewData["Breadcrumb"] = "Routes / Add";
+    if (!PermissionHelper.Can(User, "route.add")) { Context.Response.Redirect("/BusCoordinator/Route"); return; }
 }
 <div class="row justify-content-center">
     <div class="col-lg-7">

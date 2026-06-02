@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Web.Areas.SuperAdmin.Controllers
+namespace BusTracking.Web.Areas.SuperAdmin.Controllers
 {
     [Area("SuperAdmin"), Authorize(Roles = "SuperAdmin")]
     public class ParentController : Controller
@@ -14,9 +14,10 @@
 
         public async Task<IActionResult> Index(int page = 1, string? search = null, string? status = "Active")
         {
+            var normalised = (status == "Both" || string.IsNullOrEmpty(status)) ? null : status;
             ViewBag.Search = search;
-            ViewBag.Status = status;
-            return View(await _parent.GetAllAsync(page, 10, search, status).D());
+            ViewBag.Status = status ?? "Active";
+            return View(await _parent.GetAllAsync(page, 10, search, normalised).D());
         }
 
         public async Task<IActionResult> Details(int id)

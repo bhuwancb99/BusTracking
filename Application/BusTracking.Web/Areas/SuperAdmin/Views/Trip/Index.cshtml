@@ -1,4 +1,4 @@
-﻿@model BusTracking.Common.DTOs.Common.PagedResult<BusTracking.Common.DTOs.Trip.TripListDto>
+@model BusTracking.Common.DTOs.Common.PagedResult<BusTracking.Common.DTOs.Trip.TripListDto>
 @{
     ViewData["Title"] = "Trip Management";
 }
@@ -19,7 +19,7 @@
         <form asp-area="SuperAdmin" asp-controller="Trip" asp-action="Index"
               method="get" class="d-flex align-items-center gap-3 flex-wrap">
             <span class="fw-semibold small text-muted">Status:</span>
-            @foreach (var s in new[] { ("", "All"), ("Scheduled", "Scheduled"), ("InProgress", "In Progress"), ("Completed", "Completed"), ("Cancelled", "Cancelled") })
+            @foreach (var s in new[] { ("All", "All"), ("Scheduled", "Scheduled"), ("InProgress", "In Progress"), ("Completed", "Completed"), ("Cancelled", "Cancelled") })
             {
                 <div class="form-check form-check-inline mb-0">
                     <input class="form-check-input" type="radio" name="status"

@@ -1,7 +1,9 @@
 @* ── Parent/Create.cshtml ──────────────────────────────────────────── *@
 @model BusTracking.Common.DTOs.Parent.CreateParentDto
+@using BusTracking.Web.Helpers
 @{
     ViewData["Title"] = "Add Parent";
+    if (!PermissionHelper.Can(User, "parent.add")) { Context.Response.Redirect("/BusCoordinator/Parent"); return; }
 }
 
 <div class="row justify-content-center">

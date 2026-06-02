@@ -1,6 +1,8 @@
 @model BusTracking.Common.DTOs.Parent.UpdateParentDto
+@using BusTracking.Web.Helpers
 @{
     ViewData["Title"] = "Edit Parent";
+    if (!PermissionHelper.Can(User, "parent.edit")) { Context.Response.Redirect("/BusCoordinator/Parent"); return; }
 }
 <div class="row justify-content-center">
     <div class="col-lg-8">

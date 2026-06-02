@@ -1,6 +1,8 @@
 @model BusTracking.Common.DTOs.Bus.CreateBusDto
+@using BusTracking.Web.Helpers
 @{
     ViewData["Title"] = "Add Bus";
+    if (!PermissionHelper.Can(User, "bus.add")) { Context.Response.Redirect("/BusCoordinator/Bus"); return; }
 }
 
 <div class="row justify-content-center">

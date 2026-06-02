@@ -1,7 +1,9 @@
 @* ── Route/Edit.cshtml ──────────────────────────────────────────────── *@
 @model BusTracking.Common.DTOs.Route.UpdateRouteDto
+@using BusTracking.Web.Helpers
 @{
     ViewData["Title"] = "Edit Route"; ViewData["Breadcrumb"] = "Routes / Edit";
+    if (!PermissionHelper.Can(User, "route.edit")) { Context.Response.Redirect("/BusCoordinator/Route"); return; }
 }
 <div class="row justify-content-center">
     <div class="col-lg-7">

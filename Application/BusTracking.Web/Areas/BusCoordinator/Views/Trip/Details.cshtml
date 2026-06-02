@@ -1,5 +1,6 @@
 @model BusTracking.Common.DTOs.Trip.TripListDto
 @using BusTracking.Common.DTOs.Trip
+@using BusTracking.Web.Helpers
 @{
     ViewData["Title"] = $"Trip #{Model?.TripId}";
     var students = ViewBag.Students as List<StudentTripStatusDto> ?? [];
@@ -12,6 +13,8 @@
         "Cancelled"  => "background:#fce8e6;color:#c5221f",
         _            => "background:#f1f3f4;color:#5f6368"
     };
+    bool canManageTrip = PermissionHelper.Can(User, "trip.manage");
+    bool canViewTrip   = PermissionHelper.Can(User, "trip.view");
 }
 
 <!-- ── Header ─────────────────────────────────────────────────────── -->

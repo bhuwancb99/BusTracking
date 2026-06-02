@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Web.Areas.SuperAdmin.Controllers
+namespace BusTracking.Web.Areas.SuperAdmin.Controllers
 {
     [Area("SuperAdmin"), Authorize(Roles = "SuperAdmin")]
     public class RouteController : Controller
@@ -7,10 +7,12 @@
         private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
         public RouteController(IRouteService r) => _route = r;
 
-        public async Task<IActionResult> Index(int page = 1, string? search = null)
+        public async Task<IActionResult> Index(int page = 1, string? search = null, string? status = "Active")
         {
+            var normalised = (status == "Both" || string.IsNullOrEmpty(status)) ? null : status;
             ViewBag.Search = search;
-            return View(await _route.GetAllAsync(page, 10, search).D());
+            ViewBag.Status = status ?? "Active";
+            return View(await _route.GetAllAsync(page, 10, search, normalised).D());
         }
         public async Task<IActionResult> Details(int id)
         {
@@ -69,6 +71,13 @@
             }
             TempData["SuccessMessage"] = r.Message;
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> Toggle(int id)
+        {
+            var r = await _route.ToggleActiveAsync(id);
+            return Json(new { r.Success, r.Message });
         }
 
         [HttpPost, ValidateAntiForgeryToken]

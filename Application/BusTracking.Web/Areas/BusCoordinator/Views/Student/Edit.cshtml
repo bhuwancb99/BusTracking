@@ -1,6 +1,8 @@
 @model BusTracking.Common.DTOs.Student.UpdateStudentDto
+@using BusTracking.Web.Helpers
 @{
     ViewData["Title"] = "Edit Student";
+    if (!PermissionHelper.Can(User, "student.edit")) { Context.Response.Redirect("/BusCoordinator/Student"); return; }
 }
 
 <div class="row justify-content-center">

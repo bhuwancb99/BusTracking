@@ -1,12 +1,14 @@
-﻿namespace BusTracking.Common.Services
+namespace BusTracking.Common.Services
 {
     public class RouteService : IRouteService
     {
         private readonly AppDbContext _db;
         public RouteService(AppDbContext db) => _db = db;
-        public async Task<ApiResponse<PagedResult<RouteListDto>>> GetAllAsync(int page, int pageSize, string? search)
+        public async Task<ApiResponse<PagedResult<RouteListDto>>> GetAllAsync(int page, int pageSize, string? search, string? status = "Active")
         {
-            var q = _db.Routes.Include(r => r.Stops).Where(r => r.IsActive);
+            var q = _db.Routes.Include(r => r.Stops).AsQueryable();
+            if (status == "Active") q = q.Where(r => r.IsActive);
+            else if (status == "Inactive") q = q.Where(r => !r.IsActive);
             if (!string.IsNullOrWhiteSpace(search)) q = q.Where(r => r.RouteName.Contains(search) || r.RouteCode.Contains(search));
             var total = await q.CountAsync();
             var items = await q.OrderBy(r => r.RouteName).Skip((page - 1) * pageSize).Take(pageSize)
@@ -47,6 +49,15 @@
                 .ToListAsync();
             return ApiResponse<List<StopDto>>.Ok(stops);
         }
+        public async Task<ApiResponse<bool>> ToggleActiveAsync(int routeId)
+        {
+            var r = await _db.Routes.FindAsync(routeId);
+            if (r is null) return ApiResponse<bool>.Fail("Not found.");
+            r.IsActive = !r.IsActive; r.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return ApiResponse<bool>.Ok(true, r.IsActive ? "Route activated." : "Route deactivated.");
+        }
+
         public async Task<ApiResponse<List<StopDto>>> GetStopsByBusAsync(int busId)
         {
             var bus = await _db.Buses.Include(b => b.Route).FirstOrDefaultAsync(b => b.BusId == busId);

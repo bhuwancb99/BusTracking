@@ -7,6 +7,7 @@
     bool canEdit   = PermissionHelper.Can(User, "route.edit");
     bool canDelete = PermissionHelper.Can(User, "route.delete");
     bool canView   = PermissionHelper.Can(User, "route.view");
+    var currentStatus = (ViewBag.Status as string) ?? "Active";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -17,53 +18,89 @@
     }
 </div>
 
-<div class="card border-0 shadow-sm">
-    <div class="card-body p-4">
-        <form asp-action="Index" method="get" class="d-flex gap-2 mb-3">
-            <input type="text" name="search" value="@ViewBag.Search" class="form-control" style="max-width:300px" placeholder="Search route name or code…" />
-            <button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button>
-            @if (!string.IsNullOrEmpty(ViewBag.Search as string))
-            {
-                <a asp-action="Index" class="btn btn-outline-danger"><i class="bi bi-x"></i></a>
-            }
-        </form>
 
+<div class="card border-0 shadow-sm mb-3">
+    <div class="card-body py-2 px-4 d-flex align-items-center gap-4 flex-wrap">
+        <span class="fw-semibold small text-muted">Filter:</span>
+        <form asp-action="Index" method="get" class="d-flex align-items-center gap-3 flex-wrap flex-grow-1">
+            <div class="d-flex gap-3">
+                @foreach (var s in new[] { ("Active", "Active"), ("Inactive", "Inactive"), ("Both", "Both") })
+                {
+                    <div class="form-check mb-0">
+                        <input class="form-check-input" type="radio" name="status"
+                               value="@s.Item1" id="route_st_@s.Item1"
+                               @(currentStatus == s.Item1 ? "checked" : "")
+                               onchange="this.form.submit()" />
+                        <label class="form-check-label small" for="route_st_@s.Item1">@s.Item2</label>
+                    </div>
+                }
+            </div>
+            <input type="text" name="search" value="@ViewBag.Search"
+                   class="form-control form-control-sm ms-auto" style="max-width:280px"
+                   placeholder="Search route name or code…" />
+            <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-search"></i></button>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table table-hover align-middle">
+            <table class="table table-hover align-middle mb-0">
                 <thead class="table-light">
-                    <tr><th>#</th><th>Route Name</th><th>Code</th><th>Morning</th><th>Evening</th><th>Stops</th><th>Status</th><th class="text-end">Actions</th></tr>
+                    <tr>
+                        <th class="ps-3">#</th>
+                        <th>Route Name</th>
+                        <th>Code</th>
+                        <th>Morning</th>
+                        <th>Evening</th>
+                        <th>Stops</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
                 </thead>
                 <tbody>
                     @if (Model?.Items.Count == 0)
                     {
-                        <tr><td colspan="8" class="text-center text-muted py-4"><i class="bi bi-map fs-2 d-block mb-2"></i>No routes found.</td></tr>
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-5">
+                                <i class="bi bi-map fs-1 d-block mb-2"></i>No routes found.
+                            </td>
+                        </tr>
                     }
-
                     @foreach (var (r, i) in (Model?.Items ?? []).Select((x, i) => (x, i + 1 + (Model!.PageNumber - 1) * Model.PageSize)))
                     {
                         <tr>
-                            <td class="text-muted small">@i</td>
+                            <td class="ps-3 text-muted small">@i</td>
                             <td class="fw-semibold">@r.RouteName</td>
                             <td><code class="bg-light px-2 py-1 rounded small">@r.RouteCode</code></td>
                             <td><span class="small"><i class="bi bi-sunrise me-1 text-warning"></i>@(r.MorningTime ?? "–")</span></td>
                             <td><span class="small"><i class="bi bi-sunset me-1 text-secondary"></i>@(r.EveningTime ?? "–")</span></td>
                             <td><span class="badge bg-info-subtle text-info">@r.StopCount stops</span></td>
-                            <td><span class="badge @(r.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">@(r.IsActive ? "Active" : "Inactive")</span></td>
-                            <td class="text-end">
+                            <td>
+                                <span class="badge @(r.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">
+                                    @(r.IsActive ? "Active" : "Inactive")
+                                </span>
+                            </td>
+                            <td class="text-end pe-3">
                                 @if (canView)
                                 {
-                                    <a asp-action="Details" asp-route-id="@r.RouteId" class="btn btn-sm btn-outline-info me-1"><i class="bi bi-eye"></i></a>
+                                    <a asp-action="Details" asp-route-id="@r.RouteId" class="btn btn-sm btn-outline-info me-1" title="View"><i class="bi bi-eye"></i></a>
                                 }
                                 @if (canEdit)
                                 {
-                                    <a asp-action="Edit" asp-route-id="@r.RouteId" class="btn btn-sm btn-outline-warning me-1"><i class="bi bi-pencil"></i></a>
+                                    <a asp-action="Edit" asp-route-id="@r.RouteId" class="btn btn-sm btn-outline-warning me-1" title="Edit"><i class="bi bi-pencil"></i></a>
+                                    <button class="btn btn-sm @(r.IsActive ? "btn-outline-secondary" : "btn-outline-success") btn-toggle me-1"
+                                            data-id="@r.RouteId" title="@(r.IsActive ? "Deactivate" : "Activate")">
+                                        <i class="bi @(r.IsActive ? "bi-toggle-on" : "bi-toggle-off")"></i>
+                                    </button>
                                 }
                                 @if (canDelete)
                                 {
                                     <form asp-action="Delete" asp-route-id="@r.RouteId" method="post" class="d-inline"
                                           onsubmit="return confirm('Delete route @r.RouteName?')">
                                         @Html.AntiForgeryToken()
-                                        <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
                                     </form>
                                 }
                             </td>
@@ -72,6 +109,21 @@
                 </tbody>
             </table>
         </div>
-        <partial name="_Pagination" model="Model" />
+        <div class="px-4 py-2"><partial name="_Pagination" model="Model" /></div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.btn-toggle').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                const res = await fetch(`/BusCoordinator/Route/Toggle?id=${this.dataset.id}`,
+                    { method: 'POST', headers: { 'RequestVerificationToken': token } });
+                const data = await res.json();
+                busTrack.showToast(data.message, data.success ? 'success' : 'danger');
+                if (data.success) setTimeout(() => location.reload(), 700);
+            });
+        });
+    </script>
+}

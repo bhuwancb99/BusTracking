@@ -17,6 +17,7 @@ global using BusTracking.Common.Enums;
 global using BusTracking.Common.Helpers;
 global using BusTracking.Common.Interfaces;
 global using BusTracking.Common.Models;
+global using BusTracking.Web.Helpers;
 global using Microsoft.AspNetCore.Authentication;
 global using Microsoft.AspNetCore.Authentication.Cookies;
 global using Microsoft.AspNetCore.Authorization;

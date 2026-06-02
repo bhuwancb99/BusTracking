@@ -14,7 +14,7 @@
         <span class="fw-semibold small text-muted">Filter:</span>
         <form asp-area="SuperAdmin" asp-action="Index" method="get" class="d-flex align-items-center gap-3 flex-wrap flex-grow-1">
             <div class="d-flex gap-3">
-                @foreach (var s in new[] { ("Active", "Active"), ("Inactive", "Inactive"), ("", "Both") })
+                @foreach (var s in new[] { ("Active", "Active"), ("Inactive", "Inactive"), ("Both", "Both") })
                 {
                     <div class="form-check mb-0">
                         <input class="form-check-input" type="radio" name="status" value="@s.Item1" id="st_@s.Item1"
