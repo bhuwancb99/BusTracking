@@ -102,19 +102,38 @@ public partial class AppShell : Shell
             catch { }
         }
         bool Has(string key) => perms.Contains(key);
-        bool fallback = perms.Count == 0;
+        // NO fallback — zero permissions = only Dashboard (user sees access-denied if they navigate)
 
         var menu = new List<FlyoutMenuItem>
         {
             new() { IconSvg = "dashboard.png", Title = "Dashboard", Route = "CoordinatorDashboard" }
         };
-        if (Has("route.view") || fallback) menu.Add(new() { IconSvg = "route.png", Title = "Routes", Route = "CoordRouteList" });
-        if (Has("bus.view") || fallback) menu.Add(new() { IconSvg = "bus.png", Title = "Buses", Route = "CoordBusList" });
-        if (Has("driver.view") || fallback) menu.Add(new() { IconSvg = "driver.png", Title = "Drivers", Route = "CoordDriverList" });
-        if (Has("parent.view") || fallback) menu.Add(new() { IconSvg = "parent.png", Title = "Parents", Route = "CoordParentList" });
-        if (Has("student.view") || fallback) menu.Add(new() { IconSvg = "student.png", Title = "Students", Route = "CoordStudentList" });
-        if (Has("trip.view") || Has("trip.manage") || fallback)
-            menu.Add(new() { IconSvg = "trip.png", Title = "Trips", Route = "CoordTripList" });
+
+        // ── Same order as SuperAdmin menu ────────────────────────
+        if (Has("appconfig.view"))
+            menu.Add(new() { IconSvg = "config.png",      Title = "App Config",  Route = "CoordConfigList"   });
+
+        if (Has("subadmin.view"))
+            menu.Add(new() { IconSvg = "coordinator.png", Title = "Bus Coordinators",  Route = "CoordSubAdminList" });
+
+        if (Has("route.view"))
+            menu.Add(new() { IconSvg = "route.png",       Title = "Routes",      Route = "CoordRouteList"    });
+
+        if (Has("bus.view"))
+            menu.Add(new() { IconSvg = "bus.png",         Title = "Buses",       Route = "CoordBusList"      });
+
+        if (Has("driver.view"))
+            menu.Add(new() { IconSvg = "driver.png",      Title = "Drivers",     Route = "CoordDriverList"   });
+
+        if (Has("parent.view"))
+            menu.Add(new() { IconSvg = "parent.png",      Title = "Parents",     Route = "CoordParentList"   });
+
+        if (Has("student.view"))
+            menu.Add(new() { IconSvg = "student.png",     Title = "Students",    Route = "CoordStudentList"  });
+
+        if (Has("trip.view") || Has("trip.manage"))
+            menu.Add(new() { IconSvg = "trip.png",        Title = "Trips",       Route = "CoordTripList"     });
+
         return menu;
     }
 

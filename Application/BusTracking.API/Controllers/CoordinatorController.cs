@@ -10,9 +10,14 @@ namespace BusTracking.API.Controllers
         private readonly AppDbContext _db;
         private readonly IDashboardService _dash;
         private readonly ITripService _trip;
-        public CoordinatorController(AppDbContext db, IDashboardService dash, ITripService trip)
+        private readonly ISubAdminService _subAdmin;
+        private readonly IAppConfigService _appConfig;
+
+        public CoordinatorController(AppDbContext db, IDashboardService dash, ITripService trip,
+            ISubAdminService subAdmin, IAppConfigService appConfig)
         {
             _db = db; _dash = dash; _trip = trip;
+            _subAdmin = subAdmin; _appConfig = appConfig;
         }
 
         // ══════════════════════════════════════════════════════════
@@ -378,6 +383,204 @@ namespace BusTracking.API.Controllers
             public int RouteId { get; set; }
             public string TripType { get; set; } = "Morning";
             public DateTime? TripDate { get; set; }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // SUB-ADMINS  (requires subadmin.* permissions)
+        // ══════════════════════════════════════════════════════════
+
+        // ── GET api/coordinator/subadmins ────────────────────────
+        [HttpGet("subadmins")]
+        public async Task<IActionResult> SubAdmins([FromQuery] string? search, [FromQuery] string? status, [FromQuery] int page = 1)
+        {
+            RequirePermission("subadmin.view");
+            var roleId = await _db.Roles.Where(r => r.RoleName == "BusCoordinator").Select(r => r.RoleId).FirstAsync();
+            var q = _db.Users
+                .Include(u => u.SubAdminPermissions).ThenInclude(p => p.Permission)
+                .Where(u => u.RoleId == roleId);
+
+            if (!string.IsNullOrWhiteSpace(search))
+                q = q.Where(u => u.FullName.Contains(search) || u.Email.Contains(search));
+            if (status == "Active") q = q.Where(u => u.IsActive);
+            if (status == "Inactive") q = q.Where(u => !u.IsActive);
+
+            var total = await q.CountAsync();
+            const int pageSize = 20;
+            var items = await q.OrderBy(u => u.FullName)
+                .Skip((page - 1) * pageSize).Take(pageSize)
+                .Select(u => new
+                {
+                    u.UserId,
+                    u.FullName,
+                    u.Email,
+                    u.PhoneNumber,
+                    u.IsActive,
+                    u.CreatedAt,
+                    Permissions = u.SubAdminPermissions.Select(p => p.Permission.PermissionKey).ToList()
+                }).ToListAsync();
+
+            return Ok(ApiResponse<object>.Ok(new { items, total, page, pageSize }));
+        }
+
+        // ── GET api/coordinator/subadmins/{id} ───────────────────
+        [HttpGet("subadmins/{id:int}")]
+        public async Task<IActionResult> SubAdminById(int id)
+        {
+            RequirePermission("subadmin.view");
+            var u = await _db.Users
+                .Include(x => x.SubAdminPermissions).ThenInclude(p => p.Permission)
+                .FirstOrDefaultAsync(x => x.UserId == id);
+            if (u is null) return NotFound(ApiResponse<object>.Fail("Sub-admin not found."));
+            return Ok(ApiResponse<object>.Ok(new
+            {
+                u.UserId,
+                u.FullName,
+                u.Email,
+                u.PhoneNumber,
+                u.IsActive,
+                u.CreatedAt,
+                Permissions = u.SubAdminPermissions.Select(p => p.Permission.PermissionKey).ToList(),
+                PermissionIds = u.SubAdminPermissions.Select(p => p.PermissionId).ToList()
+            }));
+        }
+
+        // ── GET api/coordinator/subadmins/{id}/permissions ───────
+        [HttpGet("subadmins/{id:int}/permissions")]
+        public async Task<IActionResult> SubAdminPermissions(int id)
+        {
+            RequirePermission("subadmin.view");
+            var allPerms = await _db.Permissions.OrderBy(p => p.ModuleName).ToListAsync();
+            var assigned = await _db.SubAdminPermissions.Where(p => p.UserId == id).Select(p => p.PermissionId).ToListAsync();
+            return Ok(ApiResponse<object>.Ok(new
+            {
+                allPermissions = allPerms.Select(p => new { p.PermissionId, p.ModuleName, p.PermissionKey, p.Description }),
+                assignedPermissionIds = assigned
+            }));
+        }
+
+        // ── GET api/coordinator/permissions ─────────────────────
+        [HttpGet("permissions")]
+        public async Task<IActionResult> AllPermissions()
+        {
+            RequirePermission("subadmin.view");
+            var perms = await _db.Permissions.OrderBy(p => p.ModuleName).ThenBy(p => p.PermissionKey)
+                .Select(p => new { p.PermissionId, p.ModuleName, p.PermissionKey, p.Description })
+                .ToListAsync();
+            return Ok(ApiResponse<object>.Ok(perms));
+        }
+
+        // ── POST api/coordinator/subadmins ───────────────────────
+        [HttpPost("subadmins")]
+        public async Task<IActionResult> CreateSubAdmin([FromBody] CreateSubAdminDto dto)
+        {
+            RequirePermission("subadmin.add");
+            var r = await _subAdmin.CreateAsync(dto, CurrentUserId);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        // ── PUT api/coordinator/subadmins/{id} ───────────────────
+        [HttpPut("subadmins/{id:int}")]
+        public async Task<IActionResult> UpdateSubAdmin(int id, [FromBody] UpdateSubAdminDto dto)
+        {
+            RequirePermission("subadmin.edit");
+            if (id == CurrentUserId) return BadRequest(ApiResponse<object>.Fail("Cannot edit your own account."));
+            var r = await _subAdmin.UpdateAsync(id, dto);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        // ── DELETE api/coordinator/subadmins/{id} ────────────────
+        [HttpDelete("subadmins/{id:int}")]
+        public async Task<IActionResult> DeleteSubAdmin(int id)
+        {
+            RequirePermission("subadmin.delete");
+            if (id == CurrentUserId) return BadRequest(ApiResponse<object>.Fail("Cannot delete your own account."));
+            var r = await _subAdmin.DeleteAsync(id);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        // ── POST api/coordinator/subadmins/{id}/toggle ───────────
+        [HttpPost("subadmins/{id:int}/toggle")]
+        public async Task<IActionResult> ToggleSubAdmin(int id)
+        {
+            RequirePermission("subadmin.edit");
+            if (id == CurrentUserId) return BadRequest(ApiResponse<object>.Fail("Cannot toggle your own account."));
+            var r = await _subAdmin.ToggleActiveAsync(id);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        // ── POST api/coordinator/subadmins/{id}/reset-password ───
+        [HttpPost("subadmins/{id:int}/reset-password")]
+        public async Task<IActionResult> ResetSubAdminPassword(int id)
+        {
+            RequirePermission("subadmin.edit");
+            if (id == CurrentUserId) return BadRequest(ApiResponse<object>.Fail("Cannot reset your own password here."));
+            var r = await _subAdmin.ResetPasswordAsync(id);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // APP CONFIG  (requires appconfig.* permissions)
+        // ══════════════════════════════════════════════════════════
+
+        // ── GET api/coordinator/config ───────────────────────────
+        [HttpGet("config")]
+        public async Task<IActionResult> GetConfigs([FromQuery] string? platform, [FromQuery] string? search, [FromQuery] bool? isActive)
+        {
+            RequirePermission("appconfig.view");
+            var r = await _appConfig.GetAllAsync(platform, search, isActive);
+            return Ok(r);
+        }
+
+        // ── GET api/coordinator/config/{id} ──────────────────────
+        [HttpGet("config/{id:int}")]
+        public async Task<IActionResult> GetConfigById(int id)
+        {
+            RequirePermission("appconfig.view");
+            var r = await _appConfig.GetByIdAsync(id);
+            return r.Success ? Ok(r) : NotFound(r);
+        }
+
+        // ── POST api/coordinator/config ──────────────────────────
+        [HttpPost("config")]
+        public async Task<IActionResult> CreateConfig([FromBody] CreateAppConfigDto dto)
+        {
+            RequirePermission("appconfig.add");
+            var r = await _appConfig.CreateAsync(dto, CurrentUserId);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        // ── PUT api/coordinator/config/{id} ──────────────────────
+        [HttpPut("config/{id:int}")]
+        public async Task<IActionResult> UpdateConfig(int id, [FromBody] UpdateAppConfigDto dto)
+        {
+            RequirePermission("appconfig.edit");
+            var r = await _appConfig.UpdateAsync(id, dto);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        // ── DELETE api/coordinator/config/{id} ───────────────────
+        [HttpDelete("config/{id:int}")]
+        public async Task<IActionResult> DeleteConfig(int id)
+        {
+            RequirePermission("appconfig.delete");
+            var r = await _appConfig.DeleteAsync(id);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        // ── POST api/coordinator/config/{id}/toggle ───────────────
+        [HttpPost("config/{id:int}/toggle")]
+        public async Task<IActionResult> ToggleConfig(int id)
+        {
+            RequirePermission("appconfig.edit");
+            var r = await _appConfig.ToggleActiveAsync(id);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        // ── Helper: check permission claim, throw 403 if missing ─
+        private void RequirePermission(string key)
+        {
+            if (!User.HasClaim("permission", key))
+                throw new UnauthorizedAccessException($"Missing permission: {key}");
         }
     }
 }

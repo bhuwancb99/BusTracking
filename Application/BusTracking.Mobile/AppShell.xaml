@@ -291,6 +291,16 @@
         FlyoutItemIsVisible="False"
         Route="CoordinatorDashboard" />
     <ShellContent
+        Title="App Config"
+        ContentTemplate="{DataTemplate coord:CoordConfigListPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordConfigList" />
+    <ShellContent
+        Title="Bus Coordinators"
+        ContentTemplate="{DataTemplate coord:CoordSubAdminListPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordSubAdminList" />
+    <ShellContent
         Title="Routes"
         ContentTemplate="{DataTemplate coord:CoordRouteListPage}"
         FlyoutItemIsVisible="False"

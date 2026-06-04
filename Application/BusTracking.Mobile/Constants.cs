@@ -140,6 +140,19 @@ public static class Constants
         // Students  (list + detail both exist)
         public const string Students = "/api/coordinator/students";
         public const string StudentById = "/api/coordinator/students/{0}";
+
+        // Sub-Admins  (full CRUD via coordinator)
+        public const string SubAdmins             = "/api/coordinator/subadmins";
+        public const string SubAdminById          = "/api/coordinator/subadmins/{0}";
+        public const string SubAdminToggle        = "/api/coordinator/subadmins/{0}/toggle";
+        public const string SubAdminReset         = "/api/coordinator/subadmins/{0}/reset-password";
+        public const string SubAdminPerms         = "/api/coordinator/subadmins/{0}/permissions";
+        public const string CoordAllPermissions   = "/api/coordinator/permissions";
+
+        // App Config  (full CRUD via coordinator)
+        public const string Config       = "/api/coordinator/config";
+        public const string ConfigById   = "/api/coordinator/config/{0}";
+        public const string ConfigToggle = "/api/coordinator/config/{0}/toggle";
     }
 
     // ── Driver  →  TripsController     [Route("api/[controller]")] = api/trips

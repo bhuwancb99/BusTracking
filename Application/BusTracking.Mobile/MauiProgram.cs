@@ -62,6 +62,8 @@
             Routing.RegisterRoute("CoordRouteForm", typeof(CoordRouteFormPage));
             Routing.RegisterRoute("CoordStudentForm", typeof(CoordStudentFormPage));
             Routing.RegisterRoute("CoordTripForm", typeof(CoordTripFormPage));
+            Routing.RegisterRoute("CoordSubAdminForm", typeof(CoordSubAdminFormPage));
+            Routing.RegisterRoute("CoordConfigForm", typeof(CoordConfigFormPage));
 
             // ── Coordinator — Detail pages ────────────────────────────────────
             Routing.RegisterRoute("CoordBusDetail", typeof(CoordBusDetailPage));
@@ -70,6 +72,7 @@
             Routing.RegisterRoute("CoordStudentDetail", typeof(CoordStudentDetailPage));
             Routing.RegisterRoute("CoordRouteDetail", typeof(CoordRouteDetailPage));
             Routing.RegisterRoute("CoordTripDetail", typeof(CoordTripDetailPage));
+            Routing.RegisterRoute("CoordSubAdminDetail", typeof(CoordSubAdminDetailPage));
 
             // ── Driver — Detail page (list/dashboard/tracking in ShellContent) ─
             Routing.RegisterRoute("DriverTripDetail", typeof(DriverTripDetailPage));
@@ -95,6 +98,8 @@
             s.AddTransient<ITripService, TripService>();
             s.AddTransient<IRouteService, RouteService>();
             s.AddTransient<IAdminConfigService, AdminConfigService>();
+            s.AddTransient<ICoordSubAdminService, CoordSubAdminService>();
+            s.AddTransient<ICoordAppConfigService, CoordAppConfigService>();
             s.AddTransient<IDriverTripService, DriverTripService>();
         }
 
@@ -149,6 +154,11 @@
             s.AddTransient<CoordTripListViewModel>();
             s.AddTransient<CoordTripFormViewModel>();
             s.AddTransient<CoordTripDetailViewModel>();
+            s.AddTransient<CoordSubAdminListViewModel>();
+            s.AddTransient<CoordSubAdminFormViewModel>();
+            s.AddTransient<CoordSubAdminDetailViewModel>();
+            s.AddTransient<CoordConfigListViewModel>();
+            s.AddTransient<CoordConfigFormViewModel>();
 
             // Driver
             s.AddTransient<DriverDashboardViewModel>();
@@ -221,6 +231,11 @@
             s.AddTransient<CoordTripListPage>();
             s.AddTransient<CoordTripFormPage>();
             s.AddTransient<CoordTripDetailPage>();
+            s.AddTransient<CoordSubAdminListPage>();
+            s.AddTransient<CoordSubAdminFormPage>();
+            s.AddTransient<CoordSubAdminDetailPage>();
+            s.AddTransient<CoordConfigListPage>();
+            s.AddTransient<CoordConfigFormPage>();
 
             // Driver
             s.AddTransient<DriverDashboardPage>();

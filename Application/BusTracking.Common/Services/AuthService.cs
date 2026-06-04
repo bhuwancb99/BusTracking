@@ -29,14 +29,17 @@
 
             // Load permissions for BusCoordinator — all other roles either have
             // no permission system (Driver/Parent/Student) or have all permissions (SuperAdmin).
-            var permissions = "";
+            var permissionKeys = new List<string>();
             if (user.Role.RoleName == "BusCoordinator")
-            {
-                var keys = await GetCoordinatorPermissionsAsync(user.UserId);
-                permissions = System.Text.Json.JsonSerializer.Serialize(keys);
-            }
+                permissionKeys = await GetCoordinatorPermissionsAsync(user.UserId);
 
-            var token = _jwt.GenerateToken(user.UserId, user.Email, user.Role.RoleName);
+            var permissions = permissionKeys.Count > 0
+                ? System.Text.Json.JsonSerializer.Serialize(permissionKeys)
+                : "";
+
+            // Embed permission keys directly into the JWT so API controllers can
+            // check User.HasClaim("permission", key) without a DB round-trip.
+            var token = _jwt.GenerateToken(user.UserId, user.Email, user.Role.RoleName, permissionKeys);
             return ApiResponse<LoginResponseDto>.Ok(new LoginResponseDto
             {
                 UserId = user.UserId,

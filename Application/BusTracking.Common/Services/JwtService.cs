@@ -6,17 +6,25 @@
         public JwtService(IConfiguration cfg) => _cfg = cfg;
 
         public string GenerateToken(int userId, string email, string role)
+            => GenerateToken(userId, email, role, []);
+
+        public string GenerateToken(int userId, string email, string role, IEnumerable<string> permissions)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_cfg["Jwt:Key"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var expires = DateTime.UtcNow.AddHours(double.Parse(_cfg["Jwt:ExpireHours"] ?? "8"));
 
-            var claims = new[]
+            var claims = new List<Claim>
             {
-            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
-            new Claim(ClaimTypes.Email, email),
-            new Claim(ClaimTypes.Role, role)
-        };
+                new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+                new Claim(ClaimTypes.Email, email),
+                new Claim(ClaimTypes.Role, role)
+            };
+
+            // Embed each permission key as a separate "permission" claim so that
+            // User.HasClaim("permission", "subadmin.view") works in API controllers.
+            foreach (var perm in permissions)
+                claims.Add(new Claim("permission", perm));
 
             var token = new JwtSecurityToken(
                 issuer: _cfg["Jwt:Issuer"],
