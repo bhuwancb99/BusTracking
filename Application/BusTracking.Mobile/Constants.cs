@@ -142,17 +142,27 @@ public static class Constants
         public const string StudentById = "/api/coordinator/students/{0}";
 
         // Sub-Admins  (full CRUD via coordinator)
-        public const string SubAdmins             = "/api/coordinator/subadmins";
-        public const string SubAdminById          = "/api/coordinator/subadmins/{0}";
-        public const string SubAdminToggle        = "/api/coordinator/subadmins/{0}/toggle";
-        public const string SubAdminReset         = "/api/coordinator/subadmins/{0}/reset-password";
-        public const string SubAdminPerms         = "/api/coordinator/subadmins/{0}/permissions";
-        public const string CoordAllPermissions   = "/api/coordinator/permissions";
+        public const string SubAdmins = "/api/coordinator/subadmins";
+        public const string SubAdminById = "/api/coordinator/subadmins/{0}";
+        public const string SubAdminToggle = "/api/coordinator/subadmins/{0}/toggle";
+        public const string SubAdminReset = "/api/coordinator/subadmins/{0}/reset-password";
+        public const string SubAdminPerms = "/api/coordinator/subadmins/{0}/permissions";
+        public const string CoordAllPermissions = "/api/coordinator/permissions";
 
         // App Config  (full CRUD via coordinator)
-        public const string Config       = "/api/coordinator/config";
-        public const string ConfigById   = "/api/coordinator/config/{0}";
+        public const string Config = "/api/coordinator/config";
+        public const string ConfigById = "/api/coordinator/config/{0}";
         public const string ConfigToggle = "/api/coordinator/config/{0}/toggle";
+
+        // Help & Support
+        public const string Feedback = "/api/coordinator/feedback";
+        public const string FeedbackById = "/api/coordinator/feedback/{0}";
+        public const string FeedbackUpdateStatus = "/api/coordinator/feedback/{0}/status";
+
+        // Notifications
+        public const string CoordNotifications = "/api/coordinator/notifications";
+        public const string CoordNotifMarkRead = "/api/coordinator/notifications/{0}/read";
+        public const string CoordNotifMarkAllRead = "/api/coordinator/notifications/read-all";
     }
 
     // ── Driver  →  TripsController     [Route("api/[controller]")] = api/trips

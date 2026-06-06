@@ -111,28 +111,34 @@ public partial class AppShell : Shell
 
         // ── Same order as SuperAdmin menu ────────────────────────
         if (Has("appconfig.view"))
-            menu.Add(new() { IconSvg = "config.png",      Title = "App Config",  Route = "CoordConfigList"   });
+            menu.Add(new() { IconSvg = "config.png", Title = "App Config", Route = "CoordConfigList" });
 
         if (Has("subadmin.view"))
-            menu.Add(new() { IconSvg = "coordinator.png", Title = "Bus Coordinators",  Route = "CoordSubAdminList" });
+            menu.Add(new() { IconSvg = "coordinator.png", Title = "Bus Coordinators", Route = "CoordSubAdminList" });
 
         if (Has("route.view"))
-            menu.Add(new() { IconSvg = "route.png",       Title = "Routes",      Route = "CoordRouteList"    });
+            menu.Add(new() { IconSvg = "route.png", Title = "Routes", Route = "CoordRouteList" });
 
         if (Has("bus.view"))
-            menu.Add(new() { IconSvg = "bus.png",         Title = "Buses",       Route = "CoordBusList"      });
+            menu.Add(new() { IconSvg = "bus.png", Title = "Buses", Route = "CoordBusList" });
 
         if (Has("driver.view"))
-            menu.Add(new() { IconSvg = "driver.png",      Title = "Drivers",     Route = "CoordDriverList"   });
+            menu.Add(new() { IconSvg = "driver.png", Title = "Drivers", Route = "CoordDriverList" });
 
         if (Has("parent.view"))
-            menu.Add(new() { IconSvg = "parent.png",      Title = "Parents",     Route = "CoordParentList"   });
+            menu.Add(new() { IconSvg = "parent.png", Title = "Parents", Route = "CoordParentList" });
 
         if (Has("student.view"))
-            menu.Add(new() { IconSvg = "student.png",     Title = "Students",    Route = "CoordStudentList"  });
+            menu.Add(new() { IconSvg = "student.png", Title = "Students", Route = "CoordStudentList" });
 
         if (Has("trip.view") || Has("trip.manage"))
-            menu.Add(new() { IconSvg = "trip.png",        Title = "Trips",       Route = "CoordTripList"     });
+            menu.Add(new() { IconSvg = "trip.png", Title = "Trips", Route = "CoordTripList" });
+
+        if (Has("notification.manage"))
+            menu.Add(new() { IconSvg = "notification.png", Title = "Notifications", Route = "CoordNotificationList" });
+
+        if (Has("helpsupport.view") || Has("helpsupport.manage"))
+            menu.Add(new() { IconSvg = "feedback.png", Title = "Help & Support", Route = "CoordFeedbackList" });
 
         return menu;
     }

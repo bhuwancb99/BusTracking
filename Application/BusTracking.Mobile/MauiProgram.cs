@@ -64,6 +64,8 @@
             Routing.RegisterRoute("CoordTripForm", typeof(CoordTripFormPage));
             Routing.RegisterRoute("CoordSubAdminForm", typeof(CoordSubAdminFormPage));
             Routing.RegisterRoute("CoordConfigForm", typeof(CoordConfigFormPage));
+            Routing.RegisterRoute("CoordFeedbackDetail", typeof(CoordFeedbackDetailPage));
+            Routing.RegisterRoute("CoordNotificationDetail", typeof(CoordNotificationDetailPage));
 
             // ── Coordinator — Detail pages ────────────────────────────────────
             Routing.RegisterRoute("CoordBusDetail", typeof(CoordBusDetailPage));
@@ -159,6 +161,10 @@
             s.AddTransient<CoordSubAdminDetailViewModel>();
             s.AddTransient<CoordConfigListViewModel>();
             s.AddTransient<CoordConfigFormViewModel>();
+            s.AddTransient<CoordFeedbackListViewModel>();
+            s.AddTransient<CoordFeedbackDetailViewModel>();
+            s.AddTransient<CoordNotificationListViewModel>();
+            s.AddTransient<CoordNotificationDetailViewModel>();
 
             // Driver
             s.AddTransient<DriverDashboardViewModel>();
@@ -236,6 +242,10 @@
             s.AddTransient<CoordSubAdminDetailPage>();
             s.AddTransient<CoordConfigListPage>();
             s.AddTransient<CoordConfigFormPage>();
+            s.AddTransient<CoordFeedbackListPage>();
+            s.AddTransient<CoordFeedbackDetailPage>();
+            s.AddTransient<CoordNotificationListPage>();
+            s.AddTransient<CoordNotificationDetailPage>();
 
             // Driver
             s.AddTransient<DriverDashboardPage>();

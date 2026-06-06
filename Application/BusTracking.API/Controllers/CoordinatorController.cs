@@ -12,12 +12,16 @@ namespace BusTracking.API.Controllers
         private readonly ITripService _trip;
         private readonly ISubAdminService _subAdmin;
         private readonly IAppConfigService _appConfig;
+        private readonly IFeedbackService _feedback;
+        private readonly INotificationService _notif;
 
         public CoordinatorController(AppDbContext db, IDashboardService dash, ITripService trip,
-            ISubAdminService subAdmin, IAppConfigService appConfig)
+            ISubAdminService subAdmin, IAppConfigService appConfig, IFeedbackService feedback,
+            INotificationService notif)
         {
             _db = db; _dash = dash; _trip = trip;
             _subAdmin = subAdmin; _appConfig = appConfig;
+            _feedback = feedback; _notif = notif;
         }
 
         // ══════════════════════════════════════════════════════════
@@ -574,6 +578,74 @@ namespace BusTracking.API.Controllers
             RequirePermission("appconfig.edit");
             var r = await _appConfig.ToggleActiveAsync(id);
             return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        // ══════════════════════════════════════════════════════════
+        // HELP & SUPPORT  (requires helpsupport.* permissions)
+        // ══════════════════════════════════════════════════════════
+
+        // ── GET api/coordinator/feedback ─────────────────────────
+        [HttpGet("feedback")]
+        public async Task<IActionResult> GetFeedback([FromQuery] int page = 1, [FromQuery] string? status = null)
+        {
+            RequirePermission("helpsupport.view");
+            var r = await _feedback.GetAllAsync(page, 20, status);
+            return Ok(r);
+        }
+
+        // ── GET api/coordinator/feedback/{id} ────────────────────
+        [HttpGet("feedback/{id:int}")]
+        public async Task<IActionResult> GetFeedbackById(int id)
+        {
+            RequirePermission("helpsupport.view");
+            // IFeedbackService has no GetByIdAsync — fetch page 1 with large size and find by id
+            var all = await _feedback.GetAllAsync(1, 1000, null);
+            var item = all.Data?.Items?.FirstOrDefault(f => f.FeedbackId == id);
+            return item is not null
+                ? Ok(ApiResponse<FeedbackListDto>.Ok(item))
+                : NotFound(ApiResponse<FeedbackListDto>.Fail("Feedback not found."));
+        }
+
+        // ── PUT api/coordinator/feedback/{id}/status ─────────────
+        [HttpPut("feedback/{id:int}/status")]
+        public async Task<IActionResult> UpdateFeedbackStatus(int id, [FromBody] UpdateFeedbackStatusRequest req)
+        {
+            RequirePermission("helpsupport.manage");
+            var r = await _feedback.UpdateStatusAsync(id, req.Status, CurrentUserId);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        public class UpdateFeedbackStatusRequest { public string Status { get; set; } = ""; }
+
+        // ══════════════════════════════════════════════════════════
+        // NOTIFICATIONS  (requires notification.manage permission)
+        // ══════════════════════════════════════════════════════════
+
+        // ── GET api/coordinator/notifications ────────────────────
+        [HttpGet("notifications")]
+        public async Task<IActionResult> GetNotifications()
+        {
+            RequirePermission("notification.manage");
+            var r = await _notif.GetUserNotificationsAsync(CurrentUserId);
+            return Ok(r);
+        }
+
+        // ── POST api/coordinator/notifications/{id}/read ─────────
+        [HttpPost("notifications/{id:int}/read")]
+        public async Task<IActionResult> MarkRead(int id)
+        {
+            RequirePermission("notification.manage");
+            var r = await _notif.MarkAsReadAsync(id, CurrentUserId);
+            return Ok(r);
+        }
+
+        // ── POST api/coordinator/notifications/read-all ──────────
+        [HttpPost("notifications/read-all")]
+        public async Task<IActionResult> MarkAllRead()
+        {
+            RequirePermission("notification.manage");
+            var r = await _notif.MarkAllAsReadAsync(CurrentUserId);
+            return Ok(r);
         }
 
         // ── Helper: check permission claim, throw 403 if missing ─

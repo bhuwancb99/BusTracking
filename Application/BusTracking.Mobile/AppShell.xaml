@@ -330,6 +330,16 @@
         ContentTemplate="{DataTemplate coord:CoordTripListPage}"
         FlyoutItemIsVisible="False"
         Route="CoordTripList" />
+    <ShellContent
+        Title="Notifications"
+        ContentTemplate="{DataTemplate coord:CoordNotificationListPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordNotificationList" />
+    <ShellContent
+        Title="Help &amp; Support"
+        ContentTemplate="{DataTemplate coord:CoordFeedbackListPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordFeedbackList" />
 
     <!--  Driver  -->
     <ShellContent
