@@ -23,6 +23,7 @@
             <converters:ColorToTranslucentConverter x:Key="ColorToTranslucentConverter" />
             <converters:DrawerItemBgConverter x:Key="DrawerItemBgConverter" />
             <converters:DrawerIconColorConverter x:Key="DrawerIconColorConverter" />
+            <converters:DrawerIconTintConverter x:Key="DrawerIconTintConverter" />
             <converters:DrawerTextColorConverter x:Key="DrawerTextColorConverter" />
             <converters:DrawerFontAttribConverter x:Key="DrawerFontAttribConverter" />
 

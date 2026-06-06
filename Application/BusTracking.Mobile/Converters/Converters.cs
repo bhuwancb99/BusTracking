@@ -220,3 +220,23 @@ public class DrawerFontAttribConverter : IValueConverter
     public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
         => throw new NotImplementedException();
 }
+
+/// Multi-binding: values[0]=IsActive(bool), values[1]=IconColor(string?)
+/// Active            → White
+/// Inactive+color    → parse hex color (e.g. "#f59e0b")
+/// Inactive+no color → default #60a5fa
+public class DrawerIconTintConverter : IMultiValueConverter
+{
+    public object Convert(object[] values, Type t, object? p, CultureInfo c)
+    {
+        bool isActive = values.Length > 0 && values[0] is bool b && b;
+        string? color = values.Length > 1 ? values[1] as string : null;
+
+        if (isActive) return Colors.White;
+        if (!string.IsNullOrWhiteSpace(color))
+            try { return Color.FromArgb(color); } catch { }
+        return Color.FromArgb("#60a5fa");
+    }
+    public object[] ConvertBack(object v, Type[] t, object? p, CultureInfo c)
+        => throw new NotImplementedException();
+}

@@ -178,6 +178,17 @@
                 catch { return Fail<T>("Invalid email or password."); }
             }
 
+            if (res.StatusCode == System.Net.HttpStatusCode.Forbidden)
+            {
+                // Parse the message from API if available, else show default
+                try
+                {
+                    var err = JsonSerializer.Deserialize<ApiResponse<T>>(json, _json);
+                    return Fail<T>(err?.Message ?? "You don't have permission to access this feature.");
+                }
+                catch { return Fail<T>("You don't have permission to access this feature."); }
+            }
+
             if (!res.IsSuccessStatusCode)
             {
                 try

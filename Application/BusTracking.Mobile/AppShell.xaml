@@ -148,7 +148,14 @@
                                     VerticalOptions="Center"
                                     WidthRequest="20">
                                     <Image.Behaviors>
-                                        <mct:IconTintColorBehavior TintColor="{Binding IsActive, Converter={StaticResource DrawerIconColorConverter}}" />
+                                        <mct:IconTintColorBehavior>
+                                            <mct:IconTintColorBehavior.TintColor>
+                                                <MultiBinding Converter="{StaticResource DrawerIconTintConverter}">
+                                                    <Binding Path="IsActive" />
+                                                    <Binding Path="IconColor" />
+                                                </MultiBinding>
+                                            </mct:IconTintColorBehavior.TintColor>
+                                        </mct:IconTintColorBehavior>
                                     </Image.Behaviors>
                                 </Image>
                                 <Label

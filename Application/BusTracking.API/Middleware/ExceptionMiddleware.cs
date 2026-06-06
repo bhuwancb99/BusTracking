@@ -16,6 +16,15 @@
             {
                 await _next(ctx);
             }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning("Permission denied: {Message}", ex.Message);
+                ctx.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                ctx.Response.ContentType = "application/json";
+                var response = ApiResponse<object>.Fail(ex.Message.Replace("Missing permission: ", "You don't have permission to access this feature."));
+                await ctx.Response.WriteAsync(JsonSerializer.Serialize(response,
+                    new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled exception: {Message}", ex.Message);

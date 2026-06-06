@@ -106,39 +106,39 @@ public partial class AppShell : Shell
 
         var menu = new List<FlyoutMenuItem>
         {
-            new() { IconSvg = "dashboard.png", Title = "Dashboard", Route = "CoordinatorDashboard" }
+            new() { IconSvg = "dashboard.png", IconColor = "#6366f1", Title = "Dashboard", Route = "CoordinatorDashboard" }
         };
 
         // ── Same order as SuperAdmin menu ────────────────────────
         if (Has("appconfig.view"))
-            menu.Add(new() { IconSvg = "config.png", Title = "App Config", Route = "CoordConfigList" });
+            menu.Add(new() { IconSvg = "config.png", IconColor = "#f59e0b", Title = "App Config", Route = "CoordConfigList" });
 
         if (Has("subadmin.view"))
-            menu.Add(new() { IconSvg = "coordinator.png", Title = "Bus Coordinators", Route = "CoordSubAdminList" });
+            menu.Add(new() { IconSvg = "coordinator.png", IconColor = "#8b5cf6", Title = "Bus Coordinators", Route = "CoordSubAdminList" });
 
         if (Has("route.view"))
-            menu.Add(new() { IconSvg = "route.png", Title = "Routes", Route = "CoordRouteList" });
+            menu.Add(new() { IconSvg = "route.png", IconColor = "#10b981", Title = "Routes", Route = "CoordRouteList" });
 
         if (Has("bus.view"))
-            menu.Add(new() { IconSvg = "bus.png", Title = "Buses", Route = "CoordBusList" });
+            menu.Add(new() { IconSvg = "bus.png", IconColor = "#3b82f6", Title = "Buses", Route = "CoordBusList" });
 
         if (Has("driver.view"))
-            menu.Add(new() { IconSvg = "driver.png", Title = "Drivers", Route = "CoordDriverList" });
+            menu.Add(new() { IconSvg = "driver.png", IconColor = "#06b6d4", Title = "Drivers", Route = "CoordDriverList" });
 
         if (Has("parent.view"))
-            menu.Add(new() { IconSvg = "parent.png", Title = "Parents", Route = "CoordParentList" });
+            menu.Add(new() { IconSvg = "parent.png", IconColor = "#ec4899", Title = "Parents", Route = "CoordParentList" });
 
         if (Has("student.view"))
-            menu.Add(new() { IconSvg = "student.png", Title = "Students", Route = "CoordStudentList" });
+            menu.Add(new() { IconSvg = "student.png", IconColor = "#f97316", Title = "Students", Route = "CoordStudentList" });
 
         if (Has("trip.view") || Has("trip.manage"))
-            menu.Add(new() { IconSvg = "trip.png", Title = "Trips", Route = "CoordTripList" });
+            menu.Add(new() { IconSvg = "trip.png", IconColor = "#14b8a6", Title = "Trips", Route = "CoordTripList" });
 
         if (Has("notification.manage"))
-            menu.Add(new() { IconSvg = "notification.png", Title = "Notifications", Route = "CoordNotificationList" });
+            menu.Add(new() { IconSvg = "notification.png", IconColor = "#a855f7", Title = "Notifications", Route = "CoordNotificationList" });
 
         if (Has("helpsupport.view") || Has("helpsupport.manage"))
-            menu.Add(new() { IconSvg = "feedback.png", Title = "Help & Support", Route = "CoordFeedbackList" });
+            menu.Add(new() { IconSvg = "feedback.png", IconColor = "#ef4444", Title = "Help & Support", Route = "CoordFeedbackList" });
 
         return menu;
     }
