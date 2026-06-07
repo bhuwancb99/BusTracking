@@ -41,3 +41,4 @@ global using System.Security.Cryptography;
 global using System.Text;
 global using System.Text.Json;
 global using BusTracking.Mobile.Models.Notification;
+global using BusTracking.Mobile.Helpers;

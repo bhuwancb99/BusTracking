@@ -1,4 +1,6 @@
-﻿namespace BusTracking.Mobile.Converters;
+﻿using BusTracking.Mobile.Helpers;
+
+namespace BusTracking.Mobile.Converters;
 
 /// <summary>
 /// Converts a Boolean value to its logical inverse for use in data binding.
@@ -221,22 +223,24 @@ public class DrawerFontAttribConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
-/// Multi-binding: values[0]=IsActive(bool), values[1]=IconColor(string?)
-/// Active            → White
-/// Inactive+color    → parse hex color (e.g. "#f59e0b")
-/// Inactive+no color → default #60a5fa
-public class DrawerIconTintConverter : IMultiValueConverter
+/// Single-binding tint converter — bind to the FlyoutMenuItem itself (.) 
+/// Active   → White
+/// Inactive + IconColor set → parse hex
+/// Inactive + no IconColor  → default #60a5fa
+public class DrawerIconTintConverter : IValueConverter
 {
-    public object Convert(object[] values, Type t, object? p, CultureInfo c)
+    public object Convert(object? value, Type t, object? p, CultureInfo c)
     {
-        bool isActive = values.Length > 0 && values[0] is bool b && b;
-        string? color = values.Length > 1 ? values[1] as string : null;
-
-        if (isActive) return Colors.White;
-        if (!string.IsNullOrWhiteSpace(color))
-            try { return Color.FromArgb(color); } catch { }
-        return Color.FromArgb("#60a5fa");
+        if (value is FlyoutMenuItem item)
+        {
+            if (item.IsActive) return Colors.White;
+            if (!string.IsNullOrWhiteSpace(item.IconColor))
+                try { return Color.FromArgb(item.IconColor); } catch { }
+        }
+        return Colors.White;
     }
-    public object[] ConvertBack(object v, Type[] t, object? p, CultureInfo c)
+    public object ConvertBack(object? v, Type t, object? p, CultureInfo c)
         => throw new NotImplementedException();
 }
+
+

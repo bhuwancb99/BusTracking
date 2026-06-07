@@ -1,10 +1,13 @@
-﻿namespace BusTracking.Mobile;
+﻿using BusTracking.Mobile.Helpers;
+
+namespace BusTracking.Mobile;
 
 public partial class AppShell : Shell
 {
     private readonly IAuthService _auth;
     private readonly INavigationService _nav;
     int _backPressCounter = 0;
+    private static string _svgImageColor = "#ffffff";
 
     public AppShell(IAuthService auth, INavigationService nav)
     {
@@ -18,7 +21,7 @@ public partial class AppShell : Shell
     {
         var user = await _auth.GetCurrentUserAsync();
         if (user is null) return;
-
+        _svgImageColor = ResourceColorHelper.GetColor("SvgImageLight", "SvgImageDark");
         LblUserName.Text = user.FullName ?? "User";
         LblRoleLabel.Text = user.Role switch
         {
@@ -76,17 +79,17 @@ public partial class AppShell : Shell
 
     private static List<FlyoutMenuItem> SuperAdminMenu() =>
     [
-        new() { IconSvg = "dashboard.png",   Title = "Dashboard",        Route = "AdminDashboard"       },
-        new() { IconSvg = "config.png",      Title = "App Config",       Route = "AdminConfigList"      },
-        new() { IconSvg = "coordinator.png", Title = "Bus Coordinators", Route = "AdminCoordinatorList" },
-        new() { IconSvg = "route.png",       Title = "Routes",           Route = "AdminRouteList"       },
-        new() { IconSvg = "bus.png",         Title = "Buses",            Route = "AdminBusList"         },
-        new() { IconSvg = "driver.png",      Title = "Drivers",          Route = "AdminDriverList"      },
-        new() { IconSvg = "parent.png",      Title = "Parents",          Route = "AdminParentList"      },
-        new() { IconSvg = "student.png",     Title = "Students",         Route = "AdminStudentList"     },
-        new() { IconSvg = "trip.png",        Title = "Trips",            Route = "AdminTripList"        },
-        new() { IconSvg = "notification.png",Title = "Notifications",    Route = ""                     },
-        new() { IconSvg = "help.png",        Title = "Help & Support",   Route = ""                     },
+        new() { IconSvg = "dashboard.png",IconColor=_svgImageColor,   Title = "Dashboard",        Route = "AdminDashboard"       },
+        new() { IconSvg = "config.png",IconColor=_svgImageColor,      Title = "App Config",       Route = "AdminConfigList"      },
+        new() { IconSvg = "coordinator.png",IconColor=_svgImageColor, Title = "Bus Coordinators", Route = "AdminCoordinatorList" },
+        new() { IconSvg = "route.png",IconColor=_svgImageColor,       Title = "Routes",           Route = "AdminRouteList"       },
+        new() { IconSvg = "bus.png",IconColor=_svgImageColor,         Title = "Buses",            Route = "AdminBusList"         },
+        new() { IconSvg = "driver.png",IconColor=_svgImageColor,      Title = "Drivers",          Route = "AdminDriverList"      },
+        new() { IconSvg = "parent.png",IconColor=_svgImageColor,      Title = "Parents",          Route = "AdminParentList"      },
+        new() { IconSvg = "student.png",IconColor=_svgImageColor,     Title = "Students",         Route = "AdminStudentList"     },
+        new() { IconSvg = "trip.png",IconColor=_svgImageColor,        Title = "Trips",            Route = "AdminTripList"        },
+        new() { IconSvg = "notification.png",IconColor=_svgImageColor,Title = "Notifications",    Route = ""                     },
+        new() { IconSvg = "help.png",IconColor=_svgImageColor,        Title = "Help & Support",   Route = ""                     },
     ];
 
     private static List<FlyoutMenuItem> CoordinatorMenu(string permissionsJson)
@@ -106,62 +109,62 @@ public partial class AppShell : Shell
 
         var menu = new List<FlyoutMenuItem>
         {
-            new() { IconSvg = "dashboard.png", IconColor = "#6366f1", Title = "Dashboard", Route = "CoordinatorDashboard" }
+            new() { IconSvg = "dashboard.png", IconColor = _svgImageColor, Title = "Dashboard", Route = "CoordinatorDashboard" }
         };
 
         // ── Same order as SuperAdmin menu ────────────────────────
         if (Has("appconfig.view"))
-            menu.Add(new() { IconSvg = "config.png", IconColor = "#f59e0b", Title = "App Config", Route = "CoordConfigList" });
+            menu.Add(new() { IconSvg = "config.png", IconColor = _svgImageColor, Title = "App Config", Route = "CoordConfigList" });
 
         if (Has("subadmin.view"))
-            menu.Add(new() { IconSvg = "coordinator.png", IconColor = "#8b5cf6", Title = "Bus Coordinators", Route = "CoordSubAdminList" });
+            menu.Add(new() { IconSvg = "coordinator.png", IconColor = _svgImageColor, Title = "Bus Coordinators", Route = "CoordSubAdminList" });
 
         if (Has("route.view"))
-            menu.Add(new() { IconSvg = "route.png", IconColor = "#10b981", Title = "Routes", Route = "CoordRouteList" });
+            menu.Add(new() { IconSvg = "route.png", IconColor = _svgImageColor, Title = "Routes", Route = "CoordRouteList" });
 
         if (Has("bus.view"))
-            menu.Add(new() { IconSvg = "bus.png", IconColor = "#3b82f6", Title = "Buses", Route = "CoordBusList" });
+            menu.Add(new() { IconSvg = "bus.png", IconColor = _svgImageColor, Title = "Buses", Route = "CoordBusList" });
 
         if (Has("driver.view"))
-            menu.Add(new() { IconSvg = "driver.png", IconColor = "#06b6d4", Title = "Drivers", Route = "CoordDriverList" });
+            menu.Add(new() { IconSvg = "driver.png", IconColor = _svgImageColor, Title = "Drivers", Route = "CoordDriverList" });
 
         if (Has("parent.view"))
-            menu.Add(new() { IconSvg = "parent.png", IconColor = "#ec4899", Title = "Parents", Route = "CoordParentList" });
+            menu.Add(new() { IconSvg = "parent.png", IconColor = _svgImageColor, Title = "Parents", Route = "CoordParentList" });
 
         if (Has("student.view"))
-            menu.Add(new() { IconSvg = "student.png", IconColor = "#f97316", Title = "Students", Route = "CoordStudentList" });
+            menu.Add(new() { IconSvg = "student.png", IconColor = _svgImageColor, Title = "Students", Route = "CoordStudentList" });
 
         if (Has("trip.view") || Has("trip.manage"))
-            menu.Add(new() { IconSvg = "trip.png", IconColor = "#14b8a6", Title = "Trips", Route = "CoordTripList" });
+            menu.Add(new() { IconSvg = "trip.png", IconColor = _svgImageColor, Title = "Trips", Route = "CoordTripList" });
 
         if (Has("notification.manage"))
-            menu.Add(new() { IconSvg = "notification.png", IconColor = "#a855f7", Title = "Notifications", Route = "CoordNotificationList" });
+            menu.Add(new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications", Route = "CoordNotificationList" });
 
         if (Has("helpsupport.view") || Has("helpsupport.manage"))
-            menu.Add(new() { IconSvg = "feedback.png", IconColor = "#ef4444", Title = "Help & Support", Route = "CoordFeedbackList" });
+            menu.Add(new() { IconSvg = "feedback.png", IconColor = _svgImageColor, Title = "Help & Support", Route = "CoordFeedbackList" });
 
         return menu;
     }
 
     private static List<FlyoutMenuItem> ParentMenu() =>
     [
-        new() { IconSvg = "dashboard.png",    Title = "My Dashboard",   Route = "ParentDashboard"  },
-        new() { IconSvg = "tracking.png",     Title = "Track Bus",      Route = "ParentTracking"   },
-        new() { IconSvg = "availability.png", Title = "Availability",   Route = "ParentAvailability" },
-        new() { IconSvg = "feedback.png",     Title = "Help & Support", Route = "ParentFeedback"   },
+        new() { IconSvg = "dashboard.png", IconColor = _svgImageColor, Title = "My Dashboard",   Route = "ParentDashboard"  },
+        new() { IconSvg = "tracking.png", IconColor = _svgImageColor, Title = "Track Bus",      Route = "ParentTracking"   },
+        new() { IconSvg = "availability.png", IconColor = _svgImageColor, Title = "Availability",   Route = "ParentAvailability" },
+        new() { IconSvg = "feedback.png", IconColor = _svgImageColor, Title = "Help & Support", Route = "ParentFeedback"   },
     ];
 
     private static List<FlyoutMenuItem> StudentMenu() =>
     [
-        new() { IconSvg = "dashboard.png",   Title = "My Dashboard",    Route = "StudentDashboard"    },
-        new() { IconSvg = "tracking.png",    Title = "Track My Bus",    Route = "StudentTracking"     },
-        new() { IconSvg = "availability.png",Title = "My Availability", Route = "StudentAvailability" },
+        new() { IconSvg = "dashboard.png", IconColor = _svgImageColor, Title = "My Dashboard",    Route = "StudentDashboard"    },
+        new() { IconSvg = "tracking.png", IconColor = _svgImageColor, Title = "Track My Bus",    Route = "StudentTracking"     },
+        new() { IconSvg = "availability.png", IconColor = _svgImageColor, Title = "My Availability", Route = "StudentAvailability" },
     ];
 
     private static List<FlyoutMenuItem> DriverMenu() =>
     [
-        new() { IconSvg = "dashboard.png", Title = "Dashboard", Route = "DriverDashboard" },
-        new() { IconSvg = "trip.png",      Title = "My Trips",  Route = "DriverTripList"  },
+        new() { IconSvg = "dashboard.png", IconColor = _svgImageColor, Title = "Dashboard", Route = "DriverDashboard" },
+        new() { IconSvg = "trip.png",      IconColor = _svgImageColor, Title = "My Trips",  Route = "DriverTripList"  },
     ];
 
     // ── Logout ────────────────────────────────────────────────────────────

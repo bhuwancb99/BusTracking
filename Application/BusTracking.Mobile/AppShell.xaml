@@ -142,20 +142,14 @@
                             StrokeShape="RoundRectangle 12">
                             <Grid ColumnDefinitions="24,*" ColumnSpacing="14">
                                 <Image
+                                    x:Name="menuImage"
                                     Grid.Column="0"
                                     HeightRequest="20"
                                     Source="{Binding IconSvg}"
                                     VerticalOptions="Center"
                                     WidthRequest="20">
                                     <Image.Behaviors>
-                                        <mct:IconTintColorBehavior>
-                                            <mct:IconTintColorBehavior.TintColor>
-                                                <MultiBinding Converter="{StaticResource DrawerIconTintConverter}">
-                                                    <Binding Path="IsActive" />
-                                                    <Binding Path="IconColor" />
-                                                </MultiBinding>
-                                            </mct:IconTintColorBehavior.TintColor>
-                                        </mct:IconTintColorBehavior>
+                                        <mct:IconTintColorBehavior BindingContext="{Binding Source={x:Reference menuImage}, Path=BindingContext}" TintColor="{Binding ., Converter={StaticResource DrawerIconTintConverter}}" />
                                     </Image.Behaviors>
                                 </Image>
                                 <Label

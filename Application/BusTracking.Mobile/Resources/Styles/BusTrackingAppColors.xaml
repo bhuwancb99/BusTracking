@@ -144,4 +144,8 @@
     <Color x:Key="HeroCardAccent">#3b82f6</Color>
     <Color x:Key="HeroCardSubText">#93c5fd</Color>
 
+    <!--  ══ SVG Images ═══════════════  -->
+    <Color x:Key="SvgImageLight">#ffffff</Color>
+    <Color x:Key="SvgImageDark">#ffffff</Color>
+
 </ResourceDictionary>
