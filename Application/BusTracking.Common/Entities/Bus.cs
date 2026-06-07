@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Entities
+namespace BusTracking.Common.Entities
 {
     public class Bus
     {
@@ -18,5 +18,6 @@
         public ICollection<StudentDetail> Students { get; set; } = [];
         public DriverDetail? Driver { get; set; }
         public ICollection<BusTrip> Trips { get; set; } = [];
+        public ICollection<BusImage> Images { get; set; } = [];   // ← ADDED
     }
 }

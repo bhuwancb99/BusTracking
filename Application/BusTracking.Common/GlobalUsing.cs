@@ -21,6 +21,8 @@ global using BusTracking.Common.Enums;
 global using BusTracking.Common.Interfaces;
 global using BusTracking.Common.Services;
 global using MailKit.Net.Smtp;
+global using Microsoft.AspNetCore.Hosting;
+global using Microsoft.AspNetCore.Http;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;

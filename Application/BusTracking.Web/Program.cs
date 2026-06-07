@@ -1,7 +1,7 @@
 var builder = WebApplication.CreateBuilder(args);
 
 // ── Shared services from Common library ──────────────────────────────
-builder.Services.AddCommonServices(builder.Configuration);
+builder.Services.AddCommonServices(builder.Configuration, builder.Environment);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -34,13 +34,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
-//var imagePath = Path.Combine(Directory.GetCurrentDirectory(), "Images");
-//app.UseStaticFiles(new StaticFileOptions
-//{
-//    FileProvider = new PhysicalFileProvider(imagePath),
-//    RequestPath = "/Images"
-//});
-app.UseStaticFiles();
+app.UseStaticFiles();   // serves wwwroot/images/* automatically — no extra config needed
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

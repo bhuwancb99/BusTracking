@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.DTOs.SubAdmin
+namespace BusTracking.Common.DTOs.SubAdmin
 {
     public class SubAdminListDto
     {
@@ -9,5 +9,6 @@
         public bool IsActive { get; set; }
         public List<string> Permissions { get; set; } = [];
         public DateTime CreatedAt { get; set; }
+        public string? ProfileImageUrl { get; set; }    // ← NEW
     }
 }

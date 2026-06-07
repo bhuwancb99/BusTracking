@@ -1,8 +1,10 @@
+@* BusCoordinator/Views/Student/Details.cshtml — UPDATED *@
 @model BusTracking.Common.DTOs.Student.StudentListDto
 @using BusTracking.Web.Helpers
 @{
     ViewData["Title"] = "Student Details";
     bool canEdit = PermissionHelper.Can(User, "student.edit");
+    var thumbUrl = Model?.ProfileImageUrl?.Replace("_medium.webp", "_thumb.webp");
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -20,15 +22,43 @@
 @if (Model is not null)
 {
     <div class="row g-4">
-        <!-- Profile card -->
         <div class="col-lg-5">
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
                     <div class="text-center mb-4">
-                        <div class="avatar-xl bg-info-subtle text-info mx-auto rounded-circle d-flex align-items-center justify-content-center mb-3"
-                             style="width:72px;height:72px;font-size:1.8rem;font-weight:700">
-                            @Model.FullName.ToInitials()
+                        <!-- ── Profile photo widget ── -->
+                        <div class="position-relative d-inline-block mb-3" id="imgWidget_@Model.UserId">
+                            @if (!string.IsNullOrEmpty(thumbUrl))
+                            {
+                                <img id="imgWidget_@(Model.UserId)_preview" src="@thumbUrl" alt="@Model.FullName"
+                                     class="rounded-circle border shadow"
+                                     style="width:80px;height:80px;object-fit:cover;" />
+                            }
+                            else
+                            {
+                                <div id="imgWidget_@(Model.UserId)_preview"
+                                     class="rounded-circle border shadow bg-info-subtle text-info d-flex align-items-center justify-content-center mx-auto"
+                                     style="width:80px;height:80px;font-size:1.8rem;font-weight:700;">
+                                    @Model.FullName.ToInitials()
+                                </div>
+                            }
+                            <label for="imgInput_@Model.UserId"
+                                   class="position-absolute bottom-0 end-0 btn btn-sm btn-primary rounded-circle p-1"
+                                   style="width:26px;height:26px;line-height:1;cursor:pointer;" title="Change photo">
+                                <i class="bi bi-camera-fill" style="font-size:0.7rem;"></i>
+                                <input type="file" id="imgInput_@Model.UserId" class="d-none"
+                                       accept="image/jpeg,image/png,image/webp"
+                                       onchange="uploadUserProfile(@Model.UserId, this, 'imgWidget_@Model.UserId')" />
+                            </label>
                         </div>
+                        <div id="imgWidget_@(Model.UserId)_msg" class="small mb-2"></div>
+                        @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-danger mb-3"
+                                    onclick="deleteUserProfile(@Model.UserId, 'imgWidget_@Model.UserId')">
+                                <i class="bi bi-trash me-1"></i>Remove Photo
+                            </button>
+                        }
                         <h5 class="fw-bold mb-1">@Model.FullName</h5>
                         <code class="small">@Model.StudentCode</code>
                         <div class="mt-1">
@@ -43,16 +73,12 @@
                         <tr><th class="text-muted">Phone</th><td>@(Model.PhoneNumber ?? "–")</td></tr>
                         <tr><th class="text-muted">Class</th><td>@(Model.Standard ?? "–")</td></tr>
                         <tr><th class="text-muted">Stop</th><td>@(Model.StopName ?? "–")</td></tr>
-
-                        <!-- ── PASSWORD ROW (masked with eye toggle) ─────── -->
                         <tr>
                             <th class="text-muted">Password</th>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
                                     <span id="pwdMask" class="font-monospace">••••••••••</span>
-                                    <span id="pwdReal" class="font-monospace d-none text-danger small">
-                                        (Reset in Edit page)
-                                    </span>
+                                    <span id="pwdReal" class="font-monospace d-none text-danger small">(Reset in Edit page)</span>
                                     <button type="button" class="btn btn-sm btn-link p-0 text-muted" id="btnTogglePwd" title="Show/hide">
                                         <i class="bi bi-eye" id="pwdEyeIcon"></i>
                                     </button>
@@ -64,21 +90,18 @@
             </div>
         </div>
 
-        <!-- Bus & Stop assignment card -->
         <div class="col-lg-7">
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
                     <i class="bi bi-bus-front me-2 text-primary"></i>Bus & Stop Assignment
                 </div>
                 <div class="card-body p-4">
-                    <!-- Current assignment summary -->
                     <div class="d-flex gap-3 mb-4 flex-wrap">
                         <div class="flex-grow-1 border rounded p-3 text-center">
                             <div class="text-muted small mb-1">Assigned Bus</div>
                             @if (Model.BusName is not null)
                             {
-                                <span class="badge bg-primary-subtle text-primary fs-6 px-3">@Model.BusNumber</span>
-                                <div class="small mt-1">@Model.BusName</div>
+                                <span class="badge bg-primary-subtle text-primary fs-6 px-3">@Model.BusNumber</span><div class="small mt-1">@Model.BusName</div>
                             }
                             else
                             {
@@ -99,35 +122,21 @@
                             }
                         </div>
                     </div>
-
-                    <!-- Step 1: Search bus -->
                     <div class="mb-3">
                         <label class="form-label fw-semibold small">Step 1 — Search & Select Bus</label>
                         <div class="position-relative">
-                            <input type="text" id="quickBusSearch" class="form-control form-control-sm"
-                                   placeholder="Type bus name or number…" autocomplete="off" />
+                            <input type="text" id="quickBusSearch" class="form-control form-control-sm" placeholder="Type bus name or number…" autocomplete="off" />
                             <div id="quickBusSug" class="dropdown-menu w-100 shadow-sm"></div>
                         </div>
                         <div id="busSelected" class="mt-1 small"></div>
                     </div>
-
-                    <!-- Step 2: Pick stop (appears after bus selected) -->
                     <div id="stopSection" class="mb-3" style="display:none">
                         <label class="form-label fw-semibold small">Step 2 — Select Stop</label>
-                        <select id="stopSelect" class="form-select form-select-sm">
-                            <option value="">-- Select a stop --</option>
-                        </select>
-                        <div id="stopSelected" class="mt-1 small text-muted"></div>
+                        <select id="stopSelect" class="form-select form-select-sm"><option value="">-- Select a stop --</option></select>
                     </div>
-
-                    <!-- Action buttons -->
                     <div class="d-flex gap-2 mt-3">
-                        <button class="btn btn-sm btn-primary" id="btnAssignBus">
-                            <i class="bi bi-check2 me-1"></i>Assign Bus & Stop
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger" id="btnRemoveBus">
-                            <i class="bi bi-x me-1"></i>Remove Assignment
-                        </button>
+                        <button class="btn btn-sm btn-primary" id="btnAssignBus"><i class="bi bi-check2 me-1"></i>Assign Bus & Stop</button>
+                        <button class="btn btn-sm btn-outline-danger" id="btnRemoveBus"><i class="bi bi-x me-1"></i>Remove Assignment</button>
                     </div>
                 </div>
             </div>
@@ -135,117 +144,79 @@
     </div>
 }
 
+@Html.AntiForgeryToken()
+
 @section Scripts {
     <script>
-        const studentId   = @(Model?.StudentId ?? 0);
-        let selectedBusId = @(Model?.BusId?.ToString() ?? "null");
-        let selectedStopId= @(Model?.StopId?.ToString() ?? "null");
+        const studentId    = @(Model?.StudentId ?? 0);
+        let selectedBusId  = @(Model?.BusId?.ToString() ?? "null");
+        let selectedStopId = @(Model?.StopId?.ToString() ?? "null");
+        const _tok = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
 
-        // ── Password mask toggle ──────────────────────────────────────
-        document.getElementById('btnTogglePwd').addEventListener('click', function() {
-            const mask = document.getElementById('pwdMask');
-            const real = document.getElementById('pwdReal');
-            const icon = document.getElementById('pwdEyeIcon');
-            if (mask.classList.contains('d-none')) {
-                mask.classList.remove('d-none'); real.classList.add('d-none');
-                icon.className = 'bi bi-eye';
-            } else {
-                mask.classList.add('d-none'); real.classList.remove('d-none');
-                icon.className = 'bi bi-eye-slash';
-            }
+        document.getElementById('btnTogglePwd').addEventListener('click', function () {
+            const mask = document.getElementById('pwdMask'), real = document.getElementById('pwdReal'), icon = document.getElementById('pwdEyeIcon');
+            const hidden = mask.classList.contains('d-none');
+            mask.classList.toggle('d-none', !hidden); real.classList.toggle('d-none', hidden);
+            icon.className = hidden ? 'bi bi-eye-slash' : 'bi bi-eye';
         });
 
-        // ── Bus autocomplete ──────────────────────────────────────────
+        async function uploadUserProfile(userId, input, widgetId) {
+            if (!input.files || !input.files[0]) return;
+            const msg = document.getElementById(widgetId + '_msg');
+            msg.innerHTML = '<span class="text-muted">Uploading…</span>';
+            const fd = new FormData(); fd.append('file', input.files[0]);
+            try {
+                const res = await fetch('/Image/UploadUserProfile?userId=' + userId, { method: 'POST', headers: { 'RequestVerificationToken': _tok() }, body: fd });
+                const json = await res.json();
+                if (json.success) { msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>Saved.</span>'; setTimeout(() => location.reload(), 800); }
+                else { msg.innerHTML = `<span class="text-danger">${json.message}</span>`; }
+            } catch { msg.innerHTML = '<span class="text-danger">Upload failed.</span>'; }
+            input.value = '';
+        }
+        async function deleteUserProfile(userId, widgetId) {
+            if (!confirm('Remove this profile photo?')) return;
+            const msg = document.getElementById(widgetId + '_msg');
+            try {
+                const res = await fetch('/Image/DeleteUserProfile?userId=' + userId, { method: 'POST', headers: { 'RequestVerificationToken': _tok() } });
+                const json = await res.json(); if (json.success) location.reload();
+            } catch { msg.innerHTML = '<span class="text-danger">Error.</span>'; }
+        }
+
         let t;
-        document.getElementById('quickBusSearch').addEventListener('input', function() {
+        document.getElementById('quickBusSearch').addEventListener('input', function () {
             clearTimeout(t); const q = this.value.trim();
             if (q.length < 1) { hideSug(); return; }
             t = setTimeout(() => fetchBuses(q), 250);
         });
-        document.addEventListener('click', e => {
-            if (!e.target.closest('#quickBusSearch,#quickBusSug')) hideSug();
-        });
-
+        document.addEventListener('click', e => { if (!e.target.closest('#quickBusSearch,#quickBusSug')) hideSug(); });
         async function fetchBuses(q) {
             const data = await (await fetch(`/BusCoordinator/Student/SearchBuses?q=${encodeURIComponent(q)}`)).json();
-            const box  = document.getElementById('quickBusSug');
-            box.innerHTML = '';
+            const box = document.getElementById('quickBusSug'); box.innerHTML = '';
             if (!data.length) { hideSug(); return; }
-            data.forEach(b => {
-                const a = document.createElement('a');
-                a.className = 'dropdown-item'; a.href = '#'; a.textContent = b.display;
-                a.addEventListener('click', e => {
-                    e.preventDefault();
-                    selectedBusId = b.busId;
-                    document.getElementById('quickBusSearch').value = b.display;
-                    document.getElementById('busSelected').innerHTML =
-                        `<span class="badge bg-primary-subtle text-primary"><i class="bi bi-bus-front me-1"></i>${b.display}</span>`;
-                    hideSug();
-                    loadStops(b.busId);
-                });
-                box.appendChild(a);
-            });
+            data.forEach(b => { const a = document.createElement('a'); a.className = 'dropdown-item'; a.href = '#'; a.textContent = b.display; a.addEventListener('click', e => { e.preventDefault(); selectedBusId = b.busId; document.getElementById('quickBusSearch').value = b.display; document.getElementById('busSelected').innerHTML = `<span class="badge bg-primary-subtle text-primary"><i class="bi bi-bus-front me-1"></i>${b.display}</span>`; hideSug(); loadStops(b.busId); }); box.appendChild(a); });
             box.classList.add('show');
         }
         function hideSug() { document.getElementById('quickBusSug').classList.remove('show'); }
-
-        // ── Load stops for selected bus ───────────────────────────────
         async function loadStops(busId) {
-            const stopSection = document.getElementById('stopSection');
-            const stopSelect  = document.getElementById('stopSelect');
-            stopSelect.innerHTML = '<option value="">-- Loading stops... --</option>';
-            stopSection.style.display = 'block';
-
-            try {
-                const data = await (await fetch(`/BusCoordinator/Student/SearchStops?busId=${busId}`)).json();
-                stopSelect.innerHTML = '<option value="">-- Select a stop --</option>';
-                if (!data.length) {
-                    stopSelect.innerHTML = '<option value="">No stops on this route</option>';
-                    return;
-                }
-                data.forEach(s => {
-                    const opt = document.createElement('option');
-                    opt.value = s.stopId; opt.textContent = `${s.stopName} (Stop #${s.stopOrder})`;
-                    stopSelect.appendChild(opt);
-                });
-                // Pre-select current stop if bus matches
-                if (selectedStopId) stopSelect.value = selectedStopId;
-            } catch {
-                stopSelect.innerHTML = '<option value="">Error loading stops</option>';
-            }
+            const stopSection = document.getElementById('stopSection'), stopSelect = document.getElementById('stopSelect');
+            stopSelect.innerHTML = '<option value="">-- Loading stops... --</option>'; stopSection.style.display = 'block';
+            const data = await (await fetch(`/BusCoordinator/Student/SearchStops?busId=${busId}`)).json();
+            stopSelect.innerHTML = '<option value="">-- Select a stop --</option>';
+            data.forEach(s => { const opt = document.createElement('option'); opt.value = s.stopId; opt.textContent = `${s.stopName} (Stop #${s.stopOrder})`; stopSelect.appendChild(opt); });
+            if (selectedStopId) stopSelect.value = selectedStopId;
         }
-
-        // If bus already assigned on page load, show stops
-        if (selectedBusId) {
-            document.getElementById('stopSection').style.display = 'block';
-            loadStops(selectedBusId);
-        }
-
-        // ── Assign ────────────────────────────────────────────────────
-        const token = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
-
+        if (selectedBusId) { document.getElementById('stopSection').style.display = 'block'; loadStops(selectedBusId); }
         document.getElementById('btnAssignBus').addEventListener('click', async () => {
             if (!selectedBusId) { busTrack.showToast('Select a bus first', 'warning'); return; }
             const stopId = document.getElementById('stopSelect').value || null;
-            const res  = await fetch('/BusCoordinator/Student/AssignBus', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token() },
-                body: JSON.stringify({ studentId, busId: parseInt(selectedBusId), stopId: stopId ? parseInt(stopId) : null })
-            });
-            const data = await res.json();
-            busTrack.showToast(data.message, data.success ? 'success' : 'danger');
+            const res = await fetch('/BusCoordinator/Student/AssignBus', { method: 'POST', headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _tok() }, body: JSON.stringify({ studentId, busId: parseInt(selectedBusId), stopId: stopId ? parseInt(stopId) : null }) });
+            const data = await res.json(); busTrack.showToast(data.message, data.success ? 'success' : 'danger');
             if (data.success) setTimeout(() => location.reload(), 800);
         });
-
         document.getElementById('btnRemoveBus').addEventListener('click', async () => {
             if (!confirm('Remove bus and stop assignment?')) return;
-            const res  = await fetch('/BusCoordinator/Student/AssignBus', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token() },
-                body: JSON.stringify({ studentId, busId: null, stopId: null })
-            });
-            const data = await res.json();
-            busTrack.showToast(data.message, data.success ? 'success' : 'danger');
+            const res = await fetch('/BusCoordinator/Student/AssignBus', { method: 'POST', headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _tok() }, body: JSON.stringify({ studentId, busId: null, stopId: null }) });
+            const data = await res.json(); busTrack.showToast(data.message, data.success ? 'success' : 'danger');
             if (data.success) setTimeout(() => location.reload(), 800);
         });
     </script>

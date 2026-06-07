@@ -1,11 +1,12 @@
+@* BusCoordinator/Views/SubAdmin/Details.cshtml — UPDATED *@
 @model BusTracking.Common.DTOs.SubAdmin.SubAdminListDto
 @using BusTracking.Web.Helpers
 @{
     ViewData["Title"] = "Sub-Admin Details";
-    bool canEdit  = PermissionHelper.Can(User, "subadmin.edit");
-    bool canDelete = PermissionHelper.Can(User, "subadmin.delete");
-    int  currentUserId = int.Parse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) ?? "0");
-    bool isSelf   = Model?.UserId == currentUserId;
+    bool canEdit = PermissionHelper.Can(User, "subadmin.edit");
+    int currentUserId = int.Parse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) ?? "0");
+    bool isSelf = Model?.UserId == currentUserId;
+    var thumbUrl = Model?.ProfileImageUrl?.Replace("_medium.webp", "_thumb.webp");
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -25,9 +26,7 @@
             </a>
         }
         <a asp-area="BusCoordinator" asp-controller="SubAdmin" asp-action="Index"
-           class="btn btn-outline-secondary btn-sm">
-            <i class="bi bi-arrow-left me-1"></i>Back
-        </a>
+           class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
     </div>
 </div>
 
@@ -37,10 +36,41 @@
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4 text-center">
-                    <div class="bg-warning-subtle text-warning mx-auto rounded-circle d-flex align-items-center justify-content-center mb-3"
-                         style="width:72px;height:72px;font-size:1.8rem;font-weight:700">
-                        @Model.FullName.Substring(0, 1).ToUpper()
+
+                    <!-- ── Profile photo widget ── -->
+                    <div class="position-relative d-inline-block mb-3" id="imgWidget_@Model.UserId">
+                        @if (!string.IsNullOrEmpty(thumbUrl))
+                        {
+                            <img id="imgWidget_@(Model.UserId)_preview" src="@thumbUrl" alt="@Model.FullName"
+                                 class="rounded-circle border shadow"
+                                 style="width:80px;height:80px;object-fit:cover;" />
+                        }
+                        else
+                        {
+                            <div id="imgWidget_@(Model.UserId)_preview"
+                                 class="rounded-circle border shadow bg-warning-subtle text-warning d-flex align-items-center justify-content-center mx-auto"
+                                 style="width:80px;height:80px;font-size:1.8rem;font-weight:700;">
+                                @Model.FullName.Substring(0, 1).ToUpper()
+                            </div>
+                        }
+                        <label for="imgInput_@Model.UserId"
+                               class="position-absolute bottom-0 end-0 btn btn-sm btn-primary rounded-circle p-1"
+                               style="width:26px;height:26px;line-height:1;cursor:pointer;" title="Change photo">
+                            <i class="bi bi-camera-fill" style="font-size:0.7rem;"></i>
+                            <input type="file" id="imgInput_@Model.UserId" class="d-none"
+                                   accept="image/jpeg,image/png,image/webp"
+                                   onchange="uploadUserProfile(@Model.UserId, this, 'imgWidget_@Model.UserId')" />
+                        </label>
                     </div>
+                    <div id="imgWidget_@(Model.UserId)_msg" class="small mb-2"></div>
+                    @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+                    {
+                        <button type="button" class="btn btn-sm btn-outline-danger mb-3"
+                                onclick="deleteUserProfile(@Model.UserId, 'imgWidget_@Model.UserId')">
+                            <i class="bi bi-trash me-1"></i>Remove Photo
+                        </button>
+                    }
+
                     <h5 class="fw-bold mb-1">@Model.FullName</h5>
                     <span class="badge bg-warning-subtle text-warning">Bus Coordinator</span>
                     <span class="badge @(Model.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger") ms-1">
@@ -68,9 +98,7 @@
                     }
                     else
                     {
-                        var grouped = Model.Permissions
-                            .GroupBy(p => p.Split('.')[0])
-                            .ToDictionary(g => g.Key, g => g.ToList());
+                        var grouped = Model.Permissions.GroupBy(p => p.Split('.')[0]).ToDictionary(g => g.Key, g => g.ToList());
                         <div class="row g-3">
                             @foreach (var (module, perms) in grouped)
                             {
@@ -90,4 +118,34 @@
             </div>
         </div>
     </div>
+}
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        const _tok = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+        async function uploadUserProfile(userId, input, widgetId) {
+            if (!input.files || !input.files[0]) return;
+            const msg = document.getElementById(widgetId + '_msg');
+            msg.innerHTML = '<span class="text-muted">Uploading…</span>';
+            const fd = new FormData(); fd.append('file', input.files[0]);
+            try {
+                const res = await fetch('/Image/UploadUserProfile?userId=' + userId, { method: 'POST', headers: { 'RequestVerificationToken': _tok() }, body: fd });
+                const json = await res.json();
+                if (json.success) { msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>Saved.</span>'; setTimeout(() => location.reload(), 800); }
+                else { msg.innerHTML = `<span class="text-danger">${json.message}</span>`; }
+            } catch { msg.innerHTML = '<span class="text-danger">Upload failed.</span>'; }
+            input.value = '';
+        }
+        async function deleteUserProfile(userId, widgetId) {
+            if (!confirm('Remove this profile photo?')) return;
+            const msg = document.getElementById(widgetId + '_msg');
+            try {
+                const res = await fetch('/Image/DeleteUserProfile?userId=' + userId, { method: 'POST', headers: { 'RequestVerificationToken': _tok() } });
+                const json = await res.json();
+                if (json.success) location.reload();
+            } catch { msg.innerHTML = '<span class="text-danger">Error.</span>'; }
+        }
+    </script>
 }

@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.DTOs.Student
+namespace BusTracking.Common.DTOs.Student
 {
     public class StudentListDto
     {
@@ -15,5 +15,6 @@
         public int? StopId { get; set; }
         public string? StopName { get; set; }
         public bool IsActive { get; set; }
+        public string? ProfileImageUrl { get; set; }    // ← NEW
     }
 }

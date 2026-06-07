@@ -6,10 +6,17 @@ public static class CommonServiceExtensions
     /// Registers DbContext + all shared services.
     /// Call from both BusTracking.Web and BusTracking.API Program.cs.
     /// </summary>
-    public static IServiceCollection AddCommonServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddCommonServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment? env = null)   // ← ADD this optional param
     {
-        // ── EF Core (SQL Server — uses manual DB, no migrations) ──────
-        services.AddDbContext<AppDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), sql => sql.EnableRetryOnFailure(3)));
+        // ── EF Core ────────────────────────────────────────────────────
+        services.AddDbContext<AppDbContext>(options =>
+            options.UseSqlServer(
+                configuration.GetConnectionString("DefaultConnection"),
+                sql => sql.EnableRetryOnFailure(3)));
+
+        // ── Image service (only when env is provided — Web project) ───
+        if (env is not null)
+            services.AddScoped<IImageService>(_ => new ImageService(env));  // ← NEW
 
         // ── Infrastructure ────────────────────────────────────────────
         services.AddScoped<IJwtService, JwtService>();

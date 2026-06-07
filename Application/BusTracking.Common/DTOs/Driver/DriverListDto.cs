@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.DTOs.Driver
+namespace BusTracking.Common.DTOs.Driver
 {
     public class DriverListDto
     {
@@ -12,5 +12,6 @@
         public string? LicenseNumber { get; set; }
         public string? LicenseExpiry { get; set; }
         public bool IsActive { get; set; }
+        public string? ProfileImageUrl { get; set; }    // ← NEW
     }
 }

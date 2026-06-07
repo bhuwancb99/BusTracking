@@ -12,6 +12,7 @@ public class AppDbContext : DbContext
     public DbSet<BusRoute> Routes { get; set; }
     public DbSet<Stop> Stops { get; set; }
     public DbSet<Bus> Buses { get; set; }
+    public DbSet<BusImage> BusImages { get; set; }
     public DbSet<DriverDetail> DriverDetails { get; set; }
     public DbSet<StudentDetail> Students { get; set; }
     public DbSet<ParentDetail> Parents { get; set; }
@@ -41,15 +42,16 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<BusRoute>().ToTable("Routes");
         modelBuilder.Entity<Stop>().ToTable("Stops");
         modelBuilder.Entity<Bus>().ToTable("Buses");
+        modelBuilder.Entity<BusImage>().ToTable("BusImages");
         modelBuilder.Entity<DriverDetail>().ToTable("DriverDetails");
         modelBuilder.Entity<StudentDetail>().ToTable("Students");
         modelBuilder.Entity<ParentDetail>().ToTable("Parents");
         modelBuilder.Entity<ParentStudent>().ToTable("ParentStudents");
-        modelBuilder.Entity<StudentAvailability>().ToTable("StudentAvailabilities");   // ← exact SQL name
+        modelBuilder.Entity<StudentAvailability>().ToTable("StudentAvailabilities");
         modelBuilder.Entity<BusTrip>().ToTable("BusTrips");
         modelBuilder.Entity<TripStopEvent>().ToTable("TripStopEvents");
-        modelBuilder.Entity<StudentTripStatus>().ToTable("StudentTripStatus");       // ← exact SQL name
-        modelBuilder.Entity<BusLiveLocation>().ToTable("BusLiveLocation");          // ← exact SQL name
+        modelBuilder.Entity<StudentTripStatus>().ToTable("StudentTripStatus");
+        modelBuilder.Entity<BusLiveLocation>().ToTable("BusLiveLocation");
         modelBuilder.Entity<Notification>().ToTable("Notifications");
         modelBuilder.Entity<NotificationSetting>().ToTable("NotificationSettings");
         modelBuilder.Entity<DeviceToken>().ToTable("DeviceTokens");
@@ -100,6 +102,11 @@ public class AppDbContext : DbContext
             .HasOne(d => d.Bus).WithOne(b => b.Driver)
             .HasForeignKey<DriverDetail>(d => d.BusId).OnDelete(DeleteBehavior.SetNull);
 
+        // BusImage → Bus (cascade delete)
+        modelBuilder.Entity<BusImage>()
+            .HasOne(i => i.Bus).WithMany(b => b.Images)
+            .HasForeignKey(i => i.BusId).OnDelete(DeleteBehavior.Cascade);
+
         // ── Performance indexes ───────────────────────────────────────
         modelBuilder.Entity<BusLiveLocation>()
             .HasIndex(l => new { l.TripId, l.RecordedAt });
@@ -109,5 +116,7 @@ public class AppDbContext : DbContext
             .HasIndex(a => new { a.StudentId, a.FromDate, a.ToDate });
         modelBuilder.Entity<Feedback>()
             .HasIndex(f => new { f.Status, f.CreatedAt });
+        modelBuilder.Entity<BusImage>()
+            .HasIndex(i => i.BusId);
     }
 }

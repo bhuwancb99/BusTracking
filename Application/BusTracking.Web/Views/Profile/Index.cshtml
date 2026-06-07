@@ -1,7 +1,8 @@
-@* ── Profile/Index.cshtml ─────────────────────────────────────────────── *@
+@* ── Profile/Index.cshtml — UPDATED with profile photo ─────────────────── *@
 @model BusTracking.Common.DTOs.User.UserProfileDto
 @{
     ViewData["Title"] = "My Profile"; ViewData["Breadcrumb"] = "My Profile";
+    var thumbUrl = Model?.ProfileImageUrl?.Replace("_medium.webp", "_thumb.webp");
 }
 
 <div class="row justify-content-center">
@@ -12,17 +13,57 @@
                 <div class="rounded-top" style="background:linear-gradient(135deg,#3d5af1,#e94560);height:100px"></div>
                 <div class="px-4 pb-4">
                     <div class="d-flex align-items-end gap-3 mt-n4 mb-4">
-                        <div class="avatar-xl bg-white rounded-circle border border-3 border-white shadow d-flex align-items-center justify-content-center"
-                             style="width:72px;height:72px;font-size:1.8rem;font-weight:700;color:#3d5af1;flex-shrink:0">
-                            @Model?.FullName.ToInitials()
+
+                        <!-- ── Profile photo / initials avatar ── -->
+                        <div class="position-relative" style="flex-shrink:0">
+                            @if (!string.IsNullOrEmpty(thumbUrl))
+                            {
+                                <img id="profileThumb"
+                                     src="@thumbUrl"
+                                     alt="Profile"
+                                     class="rounded-circle border border-3 border-white shadow bg-white"
+                                     style="width:72px;height:72px;object-fit:cover;" />
+                            }
+                            else
+                            {
+                                <div id="profileInitials"
+                                     class="rounded-circle border border-3 border-white shadow bg-white d-flex align-items-center justify-content-center"
+                                     style="width:72px;height:72px;font-size:1.6rem;font-weight:700;color:#3d5af1;">
+                                    @Model?.FullName.ToInitials()
+                                </div>
+                            }
+                            <!-- camera button overlay -->
+                            <label for="myProfileFileInput"
+                                   class="position-absolute bottom-0 end-0 btn btn-sm btn-primary rounded-circle p-1"
+                                   style="width:26px;height:26px;line-height:1;cursor:pointer;"
+                                   title="Change photo">
+                                <i class="bi bi-camera-fill" style="font-size:0.7rem;"></i>
+                                <input type="file" id="myProfileFileInput" class="d-none"
+                                       accept="image/jpeg,image/png,image/webp"
+                                       onchange="uploadMyProfile(this)" />
+                            </label>
                         </div>
+
                         <div class="pb-1">
                             <h5 class="fw-bold mb-0">@Model?.FullName</h5>
                             <span class="badge bg-primary-subtle text-primary">@Model?.Role</span>
+                            <div id="profileImgMsg" class="small mt-1"></div>
                         </div>
                         <div class="ms-auto d-flex gap-2 pb-1">
-                            <a asp-action="Edit" class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil me-1"></i>Edit</a>
-                            <a asp-controller="Auth" asp-action="ChangePassword" class="btn btn-outline-secondary btn-sm"><i class="bi bi-key me-1"></i>Change Password</a>
+                            @if (!string.IsNullOrEmpty(Model?.ProfileImageUrl))
+                            {
+                                <button type="button" class="btn btn-outline-danger btn-sm"
+                                        onclick="deleteMyProfile()">
+                                    <i class="bi bi-trash me-1"></i>Remove Photo
+                                </button>
+                            }
+                            <a asp-action="Edit" class="btn btn-outline-warning btn-sm">
+                                <i class="bi bi-pencil me-1"></i>Edit
+                            </a>
+                            <a asp-controller="Auth" asp-action="ChangePassword"
+                               class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-key me-1"></i>Change Password
+                            </a>
                         </div>
                     </div>
 
@@ -36,3 +77,61 @@
         </div>
     </div>
 </div>
+
+@Html.AntiForgeryToken()
+
+@section Scripts {
+    <script>
+        const _tok = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+
+        async function uploadMyProfile(input) {
+            if (!input.files || !input.files[0]) return;
+            const msg = document.getElementById('profileImgMsg');
+            msg.innerHTML = '<span class="text-muted">Uploading…</span>';
+
+            const fd = new FormData();
+            fd.append('file', input.files[0]);
+
+            try {
+                const res  = await fetch('/Image/UploadMyProfile', {
+                    method: 'POST', headers: { 'RequestVerificationToken': _tok() }, body: fd
+                });
+                const json = await res.json();
+                if (json.success) {
+                    // Swap initials div for real photo (or update existing img)
+                    const initials = document.getElementById('profileInitials');
+                    let img = document.getElementById('profileThumb');
+                    if (initials) {
+                        initials.outerHTML = `<img id="profileThumb" src="${json.thumbUrl}?v=${Date.now()}"
+                            alt="Profile" class="rounded-circle border border-3 border-white shadow bg-white"
+                            style="width:72px;height:72px;object-fit:cover;" />`;
+                    } else if (img) {
+                        img.src = json.thumbUrl + '?v=' + Date.now();
+                    }
+                    msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>Saved.</span>';
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    msg.innerHTML = `<span class="text-danger">${json.message}</span>`;
+                }
+            } catch {
+                msg.innerHTML = '<span class="text-danger">Upload failed.</span>';
+            }
+            input.value = '';
+        }
+
+        async function deleteMyProfile() {
+            if (!confirm('Remove your profile photo?')) return;
+            const msg = document.getElementById('profileImgMsg');
+            msg.innerHTML = '<span class="text-muted">Removing…</span>';
+            try {
+                const res  = await fetch('/Image/DeleteMyProfile', {
+                    method: 'POST', headers: { 'RequestVerificationToken': _tok() }
+                });
+                const json = await res.json();
+                if (json.success) { location.reload(); }
+            } catch {
+                msg.innerHTML = '<span class="text-danger">Error.</span>';
+            }
+        }
+    </script>
+}

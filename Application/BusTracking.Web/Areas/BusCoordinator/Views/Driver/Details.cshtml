@@ -1,8 +1,10 @@
+@* BusCoordinator/Views/Driver/Details.cshtml — UPDATED *@
 @model BusTracking.Common.DTOs.Driver.DriverListDto
 @using BusTracking.Web.Helpers
 @{
     ViewData["Title"] = "Driver Details";
     bool canEdit = PermissionHelper.Can(User, "driver.edit");
+    var thumbUrl = Model?.ProfileImageUrl?.Replace("_medium.webp", "_thumb.webp");
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -23,10 +25,39 @@
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">
                     <div class="text-center mb-4">
-                        <div class="avatar-xl bg-success-subtle text-success mx-auto rounded-circle d-flex align-items-center justify-content-center mb-3"
-                             style="width:72px;height:72px;font-size:1.8rem;font-weight:700">
-                            @Model.FullName.ToInitials()
+                        <!-- ── Profile photo widget ── -->
+                        <div class="position-relative d-inline-block mb-3" id="imgWidget_@Model.UserId">
+                            @if (!string.IsNullOrEmpty(thumbUrl))
+                            {
+                                <img id="imgWidget_@(Model.UserId)_preview" src="@thumbUrl" alt="@Model.FullName"
+                                     class="rounded-circle border shadow"
+                                     style="width:80px;height:80px;object-fit:cover;" />
+                            }
+                            else
+                            {
+                                <div id="imgWidget_@(Model.UserId)_preview"
+                                     class="rounded-circle border shadow bg-success-subtle text-success d-flex align-items-center justify-content-center mx-auto"
+                                     style="width:80px;height:80px;font-size:1.8rem;font-weight:700;">
+                                    @Model.FullName.ToInitials()
+                                </div>
+                            }
+                            <label for="imgInput_@Model.UserId"
+                                   class="position-absolute bottom-0 end-0 btn btn-sm btn-primary rounded-circle p-1"
+                                   style="width:26px;height:26px;line-height:1;cursor:pointer;" title="Change photo">
+                                <i class="bi bi-camera-fill" style="font-size:0.7rem;"></i>
+                                <input type="file" id="imgInput_@Model.UserId" class="d-none"
+                                       accept="image/jpeg,image/png,image/webp"
+                                       onchange="uploadUserProfile(@Model.UserId, this, 'imgWidget_@Model.UserId')" />
+                            </label>
                         </div>
+                        <div id="imgWidget_@(Model.UserId)_msg" class="small mb-2"></div>
+                        @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+                        {
+                            <button type="button" class="btn btn-sm btn-outline-danger mb-3"
+                                    onclick="deleteUserProfile(@Model.UserId, 'imgWidget_@Model.UserId')">
+                                <i class="bi bi-trash me-1"></i>Remove Photo
+                            </button>
+                        }
                         <h5 class="fw-bold mb-1">@Model.FullName</h5>
                         <span class="badge bg-success-subtle text-success me-1">Driver</span>
                         <span class="badge @(Model.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">
@@ -38,7 +69,6 @@
                         <tr><th class="text-muted">Phone</th><td>@(Model.PhoneNumber ?? "–")</td></tr>
                         <tr><th class="text-muted">License No.</th><td>@(Model.LicenseNumber ?? "–")</td></tr>
                         <tr><th class="text-muted">Expiry</th><td>@(Model.LicenseExpiry ?? "–")</td></tr>
-                        <!-- ── PASSWORD ROW ─────────────────────── -->
                         <tr>
                             <th class="text-muted">Password</th>
                             <td>
@@ -92,23 +122,41 @@
     </div>
 }
 
+@Html.AntiForgeryToken()
+
 @section Scripts {
     <script>
-        // ── Password toggle ───────────────────────────────────────────
-        document.getElementById('btnTogglePwd').addEventListener('click', function() {
-            const mask = document.getElementById('pwdMask');
-            const real = document.getElementById('pwdReal');
-            const icon = document.getElementById('pwdEyeIcon');
+        const _tok = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+        document.getElementById('btnTogglePwd').addEventListener('click', function () {
+            const mask = document.getElementById('pwdMask'), real = document.getElementById('pwdReal'), icon = document.getElementById('pwdEyeIcon');
             const hidden = mask.classList.contains('d-none');
-            mask.classList.toggle('d-none', !hidden);
-            real.classList.toggle('d-none', hidden);
+            mask.classList.toggle('d-none', !hidden); real.classList.toggle('d-none', hidden);
             icon.className = hidden ? 'bi bi-eye-slash' : 'bi bi-eye';
         });
-
-        // ── Bus autocomplete ──────────────────────────────────────────
+        async function uploadUserProfile(userId, input, widgetId) {
+            if (!input.files || !input.files[0]) return;
+            const msg = document.getElementById(widgetId + '_msg');
+            msg.innerHTML = '<span class="text-muted">Uploading…</span>';
+            const fd = new FormData(); fd.append('file', input.files[0]);
+            try {
+                const res = await fetch('/Image/UploadUserProfile?userId=' + userId, { method: 'POST', headers: { 'RequestVerificationToken': _tok() }, body: fd });
+                const json = await res.json();
+                if (json.success) { msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>Saved.</span>'; setTimeout(() => location.reload(), 800); }
+                else { msg.innerHTML = `<span class="text-danger">${json.message}</span>`; }
+            } catch { msg.innerHTML = '<span class="text-danger">Upload failed.</span>'; }
+            input.value = '';
+        }
+        async function deleteUserProfile(userId, widgetId) {
+            if (!confirm('Remove this profile photo?')) return;
+            const msg = document.getElementById(widgetId + '_msg');
+            try {
+                const res = await fetch('/Image/DeleteUserProfile?userId=' + userId, { method: 'POST', headers: { 'RequestVerificationToken': _tok() } });
+                const json = await res.json(); if (json.success) location.reload();
+            } catch { msg.innerHTML = '<span class="text-danger">Error.</span>'; }
+        }
         const driverUserId = @(Model?.UserId ?? 0);
         let selBusId = null, t;
-        document.getElementById('quickBusSearch').addEventListener('input', function() {
+        document.getElementById('quickBusSearch').addEventListener('input', function () {
             clearTimeout(t); const q = this.value.trim();
             if (q.length < 1) { hideSug(); return; }
             t = setTimeout(() => fetchBuses(q), 250);
@@ -116,28 +164,22 @@
         document.addEventListener('click', e => { if (!e.target.closest('#quickBusSearch,#quickBusSug')) hideSug(); });
         async function fetchBuses(q) {
             const data = await (await fetch(`/BusCoordinator/Driver/SearchBuses?q=${encodeURIComponent(q)}`)).json();
-            const box  = document.getElementById('quickBusSug'); box.innerHTML = '';
-            data.forEach(b => {
-                const a = document.createElement('a'); a.className='dropdown-item'; a.href='#'; a.textContent=b.display;
-                a.addEventListener('click', e => { e.preventDefault(); selBusId=b.busId; document.getElementById('quickBusSearch').value=b.display; hideSug(); });
-                box.appendChild(a);
-            });
+            const box = document.getElementById('quickBusSug'); box.innerHTML = '';
+            data.forEach(b => { const a = document.createElement('a'); a.className = 'dropdown-item'; a.href = '#'; a.textContent = b.display; a.addEventListener('click', e => { e.preventDefault(); selBusId = b.busId; document.getElementById('quickBusSearch').value = b.display; hideSug(); }); box.appendChild(a); });
             if (data.length) box.classList.add('show');
         }
         function hideSug() { document.getElementById('quickBusSug').classList.remove('show'); }
-        const token = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
-
         document.getElementById('btnAssignBus').addEventListener('click', async () => {
-            if (!selBusId) { busTrack.showToast('Select a bus first','warning'); return; }
-            const res  = await fetch('/BusCoordinator/Driver/AssignBus', { method:'POST', headers:{'Content-Type':'application/json','RequestVerificationToken':token()}, body:JSON.stringify({driverUserId,busId:selBusId}) });
-            const data = await res.json(); busTrack.showToast(data.message, data.success?'success':'danger');
-            if (data.success) setTimeout(()=>location.reload(),800);
+            if (!selBusId) { busTrack.showToast('Select a bus first', 'warning'); return; }
+            const res = await fetch('/BusCoordinator/Driver/AssignBus', { method: 'POST', headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _tok() }, body: JSON.stringify({ driverUserId, busId: selBusId }) });
+            const data = await res.json(); busTrack.showToast(data.message, data.success ? 'success' : 'danger');
+            if (data.success) setTimeout(() => location.reload(), 800);
         });
         document.getElementById('btnRemoveBus').addEventListener('click', async () => {
             if (!confirm('Remove bus assignment?')) return;
-            const res  = await fetch('/BusCoordinator/Driver/AssignBus', { method:'POST', headers:{'Content-Type':'application/json','RequestVerificationToken':token()}, body:JSON.stringify({driverUserId,busId:null}) });
-            const data = await res.json(); busTrack.showToast(data.message, data.success?'success':'danger');
-            if (data.success) setTimeout(()=>location.reload(),800);
+            const res = await fetch('/BusCoordinator/Driver/AssignBus', { method: 'POST', headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _tok() }, body: JSON.stringify({ driverUserId, busId: null }) });
+            const data = await res.json(); busTrack.showToast(data.message, data.success ? 'success' : 'danger');
+            if (data.success) setTimeout(() => location.reload(), 800);
         });
     </script>
 }

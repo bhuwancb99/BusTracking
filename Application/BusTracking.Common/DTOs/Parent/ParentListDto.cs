@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.DTOs.Parent
+namespace BusTracking.Common.DTOs.Parent
 {
     public class ParentListDto
     {
@@ -8,5 +8,6 @@
         public string? PhoneNumber { get; set; }
         public bool IsActive { get; set; }
         public List<LinkedStudentDto> Students { get; set; } = [];
+        public string? ProfileImageUrl { get; set; }    // ← NEW
     }
 }

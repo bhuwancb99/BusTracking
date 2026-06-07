@@ -431,6 +431,10 @@ CREATE TABLE AuditLogs (
 );
 GO
 
+-- ============================================================
+-- 23. APP CONFIGURATIONS
+-- ============================================================
+
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'AppConfigurations')
 BEGIN
     CREATE TABLE AppConfigurations (
@@ -451,6 +455,24 @@ BEGIN
     CREATE INDEX IX_AppConfigurations_Platform_Active
         ON AppConfigurations (Platform, IsActive);
 END
+GO
+
+-- ============================================================
+-- 24. BUS IMAGES
+-- ============================================================
+
+CREATE TABLE BusImages (
+    BusImageId   INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    BusId        INT           NOT NULL REFERENCES Buses(BusId) ON DELETE CASCADE,
+    ImageUrl     NVARCHAR(500) NOT NULL,
+    DisplayOrder INT           NOT NULL DEFAULT 0,
+    IsPrimary    BIT           NOT NULL DEFAULT 0,
+    UploadedAt   DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
+    UploadedBy   INT           NULL REFERENCES Users(UserId)
+);
+GO
+
+CREATE INDEX IX_BusImages_BusId ON BusImages(BusId);
 GO
 
 -- ── Seed default Mobile config keys ──────────────────────────────────

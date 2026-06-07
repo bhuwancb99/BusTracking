@@ -57,6 +57,7 @@
                 Email = p.User.Email,
                 PhoneNumber = p.User.PhoneNumber,
                 IsActive = p.User.IsActive,
+                ProfileImageUrl = p.User.ProfileImageUrl,
                 Students = p.ParentStudents.Select(ps => new LinkedStudentDto
                 {
                     StudentId = ps.Student.StudentId,
@@ -73,20 +74,42 @@
             if (await _db.Users.AnyAsync(u => u.Email == dto.Email)) return ApiResponse<CreatedUserResultDto>.Fail("Email in use.");
             var roleId = await _db.Roles.Where(r => r.RoleName == "Parent").Select(r => r.RoleId).FirstAsync();
             var password = _pwd.GenerateRandomPassword(); var (hash, salt) = _pwd.HashPassword(password);
-            var user = new User { RoleId = roleId, FullName = dto.FullName, Email = dto.Email, PhoneNumber = dto.PhoneNumber, PasswordHash = hash, PasswordSalt = salt, CreatedBy = createdBy };
+            var user = new User
+            {
+                RoleId = roleId,
+                FullName = dto.FullName,
+                Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber,
+                PasswordHash = hash,
+                PasswordSalt = salt,
+                CreatedBy = createdBy
+            };
             _db.Users.Add(user); await _db.SaveChangesAsync();
-            var parent = new ParentDetail { UserId = user.UserId }; _db.Parents.Add(parent); await _db.SaveChangesAsync();
+            var parent = new ParentDetail
+            {
+                UserId = user.UserId
+            }; _db.Parents.Add(parent); await _db.SaveChangesAsync();
             foreach (var code in dto.StudentCodes.Where(c => !string.IsNullOrWhiteSpace(c)).Distinct())
             { var s = await _db.Students.FirstOrDefaultAsync(x => x.StudentCode == code.Trim()); if (s is not null) _db.ParentStudents.Add(new ParentStudent { ParentId = parent.ParentId, StudentId = s.StudentId }); }
             await _db.SaveChangesAsync();
             if (dto.SendEmail) await _email.SendAsync(dto.Email, "Your Parent Account", $"<p>Hi {dto.FullName},</p><p>Email: {dto.Email}<br/>Password: <b>{password}</b></p>");
-            return ApiResponse<CreatedUserResultDto>.Ok(new CreatedUserResultDto { UserId = user.UserId, FullName = dto.FullName, Email = dto.Email, PlainPassword = password, Role = "Parent" });
+            return ApiResponse<CreatedUserResultDto>.Ok(new CreatedUserResultDto
+            {
+                UserId = user.UserId,
+                FullName = dto.FullName,
+                Email = dto.Email,
+                PlainPassword = password,
+                Role = "Parent"
+            });
         }
         public async Task<ApiResponse<bool>> UpdateAsync(int userId, UpdateParentDto dto)
         {
             var p = await _db.Parents.Include(x => x.User).Include(x => x.ParentStudents).FirstOrDefaultAsync(x => x.UserId == userId);
             if (p is null) return ApiResponse<bool>.Fail("Not found.");
-            p.User.FullName = dto.FullName; p.User.PhoneNumber = dto.PhoneNumber; p.User.IsActive = dto.IsActive; p.User.UpdatedAt = DateTime.UtcNow;
+            p.User.FullName = dto.FullName;
+            p.User.PhoneNumber = dto.PhoneNumber;
+            p.User.IsActive = dto.IsActive;
+            p.User.UpdatedAt = DateTime.UtcNow;
             _db.ParentStudents.RemoveRange(p.ParentStudents);
             foreach (var code in dto.StudentCodes.Where(c => !string.IsNullOrWhiteSpace(c)).Distinct())
             { var s = await _db.Students.FirstOrDefaultAsync(x => x.StudentCode == code.Trim()); if (s is not null) _db.ParentStudents.Add(new ParentStudent { ParentId = p.ParentId, StudentId = s.StudentId }); }

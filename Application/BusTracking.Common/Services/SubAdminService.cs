@@ -14,14 +14,34 @@
             else if (status == "Inactive") q = q.Where(u => !u.IsActive);
             var total = await q.CountAsync();
             var items = await q.OrderBy(u => u.FullName).Skip((page - 1) * pageSize).Take(pageSize)
-                .Select(u => new SubAdminListDto { UserId = u.UserId, FullName = u.FullName, Email = u.Email, PhoneNumber = u.PhoneNumber, IsActive = u.IsActive, Permissions = u.SubAdminPermissions.Select(sp => sp.Permission.PermissionKey).ToList(), CreatedAt = u.CreatedAt }).ToListAsync();
+                .Select(u => new SubAdminListDto
+                {
+                    UserId = u.UserId,
+                    FullName = u.FullName,
+                    Email = u.Email,
+                    PhoneNumber = u.PhoneNumber,
+                    IsActive = u.IsActive,
+                    ProfileImageUrl = u.ProfileImageUrl,
+                    Permissions = u.SubAdminPermissions.Select(sp => sp.Permission.PermissionKey).ToList(),
+                    CreatedAt = u.CreatedAt
+                }).ToListAsync();
             return ApiResponse<PagedResult<SubAdminListDto>>.Ok(new PagedResult<SubAdminListDto> { Items = items, TotalCount = total, PageNumber = page, PageSize = pageSize });
         }
         public async Task<ApiResponse<SubAdminListDto>> GetByIdAsync(int userId)
         {
             var u = await _db.Users.Include(x => x.SubAdminPermissions).ThenInclude(sp => sp.Permission).FirstOrDefaultAsync(x => x.UserId == userId);
             if (u is null) return ApiResponse<SubAdminListDto>.Fail("Not found.");
-            return ApiResponse<SubAdminListDto>.Ok(new SubAdminListDto { UserId = u.UserId, FullName = u.FullName, Email = u.Email, PhoneNumber = u.PhoneNumber, IsActive = u.IsActive, Permissions = u.SubAdminPermissions.Select(sp => sp.Permission.PermissionKey).ToList(), CreatedAt = u.CreatedAt });
+            return ApiResponse<SubAdminListDto>.Ok(new SubAdminListDto
+            {
+                UserId = u.UserId,
+                FullName = u.FullName,
+                Email = u.Email,
+                PhoneNumber = u.PhoneNumber,
+                IsActive = u.IsActive,
+                ProfileImageUrl = u.ProfileImageUrl,
+                Permissions = u.SubAdminPermissions.Select(sp => sp.Permission.PermissionKey).ToList(),
+                CreatedAt = u.CreatedAt
+            });
         }
         public async Task<ApiResponse<CreatedUserResultDto>> CreateAsync(CreateSubAdminDto dto, int createdBy)
         {
@@ -29,10 +49,24 @@
             var roleId = await _db.Roles.Where(r => r.RoleName == "BusCoordinator").Select(r => r.RoleId).FirstAsync();
             var password = _pwd.GenerateRandomPassword();
             var (hash, salt) = _pwd.HashPassword(password);
-            var user = new User { RoleId = roleId, FullName = dto.FullName, Email = dto.Email, PhoneNumber = dto.PhoneNumber, PasswordHash = hash, PasswordSalt = salt, CreatedBy = createdBy };
+            var user = new User
+            {
+                RoleId = roleId,
+                FullName = dto.FullName,
+                Email = dto.Email,
+                PhoneNumber = dto.PhoneNumber,
+                PasswordHash = hash,
+                PasswordSalt = salt,
+                CreatedBy = createdBy
+            };
             _db.Users.Add(user); await _db.SaveChangesAsync();
             foreach (var pid in dto.PermissionIds.Distinct())
-                _db.SubAdminPermissions.Add(new SubAdminPermission { UserId = user.UserId, PermissionId = pid, AssignedBy = createdBy });
+                _db.SubAdminPermissions.Add(new SubAdminPermission
+                {
+                    UserId = user.UserId,
+                    PermissionId = pid,
+                    AssignedBy = createdBy
+                });
             await _db.SaveChangesAsync();
             if (dto.SendEmail) await _email.SendAsync(dto.Email, "Your Bus Coordinator Account", $"<p>Hi {dto.FullName},</p><p>Email: {dto.Email}<br/>Password: <b>{password}</b></p>");
             return ApiResponse<CreatedUserResultDto>.Ok(new CreatedUserResultDto { UserId = user.UserId, FullName = dto.FullName, Email = dto.Email, PlainPassword = password, Role = "BusCoordinator" });
@@ -40,7 +74,10 @@
         public async Task<ApiResponse<bool>> UpdateAsync(int userId, UpdateSubAdminDto dto)
         {
             var u = await _db.Users.FindAsync(userId); if (u is null) return ApiResponse<bool>.Fail("Not found.");
-            u.FullName = dto.FullName; u.PhoneNumber = dto.PhoneNumber; u.IsActive = dto.IsActive; u.UpdatedAt = DateTime.UtcNow;
+            u.FullName = dto.FullName;
+            u.PhoneNumber = dto.PhoneNumber;
+            u.IsActive = dto.IsActive;
+            u.UpdatedAt = DateTime.UtcNow;
             var existing = _db.SubAdminPermissions.Where(sp => sp.UserId == userId);
             _db.SubAdminPermissions.RemoveRange(existing);
             foreach (var pid in dto.PermissionIds.Distinct())
