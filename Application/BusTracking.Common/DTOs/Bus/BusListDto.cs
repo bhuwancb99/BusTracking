@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.DTOs.Bus
+namespace BusTracking.Common.DTOs.Bus
 {
     public class BusListDto
     {
@@ -13,5 +13,7 @@
         public int? Capacity { get; set; }
         public int StudentCount { get; set; }
         public bool IsActive { get; set; }
+        public string? PrimaryImageUrl { get; set; }
+        public List<BusImageDto> Images { get; set; } = [];
     }
 }

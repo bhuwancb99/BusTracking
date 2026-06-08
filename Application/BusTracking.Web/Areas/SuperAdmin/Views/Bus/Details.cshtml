@@ -1,6 +1,9 @@
 @model BusTracking.Common.DTOs.Bus.BusListDto
 @{
     ViewData["Title"] = "Bus Details";
+    int imageCount = Model?.Images?.Count ?? 0;
+    int maxImages = 5;
+    int remaining = maxImages - imageCount;
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -15,6 +18,8 @@
 {
     <div class="row g-4">
         <div class="col-lg-5">
+
+            <!-- ── Bus Information ── -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">Bus Information</div>
                 <div class="card-body p-4">
@@ -32,7 +37,120 @@
                 </div>
             </div>
 
-            <!-- Assigned Driver -->
+            <!-- ── Bus Photos ── -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white border-0 pt-3 px-4 pb-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold">
+                            <i class="bi bi-images me-2 text-primary"></i>Bus Photos
+                            <span class="badge bg-secondary-subtle text-secondary ms-1" id="photoCount">@imageCount / @maxImages</span>
+                        </span>
+                        @if (remaining > 0)
+                        {
+                            <label for="busImgInput" class="btn btn-sm btn-primary mb-0" id="addPhotoBtn">
+                                <i class="bi bi-plus-lg me-1"></i>Add Photos
+                                <input type="file" id="busImgInput" class="d-none"
+                                       accept="image/jpeg,image/png,image/webp"
+                                       multiple
+                                       onchange="handleBusImageSelect(this)" />
+                            </label>
+                        }
+                        else
+                        {
+                            <span class="badge bg-warning-subtle text-warning" id="limitBadge">
+                                <i class="bi bi-lock me-1"></i>Limit reached
+                            </span>
+                        }
+                    </div>
+                    <!-- Upload progress bar -->
+                    <div id="uploadProgress" class="mt-2" style="display:none">
+                        <div class="progress" style="height:6px;">
+                            <div id="uploadProgressBar" class="progress-bar progress-bar-striped progress-bar-animated"
+                                 role="progressbar" style="width:0%"></div>
+                        </div>
+                        <div id="uploadProgressText" class="text-muted small mt-1"></div>
+                    </div>
+                </div>
+
+                <div class="card-body p-3">
+                    <!-- Limit info -->
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <div class="flex-grow-1">
+                            <div class="progress" style="height:4px;">
+                                <div class="progress-bar @(imageCount >= maxImages ? "bg-danger" : imageCount >= 4 ? "bg-warning" : "bg-primary")"
+                                     id="slotBar"
+                                     role="progressbar"
+                                     style="width:@((imageCount * 100 / maxImages))%"></div>
+                            </div>
+                        </div>
+                        <span class="text-muted small" id="slotText">
+                            @(remaining > 0 ? $"{remaining} slot{(remaining == 1 ? "" : "s")} remaining" : "No slots remaining")
+                        </span>
+                    </div>
+
+                    <!-- Alert area -->
+                    <div id="busImgAlert" style="display:none" class="alert alert-dismissible py-2 mb-2 small" role="alert">
+                        <span id="busImgAlertText"></span>
+                        <button type="button" class="btn-close btn-close-sm" onclick="hideAlert()"></button>
+                    </div>
+
+                    <!-- Scrollable gallery -->
+                    @if (imageCount > 0)
+                    {
+                        <div id="busGallery" class="d-flex gap-2 overflow-auto pb-1" style="scroll-snap-type:x mandatory;">
+                            @{
+                                int idx = 0;
+                            }
+                            @foreach (var img in Model.Images.OrderBy(i => i.DisplayOrder))
+                            {
+                                <div class="position-relative flex-shrink-0" id="busImgCard_@img.BusImageId"
+                                     style="width:130px;scroll-snap-align:start;">
+                                    <img src="@img.ImageUrl"
+                                         alt="Bus photo @(idx + 1)"
+                                         class="rounded img-thumbnail w-100 @(img.IsPrimary ? "border-primary border-2" : "")"
+                                         style="height:100px;object-fit:cover;cursor:pointer;"
+                                         onclick="openLightbox(@idx)"
+                                         data-lightbox-index="@idx" />
+                                    @if (img.IsPrimary)
+                                    {
+                                        <span class="badge bg-primary position-absolute top-0 start-0 m-1"
+                                              style="font-size:.6rem;pointer-events:none;">Cover</span>
+                                    }
+                                    <div class="d-flex gap-1 mt-1">
+                                        @if (!img.IsPrimary)
+                                        {
+                                            <button type="button"
+                                                    class="btn btn-xs btn-outline-primary flex-fill"
+                                                    style="font-size:.62rem;padding:1px 3px;"
+                                                    onclick="setPrimary(@img.BusImageId)">
+                                                Cover
+                                            </button>
+                                        }
+                                        <button type="button"
+                                                class="btn btn-xs btn-outline-danger flex-fill"
+                                                style="font-size:.62rem;padding:1px 3px;"
+                                                onclick="deleteBusImg(@img.BusImageId)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                idx++;
+                            }
+                        </div>
+                        <div class="text-muted small mt-1"><i class="bi bi-hand-index me-1"></i>Click photo to view · scroll to see all</div>
+                    }
+                    else
+                    {
+                        <div id="busGallery" class="d-flex gap-2 overflow-auto pb-1" style="scroll-snap-type:x mandatory;min-height:40px;"></div>
+                        <div id="emptyMsg" class="text-center text-muted py-3">
+                            <i class="bi bi-images fs-2 d-block mb-1 opacity-50"></i>
+                            No photos yet. Click <strong>Add Photos</strong> to upload up to @maxImages images.
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- ── Assigned Driver ── -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-person-video2 me-2 text-success"></i>Assigned Driver</div>
                 <div class="card-body p-4">
@@ -59,14 +177,13 @@
                             <div id="driverSug" class="dropdown-menu w-100 shadow-sm"></div>
                         </div>
                         <button class="btn btn-sm btn-success" id="btnAssignDriver"><i class="bi bi-check2"></i></button>
-                        <button class="btn btn-sm btn-outline-danger" id="btnRemoveDriver" title="Remove driver"><i class="bi bi-x"></i></button>
+                        <button class="btn btn-sm btn-outline-danger" id="btnRemoveDriver"><i class="bi bi-x"></i></button>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="col-lg-7">
-            <!-- Assign Student to Bus -->
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
                     <i class="bi bi-mortarboard me-2 text-info"></i>Assign Students
@@ -81,9 +198,9 @@
                         </div>
                         <button class="btn btn-sm btn-info text-white" id="btnAssignStudent"><i class="bi bi-plus me-1"></i>Assign</button>
                     </div>
-                    <p class="text-muted small mt-3">
+                    <p class="text-muted small">
                         <i class="bi bi-info-circle me-1"></i>
-                        To view all enrolled students, go to the
+                        To view all enrolled students go to the
                         <a asp-area="SuperAdmin" asp-controller="Student" asp-action="Index">Students</a> page and filter by this bus.
                     </p>
                 </div>
@@ -92,14 +209,330 @@
     </div>
 }
 
+<!-- ================================================================
+     LIGHTBOX MODAL — scroll 1-by-1, zoom
+     ================================================================ -->
+<div class="modal fade" id="lightboxModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-dark border-0">
+            <div class="modal-header border-0 py-2 px-3">
+                <span class="text-white small" id="lbCounter"></span>
+                <div class="d-flex gap-2 ms-auto align-items-center">
+                    <!-- Zoom controls -->
+                    <button class="btn btn-sm btn-outline-light py-0 px-2" onclick="zoomIn()" title="Zoom in"><i class="bi bi-zoom-in"></i></button>
+                    <button class="btn btn-sm btn-outline-light py-0 px-2" onclick="zoomOut()" title="Zoom out"><i class="bi bi-zoom-out"></i></button>
+                    <button class="btn btn-sm btn-outline-light py-0 px-2" onclick="resetZoom()" title="Reset zoom"><i class="bi bi-arrows-angle-contract"></i></button>
+                    <button type="button" class="btn-close btn-close-white ms-2" data-bs-dismiss="modal"></button>
+                </div>
+            </div>
+            <div class="modal-body p-0 d-flex align-items-center justify-content-center position-relative"
+                 style="height:75vh;overflow:hidden;background:#111;">
+                <!-- Prev -->
+                <button class="btn btn-dark position-absolute start-0 top-50 translate-middle-y ms-2 z-1"
+                        style="opacity:.8;" onclick="lbPrev()">
+                    <i class="bi bi-chevron-left fs-5"></i>
+                </button>
+                <!-- Image container (zoom target) -->
+                <div id="lbImgWrapper"
+                     style="overflow:hidden;width:100%;height:100%;display:flex;align-items:center;justify-content:center;cursor:grab;">
+                    <img id="lbImg" src="" alt=""
+                         style="max-width:100%;max-height:100%;object-fit:contain;
+                    transform-origin:center center;transition:transform .2s ease;
+                    user-select:none;" />
+                </div>
+                <!-- Next -->
+                <button class="btn btn-dark position-absolute end-0 top-50 translate-middle-y me-2 z-1"
+                        style="opacity:.8;" onclick="lbNext()">
+                    <i class="bi bi-chevron-right fs-5"></i>
+                </button>
+            </div>
+            <!-- Thumbnail strip -->
+            <div class="modal-footer border-0 py-2 justify-content-center" id="lbThumbStrip"
+                 style="background:#111;gap:6px;flex-wrap:nowrap;overflow-x:auto;"></div>
+        </div>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
 @section Scripts {
     <script>
-        const busId = @Model?.BusId;
-        const token = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+        const busId    = @Model?.BusId;
+        const MAX      = @maxImages;
+        const _tok     = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
 
-        // ── Driver autocomplete ───────────────────────────────────────────────
+        // ── image URLs array for lightbox ─────────────────────────────────
+        let lbImages   = @Html.Raw(
+                    System.Text.Json.JsonSerializer.Serialize(
+                            Model?.Images?.OrderBy(i => i.DisplayOrder).Select(i => i.ImageUrl).ToList()
+                            ?? new List<string>()
+                    )
+            );
+        let lbIndex    = 0;
+        let lbZoom     = 1;
+
+        // ── MULTI-FILE SELECT VALIDATION (client side) ────────────────────
+        async function handleBusImageSelect(input) {
+            const files     = Array.from(input.files);
+            const gallery   = document.getElementById('busGallery');
+            const current   = gallery.querySelectorAll('.position-relative').length;
+            const available = MAX - current;
+
+            if (files.length === 0) return;
+
+            if (available <= 0) {
+                showAlert(`This bus already has ${MAX} photos. Delete one to upload more.`, 'danger');
+                input.value = '';
+                return;
+            }
+
+            if (files.length > available) {
+                showAlert(
+                    `You selected ${files.length} photos but only ${available} slot${available === 1 ? '' : 's'} remain. Please select at most ${available} photo${available === 1 ? '' : 's'}.`,
+                    'warning'
+                );
+                input.value = '';
+                return;
+            }
+
+            await uploadBusImages(files);
+            input.value = '';
+        }
+
+        // ── UPLOAD (all files with progress) ─────────────────────────────
+        async function uploadBusImages(files) {
+            const progressWrap = document.getElementById('uploadProgress');
+            const progressBar  = document.getElementById('uploadProgressBar');
+            const progressText = document.getElementById('uploadProgressText');
+
+            progressWrap.style.display = 'block';
+            progressBar.style.width    = '10%';
+            progressText.textContent   = `Uploading ${files.length} photo${files.length > 1 ? 's' : ''}…`;
+
+            const fd = new FormData();
+            files.forEach(f => fd.append('files', f));
+
+            try {
+                const res  = await fetch('/Image/UploadBusImages?busId=' + busId, {
+                    method:  'POST',
+                    headers: { 'RequestVerificationToken': _tok() },
+                    body:    fd
+                });
+                const json = await res.json();
+
+                progressBar.style.width = '100%';
+                progressText.textContent = '';
+
+                if (json.limitHit) {
+                    showAlert(json.message, 'warning');
+                } else if (json.success) {
+                    showAlert(json.message, 'success');
+                    json.uploaded.forEach(img => addCard(img));
+                    updateSlots(json.totalNow, json.remaining);
+                } else {
+                    showAlert(json.message || 'Upload failed.', 'danger');
+                }
+
+                if (json.failed && json.failed.length > 0) {
+                    showAlert('Some files failed: ' + json.failed.join(', '), 'warning');
+                }
+
+            } catch (err) {
+                console.error(err);
+                showAlert('Upload failed. Please try again.', 'danger');
+            } finally {
+                // Always hide progress after response — not on a fixed timer
+                progressBar.style.width = '0%';
+                setTimeout(() => { progressWrap.style.display = 'none'; }, 600);
+            }
+        }
+
+        // ── Add a new image card to the gallery ──────────────────────────
+        function addCard(img) {
+            document.getElementById('emptyMsg')?.remove();
+
+            const gallery  = document.getElementById('busGallery');
+            const newIndex = lbImages.length;
+            lbImages.push(img.imageUrl);
+
+            const div = document.createElement('div');
+            div.className = 'position-relative flex-shrink-0';
+            div.id        = 'busImgCard_' + img.busImageId;
+            div.style     = 'width:130px;scroll-snap-align:start;';
+            div.innerHTML = `
+                ${img.isPrimary ? '<span class="badge bg-primary position-absolute top-0 start-0 m-1" style="font-size:.6rem;pointer-events:none;">Cover</span>' : ''}
+                <img src="${img.imageUrl}?v=${Date.now()}"
+                     alt="Bus photo"
+                     class="rounded img-thumbnail w-100 ${img.isPrimary ? 'border-primary border-2' : ''}"
+                     style="height:100px;object-fit:cover;cursor:pointer;"
+                     onclick="openLightbox(${newIndex})"
+                     data-lightbox-index="${newIndex}" />
+                <div class="d-flex gap-1 mt-1">
+                    ${!img.isPrimary ? `<button type="button" class="btn btn-xs btn-outline-primary flex-fill" style="font-size:.62rem;padding:1px 3px;" onclick="setPrimary(${img.busImageId})">Cover</button>` : ''}
+                    <button type="button" class="btn btn-xs btn-outline-danger flex-fill" style="font-size:.62rem;padding:1px 3px;" onclick="deleteBusImg(${img.busImageId})">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>`;
+            gallery.appendChild(div);
+            gallery.scrollLeft = gallery.scrollWidth;
+
+            rebuildThumbStrip();
+        }
+
+        // ── Update slot indicator ─────────────────────────────────────────
+        function updateSlots(total, left) {
+            document.getElementById('photoCount').textContent = `${total} / ${MAX}`;
+            document.getElementById('slotText').textContent   = left > 0 ? `${left} slot${left === 1 ? '' : 's'} remaining` : 'No slots remaining';
+            const bar = document.getElementById('slotBar');
+            bar.style.width = `${(total / MAX) * 100}%`;
+            bar.className   = `progress-bar ${total >= MAX ? 'bg-danger' : total >= 4 ? 'bg-warning' : 'bg-primary'}`;
+
+            // Show/hide add button vs limit badge
+            const btn   = document.getElementById('addPhotoBtn');
+            const badge = document.getElementById('limitBadge');
+            if (left <= 0) {
+                if (btn)   { btn.outerHTML   = '<span class="badge bg-warning-subtle text-warning" id="limitBadge"><i class="bi bi-lock me-1"></i>Limit reached</span>'; }
+                if (badge) badge.style.display = 'inline-flex';
+            }
+        }
+
+        // ── Delete ────────────────────────────────────────────────────────
+        async function deleteBusImg(busImageId) {
+            if (!confirm('Delete this photo?')) return;
+            try {
+                const res  = await fetch('/Image/DeleteBusImage?busImageId=' + busImageId, {
+                    method: 'POST', headers: { 'RequestVerificationToken': _tok() }
+                });
+                const json = await res.json();
+                if (json.success) {
+                    // Remove from lbImages and DOM
+                    const card = document.getElementById('busImgCard_' + busImageId);
+                    if (card) {
+                        const img = card.querySelector('img');
+                        const lbIdx = img ? parseInt(img.dataset.lightboxIndex) : -1;
+                        if (lbIdx >= 0) lbImages.splice(lbIdx, 1);
+                        card.remove();
+                    }
+                    // Re-index remaining cards
+                    reindexCards();
+                    updateSlots(json.totalNow, json.remaining);
+                    rebuildThumbStrip();
+                    showAlert('Photo deleted.', 'success');
+
+                    if (!document.querySelectorAll('#busGallery .position-relative').length) {
+                        document.getElementById('busGallery').insertAdjacentHTML('afterend',
+                            '<div id="emptyMsg" class="text-center text-muted py-3"><i class="bi bi-images fs-2 d-block mb-1 opacity-50"></i>No photos yet. Click <strong>Add Photos</strong> to upload.</div>');
+                    }
+                }
+            } catch { showAlert('Error deleting photo.', 'danger'); }
+        }
+
+        // ── Set cover ─────────────────────────────────────────────────────
+        async function setPrimary(busImageId) {
+            try {
+                const res  = await fetch('/Image/SetPrimaryBusImage?busImageId=' + busImageId, {
+                    method: 'POST', headers: { 'RequestVerificationToken': _tok() }
+                });
+                const json = await res.json();
+                if (json.success) { showAlert('Cover photo updated.', 'success'); setTimeout(() => location.reload(), 700); }
+            } catch { showAlert('Error updating cover.', 'danger'); }
+        }
+
+        // ── Re-index lightbox indices after delete ────────────────────────
+        function reindexCards() {
+            document.querySelectorAll('#busGallery .position-relative img').forEach((img, i) => {
+                img.dataset.lightboxIndex = i;
+                img.onclick = () => openLightbox(i);
+            });
+        }
+
+        // =================================================================
+        //  LIGHTBOX
+        // =================================================================
+        function openLightbox(index) {
+            if (!lbImages.length) return;
+            lbIndex = index;
+            lbZoom  = 1;
+            updateLbImage();
+            rebuildThumbStrip();
+            new bootstrap.Modal(document.getElementById('lightboxModal')).show();
+        }
+
+        function updateLbImage() {
+            const img = document.getElementById('lbImg');
+            img.src   = lbImages[lbIndex];
+            img.style.transform = `scale(${lbZoom})`;
+            document.getElementById('lbCounter').textContent = `${lbIndex + 1} / ${lbImages.length}`;
+            // Highlight active thumb
+            document.querySelectorAll('#lbThumbStrip img').forEach((t, i) => {
+                t.style.opacity = i === lbIndex ? '1' : '0.45';
+                t.style.border  = i === lbIndex ? '2px solid #0d6efd' : '2px solid transparent';
+            });
+        }
+
+        function lbPrev() { lbZoom = 1; lbIndex = (lbIndex - 1 + lbImages.length) % lbImages.length; updateLbImage(); }
+        function lbNext() { lbZoom = 1; lbIndex = (lbIndex + 1) % lbImages.length; updateLbImage(); }
+
+        // Zoom
+        function zoomIn()    { lbZoom = Math.min(lbZoom + 0.3, 4);   applyZoom(); }
+        function zoomOut()   { lbZoom = Math.max(lbZoom - 0.3, 0.5); applyZoom(); }
+        function resetZoom() { lbZoom = 1;                             applyZoom(); }
+        function applyZoom() { document.getElementById('lbImg').style.transform = `scale(${lbZoom})`; }
+
+        // Mouse wheel zoom
+        document.getElementById('lbImgWrapper')?.addEventListener('wheel', e => {
+            e.preventDefault();
+            e.deltaY < 0 ? zoomIn() : zoomOut();
+        }, { passive: false });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', e => {
+            const modal = document.getElementById('lightboxModal');
+            if (!modal.classList.contains('show')) return;
+            if (e.key === 'ArrowLeft')  lbPrev();
+            if (e.key === 'ArrowRight') lbNext();
+            if (e.key === '+')          zoomIn();
+            if (e.key === '-')          zoomOut();
+            if (e.key === '0')          resetZoom();
+        });
+
+        // Reset zoom on modal close
+        document.getElementById('lightboxModal').addEventListener('hidden.bs.modal', resetZoom);
+
+        function rebuildThumbStrip() {
+            const strip = document.getElementById('lbThumbStrip');
+            if (!strip) return;
+            strip.innerHTML = '';
+            lbImages.forEach((url, i) => {
+                const img = document.createElement('img');
+                img.src   = url;
+                img.style = `height:48px;width:64px;object-fit:cover;border-radius:4px;cursor:pointer;
+                             opacity:${i === lbIndex ? '1' : '0.45'};
+                             border:${i === lbIndex ? '2px solid #0d6efd' : '2px solid transparent'};
+                             transition:opacity .2s,border .2s;`;
+                img.onclick = () => { lbZoom = 1; lbIndex = i; updateLbImage(); };
+                strip.appendChild(img);
+            });
+        }
+
+        // ── Alert helpers ─────────────────────────────────────────────────
+        function showAlert(msg, type) {
+            const el      = document.getElementById('busImgAlert');
+            const textEl  = document.getElementById('busImgAlertText');
+            if (!el || !textEl) { console.warn('Alert elements missing:', msg); return; }
+            textEl.textContent  = msg;
+            el.className        = `alert alert-${type} alert-dismissible py-2 mb-2 small`;
+            el.style.display    = 'block';
+            if (type === 'success') setTimeout(hideAlert, 3000);
+        }
+        function hideAlert() {
+            const el = document.getElementById('busImgAlert');
+            if (el) el.style.display = 'none';
+        }
+
+        // ── Driver autocomplete (unchanged from original) ──────────────────
         let selDriverId = null, t1;
-        document.getElementById('driverSearch').addEventListener('input', function() {
+        document.getElementById('driverSearch').addEventListener('input', function () {
             clearTimeout(t1); const q = this.value.trim();
             if (q.length < 1) { hideDrv(); return; }
             t1 = setTimeout(() => fetchDrivers(q), 250);
@@ -107,29 +540,28 @@
         document.addEventListener('click', e => { if (!e.target.closest('#driverSearch,#driverSug')) hideDrv(); });
         async function fetchDrivers(q) {
             const data = await (await fetch(`/SuperAdmin/Bus/SearchDrivers?q=${encodeURIComponent(q)}`)).json();
-            const box = document.getElementById('driverSug'); box.innerHTML = '';
+            const box  = document.getElementById('driverSug'); box.innerHTML = '';
             data.forEach(d => { const a = document.createElement('a'); a.className='dropdown-item'; a.href='#'; a.textContent=d.display;
                 a.addEventListener('click', e => { e.preventDefault(); selDriverId=d.userId; document.getElementById('driverSearch').value=d.display; hideDrv(); }); box.appendChild(a); });
             if (data.length) box.classList.add('show');
         }
         function hideDrv() { document.getElementById('driverSug').classList.remove('show'); }
-
         document.getElementById('btnAssignDriver').addEventListener('click', async () => {
             if (!selDriverId) { busTrack.showToast('Select a driver first','warning'); return; }
-            const res = await fetch('/SuperAdmin/Bus/AssignDriver', { method:'POST', headers:{'Content-Type':'application/json','RequestVerificationToken':token()}, body:JSON.stringify({busId,driverUserId:selDriverId}) });
+            const res = await fetch('/SuperAdmin/Bus/AssignDriver', { method:'POST', headers:{'Content-Type':'application/json','RequestVerificationToken':_tok()}, body:JSON.stringify({busId,driverUserId:selDriverId}) });
             const data = await res.json(); busTrack.showToast(data.message, data.success?'success':'danger');
             if (data.success) setTimeout(()=>location.reload(),800);
         });
         document.getElementById('btnRemoveDriver').addEventListener('click', async () => {
             if (!confirm('Remove driver from this bus?')) return;
-            const res = await fetch('/SuperAdmin/Bus/AssignDriver', { method:'POST', headers:{'Content-Type':'application/json','RequestVerificationToken':token()}, body:JSON.stringify({busId,driverUserId:null}) });
+            const res = await fetch('/SuperAdmin/Bus/AssignDriver', { method:'POST', headers:{'Content-Type':'application/json','RequestVerificationToken':_tok()}, body:JSON.stringify({busId,driverUserId:null}) });
             const data = await res.json(); busTrack.showToast(data.message, data.success?'success':'danger');
             if (data.success) setTimeout(()=>location.reload(),800);
         });
 
-        // ── Student autocomplete ──────────────────────────────────────────────
+        // ── Student autocomplete (unchanged from original) ─────────────────
         let selStudentId = null, t2;
-        document.getElementById('studentSearch').addEventListener('input', function() {
+        document.getElementById('studentSearch').addEventListener('input', function () {
             clearTimeout(t2); const q = this.value.trim();
             if (q.length < 1) { hideStu(); return; }
             t2 = setTimeout(() => fetchStudents(q), 250);
@@ -137,17 +569,16 @@
         document.addEventListener('click', e => { if (!e.target.closest('#studentSearch,#studentSug')) hideStu(); });
         async function fetchStudents(q) {
             const data = await (await fetch(`/SuperAdmin/Student/Search?q=${encodeURIComponent(q)}`)).json();
-            const box = document.getElementById('studentSug'); box.innerHTML = '';
+            const box  = document.getElementById('studentSug'); box.innerHTML = '';
             data.forEach(s => { const a = document.createElement('a'); a.className='dropdown-item d-flex gap-2'; a.href='#';
                 a.innerHTML=`<code class="small">${s.studentCode}</code><span>${s.fullName}</span>`;
                 a.addEventListener('click', e => { e.preventDefault(); selStudentId=s.studentId; document.getElementById('studentSearch').value=`${s.fullName} (${s.studentCode})`; hideStu(); }); box.appendChild(a); });
             if (data.length) box.classList.add('show');
         }
         function hideStu() { document.getElementById('studentSug').classList.remove('show'); }
-
         document.getElementById('btnAssignStudent').addEventListener('click', async () => {
             if (!selStudentId) { busTrack.showToast('Select a student first','warning'); return; }
-            const res = await fetch('/SuperAdmin/Bus/AssignStudent', { method:'POST', headers:{'Content-Type':'application/json','RequestVerificationToken':token()}, body:JSON.stringify({busId,studentId:selStudentId}) });
+            const res = await fetch('/SuperAdmin/Bus/AssignStudent', { method:'POST', headers:{'Content-Type':'application/json','RequestVerificationToken':_tok()}, body:JSON.stringify({busId,studentId:selStudentId}) });
             const data = await res.json(); busTrack.showToast(data.message, data.success?'success':'danger');
             if (data.success) { selStudentId=null; document.getElementById('studentSearch').value=''; }
         });

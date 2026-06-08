@@ -38,9 +38,16 @@
 
         public async Task<ApiResponse<BusListDto>> GetByIdAsync(int busId)
         {
-            var b = await _db.Buses.Include(x => x.Route).Include(x => x.Driver).ThenInclude(d => d!.User).Include(x => x.Students).FirstOrDefaultAsync(x => x.BusId == busId);
+            var b = await _db.Buses
+                .Include(x => x.Route)
+                .Include(x => x.Driver).ThenInclude(d => d!.User)
+                .Include(x => x.Students)
+                .Include(x => x.Images.OrderBy(i => i.DisplayOrder))
+                .FirstOrDefaultAsync(x => x.BusId == busId);
+
             if (b is null)
                 return ApiResponse<BusListDto>.Fail("Not found.");
+
             return ApiResponse<BusListDto>.Ok(new BusListDto
             {
                 BusId = b.BusId,
@@ -53,9 +60,19 @@
                 DriverPhone = b.Driver?.User.PhoneNumber,
                 Capacity = b.Capacity,
                 StudentCount = b.Students.Count,
-                IsActive = b.IsActive
+                IsActive = b.IsActive,
+                PrimaryImageUrl = b.Images.FirstOrDefault(i => i.IsPrimary)?.ImageUrl
+                                  ?? b.Images.FirstOrDefault()?.ImageUrl,
+                Images = b.Images.Select(i => new BusImageDto
+                {
+                    BusImageId = i.BusImageId,
+                    ImageUrl = i.ImageUrl,
+                    DisplayOrder = i.DisplayOrder,
+                    IsPrimary = i.IsPrimary
+                }).ToList()
             });
         }
+
         public async Task<ApiResponse<bool>> CreateAsync(CreateBusDto dto, int createdBy)
         {
             if (await _db.Buses.AnyAsync(b => b.BusNumber == dto.BusNumber))

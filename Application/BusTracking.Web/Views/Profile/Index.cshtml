@@ -1,56 +1,68 @@
-@* ── Profile/Index.cshtml — UPDATED with profile photo ─────────────────── *@
+@* Views/Profile/Index.cshtml — UPDATED
+   Shared by ALL roles: Driver, Student, Parent, SuperAdmin, Coordinator
+   Camera button on avatar → instant upload → avatar updates live
+*@
 @model BusTracking.Common.DTOs.User.UserProfileDto
 @{
-    ViewData["Title"] = "My Profile"; ViewData["Breadcrumb"] = "My Profile";
-    var thumbUrl = Model?.ProfileImageUrl?.Replace("_medium.webp", "_thumb.webp");
+    ViewData["Title"] = "My Profile";
+    ViewData["Breadcrumb"] = "My Profile";
+    var hasPhoto = !string.IsNullOrEmpty(Model?.ProfileImageUrl);
+    var initials = Model?.FullName?.ToInitials() ?? "?";
 }
 
 <div class="row justify-content-center">
     <div class="col-lg-7">
         <div class="card border-0 shadow-sm">
             <div class="card-body p-0">
-                <!-- Header banner -->
-                <div class="rounded-top" style="background:linear-gradient(135deg,#3d5af1,#e94560);height:100px"></div>
+
+                <!-- Banner -->
+                <div class="rounded-top" style="background:linear-gradient(135deg,#3d5af1,#e94560);height:100px;"></div>
+
                 <div class="px-4 pb-4">
                     <div class="d-flex align-items-end gap-3 mt-n4 mb-4">
 
-                        <!-- ── Profile photo / initials avatar ── -->
-                        <div class="position-relative" style="flex-shrink:0">
-                            @if (!string.IsNullOrEmpty(thumbUrl))
+                        <!-- ── Avatar with camera overlay ── -->
+                        <div class="position-relative" style="flex-shrink:0;width:72px;height:72px;">
+                            @if (hasPhoto)
                             {
-                                <img id="profileThumb"
-                                     src="@thumbUrl"
+                                <img id="profileAvatar"
+                                     src="@Model!.ProfileImageUrl"
                                      alt="Profile"
-                                     class="rounded-circle border border-3 border-white shadow bg-white"
+                                     class="rounded-circle border border-3 border-white shadow"
                                      style="width:72px;height:72px;object-fit:cover;" />
                             }
                             else
                             {
-                                <div id="profileInitials"
+                                <div id="profileAvatar"
                                      class="rounded-circle border border-3 border-white shadow bg-white d-flex align-items-center justify-content-center"
                                      style="width:72px;height:72px;font-size:1.6rem;font-weight:700;color:#3d5af1;">
-                                    @Model?.FullName.ToInitials()
+                                    @initials
                                 </div>
                             }
-                            <!-- camera button overlay -->
-                            <label for="myProfileFileInput"
-                                   class="position-absolute bottom-0 end-0 btn btn-sm btn-primary rounded-circle p-1"
-                                   style="width:26px;height:26px;line-height:1;cursor:pointer;"
-                                   title="Change photo">
-                                <i class="bi bi-camera-fill" style="font-size:0.7rem;"></i>
-                                <input type="file" id="myProfileFileInput" class="d-none"
+
+                            <!-- Camera button overlay -->
+                            <label for="profileFileInput"
+                                   class="position-absolute bottom-0 end-0 d-flex align-items-center justify-content-center
+                                btn btn-primary rounded-circle shadow-sm"
+                                   style="width:26px;height:26px;cursor:pointer;padding:0;"
+                                   title="Change profile photo">
+                                <i class="bi bi-camera-fill" style="font-size:.7rem;"></i>
+                                <input type="file" id="profileFileInput" class="d-none"
                                        accept="image/jpeg,image/png,image/webp"
                                        onchange="uploadMyProfile(this)" />
                             </label>
                         </div>
 
+                        <!-- Name + role -->
                         <div class="pb-1">
                             <h5 class="fw-bold mb-0">@Model?.FullName</h5>
                             <span class="badge bg-primary-subtle text-primary">@Model?.Role</span>
-                            <div id="profileImgMsg" class="small mt-1"></div>
+                            <div id="profileImgMsg" class="small mt-1" style="min-height:18px;"></div>
                         </div>
-                        <div class="ms-auto d-flex gap-2 pb-1">
-                            @if (!string.IsNullOrEmpty(Model?.ProfileImageUrl))
+
+                        <!-- Actions -->
+                        <div class="ms-auto d-flex gap-2 pb-1 flex-wrap justify-content-end">
+                            @if (hasPhoto)
                             {
                                 <button type="button" class="btn btn-outline-danger btn-sm"
                                         onclick="deleteMyProfile()">
@@ -84,54 +96,77 @@
     <script>
         const _tok = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
 
+        // ── Upload own profile photo ──────────────────────────────────────
         async function uploadMyProfile(input) {
             if (!input.files || !input.files[0]) return;
             const msg = document.getElementById('profileImgMsg');
-            msg.innerHTML = '<span class="text-muted">Uploading…</span>';
+            msg.innerHTML = '<span class="text-muted"><span class="spinner-border spinner-border-sm me-1"></span>Uploading…</span>';
 
             const fd = new FormData();
             fd.append('file', input.files[0]);
 
             try {
                 const res  = await fetch('/Image/UploadMyProfile', {
-                    method: 'POST', headers: { 'RequestVerificationToken': _tok() }, body: fd
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': _tok() },
+                    body: fd
                 });
                 const json = await res.json();
+
                 if (json.success) {
-                    // Swap initials div for real photo (or update existing img)
-                    const initials = document.getElementById('profileInitials');
-                    let img = document.getElementById('profileThumb');
-                    if (initials) {
-                        initials.outerHTML = `<img id="profileThumb" src="${json.thumbUrl}?v=${Date.now()}"
-                            alt="Profile" class="rounded-circle border border-3 border-white shadow bg-white"
-                            style="width:72px;height:72px;object-fit:cover;" />`;
-                    } else if (img) {
-                        img.src = json.thumbUrl + '?v=' + Date.now();
+                    // Swap initials div → real photo (or refresh existing photo)
+                    const avatar = document.getElementById('profileAvatar');
+                    const newSrc = json.imageUrl + '?v=' + Date.now();
+
+                    if (avatar.tagName === 'IMG') {
+                        avatar.src = newSrc;
+                    } else {
+                        // Replace div with img
+                        const img = document.createElement('img');
+                        img.id        = 'profileAvatar';
+                        img.src       = newSrc;
+                        img.alt       = 'Profile';
+                        img.className = 'rounded-circle border border-3 border-white shadow';
+                        img.style     = 'width:72px;height:72px;object-fit:cover;';
+                        avatar.replaceWith(img);
                     }
-                    msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>Saved.</span>';
-                    setTimeout(() => location.reload(), 1000);
+
+                    // Also update top-navbar avatar if present
+                    updateNavbarAvatar(newSrc);
+
+                    msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>Photo saved.</span>';
+                    setTimeout(() => location.reload(), 900); // reload to show Remove button
                 } else {
                     msg.innerHTML = `<span class="text-danger">${json.message}</span>`;
                 }
             } catch {
-                msg.innerHTML = '<span class="text-danger">Upload failed.</span>';
+                msg.innerHTML = '<span class="text-danger">Upload failed. Try again.</span>';
             }
             input.value = '';
         }
 
+        // ── Delete own profile photo ──────────────────────────────────────
         async function deleteMyProfile() {
             if (!confirm('Remove your profile photo?')) return;
             const msg = document.getElementById('profileImgMsg');
             msg.innerHTML = '<span class="text-muted">Removing…</span>';
             try {
                 const res  = await fetch('/Image/DeleteMyProfile', {
-                    method: 'POST', headers: { 'RequestVerificationToken': _tok() }
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': _tok() }
                 });
                 const json = await res.json();
-                if (json.success) { location.reload(); }
+                if (json.success) location.reload();
+                else msg.innerHTML = '<span class="text-danger">Error removing photo.</span>';
             } catch {
-                msg.innerHTML = '<span class="text-danger">Error.</span>';
+                msg.innerHTML = '<span class="text-danger">Error. Try again.</span>';
             }
+        }
+
+        // ── Update navbar avatar (if _Layout has an img#navAvatar) ───────
+        function updateNavbarAvatar(src) {
+            const el = document.getElementById('navAvatar');
+            if (el) el.src = src;
         }
     </script>
 }

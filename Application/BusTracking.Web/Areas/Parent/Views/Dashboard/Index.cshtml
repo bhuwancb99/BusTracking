@@ -1,3 +1,6 @@
+@* Areas/Parent/Views/Dashboard/Index.cshtml — UPDATED
+   My Children cards now show student photo + camera icon to update it inline
+*@
 @using System.Security.Claims
 @{
     ViewData["Title"] = "Parent Dashboard";
@@ -18,58 +21,45 @@
     <div class="col-md-4">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center p-4">
-                <div class="rounded-circle bg-danger-subtle d-inline-flex align-items-center
-                    justify-content-center mb-3" style="width:56px;height:56px">
+                <div class="rounded-circle bg-danger-subtle d-inline-flex align-items-center justify-content-center mb-3" style="width:56px;height:56px">
                     <i class="bi bi-geo-alt-fill text-danger fs-4"></i>
                 </div>
                 <h6 class="fw-semibold mb-1">Track Bus</h6>
                 <p class="text-muted small mb-3">See where your child's bus is right now.</p>
-                <a asp-area="Parent" asp-controller="Tracking" asp-action="Track"
-                   asp-route-tripId="0" class="btn btn-danger btn-sm px-4">
-                    <i class="bi bi-map me-1"></i>Open Map
-                </a>
+                <a asp-area="Parent" asp-controller="Tracking" asp-action="Track" asp-route-tripId="0"
+                   class="btn btn-danger btn-sm px-4"><i class="bi bi-map me-1"></i>Open Map</a>
             </div>
         </div>
     </div>
     <div class="col-md-4">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center p-4">
-                <div class="rounded-circle bg-info-subtle d-inline-flex align-items-center
-                    justify-content-center mb-3" style="width:56px;height:56px">
+                <div class="rounded-circle bg-info-subtle d-inline-flex align-items-center justify-content-center mb-3" style="width:56px;height:56px">
                     <i class="bi bi-calendar-check-fill text-info fs-4"></i>
                 </div>
                 <h6 class="fw-semibold mb-1">Manage Availability</h6>
                 <p class="text-muted small mb-3">Mark leave, holiday or parent pickup days.</p>
-                <a asp-area="Parent" asp-controller="Home" asp-action="Availability"
-                   asp-route-studentId="0" class="btn btn-info btn-sm px-4 text-white">
-                    <i class="bi bi-calendar-plus me-1"></i>Manage
-                </a>
+                <a asp-area="Parent" asp-controller="Home" asp-action="Availability" asp-route-studentId="0"
+                   class="btn btn-info btn-sm px-4 text-white"><i class="bi bi-calendar-plus me-1"></i>Manage</a>
             </div>
         </div>
     </div>
     <div class="col-md-4">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body text-center p-4">
-                <div class="rounded-circle bg-secondary-subtle d-inline-flex align-items-center
-                    justify-content-center mb-3" style="width:56px;height:56px">
+                <div class="rounded-circle bg-secondary-subtle d-inline-flex align-items-center justify-content-center mb-3" style="width:56px;height:56px">
                     <i class="bi bi-headset text-secondary fs-4"></i>
                 </div>
                 <h6 class="fw-semibold mb-1">Help & Support</h6>
                 <p class="text-muted small mb-3">Have a question or concern? Contact us.</p>
                 <a asp-area="Parent" asp-controller="Feedback" asp-action="Submit"
-                   class="btn btn-outline-secondary btn-sm px-4">
-                    <i class="bi bi-send me-1"></i>Contact Us
-                </a>
+                   class="btn btn-outline-secondary btn-sm px-4"><i class="bi bi-send me-1"></i>Contact Us</a>
             </div>
         </div>
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════
-     CHANGE 4: Children card section
-     Fetched via AJAX from /api/parent/children
-     Displayed as Bootstrap cards with name, code, bus, stop
-     ═══════════════════════════════════════════════════════════ -->
+<!-- My Children -->
 <div class="card border-0 shadow-sm">
     <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
         <span class="fw-semibold"><i class="bi bi-mortarboard me-2 text-info"></i>My Children</span>
@@ -102,15 +92,18 @@
     </div>
 </div>
 
+@Html.AntiForgeryToken()
+
 @section Scripts {
     <script>
-        // CHANGE 4 — load children cards on page load
+        const _tok = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+
+        // ── Build and render child cards ──────────────────────────────────
         (async function loadChildren() {
             try {
                 const res  = await fetch('/Parent/Home/MyChildren');
                 const data = await res.json();
 
-                // Remove skeletons
                 document.querySelectorAll('.skeleton-card').forEach(el => el.remove());
 
                 const container = document.getElementById('childrenCards');
@@ -124,50 +117,81 @@
                 }
 
                 badge.textContent = data.length + (data.length === 1 ? ' child' : ' children');
+                data.forEach(child => renderChildCard(container, child));
 
-                data.forEach(child => {
-                    const busHtml = child.busNumber
-                        ? `<span class="badge bg-primary-subtle text-primary me-1">
-                               <i class="bi bi-bus-front me-1"></i>${child.busNumber}
-                           </span>`
-                        : `<span class="text-muted small">No bus assigned</span>`;
+            } catch (err) {
+                document.querySelectorAll('.skeleton-card').forEach(el => el.remove());
+                document.getElementById('noChildrenMsg').classList.remove('d-none');
+                document.getElementById('childrenCount').textContent = 'Error';
+                console.error('Failed to load children:', err);
+            }
+        })();
 
-                    const stopHtml = child.stopName
-                        ? `<span class="badge bg-secondary-subtle text-secondary">
-                               <i class="bi bi-geo-alt me-1"></i>${child.stopName}
-                           </span>`
-                        : '';
+        function renderChildCard(container, child) {
+            const busHtml = child.busNumber
+                ? `<span class="badge bg-primary-subtle text-primary me-1"><i class="bi bi-bus-front me-1"></i>${child.busNumber}</span>`
+                : `<span class="text-muted small">No bus assigned</span>`;
 
-                    const statusCss = child.isActive
-                        ? 'bg-success-subtle text-success'
-                        : 'bg-danger-subtle text-danger';
+            const stopHtml = child.stopName
+                ? `<span class="badge bg-secondary-subtle text-secondary"><i class="bi bi-geo-alt me-1"></i>${child.stopName}</span>`
+                : '';
 
-                    const initials = child.fullName
-                        .split(' ').filter(Boolean)
-                        .map(p => p[0]).slice(0,2).join('').toUpperCase();
+            const statusCss = child.isActive ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger';
 
-                    const card = document.createElement('div');
-                    card.className = 'col-md-6 col-xl-4';
-                    card.innerHTML = `
+            const initials = child.fullName.split(' ').filter(Boolean)
+                .map(p => p[0]).slice(0, 2).join('').toUpperCase();
+
+            // Avatar: photo if exists, else initials circle
+            const avatarHtml = child.profileImageUrl
+                ? `<img id="childAvatar_${child.userId}"
+                        src="${child.profileImageUrl}?v=${Date.now()}"
+                        alt="${child.fullName}"
+                        class="rounded-circle border"
+                        style="width:52px;height:52px;object-fit:cover;flex-shrink:0;" />`
+                : `<div id="childAvatar_${child.userId}"
+                        class="rounded-circle bg-info-subtle text-info d-flex align-items-center
+                               justify-content-center fw-bold border"
+                        style="width:52px;height:52px;font-size:1.1rem;flex-shrink:0;">
+                       ${initials}
+                   </div>`;
+
+            const col = document.createElement('div');
+            col.className = 'col-md-6 col-xl-4';
+            col.id = `childCol_${child.studentId}`;
+            col.innerHTML = `
         <div class="card border-0 shadow-sm h-100 child-card">
             <div class="card-body p-4">
-                <!-- Avatar + name -->
+
+                <!-- Avatar + camera + name -->
                 <div class="d-flex align-items-center gap-3 mb-3">
-                    <div class="rounded-circle bg-info-subtle text-info d-flex align-items-center
-                                justify-content-center fw-bold"
-                         style="width:48px;height:48px;font-size:1.1rem;flex-shrink:0">
-                        ${initials}
+
+                    <!-- Avatar with camera overlay -->
+                    <div class="position-relative" style="width:52px;height:52px;flex-shrink:0;">
+                        ${avatarHtml}
+                        <!-- Camera icon button -->
+                        <label for="childImgInput_${child.userId}"
+                               class="position-absolute bottom-0 end-0 d-flex align-items-center justify-content-center
+                                      btn btn-primary rounded-circle shadow-sm"
+                               style="width:20px;height:20px;padding:0;cursor:pointer;"
+                               title="Update ${child.fullName}'s photo">
+                            <i class="bi bi-camera-fill" style="font-size:.55rem;"></i>
+                            <input type="file" id="childImgInput_${child.userId}" class="d-none"
+                                   accept="image/jpeg,image/png,image/webp"
+                                   onchange="updateChildPhoto(${child.userId}, ${child.studentId}, this)" />
+                        </label>
                     </div>
-                    <div>
-                        <div class="fw-bold">${child.fullName}</div>
+
+                    <div class="flex-grow-1 overflow-hidden">
+                        <div class="fw-bold text-truncate">${child.fullName}</div>
                         <code class="small text-muted">${child.studentCode}</code>
                     </div>
-                    <span class="badge ${statusCss} ms-auto">
-                        ${child.isActive ? 'Active' : 'Inactive'}
-                    </span>
+                    <span class="badge ${statusCss} flex-shrink-0">${child.isActive ? 'Active' : 'Inactive'}</span>
                 </div>
 
-                <!-- Details grid -->
+                <!-- Upload message -->
+                <div id="childImgMsg_${child.userId}" class="small mb-2" style="min-height:16px;"></div>
+
+                <!-- Details -->
                 <div class="small">
                     <div class="d-flex align-items-center gap-2 mb-2">
                         <i class="bi bi-book text-muted" style="width:16px"></i>
@@ -187,7 +211,6 @@
                     </div>` : ''}
                 </div>
             </div>
-            <!-- Card footer actions -->
             <div class="card-footer bg-transparent border-top-0 pt-0 pb-3 px-4 d-flex gap-2">
                 <a href="/Parent/Tracking/Track?tripId=0"
                    class="btn btn-sm btn-outline-danger flex-grow-1">
@@ -199,15 +222,57 @@
                 </a>
             </div>
         </div>`;
-                    container.appendChild(card);
+            container.appendChild(col);
+        }
+
+        // ── Update child photo (parent uploads for their child) ───────────
+        async function updateChildPhoto(studentUserId, studentId, input) {
+            if (!input.files || !input.files[0]) return;
+            const msg = document.getElementById('childImgMsg_' + studentUserId);
+            msg.innerHTML = '<span class="text-muted"><span class="spinner-border spinner-border-sm me-1"></span>Uploading…</span>';
+
+            const fd = new FormData();
+            fd.append('file', input.files[0]);
+            fd.append('studentUserId', studentUserId);
+
+            try {
+                const res  = await fetch(`/Parent/Home/UpdateChildPhoto?studentUserId=${studentUserId}`, {
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': _tok() },
+                    body: fd
                 });
-            } catch (err) {
-                document.querySelectorAll('.skeleton-card').forEach(el => el.remove());
-                document.getElementById('noChildrenMsg').classList.remove('d-none');
-                document.getElementById('childrenCount').textContent = 'Error';
-                console.error('Failed to load children:', err);
+                const json = await res.json();
+
+                if (json.success) {
+                    // Update avatar inline — no page reload needed
+                    const avatar  = document.getElementById('childAvatar_' + studentUserId);
+                    const newSrc  = json.imageUrl + '?v=' + Date.now();
+                    const initials = input.closest('.card-body')
+                        ?.querySelector('.fw-bold')?.textContent?.trim()
+                        ?.split(' ').filter(Boolean).map(p => p[0]).slice(0, 2).join('').toUpperCase() ?? '?';
+
+                    if (avatar.tagName === 'IMG') {
+                        avatar.src = newSrc;
+                    } else {
+                        const img = document.createElement('img');
+                        img.id        = 'childAvatar_' + studentUserId;
+                        img.src       = newSrc;
+                        img.alt       = 'Photo';
+                        img.className = 'rounded-circle border';
+                        img.style     = 'width:52px;height:52px;object-fit:cover;flex-shrink:0;';
+                        avatar.replaceWith(img);
+                    }
+
+                    msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>Photo updated.</span>';
+                    setTimeout(() => { msg.innerHTML = ''; }, 3000);
+                } else {
+                    msg.innerHTML = `<span class="text-danger">${json.message}</span>`;
+                }
+            } catch {
+                msg.innerHTML = '<span class="text-danger">Upload failed. Try again.</span>';
             }
-        })();
+            input.value = '';
+        }
     </script>
 
     <style>
