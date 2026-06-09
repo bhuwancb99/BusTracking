@@ -3,23 +3,28 @@ namespace BusTracking.Common.Services;
 public class ImageService : IImageService
 {
     private readonly string _mediaPath;
-    private readonly string _baseUrl;
+    private readonly IHttpContextAccessor _httpContext;
 
-    public ImageService(IWebHostEnvironment env, IConfiguration config)
+    public ImageService(IWebHostEnvironment env, IHttpContextAccessor httpContext)
     {
-        // Always uses the CURRENT app's content root — API gets API/media, Web gets Web/media
         _mediaPath = Path.Combine(env.ContentRootPath, "media", "images");
+        _httpContext = httpContext;
 
-        _baseUrl = config["MediaStorage:BaseUrl"]?.TrimEnd('/')
-            ?? throw new InvalidOperationException(
-                "MediaStorage:BaseUrl is not configured in appsettings.json.");
-
-        // Create all role subfolders on startup automatically
+        // Create all role subfolders on startup — silent if already exist
         foreach (var role in new[] { "superadmin", "coordinator", "driver", "student", "parent", "bus" })
             Directory.CreateDirectory(Path.Combine(_mediaPath, role));
     }
 
-    // ── Profile image ─────────────────────────────────────────────────
+    private string GetBaseUrl()
+    {
+        var req = _httpContext.HttpContext?.Request;
+        if (req is null)
+            throw new InvalidOperationException("ImageService requires an active HTTP request context.");
+
+        return $"{req.Scheme}://{req.Host}";
+    }
+
+    // ── Profile image (single — auto-replaces on re-upload) ──────────
     public async Task<string> SaveProfileImageAsync(
         IFormFile file, int userId, string role, string? existingUrl)
     {
@@ -28,17 +33,18 @@ public class ImageService : IImageService
         var folder = Path.Combine(_mediaPath, role.ToLower());
         Directory.CreateDirectory(folder);
 
-        // Delete all existing files for this user (handles extension change jpg→png)
+        // Delete all existing files for this user (handles .jpg → .png swaps)
         DeleteAllUserFiles(folder, userId);
 
         var ext = GetSafeExtension(file.FileName);
         var fileName = $"u_{userId}{ext}";
         await SaveFileAsync(file, Path.Combine(folder, fileName));
 
-        return $"{_baseUrl}/media/images/{role.ToLower()}/{fileName}";
+        // Full URL auto-built from live request — no config needed
+        return $"{GetBaseUrl()}/media/images/{role.ToLower()}/{fileName}";
     }
 
-    // ── Bus image ─────────────────────────────────────────────────────
+    // ── Bus image (multiple per bus) ──────────────────────────────────
     public async Task<string> SaveBusImageAsync(IFormFile file, int busId, int imageIndex)
     {
         Validate(file);
@@ -50,7 +56,7 @@ public class ImageService : IImageService
         var fileName = $"b_{busId}_{imageIndex}{ext}";
         await SaveFileAsync(file, Path.Combine(folder, fileName));
 
-        return $"{_baseUrl}/media/images/bus/{fileName}";
+        return $"{GetBaseUrl()}/media/images/bus/{fileName}";
     }
 
     // ── Delete by full URL ────────────────────────────────────────────

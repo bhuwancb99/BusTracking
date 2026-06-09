@@ -18,7 +18,6 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 builder.Services.AddAuthorization();
-builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
@@ -29,10 +28,9 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
-app.UseStaticFiles(); // wwwroot — css, js, bootstrap
+app.UseStaticFiles(); // wwwroot
 
 // Serve BusTracking.Web/media/ at /media/*
-// Subfolders created automatically by ImageService on first request.
 var mediaFolder = Path.Combine(builder.Environment.ContentRootPath, "media");
 Directory.CreateDirectory(mediaFolder);
 app.UseStaticFiles(new StaticFileOptions

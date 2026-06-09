@@ -3,18 +3,15 @@ namespace BusTracking.Common.Interfaces;
 public interface IImageService
 {
     /// <summary>
-    /// Save a profile image for any user role.
+    /// Save or replace a profile image for any user role.
     /// Deletes old file first if existingUrl is provided.
-    /// Returns the new public URL  e.g. /images/student/u_88.jpg
+    /// Returns the new full public URL stored in DB.
     /// </summary>
     Task<string> SaveProfileImageAsync(
-        IFormFile file,
-        int userId,
-        string role,          // "superadmin" | "coordinator" | "driver" | "student" | "parent"
-        string? existingUrl);
+        IFormFile file, int userId, string role, string? existingUrl);
 
     /// <summary>
-    /// Save one bus image. Returns public URL e.g. /images/bus/b_12_3.jpg
+    /// Save one bus image. Returns full public URL stored in DB.
     /// </summary>
     Task<string> SaveBusImageAsync(IFormFile file, int busId, int imageIndex);
 

@@ -11,6 +11,10 @@ public static class CommonServiceExtensions
                 configuration.GetConnectionString("DefaultConnection"),
                 sql => sql.EnableRetryOnFailure(3)));
 
+        // Required for ImageService to read the live request URL
+        services.AddHttpContextAccessor();
+
+        // ImageService uses IWebHostEnvironment + IHttpContextAccessor — both auto-injected
         services.AddScoped<IImageService, ImageService>();
 
         services.AddScoped<IJwtService, JwtService>();

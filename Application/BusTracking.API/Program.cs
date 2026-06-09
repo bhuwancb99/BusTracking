@@ -5,7 +5,7 @@ builder.Services.AddControllers();
 
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o =>
 {
-    o.MultipartBodyLengthLimit = 26_214_400; // 5 files × 5 MB
+    o.MultipartBodyLengthLimit = 26_214_400;
 });
 builder.WebHost.ConfigureKestrel(k =>
 {
@@ -47,8 +47,6 @@ app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 
 // Serve BusTracking.API/media/ at /media/*
-// Subfolders (superadmin, coordinator, driver, student, parent, bus)
-// are created by ImageService constructor on first request.
 var mediaFolder = Path.Combine(builder.Environment.ContentRootPath, "media");
 Directory.CreateDirectory(mediaFolder);
 app.UseStaticFiles(new StaticFileOptions
