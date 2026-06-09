@@ -6,22 +6,16 @@ public static class CommonServiceExtensions
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        // ── EF Core ────────────────────────────────────────────────────
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(
                 configuration.GetConnectionString("DefaultConnection"),
                 sql => sql.EnableRetryOnFailure(3)));
 
-        // ── Image Service ──────────────────────────────────────────────
-        // IWebHostEnvironment is auto-injected by ASP.NET — works in both Web and API
         services.AddScoped<IImageService, ImageService>();
 
-        // ── Infrastructure ─────────────────────────────────────────────
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<IEmailService, EmailService>();
-
-        // ── Business Services ──────────────────────────────────────────
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IDashboardService, DashboardService>();

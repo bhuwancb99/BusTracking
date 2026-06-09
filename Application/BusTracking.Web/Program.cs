@@ -1,11 +1,5 @@
 var builder = WebApplication.CreateBuilder(args);
 
-
-var apiMediaPath = Path.GetFullPath(
-    Path.Combine(builder.Environment.ContentRootPath, "..", "BusTracking.API", "media"));
-
-builder.Configuration["MediaStorage:BasePath"] = apiMediaPath;
-
 builder.Services.AddCommonServices(builder.Configuration);
 builder.Services.AddControllersWithViews();
 
@@ -35,14 +29,15 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
-app.UseStaticFiles(); // wwwroot (css, js, bootstrap)
+app.UseStaticFiles(); // wwwroot — css, js, bootstrap
 
-// ── Serve /media/* from BusTracking.API/media/ ────────────────────────
-// Same physical folder as API → image uploaded via API shows on Web page
-Directory.CreateDirectory(apiMediaPath);
+// Serve BusTracking.Web/media/ at /media/*
+// Subfolders created automatically by ImageService on first request.
+var mediaFolder = Path.Combine(builder.Environment.ContentRootPath, "media");
+Directory.CreateDirectory(mediaFolder);
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(apiMediaPath),
+    FileProvider = new PhysicalFileProvider(mediaFolder),
     RequestPath = "/media"
 });
 

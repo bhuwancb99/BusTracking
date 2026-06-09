@@ -1,18 +1,11 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// ── Inject API content root into config so ImageService can find it ───
-// This means Web project also resolves to API's media folder correctly
-// because the path is explicit, not derived from env.ContentRootPath
-builder.Configuration["MediaStorage:BasePath"] =
-    Path.Combine(builder.Environment.ContentRootPath, "media");
-
 builder.Services.AddCommonServices(builder.Configuration);
 builder.Services.AddControllers();
 
-// Raise request size limit for image uploads
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o =>
 {
-    o.MultipartBodyLengthLimit = 26_214_400; // 5 × 5 MB
+    o.MultipartBodyLengthLimit = 26_214_400; // 5 files × 5 MB
 });
 builder.WebHost.ConfigureKestrel(k =>
 {
@@ -53,9 +46,11 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 
-// ── Serve /media/* from BusTracking.API/media/ ────────────────────────
-var mediaFolder = builder.Configuration["MediaStorage:BasePath"]!;
-Directory.CreateDirectory(mediaFolder); // safe if exists
+// Serve BusTracking.API/media/ at /media/*
+// Subfolders (superadmin, coordinator, driver, student, parent, bus)
+// are created by ImageService constructor on first request.
+var mediaFolder = Path.Combine(builder.Environment.ContentRootPath, "media");
+Directory.CreateDirectory(mediaFolder);
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(mediaFolder),

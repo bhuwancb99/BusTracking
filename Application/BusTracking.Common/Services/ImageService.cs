@@ -5,45 +5,40 @@ public class ImageService : IImageService
     private readonly string _mediaPath;
     private readonly string _baseUrl;
 
-    public ImageService(IConfiguration config)
+    public ImageService(IWebHostEnvironment env, IConfiguration config)
     {
-        var basePath = config["MediaStorage:BasePath"]
-            ?? throw new InvalidOperationException(
-                "MediaStorage:BasePath is not set. " +
-                "Ensure Program.cs sets builder.Configuration[\"MediaStorage:BasePath\"] before AddCommonServices.");
+        // Always uses the CURRENT app's content root — API gets API/media, Web gets Web/media
+        _mediaPath = Path.Combine(env.ContentRootPath, "media", "images");
 
         _baseUrl = config["MediaStorage:BaseUrl"]?.TrimEnd('/')
             ?? throw new InvalidOperationException(
                 "MediaStorage:BaseUrl is not configured in appsettings.json.");
 
-        _mediaPath = Path.Combine(basePath, "images");
-
-        // Create all role subfolders — runs once on startup, silent if already exist
+        // Create all role subfolders on startup automatically
         foreach (var role in new[] { "superadmin", "coordinator", "driver", "student", "parent", "bus" })
             Directory.CreateDirectory(Path.Combine(_mediaPath, role));
     }
 
-    // ── Profile image (single per user — auto-replaces on re-upload) ──
+    // ── Profile image ─────────────────────────────────────────────────
     public async Task<string> SaveProfileImageAsync(
         IFormFile file, int userId, string role, string? existingUrl)
     {
         Validate(file);
 
         var folder = Path.Combine(_mediaPath, role.ToLower());
-        Directory.CreateDirectory(folder); // safe if exists
+        Directory.CreateDirectory(folder);
 
-        // Delete all existing files for this user (handles .jpg → .png swaps)
+        // Delete all existing files for this user (handles extension change jpg→png)
         DeleteAllUserFiles(folder, userId);
 
         var ext = GetSafeExtension(file.FileName);
         var fileName = $"u_{userId}{ext}";
         await SaveFileAsync(file, Path.Combine(folder, fileName));
 
-        // Full URL stored in DB — works from MAUI, browser, or Web img tag
         return $"{_baseUrl}/media/images/{role.ToLower()}/{fileName}";
     }
 
-    // ── Bus image (multiple per bus) ──────────────────────────────────
+    // ── Bus image ─────────────────────────────────────────────────────
     public async Task<string> SaveBusImageAsync(IFormFile file, int busId, int imageIndex)
     {
         Validate(file);
@@ -72,10 +67,10 @@ public class ImageService : IImageService
             var fullPath = Path.Combine(_mediaPath, path.Replace('/', Path.DirectorySeparatorChar));
             if (File.Exists(fullPath)) File.Delete(fullPath);
         }
-        catch { /* never crash on delete */ }
+        catch { }
     }
 
-    // ── Private helpers ───────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────
     private void DeleteAllUserFiles(string folder, int userId)
     {
         try
