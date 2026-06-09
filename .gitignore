@@ -364,3 +364,4 @@ FodyWeavers.xsd
 
 # ignore image folder 
 /Application/BusTracking.API/media/
+/Application/BusTracking.Web/media/
