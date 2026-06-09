@@ -8,35 +8,38 @@ namespace BusTracking.API.Controllers
     [Authorize(Roles = "SuperAdmin"), Route("api/admin")]
     public class SuperAdminController : ApiBaseController
     {
-        private readonly IBusService      _bus;
-        private readonly IRouteService    _route;
-        private readonly IDriverService   _driver;
-        private readonly IStudentService  _student;
-        private readonly IParentService   _parent;
+        private readonly IBusService _bus;
+        private readonly IRouteService _route;
+        private readonly IDriverService _driver;
+        private readonly IStudentService _student;
+        private readonly IParentService _parent;
         private readonly ISubAdminService _subAdmin;
-        private readonly ITripService     _trip;
+        private readonly ITripService _trip;
         private readonly IFeedbackService _feedback;
         private readonly INotificationService _notif;
-        private readonly IDashboardService    _dash;
-        private readonly IAppConfigService    _config;
-        private readonly AppDbContext         _db;
+        private readonly IDashboardService _dash;
+        private readonly IAppConfigService _config;
+        private readonly AppDbContext _db;
+        private readonly IImageService _img;         // ← NEW
+
+        private const int MAX_BUS_IMAGES = 5;               // ← NEW
 
         public SuperAdminController(
             IBusService bus, IRouteService route, IDriverService driver,
             IStudentService student, IParentService parent, ISubAdminService subAdmin,
             ITripService trip, IFeedbackService feedback, INotificationService notif,
-            IDashboardService dash, IAppConfigService config, AppDbContext db)
+            IDashboardService dash, IAppConfigService config, AppDbContext db,
+            IImageService img)                               // ← NEW
         {
             _bus = bus; _route = route; _driver = driver; _student = student;
             _parent = parent; _subAdmin = subAdmin; _trip = trip; _feedback = feedback;
-            _notif = notif; _dash = dash; _config = config; _db = db;
+            _notif = notif; _dash = dash; _config = config; _db = db; _img = img;
         }
 
         // ════════════════════════════════════════════════════════════
         // DASHBOARD
         // ════════════════════════════════════════════════════════════
 
-        /// <summary>GET /api/admin/dashboard — System summary counts</summary>
         [HttpGet("dashboard")]
         public async Task<IActionResult> Dashboard()
         {
@@ -45,10 +48,9 @@ namespace BusTracking.API.Controllers
         }
 
         // ════════════════════════════════════════════════════════════
-        // BUS COORDINATORS (SubAdmins)
+        // BUS COORDINATORS
         // ════════════════════════════════════════════════════════════
 
-        /// <summary>GET /api/admin/coordinators?page=1&search=&status=</summary>
         [HttpGet("coordinators")]
         public async Task<IActionResult> GetCoordinators([FromQuery] int page = 1,
             [FromQuery] string? search = null, [FromQuery] string? status = null)
@@ -57,7 +59,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        /// <summary>GET /api/admin/coordinators/{id}</summary>
         [HttpGet("coordinators/{id}")]
         public async Task<IActionResult> GetCoordinator(int id)
         {
@@ -65,7 +66,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : NotFound(r);
         }
 
-        /// <summary>POST /api/admin/coordinators — Create bus coordinator</summary>
         [HttpPost("coordinators")]
         public async Task<IActionResult> CreateCoordinator([FromBody] CreateSubAdminDto dto)
         {
@@ -73,7 +73,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>PUT /api/admin/coordinators/{id} — Update coordinator + permissions</summary>
         [HttpPut("coordinators/{id}")]
         public async Task<IActionResult> UpdateCoordinator(int id, [FromBody] UpdateSubAdminDto dto)
         {
@@ -81,7 +80,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>DELETE /api/admin/coordinators/{id}</summary>
         [HttpDelete("coordinators/{id}")]
         public async Task<IActionResult> DeleteCoordinator(int id)
         {
@@ -89,7 +87,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>POST /api/admin/coordinators/{id}/toggle — Toggle active/inactive</summary>
         [HttpPost("coordinators/{id}/toggle")]
         public async Task<IActionResult> ToggleCoordinator(int id)
         {
@@ -97,7 +94,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        /// <summary>POST /api/admin/coordinators/{id}/reset-password</summary>
         [HttpPost("coordinators/{id}/reset-password")]
         public async Task<IActionResult> ResetCoordinatorPassword(int id)
         {
@@ -105,7 +101,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>GET /api/admin/coordinators/{id}/permissions</summary>
         [HttpGet("coordinators/{id}/permissions")]
         public async Task<IActionResult> GetCoordinatorPermissions(int id)
         {
@@ -118,21 +113,33 @@ namespace BusTracking.API.Controllers
             }));
         }
 
-        /// <summary>GET /api/admin/permissions — All available permissions</summary>
+        /// <summary>POST /api/admin/coordinators/{id}/photo — Upload coordinator profile photo</summary>
+        [HttpPost("coordinators/{id}/photo")]
+        [RequestSizeLimit(5_242_880)]
+        public async Task<IActionResult> UploadCoordinatorPhoto(int id, IFormFile file)
+            => await UploadUserPhoto(id, "coordinator", file);
+
+        /// <summary>DELETE /api/admin/coordinators/{id}/photo</summary>
+        [HttpDelete("coordinators/{id}/photo")]
+        public async Task<IActionResult> DeleteCoordinatorPhoto(int id)
+            => await DeleteUserPhoto(id);
+
+        // ════════════════════════════════════════════════════════════
+        // PERMISSIONS
+        // ════════════════════════════════════════════════════════════
+
         [HttpGet("permissions")]
         public async Task<IActionResult> GetAllPermissions()
         {
             var all = await _subAdmin.GetAllPermissionsAsync();
             return Ok(ApiResponse<object>.Ok(
-                all.Select(p => new { p.Id, p.ModuleName, p.Key, p.Description })
-            ));
+                all.Select(p => new { p.Id, p.ModuleName, p.Key, p.Description })));
         }
 
         // ════════════════════════════════════════════════════════════
         // BUSES
         // ════════════════════════════════════════════════════════════
 
-        /// <summary>GET /api/admin/buses?page=1&search=&status=</summary>
         [HttpGet("buses")]
         public async Task<IActionResult> GetBuses([FromQuery] int page = 1,
             [FromQuery] string? search = null, [FromQuery] string? status = null)
@@ -141,7 +148,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        /// <summary>GET /api/admin/buses/{id}</summary>
         [HttpGet("buses/{id}")]
         public async Task<IActionResult> GetBus(int id)
         {
@@ -149,7 +155,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : NotFound(r);
         }
 
-        /// <summary>POST /api/admin/buses — Create bus</summary>
         [HttpPost("buses")]
         public async Task<IActionResult> CreateBus([FromBody] CreateBusDto dto)
         {
@@ -157,7 +162,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>PUT /api/admin/buses/{id} — Update bus</summary>
         [HttpPut("buses/{id}")]
         public async Task<IActionResult> UpdateBus(int id, [FromBody] UpdateBusDto dto)
         {
@@ -165,7 +169,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>DELETE /api/admin/buses/{id}</summary>
         [HttpDelete("buses/{id}")]
         public async Task<IActionResult> DeleteBus(int id)
         {
@@ -173,7 +176,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>POST /api/admin/buses/{id}/toggle</summary>
         [HttpPost("buses/{id}/toggle")]
         public async Task<IActionResult> ToggleBus(int id)
         {
@@ -181,7 +183,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        /// <summary>POST /api/admin/buses/{id}/assign-driver — Assign driver to bus</summary>
         [HttpPost("buses/{id}/assign-driver")]
         public async Task<IActionResult> AssignDriver(int id, [FromBody] AssignDriverRequest req)
         {
@@ -193,7 +194,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>GET /api/admin/buses/dropdown?search= — For dropdowns in mobile form</summary>
         [HttpGet("buses/dropdown")]
         public async Task<IActionResult> BusDropdown([FromQuery] string? search)
         {
@@ -201,20 +201,131 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
+        /// <summary>
+        /// POST /api/admin/buses/{id}/images
+        /// Upload 1–5 images for a bus. Send as multipart/form-data, field name "files".
+        /// Returns per-file results.
+        /// </summary>
+        [HttpPost("buses/{id}/images")]
+        [RequestSizeLimit(26_214_400)] // 5 × 5 MB
+        public async Task<IActionResult> UploadBusImages(int id, [FromForm] List<IFormFile> files)
+        {
+            var bus = await _db.Buses.Include(b => b.Images).FirstOrDefaultAsync(b => b.BusId == id);
+            if (bus is null) return NotFound(ApiResponse<object>.Fail("Bus not found."));
+
+            int existing = bus.Images.Count;
+            int remaining = MAX_BUS_IMAGES - existing;
+
+            if (remaining <= 0)
+                return BadRequest(ApiResponse<object>.Fail(
+                    $"This bus already has {MAX_BUS_IMAGES} photos. Delete one to upload more."));
+
+            if (files.Count > remaining)
+                return BadRequest(ApiResponse<object>.Fail(
+                    $"Only {remaining} more photo{(remaining == 1 ? "" : "s")} allowed (limit is {MAX_BUS_IMAGES})."));
+
+            var uploaded = new List<object>();
+            var failed = new List<string>();
+            int nextIndex = bus.Images.Any() ? bus.Images.Max(i => ExtractIndex(i.ImageUrl)) + 1 : 1;
+
+            foreach (var file in files)
+            {
+                try
+                {
+                    var url = await _img.SaveBusImageAsync(file, id, nextIndex);
+                    bool isFirst = !bus.Images.Any() && uploaded.Count == 0;
+
+                    var busImage = new BusImage
+                    {
+                        BusId = id,
+                        ImageUrl = url,
+                        DisplayOrder = nextIndex,
+                        IsPrimary = isFirst,
+                        UploadedBy = CurrentUserId
+                    };
+                    _db.BusImages.Add(busImage);
+                    await _db.SaveChangesAsync();
+                    bus.Images.Add(busImage);
+                    nextIndex++;
+
+                    uploaded.Add(new
+                    {
+                        busImageId = busImage.BusImageId,
+                        imageUrl = url,
+                        isPrimary = busImage.IsPrimary
+                    });
+                }
+                catch (InvalidOperationException ex) { failed.Add($"{file.FileName}: {ex.Message}"); }
+            }
+
+            int newTotal = existing + uploaded.Count;
+            return Ok(ApiResponse<object>.Ok(new
+            {
+                uploaded,
+                failed,
+                totalNow = newTotal,
+                remaining = MAX_BUS_IMAGES - newTotal,
+                message = $"{uploaded.Count} photo(s) uploaded."
+            }));
+        }
+
+        /// <summary>DELETE /api/admin/buses/images/{imageId} — Delete one bus image</summary>
+        [HttpDelete("buses/images/{imageId}")]
+        public async Task<IActionResult> DeleteBusImage(int imageId)
+        {
+            var img = await _db.BusImages
+                .Include(i => i.Bus).ThenInclude(b => b.Images)
+                .FirstOrDefaultAsync(i => i.BusImageId == imageId);
+
+            if (img is null) return NotFound(ApiResponse<object>.Fail("Image not found."));
+
+            _img.DeleteFile(img.ImageUrl);
+            _db.BusImages.Remove(img);
+            await _db.SaveChangesAsync();
+
+            var remaining = img.Bus.Images
+                .Where(i => i.BusImageId != imageId)
+                .OrderBy(i => i.DisplayOrder).ToList();
+
+            if (img.IsPrimary && remaining.Any())
+            {
+                remaining[0].IsPrimary = true;
+                await _db.SaveChangesAsync();
+            }
+
+            return Ok(ApiResponse<object>.Ok(new
+            {
+                totalNow = remaining.Count,
+                remaining = MAX_BUS_IMAGES - remaining.Count
+            }, "Image deleted."));
+        }
+
+        /// <summary>POST /api/admin/buses/images/{imageId}/primary — Set cover image</summary>
+        [HttpPost("buses/images/{imageId}/primary")]
+        public async Task<IActionResult> SetPrimaryBusImage(int imageId)
+        {
+            var img = await _db.BusImages.FirstOrDefaultAsync(i => i.BusImageId == imageId);
+            if (img is null) return NotFound(ApiResponse<object>.Fail("Image not found."));
+
+            var others = await _db.BusImages.Where(i => i.BusId == img.BusId && i.IsPrimary).ToListAsync();
+            foreach (var o in others) o.IsPrimary = false;
+            img.IsPrimary = true;
+            await _db.SaveChangesAsync();
+
+            return Ok(ApiResponse<bool>.Ok(true, "Cover image updated."));
+        }
+
         // ════════════════════════════════════════════════════════════
         // ROUTES
         // ════════════════════════════════════════════════════════════
 
-        /// <summary>GET /api/admin/routes?page=1&search=</summary>
         [HttpGet("routes")]
-        public async Task<IActionResult> GetRoutes([FromQuery] int page = 1,
-            [FromQuery] string? search = null)
+        public async Task<IActionResult> GetRoutes([FromQuery] int page = 1, [FromQuery] string? search = null)
         {
             var r = await _route.GetAllAsync(page, 20, search);
             return Ok(r);
         }
 
-        /// <summary>GET /api/admin/routes/{id} — Route detail with stops</summary>
         [HttpGet("routes/{id}")]
         public async Task<IActionResult> GetRoute(int id)
         {
@@ -222,7 +333,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : NotFound(r);
         }
 
-        /// <summary>POST /api/admin/routes — Create route</summary>
         [HttpPost("routes")]
         public async Task<IActionResult> CreateRoute([FromBody] CreateRouteDto dto)
         {
@@ -230,7 +340,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>PUT /api/admin/routes/{id} — Update route</summary>
         [HttpPut("routes/{id}")]
         public async Task<IActionResult> UpdateRoute(int id, [FromBody] UpdateRouteDto dto)
         {
@@ -238,7 +347,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>DELETE /api/admin/routes/{id}</summary>
         [HttpDelete("routes/{id}")]
         public async Task<IActionResult> DeleteRoute(int id)
         {
@@ -246,7 +354,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>GET /api/admin/routes/{id}/stops</summary>
         [HttpGet("routes/{id}/stops")]
         public async Task<IActionResult> GetRouteStops(int id)
         {
@@ -254,7 +361,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        /// <summary>POST /api/admin/routes/{id}/stops — Add stop to route</summary>
         [HttpPost("routes/{id}/stops")]
         public async Task<IActionResult> AddStop(int id, [FromBody] CreateStopDto dto)
         {
@@ -263,7 +369,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>DELETE /api/admin/routes/stops/{stopId}</summary>
         [HttpDelete("routes/stops/{stopId}")]
         public async Task<IActionResult> DeleteStop(int stopId)
         {
@@ -275,7 +380,6 @@ namespace BusTracking.API.Controllers
         // DRIVERS
         // ════════════════════════════════════════════════════════════
 
-        /// <summary>GET /api/admin/drivers?page=1&search=&status=</summary>
         [HttpGet("drivers")]
         public async Task<IActionResult> GetDrivers([FromQuery] int page = 1,
             [FromQuery] string? search = null, [FromQuery] string? status = null)
@@ -284,7 +388,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        /// <summary>GET /api/admin/drivers/{id}</summary>
         [HttpGet("drivers/{id}")]
         public async Task<IActionResult> GetDriver(int id)
         {
@@ -292,7 +395,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : NotFound(r);
         }
 
-        /// <summary>POST /api/admin/drivers — Create driver</summary>
         [HttpPost("drivers")]
         public async Task<IActionResult> CreateDriver([FromBody] CreateDriverDto dto)
         {
@@ -300,7 +402,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>PUT /api/admin/drivers/{id} — Update driver</summary>
         [HttpPut("drivers/{id}")]
         public async Task<IActionResult> UpdateDriver(int id, [FromBody] UpdateDriverDto dto)
         {
@@ -308,7 +409,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>DELETE /api/admin/drivers/{id}</summary>
         [HttpDelete("drivers/{id}")]
         public async Task<IActionResult> DeleteDriver(int id)
         {
@@ -316,7 +416,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>POST /api/admin/drivers/{id}/toggle</summary>
         [HttpPost("drivers/{id}/toggle")]
         public async Task<IActionResult> ToggleDriver(int id)
         {
@@ -324,7 +423,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        /// <summary>POST /api/admin/drivers/{id}/reset-password</summary>
         [HttpPost("drivers/{id}/reset-password")]
         public async Task<IActionResult> ResetDriverPassword(int id)
         {
@@ -332,7 +430,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>GET /api/admin/drivers/dropdown?search=</summary>
         [HttpGet("drivers/dropdown")]
         public async Task<IActionResult> DriverDropdown([FromQuery] string? search)
         {
@@ -344,7 +441,6 @@ namespace BusTracking.API.Controllers
         // PARENTS
         // ════════════════════════════════════════════════════════════
 
-        /// <summary>GET /api/admin/parents?page=1&search=&status=</summary>
         [HttpGet("parents")]
         public async Task<IActionResult> GetParents([FromQuery] int page = 1,
             [FromQuery] string? search = null, [FromQuery] string? status = null)
@@ -353,7 +449,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        /// <summary>GET /api/admin/parents/{id}</summary>
         [HttpGet("parents/{id}")]
         public async Task<IActionResult> GetParent(int id)
         {
@@ -361,7 +456,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : NotFound(r);
         }
 
-        /// <summary>POST /api/admin/parents — Create parent</summary>
         [HttpPost("parents")]
         public async Task<IActionResult> CreateParent([FromBody] CreateParentDto dto)
         {
@@ -369,7 +463,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>PUT /api/admin/parents/{id} — Update parent + linked students</summary>
         [HttpPut("parents/{id}")]
         public async Task<IActionResult> UpdateParent(int id, [FromBody] UpdateParentDto dto)
         {
@@ -377,7 +470,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>DELETE /api/admin/parents/{id}</summary>
         [HttpDelete("parents/{id}")]
         public async Task<IActionResult> DeleteParent(int id)
         {
@@ -385,7 +477,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>POST /api/admin/parents/{id}/toggle</summary>
         [HttpPost("parents/{id}/toggle")]
         public async Task<IActionResult> ToggleParent(int id)
         {
@@ -393,7 +484,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        /// <summary>POST /api/admin/parents/{id}/reset-password</summary>
         [HttpPost("parents/{id}/reset-password")]
         public async Task<IActionResult> ResetParentPassword(int id)
         {
@@ -401,11 +491,21 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
+        /// <summary>POST /api/admin/parents/{id}/photo — Upload parent profile photo</summary>
+        [HttpPost("parents/{id}/photo")]
+        [RequestSizeLimit(5_242_880)]
+        public async Task<IActionResult> UploadParentPhoto(int id, IFormFile file)
+            => await UploadUserPhoto(id, "parent", file);
+
+        /// <summary>DELETE /api/admin/parents/{id}/photo</summary>
+        [HttpDelete("parents/{id}/photo")]
+        public async Task<IActionResult> DeleteParentPhoto(int id)
+            => await DeleteUserPhoto(id);
+
         // ════════════════════════════════════════════════════════════
         // STUDENTS
         // ════════════════════════════════════════════════════════════
 
-        /// <summary>GET /api/admin/students?page=1&search=&status=</summary>
         [HttpGet("students")]
         public async Task<IActionResult> GetStudents([FromQuery] int page = 1,
             [FromQuery] string? search = null, [FromQuery] string? status = null)
@@ -414,7 +514,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        /// <summary>GET /api/admin/students/{id}</summary>
         [HttpGet("students/{id}")]
         public async Task<IActionResult> GetStudent(int id)
         {
@@ -422,7 +521,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : NotFound(r);
         }
 
-        /// <summary>POST /api/admin/students — Create student</summary>
         [HttpPost("students")]
         public async Task<IActionResult> CreateStudent([FromBody] CreateStudentDto dto)
         {
@@ -430,7 +528,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>PUT /api/admin/students/{id} — Update student</summary>
         [HttpPut("students/{id}")]
         public async Task<IActionResult> UpdateStudent(int id, [FromBody] UpdateStudentDto dto)
         {
@@ -438,7 +535,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>DELETE /api/admin/students/{id}</summary>
         [HttpDelete("students/{id}")]
         public async Task<IActionResult> DeleteStudent(int id)
         {
@@ -446,7 +542,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>POST /api/admin/students/{id}/toggle</summary>
         [HttpPost("students/{id}/toggle")]
         public async Task<IActionResult> ToggleStudent(int id)
         {
@@ -454,7 +549,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        /// <summary>POST /api/admin/students/{id}/reset-password</summary>
         [HttpPost("students/{id}/reset-password")]
         public async Task<IActionResult> ResetStudentPassword(int id)
         {
@@ -462,7 +556,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>GET /api/admin/students/{id}/availability</summary>
         [HttpGet("students/{id}/availability")]
         public async Task<IActionResult> GetStudentAvailability(int id)
         {
@@ -470,17 +563,14 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        /// <summary>POST /api/admin/students/{id}/availability</summary>
         [HttpPost("students/{id}/availability")]
-        public async Task<IActionResult> SetStudentAvailability(int id,
-            [FromBody] CreateAvailabilityDto dto)
+        public async Task<IActionResult> SetStudentAvailability(int id, [FromBody] CreateAvailabilityDto dto)
         {
             dto.StudentId = id;
             var r = await _student.SetAvailabilityAsync(dto, CurrentUserId);
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>GET /api/admin/students/search?query= — Search by name/code</summary>
         [HttpGet("students/search")]
         public async Task<IActionResult> SearchStudents([FromQuery] string? query)
         {
@@ -488,20 +578,28 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
+        /// <summary>POST /api/admin/students/{id}/photo — Upload student profile photo</summary>
+        [HttpPost("students/{id}/photo")]
+        [RequestSizeLimit(5_242_880)]
+        public async Task<IActionResult> UploadStudentPhoto(int id, IFormFile file)
+            => await UploadUserPhoto(id, "student", file);
+
+        /// <summary>DELETE /api/admin/students/{id}/photo</summary>
+        [HttpDelete("students/{id}/photo")]
+        public async Task<IActionResult> DeleteStudentPhoto(int id)
+            => await DeleteUserPhoto(id);
+
         // ════════════════════════════════════════════════════════════
         // TRIPS
         // ════════════════════════════════════════════════════════════
 
-        /// <summary>GET /api/admin/trips?page=1&busId=</summary>
         [HttpGet("trips")]
-        public async Task<IActionResult> GetTrips([FromQuery] int page = 1,
-            [FromQuery] string? busId = null)
+        public async Task<IActionResult> GetTrips([FromQuery] int page = 1, [FromQuery] string? busId = null)
         {
             var r = await _trip.GetAllAsync(page, 20, busId);
             return Ok(r);
         }
 
-        /// <summary>GET /api/admin/trips/{id}</summary>
         [HttpGet("trips/{id}")]
         public async Task<IActionResult> GetTrip(int id)
         {
@@ -509,7 +607,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : NotFound(r);
         }
 
-        /// <summary>POST /api/admin/trips — Create trip</summary>
         [HttpPost("trips")]
         public async Task<IActionResult> CreateTrip([FromBody] CreateTripDto dto)
         {
@@ -517,7 +614,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>POST /api/admin/trips/{id}/start</summary>
         [HttpPost("trips/{id}/start")]
         public async Task<IActionResult> StartTrip(int id)
         {
@@ -525,7 +621,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>POST /api/admin/trips/{id}/end</summary>
         [HttpPost("trips/{id}/end")]
         public async Task<IActionResult> EndTrip(int id)
         {
@@ -533,7 +628,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>POST /api/admin/trips/{id}/cancel</summary>
         [HttpPost("trips/{id}/cancel")]
         public async Task<IActionResult> CancelTrip(int id)
         {
@@ -541,7 +635,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>DELETE /api/admin/trips/{id}</summary>
         [HttpDelete("trips/{id}")]
         public async Task<IActionResult> DeleteTrip(int id)
         {
@@ -549,7 +642,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>GET /api/admin/trips/{id}/students</summary>
         [HttpGet("trips/{id}/students")]
         public async Task<IActionResult> TripStudents(int id)
         {
@@ -557,7 +649,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        /// <summary>GET /api/admin/trips/{id}/stops</summary>
         [HttpGet("trips/{id}/stops")]
         public async Task<IActionResult> TripStops(int id)
         {
@@ -565,7 +656,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        /// <summary>POST /api/admin/trips/{id}/stops/{stopId}/reach</summary>
         [HttpPost("trips/{id}/stops/{stopId}/reach")]
         public async Task<IActionResult> ReachStop(int id, int stopId)
         {
@@ -573,15 +663,13 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>PUT /api/admin/trips/{id}/boarding — Update student boarding status</summary>
         [HttpPut("trips/{id}/boarding")]
-        public async Task<IActionResult> UpdateBoarding(int id, [FromBody] UpdateBoardingRequest req)
+        public async Task<IActionResult> UpdateBoarding(int id, [FromBody] UpdateBoardingRequestApi req)
         {
             var r = await _trip.UpdateBoardingAsync(id, req.StudentId, req.StopId, req.Status);
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>GET /api/admin/trips/{id}/location — Latest GPS location</summary>
         [HttpGet("trips/{id}/location")]
         public async Task<IActionResult> TripLocation(int id)
         {
@@ -589,7 +677,6 @@ namespace BusTracking.API.Controllers
             return r.Data is not null ? Ok(r) : NotFound(ApiResponse<object>.Fail("No location data yet."));
         }
 
-        /// <summary>GET /api/admin/trips/{id}/location/history — Full GPS trail</summary>
         [HttpGet("trips/{id}/location/history")]
         public async Task<IActionResult> TripLocationHistory(int id)
         {
@@ -598,22 +685,18 @@ namespace BusTracking.API.Controllers
         }
 
         // ════════════════════════════════════════════════════════════
-        // FEEDBACK / SUPPORT
+        // FEEDBACK
         // ════════════════════════════════════════════════════════════
 
-        /// <summary>GET /api/admin/feedback?page=1&status=</summary>
         [HttpGet("feedback")]
-        public async Task<IActionResult> GetFeedback([FromQuery] int page = 1,
-            [FromQuery] string? status = null)
+        public async Task<IActionResult> GetFeedback([FromQuery] int page = 1, [FromQuery] string? status = null)
         {
             var r = await _feedback.GetAllAsync(page, 20, status);
             return Ok(r);
         }
 
-        /// <summary>PUT /api/admin/feedback/{id}/status — Resolve or close feedback</summary>
         [HttpPut("feedback/{id}/status")]
-        public async Task<IActionResult> UpdateFeedbackStatus(int id,
-            [FromBody] UpdateFeedbackStatusRequest req)
+        public async Task<IActionResult> UpdateFeedbackStatus(int id, [FromBody] UpdateFeedbackStatusRequest req)
         {
             var r = await _feedback.UpdateStatusAsync(id, req.Status, CurrentUserId);
             return r.Success ? Ok(r) : BadRequest(r);
@@ -623,7 +706,6 @@ namespace BusTracking.API.Controllers
         // NOTIFICATIONS
         // ════════════════════════════════════════════════════════════
 
-        /// <summary>GET /api/admin/notifications</summary>
         [HttpGet("notifications")]
         public async Task<IActionResult> GetNotifications()
         {
@@ -631,7 +713,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        /// <summary>POST /api/admin/notifications/send — Send notification to a user</summary>
         [HttpPost("notifications/send")]
         public async Task<IActionResult> SendNotification([FromBody] SendNotificationRequest req)
         {
@@ -639,7 +720,6 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<bool>.Ok(true, "Notification sent."));
         }
 
-        /// <summary>PUT /api/admin/notifications/{id}/read</summary>
         [HttpPut("notifications/{id}/read")]
         public async Task<IActionResult> MarkRead(int id)
         {
@@ -647,7 +727,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        /// <summary>PUT /api/admin/notifications/read-all</summary>
         [HttpPut("notifications/read-all")]
         public async Task<IActionResult> MarkAllRead()
         {
@@ -659,7 +738,6 @@ namespace BusTracking.API.Controllers
         // APP CONFIGURATION
         // ════════════════════════════════════════════════════════════
 
-        /// <summary>GET /api/admin/config?platform=&search=&isActive= — List all configs</summary>
         [HttpGet("config")]
         public async Task<IActionResult> GetConfigs([FromQuery] string? platform,
             [FromQuery] string? search, [FromQuery] bool? isActive)
@@ -668,7 +746,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        /// <summary>GET /api/admin/config/{id}</summary>
         [HttpGet("config/{id}")]
         public async Task<IActionResult> GetConfig(int id)
         {
@@ -676,7 +753,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : NotFound(r);
         }
 
-        /// <summary>POST /api/admin/config — Create config key</summary>
         [HttpPost("config")]
         public async Task<IActionResult> CreateConfig([FromBody] CreateAppConfigDto dto)
         {
@@ -684,7 +760,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>PUT /api/admin/config/{id} — Update config key</summary>
         [HttpPut("config/{id}")]
         public async Task<IActionResult> UpdateConfig(int id, [FromBody] UpdateAppConfigDto dto)
         {
@@ -692,7 +767,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>DELETE /api/admin/config/{id}</summary>
         [HttpDelete("config/{id}")]
         public async Task<IActionResult> DeleteConfig(int id)
         {
@@ -700,7 +774,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        /// <summary>POST /api/admin/config/{id}/toggle — Toggle active/inactive</summary>
         [HttpPost("config/{id}/toggle")]
         public async Task<IActionResult> ToggleConfig(int id)
         {
@@ -709,32 +782,39 @@ namespace BusTracking.API.Controllers
         }
 
         // ════════════════════════════════════════════════════════════
-        // REQUEST MODELS
+        // SHARED IMAGE HELPERS
         // ════════════════════════════════════════════════════════════
 
-        public class AssignDriverRequest
+        private async Task<IActionResult> UploadUserPhoto(int userId, string folder, IFormFile file)
         {
-            public int DriverUserId { get; set; }
+            var user = await _db.Users.FindAsync(userId);
+            if (user is null) return NotFound(ApiResponse<string>.Fail("User not found."));
+            try
+            {
+                var url = await _img.SaveProfileImageAsync(file, userId, folder, user.ProfileImageUrl);
+                user.ProfileImageUrl = url;
+                user.UpdatedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+                return Ok(ApiResponse<string>.Ok(url, "Photo updated."));
+            }
+            catch (InvalidOperationException ex) { return BadRequest(ApiResponse<string>.Fail(ex.Message)); }
         }
 
-        public class UpdateBoardingRequest
+        private async Task<IActionResult> DeleteUserPhoto(int userId)
         {
-            public int StudentId { get; set; }
-            public int StopId { get; set; }
-            public string Status { get; set; } = "";   // Pending | PickedUp | NoShow | OnLeave
+            var user = await _db.Users.FindAsync(userId);
+            if (user is null) return NotFound(ApiResponse<bool>.Fail("User not found."));
+            _img.DeleteFile(user.ProfileImageUrl);
+            user.ProfileImageUrl = null;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return Ok(ApiResponse<bool>.Ok(true, "Photo removed."));
         }
 
-        public class UpdateFeedbackStatusRequest
+        private static int ExtractIndex(string url)
         {
-            public string Status { get; set; } = "";   // Open | InProgress | Resolved | Closed
-        }
-
-        public class SendNotificationRequest
-        {
-            public int RecipientUserId { get; set; }
-            public string Title { get; set; } = "";
-            public string Body { get; set; } = "";
-            public string Type { get; set; } = "General";
+            try { var p = Path.GetFileNameWithoutExtension(url).Split('_'); return int.TryParse(p[^1], out var n) ? n : 0; }
+            catch { return 0; }
         }
     }
 }

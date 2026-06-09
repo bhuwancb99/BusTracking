@@ -1,17 +1,18 @@
 namespace BusTracking.API.Controllers
 {
-    /// <summary>API for Student MAUI app. All endpoints require role = Student.</summary>
     [Authorize(Roles = "Student"), Route("api/student")]
     public class StudentController : ApiBaseController
     {
-        private readonly AppDbContext    _db;
+        private readonly AppDbContext _db;
         private readonly IStudentService _student;
-        public StudentController(AppDbContext db, IStudentService student)
+        private readonly IImageService _img;       // ← NEW
+
+        public StudentController(AppDbContext db, IStudentService student, IImageService img)
         {
-            _db = db; _student = student;
+            _db = db; _student = student; _img = img;
         }
 
-        // GET api/student/dashboard
+        // ── GET api/student/dashboard ─────────────────────────────────
         [HttpGet("dashboard")]
         public async Task<IActionResult> Dashboard()
         {
@@ -29,7 +30,6 @@ namespace BusTracking.API.Controllers
                 .FirstOrDefaultAsync(t => t.BusId == student.BusId
                                        && t.TripDate == today
                                        && t.Status == TripStatus.InProgress);
-
             var boarding = trip is null ? null : await _db.StudentTripStatuses
                 .FirstOrDefaultAsync(s => s.TripId == trip.TripId && s.StudentId == student.StudentId);
 
@@ -37,6 +37,7 @@ namespace BusTracking.API.Controllers
             {
                 student.StudentCode,
                 student.Standard,
+                ProfileImageUrl = student.User.ProfileImageUrl,   // ← NEW
                 Bus = student.Bus is null ? null : new
                 {
                     student.Bus.BusId,
@@ -53,14 +54,62 @@ namespace BusTracking.API.Controllers
                 ActiveTrip = trip is null ? null : new
                 {
                     trip.TripId,
-                    TripType       = trip.TripType.ToString(),
-                    Status         = trip.Status.ToString(),
+                    TripType = trip.TripType.ToString(),
+                    Status = trip.Status.ToString(),
                     BoardingStatus = boarding?.BoardingStatus.ToString() ?? "Pending"
                 }
             }));
         }
 
-        // GET api/student/track
+        // ── POST api/student/photo ────────────────────────────────────
+        /// <summary>
+        /// Student uploads or replaces their own profile photo.
+        /// Send as multipart/form-data, field name "file".
+        /// Returns: { success, data: "imageUrl", message }
+        /// </summary>
+        [HttpPost("photo")]
+        [RequestSizeLimit(5_242_880)]
+        public async Task<IActionResult> UploadPhoto(IFormFile file)
+        {
+            var user = await _db.Users.FindAsync(CurrentUserId);
+            if (user is null)
+                return NotFound(ApiResponse<string>.Fail("User not found."));
+
+            try
+            {
+                var url = await _img.SaveProfileImageAsync(
+                    file, CurrentUserId, "student", user.ProfileImageUrl);
+
+                user.ProfileImageUrl = url;
+                user.UpdatedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+
+                return Ok(ApiResponse<string>.Ok(url, "Profile photo updated."));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ApiResponse<string>.Fail(ex.Message));
+            }
+        }
+
+        // ── DELETE api/student/photo ──────────────────────────────────
+        /// <summary>Remove own profile photo.</summary>
+        [HttpDelete("photo")]
+        public async Task<IActionResult> DeletePhoto()
+        {
+            var user = await _db.Users.FindAsync(CurrentUserId);
+            if (user is null)
+                return NotFound(ApiResponse<bool>.Fail("User not found."));
+
+            _img.DeleteFile(user.ProfileImageUrl);
+            user.ProfileImageUrl = null;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+
+            return Ok(ApiResponse<bool>.Ok(true, "Profile photo removed."));
+        }
+
+        // ── GET api/student/track ─────────────────────────────────────
         [HttpGet("track")]
         public async Task<IActionResult> TrackBus()
         {
@@ -80,9 +129,9 @@ namespace BusTracking.API.Controllers
             if (trip is null)
                 return Ok(ApiResponse<object>.Ok(new
                 {
-                    IsLive  = false,
+                    IsLive = false,
                     Message = "No active trip right now.",
-                    Bus     = new { student.Bus!.BusName, student.Bus.BusNumber }
+                    Bus = new { student.Bus!.BusName, student.Bus.BusNumber }
                 }));
 
             var loc = await _db.BusLiveLocations
@@ -105,7 +154,7 @@ namespace BusTracking.API.Controllers
                     e.Stop.StopOrder,
                     e.Stop.Latitude,
                     e.Stop.Longitude,
-                    Status     = e.Status.ToString(),
+                    Status = e.Status.ToString(),
                     e.ReachedAt,
                     e.DepartedAt
                 })
@@ -113,16 +162,16 @@ namespace BusTracking.API.Controllers
 
             return Ok(ApiResponse<object>.Ok(new
             {
-                IsLive         = true,
-                Trip           = new { trip.TripId, TripType = trip.TripType.ToString() },
-                Bus            = new { student.Bus!.BusName, student.Bus.BusNumber },
-                Location       = loc,
+                IsLive = true,
+                Trip = new { trip.TripId, TripType = trip.TripType.ToString() },
+                Bus = new { student.Bus!.BusName, student.Bus.BusNumber },
+                Location = loc,
                 BoardingStatus = boarding?.BoardingStatus.ToString() ?? "Pending",
-                Stops          = stops
+                Stops = stops
             }));
         }
 
-        // GET api/student/availability?days=30
+        // ── GET api/student/availability?days=30 ──────────────────────
         [HttpGet("availability")]
         public async Task<IActionResult> GetAvailability([FromQuery] int days = 30)
         {
@@ -130,11 +179,12 @@ namespace BusTracking.API.Controllers
             if (student is null) return NotFound(ApiResponse<object>.Fail("Student not found."));
 
             var from = DateOnly.FromDateTime(DateTime.UtcNow);
-            var to   = from.AddDays(days);
+            var to = from.AddDays(days);
 
             var avail = await _db.StudentAvailabilities
                 .Where(a => a.StudentId == student.StudentId
-                         && a.FromDate >= from && a.FromDate <= to)
+                         && a.FromDate >= from
+                         && a.FromDate <= to)
                 .OrderBy(a => a.FromDate)
                 .Select(a => new
                 {
@@ -149,7 +199,7 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<object>.Ok(new { StudentId = student.StudentId, Availability = avail }));
         }
 
-        // POST api/student/availability
+        // ── POST api/student/availability ────────────────────────────
         [HttpPost("availability")]
         public async Task<IActionResult> SetAvailability([FromBody] CreateAvailabilityDto dto)
         {

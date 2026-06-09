@@ -1,13 +1,17 @@
 namespace BusTracking.API.Controllers
 {
-    /// <summary>API for Parent MAUI app. All endpoints require role = Parent.</summary>
     [Authorize(Roles = "Parent"), Route("api/parent")]
     public class ParentController : ApiBaseController
     {
         private readonly AppDbContext _db;
-        public ParentController(AppDbContext db) => _db = db;
+        private readonly IImageService _img;
 
-        // GET api/parent/dashboard
+        public ParentController(AppDbContext db, IImageService img)
+        {
+            _db = db; _img = img;
+        }
+
+        // ── GET api/parent/dashboard ──────────────────────────────────
         [HttpGet("dashboard")]
         public async Task<IActionResult> Dashboard()
         {
@@ -26,9 +30,11 @@ namespace BusTracking.API.Controllers
             var children = parent.ParentStudents.Select(ps => new
             {
                 ps.Student.StudentId,
+                ps.Student.UserId,                              // ← needed for photo upload
                 ps.Student.StudentCode,
-                FullName      = ps.Student.User.FullName,
+                FullName = ps.Student.User.FullName,
                 ps.Student.Standard,
+                ProfileImageUrl = ps.Student.User.ProfileImageUrl,  // ← NEW
                 Bus = ps.Student.Bus is null ? null : new
                 {
                     ps.Student.Bus.BusId,
@@ -47,11 +53,54 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<object>.Ok(new { Children = children }));
         }
 
-        // GET api/parent/children/{studentId}/track
-        [HttpGet("children/{studentId}/track")]
-        public async Task<IActionResult> TrackBus(int studentId)
+        // ── POST api/parent/children/{studentId}/photo ────────────────
+        /// <summary>
+        /// Parent uploads/replaces a photo for their own child (student).
+        /// Security: verifies the student is linked to this parent.
+        /// Send as multipart/form-data, field name "file".
+        /// </summary>
+        [HttpPost("children/{studentId}/photo")]
+        [RequestSizeLimit(5_242_880)]
+        public async Task<IActionResult> UpdateChildPhoto(int studentId, IFormFile file)
         {
-            // Verify this student belongs to this parent
+            // Verify this student belongs to the logged-in parent
+            var parentDetail = await _db.Parents.FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
+            if (parentDetail is null) return Forbid();
+
+            var link = await _db.ParentStudents
+                .FirstOrDefaultAsync(ps => ps.StudentId == studentId
+                                        && ps.ParentId == parentDetail.ParentId);
+            if (link is null)
+                return Forbid();
+
+            var student = await _db.Students
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.StudentId == studentId);
+
+            if (student is null)
+                return NotFound(ApiResponse<string>.Fail("Student not found."));
+
+            try
+            {
+                var url = await _img.SaveProfileImageAsync(
+                    file, student.UserId, "student", student.User.ProfileImageUrl);
+
+                student.User.ProfileImageUrl = url;
+                student.User.UpdatedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+
+                return Ok(ApiResponse<string>.Ok(url, "Child photo updated."));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ApiResponse<string>.Fail(ex.Message));
+            }
+        }
+
+        // ── DELETE api/parent/children/{studentId}/photo ──────────────
+        [HttpDelete("children/{studentId}/photo")]
+        public async Task<IActionResult> DeleteChildPhoto(int studentId)
+        {
             var parentDetail = await _db.Parents.FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
             if (parentDetail is null) return Forbid();
 
@@ -60,8 +109,31 @@ namespace BusTracking.API.Controllers
                                         && ps.ParentId == parentDetail.ParentId);
             if (link is null) return Forbid();
 
-            var student = await _db.Students
-                .Include(s => s.Bus)
+            var student = await _db.Students.Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.StudentId == studentId);
+            if (student is null) return NotFound(ApiResponse<bool>.Fail("Student not found."));
+
+            _img.DeleteFile(student.User.ProfileImageUrl);
+            student.User.ProfileImageUrl = null;
+            student.User.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+
+            return Ok(ApiResponse<bool>.Ok(true, "Child photo removed."));
+        }
+
+        // ── GET api/parent/children/{studentId}/track ─────────────────
+        [HttpGet("children/{studentId}/track")]
+        public async Task<IActionResult> TrackBus(int studentId)
+        {
+            var parentDetail = await _db.Parents.FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
+            if (parentDetail is null) return Forbid();
+
+            var link = await _db.ParentStudents
+                .FirstOrDefaultAsync(ps => ps.StudentId == studentId
+                                        && ps.ParentId == parentDetail.ParentId);
+            if (link is null) return Forbid();
+
+            var student = await _db.Students.Include(s => s.Bus)
                 .FirstOrDefaultAsync(s => s.StudentId == studentId);
 
             if (student?.BusId is null)
@@ -76,9 +148,9 @@ namespace BusTracking.API.Controllers
             if (trip is null)
                 return Ok(ApiResponse<object>.Ok(new
                 {
-                    IsLive  = false,
+                    IsLive = false,
                     Message = "No active trip right now.",
-                    Bus     = new { student.Bus!.BusName, student.Bus.BusNumber }
+                    Bus = new { student.Bus!.BusName, student.Bus.BusNumber }
                 }));
 
             var loc = await _db.BusLiveLocations
@@ -92,15 +164,15 @@ namespace BusTracking.API.Controllers
 
             return Ok(ApiResponse<object>.Ok(new
             {
-                IsLive  = true,
-                Trip    = new { trip.TripId, TripType = trip.TripType.ToString(), Status = trip.Status.ToString() },
-                Bus     = new { student.Bus!.BusName, student.Bus.BusNumber },
-                Location        = loc,
-                BoardingStatus  = boarding?.BoardingStatus.ToString() ?? "Pending"
+                IsLive = true,
+                Trip = new { trip.TripId, TripType = trip.TripType.ToString(), Status = trip.Status.ToString() },
+                Bus = new { student.Bus!.BusName, student.Bus.BusNumber },
+                Location = loc,
+                BoardingStatus = boarding?.BoardingStatus.ToString() ?? "Pending"
             }));
         }
 
-        // GET api/parent/children/{studentId}/availability
+        // ── GET api/parent/children/{studentId}/availability ──────────
         [HttpGet("children/{studentId}/availability")]
         public async Task<IActionResult> Availability(int studentId)
         {
@@ -127,7 +199,7 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<object>.Ok(new { StudentId = studentId, Availability = avail }));
         }
 
-        // GET api/parent/trips/history?days=7
+        // ── GET api/parent/trips/history?days=7 ───────────────────────
         [HttpGet("trips/history")]
         public async Task<IActionResult> TripHistory([FromQuery] int days = 7)
         {
@@ -136,8 +208,7 @@ namespace BusTracking.API.Controllers
 
             var studentIds = await _db.ParentStudents
                 .Where(ps => ps.ParentId == parentDetail.ParentId)
-                .Select(ps => ps.StudentId)
-                .ToListAsync();
+                .Select(ps => ps.StudentId).ToListAsync();
 
             var since = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-days));
             var trips = await _db.StudentTripStatuses
@@ -149,9 +220,9 @@ namespace BusTracking.API.Controllers
                 {
                     s.Trip.TripId,
                     s.Trip.TripDate,
-                    TripType       = s.Trip.TripType.ToString(),
-                    BusNumber      = s.Trip.Bus.BusNumber,
-                    StudentName    = s.Student.User.FullName,
+                    TripType = s.Trip.TripType.ToString(),
+                    BusNumber = s.Trip.Bus.BusNumber,
+                    StudentName = s.Student.User.FullName,
                     BoardingStatus = s.BoardingStatus.ToString()
                 })
                 .ToListAsync();

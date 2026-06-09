@@ -1,12 +1,14 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// ── Shared services from Common library ──────────────────────────────
-builder.Services.AddCommonServices(builder.Configuration, builder.Environment);
 
-// Add services to the container.
+var apiMediaPath = Path.GetFullPath(
+    Path.Combine(builder.Environment.ContentRootPath, "..", "BusTracking.API", "media"));
+
+builder.Configuration["MediaStorage:BasePath"] = apiMediaPath;
+
+builder.Services.AddCommonServices(builder.Configuration);
 builder.Services.AddControllersWithViews();
 
-// ── Cookie auth (Web portal) ─────────────────────────────────────────
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -17,7 +19,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.SlidingExpiration = true;
         options.Cookie.Name = "BusTrack.Auth";
         options.Cookie.HttpOnly = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.None;   // works on both HTTP + HTTPS
+        options.Cookie.SecurePolicy = CookieSecurePolicy.None;
         options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Lax;
     });
 
@@ -26,7 +28,6 @@ builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
-// Never use exception handler or HTTPS redirect in development
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Auth/AccessDenied");
@@ -34,12 +35,21 @@ if (!app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
-app.UseStaticFiles();   // serves wwwroot/images/* automatically — no extra config needed
+app.UseStaticFiles(); // wwwroot (css, js, bootstrap)
+
+// ── Serve /media/* from BusTracking.API/media/ ────────────────────────
+// Same physical folder as API → image uploaded via API shows on Web page
+Directory.CreateDirectory(apiMediaPath);
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(apiMediaPath),
+    RequestPath = "/media"
+});
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Area route MUST come before default
 app.MapControllerRoute(
     name: "areas",
     pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");

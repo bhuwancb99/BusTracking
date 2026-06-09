@@ -1,12 +1,10 @@
-﻿namespace BusTracking.Common;
+namespace BusTracking.Common;
 
 public static class CommonServiceExtensions
 {
-    /// <summary>
-    /// Registers DbContext + all shared services.
-    /// Call from both BusTracking.Web and BusTracking.API Program.cs.
-    /// </summary>
-    public static IServiceCollection AddCommonServices(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment? env = null)   // ← ADD this optional param
+    public static IServiceCollection AddCommonServices(
+        this IServiceCollection services,
+        IConfiguration configuration)
     {
         // ── EF Core ────────────────────────────────────────────────────
         services.AddDbContext<AppDbContext>(options =>
@@ -14,16 +12,16 @@ public static class CommonServiceExtensions
                 configuration.GetConnectionString("DefaultConnection"),
                 sql => sql.EnableRetryOnFailure(3)));
 
-        // ── Image service (only when env is provided — Web project) ───
-        if (env is not null)
-            services.AddScoped<IImageService>(_ => new ImageService(env));  // ← NEW
+        // ── Image Service ──────────────────────────────────────────────
+        // IWebHostEnvironment is auto-injected by ASP.NET — works in both Web and API
+        services.AddScoped<IImageService, ImageService>();
 
-        // ── Infrastructure ────────────────────────────────────────────
+        // ── Infrastructure ─────────────────────────────────────────────
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IPasswordService, PasswordService>();
         services.AddScoped<IEmailService, EmailService>();
 
-        // ── Business Services ─────────────────────────────────────────
+        // ── Business Services ──────────────────────────────────────────
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IDashboardService, DashboardService>();
@@ -36,15 +34,11 @@ public static class CommonServiceExtensions
         services.AddScoped<ITripService, TripService>();
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IFeedbackService, FeedbackService>();
-
-        // Extended services
         services.AddScoped<IStudentSearchService, StudentSearchService>();
         services.AddScoped<IDriverExtService, DriverExtService>();
         services.AddScoped<IStudentExtService, StudentExtService>();
         services.AddScoped<IParentExtService, ParentExtService>();
         services.AddScoped<ISubAdminExtService, SubAdminExtService>();
-
-        // App Configuration
         services.AddScoped<IAppConfigService, AppConfigService>();
 
         return services;

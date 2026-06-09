@@ -1,4 +1,5 @@
-﻿global using BusTracking.Common;
+﻿global using BusTracking.API.Models;
+global using BusTracking.Common;
 global using BusTracking.Common.Data;
 global using BusTracking.Common.DTOs.AppConfig;
 global using BusTracking.Common.DTOs.Assign;
@@ -22,6 +23,7 @@ global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Mvc;
 global using Microsoft.EntityFrameworkCore;
+global using Microsoft.Extensions.FileProviders;
 global using Microsoft.IdentityModel.Tokens;
 global using System.Net;
 global using System.Security.Claims;

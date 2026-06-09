@@ -14,21 +14,21 @@ namespace BusTracking.API.Controllers
         private readonly IAppConfigService _appConfig;
         private readonly IFeedbackService _feedback;
         private readonly INotificationService _notif;
+        private readonly IImageService _img;        // ← NEW
 
         public CoordinatorController(AppDbContext db, IDashboardService dash, ITripService trip,
             ISubAdminService subAdmin, IAppConfigService appConfig, IFeedbackService feedback,
-            INotificationService notif)
+            INotificationService notif, IImageService img)  // ← NEW
         {
             _db = db; _dash = dash; _trip = trip;
             _subAdmin = subAdmin; _appConfig = appConfig;
-            _feedback = feedback; _notif = notif;
+            _feedback = feedback; _notif = notif; _img = img;
         }
 
-        // ══════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════
         // DASHBOARD
-        // ══════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════
 
-        // ── GET api/coordinator/dashboard ────────────────────────
         [HttpGet("dashboard")]
         public async Task<IActionResult> Dashboard()
         {
@@ -36,17 +36,63 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        // ══════════════════════════════════════════════════════════
-        // TRIPS
-        // ══════════════════════════════════════════════════════════
+        // ── POST api/coordinator/photo ────────────────────────────────
+        /// <summary>
+        /// Coordinator uploads or replaces their own profile photo.
+        /// Send as multipart/form-data, field name "file".
+        /// Returns: { success, data: "imageUrl", message }
+        /// </summary>
+        [HttpPost("photo")]
+        [RequestSizeLimit(5_242_880)]
+        public async Task<IActionResult> UploadPhoto(IFormFile file)
+        {
+            var user = await _db.Users.FindAsync(CurrentUserId);
+            if (user is null)
+                return NotFound(ApiResponse<string>.Fail("User not found."));
 
-        // ── GET api/coordinator/trips ────────────────────────────
+            try
+            {
+                var url = await _img.SaveProfileImageAsync(
+                    file, CurrentUserId, "coordinator", user.ProfileImageUrl);
+
+                user.ProfileImageUrl = url;
+                user.UpdatedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+
+                return Ok(ApiResponse<string>.Ok(url, "Profile photo updated."));
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ApiResponse<string>.Fail(ex.Message));
+            }
+        }
+
+        // ── DELETE api/coordinator/photo ──────────────────────────────
+        [HttpDelete("photo")]
+        public async Task<IActionResult> DeletePhoto()
+        {
+            var user = await _db.Users.FindAsync(CurrentUserId);
+            if (user is null)
+                return NotFound(ApiResponse<bool>.Fail("User not found."));
+
+            _img.DeleteFile(user.ProfileImageUrl);
+            user.ProfileImageUrl = null;
+            user.UpdatedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+
+            return Ok(ApiResponse<bool>.Ok(true, "Profile photo removed."));
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // TRIPS
+        // ════════════════════════════════════════════════════════════
+
         [HttpGet("trips")]
         public async Task<IActionResult> Trips([FromQuery] string? status, [FromQuery] string? date)
         {
             var q = _db.BusTrips
                 .Include(t => t.Bus)
-                .Include(t => t.Driver)   // Driver is User directly — no ThenInclude needed
+                .Include(t => t.Driver)
                 .Include(t => t.Route)
                 .AsQueryable();
 
@@ -76,7 +122,6 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<object>.Ok(trips));
         }
 
-        // ── GET api/coordinator/trips/{tripId} ───────────────────
         [HttpGet("trips/{tripId}")]
         public async Task<IActionResult> TripDetail(int tripId)
         {
@@ -84,7 +129,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : NotFound(r);
         }
 
-        // ── POST api/coordinator/trips ───────────────────────────
         [HttpPost("trips")]
         public async Task<IActionResult> CreateTrip([FromBody] CreateTripRequest req)
         {
@@ -103,7 +147,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        // ── POST api/coordinator/trips/{tripId}/start ────────────
         [HttpPost("trips/{tripId}/start")]
         public async Task<IActionResult> StartTrip(int tripId)
         {
@@ -115,7 +158,6 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<bool>.Ok(true, "Trip started."));
         }
 
-        // ── POST api/coordinator/trips/{tripId}/end ──────────────
         [HttpPost("trips/{tripId}/end")]
         public async Task<IActionResult> EndTrip(int tripId)
         {
@@ -127,7 +169,6 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<bool>.Ok(true, "Trip completed."));
         }
 
-        // ── POST api/coordinator/trips/{tripId}/cancel ───────────
         [HttpPost("trips/{tripId}/cancel")]
         public async Task<IActionResult> CancelTrip(int tripId)
         {
@@ -138,7 +179,6 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<bool>.Ok(true, "Trip cancelled."));
         }
 
-        // ── GET api/coordinator/trips/{tripId}/location ──────────
         [HttpGet("trips/{tripId}/location")]
         public async Task<IActionResult> TripLocation(int tripId)
         {
@@ -152,7 +192,6 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<object>.Ok(loc));
         }
 
-        // ── GET api/coordinator/trips/{tripId}/location/history ──
         [HttpGet("trips/{tripId}/location/history")]
         public async Task<IActionResult> LocationHistory(int tripId)
         {
@@ -165,15 +204,18 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<object>.Ok(history));
         }
 
-        // ══════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════
         // BUSES
-        // ══════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════
 
-        // ── GET api/coordinator/buses ────────────────────────────
         [HttpGet("buses")]
         public async Task<IActionResult> Buses([FromQuery] string? search)
         {
-            var q = _db.Buses.Include(b => b.Route).Include(b => b.Driver).ThenInclude(d => d!.User).AsQueryable();
+            var q = _db.Buses
+                .Include(b => b.Route)
+                .Include(b => b.Driver).ThenInclude(d => d!.User)
+                .AsQueryable();
+
             if (!string.IsNullOrWhiteSpace(search))
                 q = q.Where(b => b.BusName.Contains(search) || b.BusNumber.Contains(search));
 
@@ -192,7 +234,6 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<object>.Ok(buses));
         }
 
-        // ── GET api/coordinator/buses/{busId} ────────────────────
         [HttpGet("buses/{busId}")]
         public async Task<IActionResult> BusDetail(int busId)
         {
@@ -217,11 +258,10 @@ namespace BusTracking.API.Controllers
             }));
         }
 
-        // ══════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════
         // ROUTES
-        // ══════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════
 
-        // ── GET api/coordinator/routes ───────────────────────────
         [HttpGet("routes")]
         public async Task<IActionResult> Routes()
         {
@@ -243,7 +283,6 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<object>.Ok(routes));
         }
 
-        // ── GET api/coordinator/routes/{routeId}/stops ───────────
         [HttpGet("routes/{routeId}/stops")]
         public async Task<IActionResult> RouteStops(int routeId)
         {
@@ -256,11 +295,10 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<object>.Ok(stops));
         }
 
-        // ══════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════
         // DRIVERS
-        // ══════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════
 
-        // ── GET api/coordinator/drivers ──────────────────────────
         [HttpGet("drivers")]
         public async Task<IActionResult> Drivers([FromQuery] string? search)
         {
@@ -278,6 +316,7 @@ namespace BusTracking.API.Controllers
                 u.FullName,
                 u.Email,
                 u.PhoneNumber,
+                u.ProfileImageUrl,                             // ← includes photo
                 BusNumber = u.DriverDetail != null && u.DriverDetail.Bus != null ? u.DriverDetail.Bus.BusNumber : null,
                 BusName = u.DriverDetail != null && u.DriverDetail.Bus != null ? u.DriverDetail.Bus.BusName : null,
                 LicenseNumber = u.DriverDetail != null ? u.DriverDetail.LicenseNumber : null,
@@ -287,16 +326,16 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<object>.Ok(drivers));
         }
 
-        // ══════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════
         // PARENTS
-        // ══════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════
 
-        // ── GET api/coordinator/parents ──────────────────────────
         [HttpGet("parents")]
         public async Task<IActionResult> Parents([FromQuery] string? search, [FromQuery] int page = 1)
         {
             var roleId = await _db.Roles.Where(r => r.RoleName == "Parent").Select(r => r.RoleId).FirstAsync();
-            var q = _db.Users.Include(u => u.ParentDetail)
+            var q = _db.Users
+                .Include(u => u.ParentDetail)
                     .ThenInclude(p => p!.ParentStudents).ThenInclude(ps => ps.Student)
                 .Where(u => u.RoleId == roleId);
 
@@ -311,17 +350,17 @@ namespace BusTracking.API.Controllers
                     u.Email,
                     u.PhoneNumber,
                     u.IsActive,
+                    u.ProfileImageUrl,                         // ← includes photo
                     ChildrenCount = u.ParentDetail != null ? u.ParentDetail.ParentStudents.Count : 0
                 }).ToListAsync();
 
             return Ok(ApiResponse<object>.Ok(parents));
         }
 
-        // ══════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════
         // STUDENTS
-        // ══════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════
 
-        // ── GET api/coordinator/students ─────────────────────────
         [HttpGet("students")]
         public async Task<IActionResult> Students([FromQuery] string? search, [FromQuery] int page = 1)
         {
@@ -340,6 +379,7 @@ namespace BusTracking.API.Controllers
                     s.StudentId,
                     s.StudentCode,
                     FullName = s.User.FullName,
+                    ProfileImageUrl = s.User.ProfileImageUrl,  // ← NEW
                     s.Standard,
                     BusNumber = s.Bus != null ? s.Bus.BusNumber : null,
                     BusName = s.Bus != null ? s.Bus.BusName : null,
@@ -349,7 +389,6 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<object>.Ok(students));
         }
 
-        // ── GET api/coordinator/students/{id} ─────────────────────
         [HttpGet("students/{id:int}")]
         public async Task<IActionResult> StudentById(int id)
         {
@@ -368,6 +407,7 @@ namespace BusTracking.API.Controllers
                 FullName = s.User.FullName,
                 s.User.Email,
                 s.User.PhoneNumber,
+                ProfileImageUrl = s.User.ProfileImageUrl,      // ← NEW
                 s.Standard,
                 s.User.IsActive,
                 Bus = s.Bus is null ? null : new { s.Bus.BusId, s.Bus.BusName, s.Bus.BusNumber },
@@ -376,24 +416,15 @@ namespace BusTracking.API.Controllers
                 {
                     ps.Parent.UserId,
                     FullName = ps.Parent.User.FullName,
-                    ps.Parent.User.PhoneNumber
+                    PhoneNumber = ps.Parent.User.PhoneNumber
                 })
             }));
         }
 
-        public class CreateTripRequest
-        {
-            public int BusId { get; set; }
-            public int RouteId { get; set; }
-            public string TripType { get; set; } = "Morning";
-            public DateTime? TripDate { get; set; }
-        }
+        // ════════════════════════════════════════════════════════════
+        // SUB-ADMINS
+        // ════════════════════════════════════════════════════════════
 
-        // ══════════════════════════════════════════════════════════
-        // SUB-ADMINS  (requires subadmin.* permissions)
-        // ══════════════════════════════════════════════════════════
-
-        // ── GET api/coordinator/subadmins ────────────────────────
         [HttpGet("subadmins")]
         public async Task<IActionResult> SubAdmins([FromQuery] string? search, [FromQuery] string? status, [FromQuery] int page = 1)
         {
@@ -409,9 +440,8 @@ namespace BusTracking.API.Controllers
             if (status == "Inactive") q = q.Where(u => !u.IsActive);
 
             var total = await q.CountAsync();
-            const int pageSize = 20;
-            var items = await q.OrderBy(u => u.FullName)
-                .Skip((page - 1) * pageSize).Take(pageSize)
+            const int ps = 20;
+            var items = await q.OrderBy(u => u.FullName).Skip((page - 1) * ps).Take(ps)
                 .Select(u => new
                 {
                     u.UserId,
@@ -420,13 +450,13 @@ namespace BusTracking.API.Controllers
                     u.PhoneNumber,
                     u.IsActive,
                     u.CreatedAt,
+                    u.ProfileImageUrl,                         // ← NEW
                     Permissions = u.SubAdminPermissions.Select(p => p.Permission.PermissionKey).ToList()
                 }).ToListAsync();
 
-            return Ok(ApiResponse<object>.Ok(new { items, total, page, pageSize }));
+            return Ok(ApiResponse<object>.Ok(new { items, total, page, pageSize = ps }));
         }
 
-        // ── GET api/coordinator/subadmins/{id} ───────────────────
         [HttpGet("subadmins/{id:int}")]
         public async Task<IActionResult> SubAdminById(int id)
         {
@@ -443,12 +473,12 @@ namespace BusTracking.API.Controllers
                 u.PhoneNumber,
                 u.IsActive,
                 u.CreatedAt,
+                u.ProfileImageUrl,                             // ← NEW
                 Permissions = u.SubAdminPermissions.Select(p => p.Permission.PermissionKey).ToList(),
                 PermissionIds = u.SubAdminPermissions.Select(p => p.PermissionId).ToList()
             }));
         }
 
-        // ── GET api/coordinator/subadmins/{id}/permissions ───────
         [HttpGet("subadmins/{id:int}/permissions")]
         public async Task<IActionResult> SubAdminPermissions(int id)
         {
@@ -462,7 +492,6 @@ namespace BusTracking.API.Controllers
             }));
         }
 
-        // ── GET api/coordinator/permissions ─────────────────────
         [HttpGet("permissions")]
         public async Task<IActionResult> AllPermissions()
         {
@@ -473,7 +502,6 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<object>.Ok(perms));
         }
 
-        // ── POST api/coordinator/subadmins ───────────────────────
         [HttpPost("subadmins")]
         public async Task<IActionResult> CreateSubAdmin([FromBody] CreateSubAdminDto dto)
         {
@@ -482,7 +510,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        // ── PUT api/coordinator/subadmins/{id} ───────────────────
         [HttpPut("subadmins/{id:int}")]
         public async Task<IActionResult> UpdateSubAdmin(int id, [FromBody] UpdateSubAdminDto dto)
         {
@@ -492,7 +519,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        // ── DELETE api/coordinator/subadmins/{id} ────────────────
         [HttpDelete("subadmins/{id:int}")]
         public async Task<IActionResult> DeleteSubAdmin(int id)
         {
@@ -502,7 +528,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        // ── POST api/coordinator/subadmins/{id}/toggle ───────────
         [HttpPost("subadmins/{id:int}/toggle")]
         public async Task<IActionResult> ToggleSubAdmin(int id)
         {
@@ -512,7 +537,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        // ── POST api/coordinator/subadmins/{id}/reset-password ───
         [HttpPost("subadmins/{id:int}/reset-password")]
         public async Task<IActionResult> ResetSubAdminPassword(int id)
         {
@@ -522,11 +546,10 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        // ══════════════════════════════════════════════════════════
-        // APP CONFIG  (requires appconfig.* permissions)
-        // ══════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════
+        // APP CONFIG
+        // ════════════════════════════════════════════════════════════
 
-        // ── GET api/coordinator/config ───────────────────────────
         [HttpGet("config")]
         public async Task<IActionResult> GetConfigs([FromQuery] string? platform, [FromQuery] string? search, [FromQuery] bool? isActive)
         {
@@ -535,7 +558,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        // ── GET api/coordinator/config/{id} ──────────────────────
         [HttpGet("config/{id:int}")]
         public async Task<IActionResult> GetConfigById(int id)
         {
@@ -544,7 +566,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : NotFound(r);
         }
 
-        // ── POST api/coordinator/config ──────────────────────────
         [HttpPost("config")]
         public async Task<IActionResult> CreateConfig([FromBody] CreateAppConfigDto dto)
         {
@@ -553,7 +574,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        // ── PUT api/coordinator/config/{id} ──────────────────────
         [HttpPut("config/{id:int}")]
         public async Task<IActionResult> UpdateConfig(int id, [FromBody] UpdateAppConfigDto dto)
         {
@@ -562,7 +582,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        // ── DELETE api/coordinator/config/{id} ───────────────────
         [HttpDelete("config/{id:int}")]
         public async Task<IActionResult> DeleteConfig(int id)
         {
@@ -571,7 +590,6 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        // ── POST api/coordinator/config/{id}/toggle ───────────────
         [HttpPost("config/{id:int}/toggle")]
         public async Task<IActionResult> ToggleConfig(int id)
         {
@@ -580,11 +598,10 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
-        // ══════════════════════════════════════════════════════════
-        // HELP & SUPPORT  (requires helpsupport.* permissions)
-        // ══════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════
+        // FEEDBACK
+        // ════════════════════════════════════════════════════════════
 
-        // ── GET api/coordinator/feedback ─────────────────────────
         [HttpGet("feedback")]
         public async Task<IActionResult> GetFeedback([FromQuery] int page = 1, [FromQuery] string? status = null)
         {
@@ -593,12 +610,10 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        // ── GET api/coordinator/feedback/{id} ────────────────────
         [HttpGet("feedback/{id:int}")]
         public async Task<IActionResult> GetFeedbackById(int id)
         {
             RequirePermission("helpsupport.view");
-            // IFeedbackService has no GetByIdAsync — fetch page 1 with large size and find by id
             var all = await _feedback.GetAllAsync(1, 1000, null);
             var item = all.Data?.Items?.FirstOrDefault(f => f.FeedbackId == id);
             return item is not null
@@ -606,7 +621,6 @@ namespace BusTracking.API.Controllers
                 : NotFound(ApiResponse<FeedbackListDto>.Fail("Feedback not found."));
         }
 
-        // ── PUT api/coordinator/feedback/{id}/status ─────────────
         [HttpPut("feedback/{id:int}/status")]
         public async Task<IActionResult> UpdateFeedbackStatus(int id, [FromBody] UpdateFeedbackStatusRequest req)
         {
@@ -617,11 +631,10 @@ namespace BusTracking.API.Controllers
 
         public class UpdateFeedbackStatusRequest { public string Status { get; set; } = ""; }
 
-        // ══════════════════════════════════════════════════════════
-        // NOTIFICATIONS  (requires notification.manage permission)
-        // ══════════════════════════════════════════════════════════
+        // ════════════════════════════════════════════════════════════
+        // NOTIFICATIONS
+        // ════════════════════════════════════════════════════════════
 
-        // ── GET api/coordinator/notifications ────────────────────
         [HttpGet("notifications")]
         public async Task<IActionResult> GetNotifications()
         {
@@ -630,7 +643,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        // ── POST api/coordinator/notifications/{id}/read ─────────
         [HttpPost("notifications/{id:int}/read")]
         public async Task<IActionResult> MarkRead(int id)
         {
@@ -639,7 +651,6 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        // ── POST api/coordinator/notifications/read-all ──────────
         [HttpPost("notifications/read-all")]
         public async Task<IActionResult> MarkAllRead()
         {
@@ -648,7 +659,7 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        // ── Helper: check permission claim, throw 403 if missing ─
+
         private void RequirePermission(string key)
         {
             if (!User.HasClaim("permission", key))
