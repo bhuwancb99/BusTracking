@@ -1,4 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!--
+    AVATAR VISIBILITY
+    ─────────────────────────────────────────────────────────────────────────
+    ProfileImageUrl = null/empty  →  Initials circle visible   |  Photo circle hidden
+    ProfileImageUrl = "https://…"  →  Initials circle hidden  |  Photo circle visible
+    
+    CAMERA BADGE  (bottom-right of avatar)
+    ─────────────────────────────────────────────────────────────────────────
+    IsVisible = CanUpdateImage  (IsMobileUpdateImage = 1 only)
+    Tap → CaptureOrPickPhotoCommand → ActionSheet:
+    "Take Photo"          → MediaPicker.CapturePhotoAsync
+    "Choose from Gallery" → MediaPicker.PickPhotosAsync
+-->
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Common.ProfilePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -15,7 +28,11 @@
     <ScrollView>
         <VerticalStackLayout Padding="24,32,24,40" Spacing="0">
 
-            <!--  ══ AVATAR CARD ══════════════════════════════════════════════  -->
+            <!--
+                ══════════════════════════════════════════════════════════════
+                AVATAR CARD
+                ══════════════════════════════════════════════════════════════════
+            -->
             <Border
                 Padding="28,32"
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
@@ -24,24 +41,36 @@
                 StrokeShape="RoundRectangle 20"
                 StrokeThickness="0">
 
-                <VerticalStackLayout HorizontalOptions="Center" Spacing="18">
+                <VerticalStackLayout HorizontalOptions="Center" Spacing="20">
 
-                    <!--  ── Avatar stack ────────────────────────────────────  -->
+                    <!--
+                        ══ AVATAR + CAMERA BADGE ════════════════════════════
+                        Grid 110×110 — extra 10 px so the 34×34 badge
+                        doesn't get clipped at the edge of the 100×100 photo.
+                        
+                        All three children share cell [0,0].
+                        Z-order (bottom → top): Initials | Photo | Camera badge
+                        ═════════════════════════════════════════════════════════
+                    -->
                     <Grid
-                        HeightRequest="100"
+                        HeightRequest="110"
                         HorizontalOptions="Center"
-                        WidthRequest="100">
+                        WidthRequest="110">
 
                         <!--
-                            Initials circle — visible when ProfileImageUrl is null/empty
-                            Uses InvertBool( StringToBool(ProfileImageUrl) )
+                            ── INITIALS CIRCLE ──────────────────────────────
+                            Primary-colour background + Initials text.
+                            Visible when ProfileImageUrl is null / empty.
+                            ───────────────────────────────────────────────────
                         -->
                         <Border
                             BackgroundColor="{StaticResource Primary}"
                             HeightRequest="100"
-                            IsVisible="{Binding ProfileImageUrl, Converter={StaticResource StringToBool}, ConverterParameter=invert}"
+                            HorizontalOptions="Center"
+                            IsVisible="{Binding ProfileImageUrl, Converter={StaticResource StringToInvertBool}}"
                             StrokeShape="RoundRectangle 50"
                             StrokeThickness="0"
+                            VerticalOptions="Center"
                             WidthRequest="100">
                             <Label
                                 FontAttributes="Bold"
@@ -53,24 +82,26 @@
                         </Border>
 
                         <!--
-                            Photo border — visible when ProfileImageUrl has a value
-                            Uses StringToBool(ProfileImageUrl)
+                            ── PHOTO CIRCLE ─────────────────────────────────
+                            Circular crop via RoundRectangle 50.
+                            Visible when ProfileImageUrl is non-empty.
+                            UriImageSource caches 1 h; server returns a new
+                            path/timestamp after upload so cache auto-busts.
+                            ───────────────────────────────────────────────────
                         -->
                         <Border
                             HeightRequest="100"
+                            HorizontalOptions="Center"
                             IsVisible="{Binding ProfileImageUrl, Converter={StaticResource StringToBool}}"
                             StrokeShape="RoundRectangle 50"
                             StrokeThickness="0"
+                            VerticalOptions="Center"
                             WidthRequest="100">
                             <Image
                                 Aspect="AspectFill"
                                 HeightRequest="100"
                                 WidthRequest="100">
                                 <Image.Source>
-                                    <!--
-                                        UriImageSource: caches for 1 h, refreshes on each upload.
-                                        Binding to ProfileImageUrl (resolved URL set by ViewModel).
-                                    -->
                                     <UriImageSource
                                         CacheValidity="0:01:00:00"
                                         CachingEnabled="True"
@@ -78,7 +109,48 @@
                                 </Image.Source>
                             </Image>
                         </Border>
+
+                        <!--
+                            ── CAMERA BADGE ─────────────────────────────────
+                            Blue circle, white camera icon, bottom-right corner.
+                            White stroke ring separates it from the photo/initials.
+                            
+                            IsVisible = CanUpdateImage
+                            true  → IsMobileUpdateImage = 1 (upload allowed)
+                            false → IsMobileUpdateImage = 0 (hidden, read-only)
+                            
+                            Tap → CaptureOrPickPhotoCommand
+                            ActionSheet: "Take Photo" | "Choose from Gallery"
+                            ───────────────────────────────────────────────────
+                        -->
+                        <Border
+                            Padding="0"
+                            BackgroundColor="{StaticResource Primary}"
+                            HeightRequest="34"
+                            HorizontalOptions="End"
+                            IsVisible="{Binding CanUpdateImage}"
+                            Stroke="White"
+                            StrokeShape="RoundRectangle 17"
+                            StrokeThickness="2"
+                            VerticalOptions="End"
+                            WidthRequest="34">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding CaptureOrPickPhotoCommand}" />
+                            </Border.GestureRecognizers>
+                            <Image
+                                HeightRequest="18"
+                                HorizontalOptions="Center"
+                                Source="camera.png"
+                                VerticalOptions="Center"
+                                WidthRequest="18">
+                                <Image.Behaviors>
+                                    <mct:IconTintColorBehavior TintColor="White" />
+                                </Image.Behaviors>
+                            </Image>
+                        </Border>
+
                     </Grid>
+                    <!--  ══ End AVATAR + CAMERA BADGE ════════════════════════  -->
 
                     <!--  Full name  -->
                     <Label
@@ -89,7 +161,7 @@
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
 
-                    <!--  Role badge  -->
+                    <!--  Role badge pill  -->
                     <Border
                         Padding="14,5"
                         BackgroundColor="{StaticResource Accent}"
@@ -103,7 +175,7 @@
                             TextColor="White" />
                     </Border>
 
-                    <!--  Email  -->
+                    <!--  Email (under role badge)  -->
                     <Label
                         FontSize="13"
                         HorizontalOptions="Center"
@@ -111,89 +183,58 @@
                         TextColor="{AppThemeBinding Light={StaticResource TextMuted},
                                                     Dark={StaticResource TextMutedDark}}" />
 
-                    <!--  ── Photo action buttons ────────────────────────────  -->
-                    <VerticalStackLayout HorizontalOptions="Fill" Spacing="10">
+                    <!--
+                        ══ REMOVE PHOTO BUTTON ═══════════════════════════════
+                        Visible ONLY when:
+                        CanUpdateImage = true   (IsMobileUpdateImage = 1)
+                        AND
+                        HasPhoto = true          (a photo is currently set)
+                        
+                        Hidden when:
+                        IsMobileUpdateImage = 0  → CanUpdateImage = false
+                        No photo exists          → HasPhoto = false
+                        ═════════════════════════════════════════════════════════
+                    -->
+                    <Border
+                        BackgroundColor="{AppThemeBinding Light={StaticResource DangerLight},
+                                                          Dark={StaticResource CardBgDark}}"
+                        HorizontalOptions="Fill"
+                        Stroke="{StaticResource Danger}"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="1">
+                        <Border.IsVisible>
+                            <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                <Binding Path="CanUpdateImage" />
+                                <Binding Path="HasPhoto" />
+                            </MultiBinding>
+                        </Border.IsVisible>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding RemovePhotoCommand}" />
+                        </Border.GestureRecognizers>
+                        <HorizontalStackLayout
+                            Padding="20,14"
+                            HorizontalOptions="Center"
+                            Spacing="10">
+                            <Image
+                                HeightRequest="18"
+                                Source="delete.png"
+                                VerticalOptions="Center"
+                                WidthRequest="18">
+                                <Image.Behaviors>
+                                    <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                </Image.Behaviors>
+                            </Image>
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="14"
+                                Text="Remove Photo"
+                                TextColor="{StaticResource Danger}"
+                                VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                    </Border>
+                    <!--  ══ End REMOVE PHOTO BUTTON ═══════════════════════════  -->
 
-                        <!--
-                            Upload / Change Photo
-                            Visible: CanUpdateImage = true
-                            Text:    UploadButtonText ("Upload Photo" or "Change Photo")
-                            Command: UploadPhotoCommand
-                        -->
-                        <Border
-                            BackgroundColor="{StaticResource Primary}"
-                            IsVisible="{Binding CanUpdateImage}"
-                            StrokeShape="RoundRectangle 14"
-                            StrokeThickness="0">
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding UploadPhotoCommand}" />
-                            </Border.GestureRecognizers>
-                            <HorizontalStackLayout
-                                Padding="20,14"
-                                HorizontalOptions="Center"
-                                Spacing="10">
-                                <Image
-                                    HeightRequest="18"
-                                    Source="upload.png"
-                                    VerticalOptions="Center"
-                                    WidthRequest="18">
-                                    <Image.Behaviors>
-                                        <mct:IconTintColorBehavior TintColor="White" />
-                                    </Image.Behaviors>
-                                </Image>
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontSize="14"
-                                    Text="{Binding UploadButtonText}"
-                                    TextColor="White"
-                                    VerticalOptions="Center" />
-                            </HorizontalStackLayout>
-                        </Border>
-
-                        <!--
-                            Remove Photo
-                            Visible: CanUpdateImage = true AND HasPhoto = true
-                            Command: RemovePhotoCommand
-                        -->
-                        <Border
-                            BackgroundColor="{AppThemeBinding Light={StaticResource DangerLight},
-                                                              Dark={StaticResource CardBgDark}}"
-                            Stroke="{StaticResource Danger}"
-                            StrokeShape="RoundRectangle 14"
-                            StrokeThickness="1">
-                            <Border.IsVisible>
-                                <MultiBinding Converter="{StaticResource AllTrueConverter}">
-                                    <Binding Path="CanUpdateImage" />
-                                    <Binding Path="HasPhoto" />
-                                </MultiBinding>
-                            </Border.IsVisible>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding RemovePhotoCommand}" />
-                            </Border.GestureRecognizers>
-                            <HorizontalStackLayout
-                                Padding="20,14"
-                                HorizontalOptions="Center"
-                                Spacing="10">
-                                <Image
-                                    HeightRequest="18"
-                                    Source="delete.png"
-                                    VerticalOptions="Center"
-                                    WidthRequest="18">
-                                    <Image.Behaviors>
-                                        <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
-                                    </Image.Behaviors>
-                                </Image>
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontSize="14"
-                                    Text="Remove Photo"
-                                    TextColor="{StaticResource Danger}"
-                                    VerticalOptions="Center" />
-                            </HorizontalStackLayout>
-                        </Border>
-                    </VerticalStackLayout>
-
-                    <!--  Activity indicator (IsBusy from BaseViewModel)  -->
+                    <!--  Loading spinner (IsBusy from BaseViewModel)  -->
                     <ActivityIndicator
                         HorizontalOptions="Center"
                         IsRunning="{Binding IsBusy}"
@@ -202,8 +243,13 @@
 
                 </VerticalStackLayout>
             </Border>
+            <!--  ══ End AVATAR CARD ══════════════════════════════════════════  -->
 
-            <!--  ══ ACCOUNT DETAILS CARD ════════════════════════════════════  -->
+            <!--
+                ══════════════════════════════════════════════════════════════
+                ACCOUNT DETAILS CARD
+                ══════════════════════════════════════════════════════════════════
+            -->
             <Border
                 Margin="0,20,0,0"
                 Padding="24,20"
@@ -299,6 +345,7 @@
 
                 </VerticalStackLayout>
             </Border>
+            <!--  ══ End ACCOUNT DETAILS CARD ═════════════════════════════════  -->
 
         </VerticalStackLayout>
     </ScrollView>

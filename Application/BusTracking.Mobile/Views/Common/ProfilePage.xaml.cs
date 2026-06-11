@@ -1,9 +1,9 @@
 namespace BusTracking.Mobile.Views.Common;
 
 /// <summary>
-/// Code-behind for ProfilePage.
-/// Follows the same thin pattern used across this project (ViewBase&lt;TViewModel&gt;).
-/// All business logic, API calls, and state live in ProfileViewModel.
+/// Code-behind for ProfilePage — intentionally thin.
+/// All logic lives in ProfileViewModel (CommunityToolkit MVVM).
+/// ViewBase sets BindingContext = vm and calls InitializeAsync / RefreshOnReturnAsync.
 /// </summary>
 public partial class ProfilePage : ViewBase<ProfileViewModel>
 {

@@ -165,6 +165,7 @@ public partial class AppShell : Shell
     private static List<FlyoutMenuItem> SuperAdminMenu() =>
     [
         new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "Dashboard",        Route = "AdminDashboard"       },
+        new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",       Route = "Profile"              },
         new() { IconSvg = "config.png",       IconColor = _svgImageColor, Title = "App Config",       Route = "AdminConfigList"      },
         new() { IconSvg = "coordinator.png",  IconColor = _svgImageColor, Title = "Bus Coordinators", Route = "AdminCoordinatorList" },
         new() { IconSvg = "route.png",        IconColor = _svgImageColor, Title = "Routes",           Route = "AdminRouteList"       },
@@ -175,7 +176,7 @@ public partial class AppShell : Shell
         new() { IconSvg = "trip.png",         IconColor = _svgImageColor, Title = "Trips",            Route = "AdminTripList"        },
         new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications",    Route = ""                     },
         new() { IconSvg = "help.png",         IconColor = _svgImageColor, Title = "Help & Support",   Route = ""                     },
-        new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",       Route = "Profile"              },
+
     ];
 
     private static List<FlyoutMenuItem> CoordinatorMenu(string permissionsJson)
@@ -196,6 +197,7 @@ public partial class AppShell : Shell
         {
             new() { IconSvg = "dashboard.png", IconColor = _svgImageColor, Title = "Dashboard", Route = "CoordinatorDashboard" }
         };
+        menu.Add(new() { IconSvg = "profile.png", IconColor = _svgImageColor, Title = "My Profile", Route = "Profile" });
 
         if (Has("appconfig.view"))
             menu.Add(new() { IconSvg = "config.png", IconColor = _svgImageColor, Title = "App Config", Route = "CoordConfigList" });
@@ -218,32 +220,31 @@ public partial class AppShell : Shell
         if (Has("helpsupport.view") || Has("helpsupport.manage"))
             menu.Add(new() { IconSvg = "feedback.png", IconColor = _svgImageColor, Title = "Help & Support", Route = "CoordFeedbackList" });
 
-        menu.Add(new() { IconSvg = "profile.png", IconColor = _svgImageColor, Title = "My Profile", Route = "Profile" });
         return menu;
     }
 
     private static List<FlyoutMenuItem> ParentMenu() =>
     [
+        new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",     Route = "Profile"            },
         new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "My Dashboard",   Route = "ParentDashboard"    },
         new() { IconSvg = "tracking.png",     IconColor = _svgImageColor, Title = "Track Bus",      Route = "ParentTracking"     },
         new() { IconSvg = "availability.png", IconColor = _svgImageColor, Title = "Availability",   Route = "ParentAvailability" },
         new() { IconSvg = "feedback.png",     IconColor = _svgImageColor, Title = "Help & Support", Route = "ParentFeedback"     },
-        new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",     Route = "Profile"            },
     ];
 
     private static List<FlyoutMenuItem> StudentMenu() =>
     [
+        new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",      Route = "Profile"             },
         new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "My Dashboard",    Route = "StudentDashboard"    },
         new() { IconSvg = "tracking.png",     IconColor = _svgImageColor, Title = "Track My Bus",    Route = "StudentTracking"     },
         new() { IconSvg = "availability.png", IconColor = _svgImageColor, Title = "My Availability", Route = "StudentAvailability" },
-        new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",      Route = "Profile"             },
     ];
 
     private static List<FlyoutMenuItem> DriverMenu() =>
     [
+        new() { IconSvg = "profile.png",   IconColor = _svgImageColor, Title = "My Profile", Route = "Profile"         },
         new() { IconSvg = "dashboard.png", IconColor = _svgImageColor, Title = "Dashboard",  Route = "DriverDashboard" },
         new() { IconSvg = "trip.png",      IconColor = _svgImageColor, Title = "My Trips",   Route = "DriverTripList"  },
-        new() { IconSvg = "profile.png",   IconColor = _svgImageColor, Title = "My Profile", Route = "Profile"         },
     ];
 
     // ── Logout ────────────────────────────────────────────────────────────

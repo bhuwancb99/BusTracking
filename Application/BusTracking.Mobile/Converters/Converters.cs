@@ -245,13 +245,18 @@ public class DrawerIconTintConverter : IValueConverter
 
 /// <summary>
 /// MultiBinding converter: returns true only when ALL bound bool values are true.
-/// Usage in XAML:
-///   <Border.IsVisible>
-///     <MultiBinding Converter="{StaticResource AllTrueConverter}">
-///       <Binding Path="CanUpdateImage" />
-///       <Binding Path="HasPhoto" />
-///     </MultiBinding>
-///   </Border.IsVisible>
+///
+/// Used in ProfilePage to show the Remove Photo button only when BOTH
+/// CanUpdateImage=true AND HasPhoto=true:
+///   &lt;Border.IsVisible&gt;
+///     &lt;MultiBinding Converter="{StaticResource AllTrueConverter}"&gt;
+///       &lt;Binding Path="CanUpdateImage" /&gt;
+///       &lt;Binding Path="HasPhoto" /&gt;
+///     &lt;/MultiBinding&gt;
+///   &lt;/Border.IsVisible&gt;
+///
+/// Register in App.xaml:
+///   &lt;converters:AllTrueMultiConverter x:Key="AllTrueConverter" /&gt;
 /// </summary>
 public class AllTrueMultiConverter : IMultiValueConverter
 {
@@ -261,4 +266,24 @@ public class AllTrueMultiConverter : IMultiValueConverter
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         => throw new NotImplementedException();
 }
+
+
+/// <summary>
+/// True when the string is null or empty — inverse of StringToBoolConverter.
+///
+/// Used in ProfilePage to show the initials circle when no photo URL exists:
+///   IsVisible="{Binding ProfileImageUrl, Converter={StaticResource StringToInvertBool}}"
+///
+/// Register in App.xaml:
+///   &lt;converters:StringToInvertBoolConverter x:Key="StringToInvertBool" /&gt;
+/// </summary>
+public class StringToInvertBoolConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => string.IsNullOrEmpty(value?.ToString());
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
 
