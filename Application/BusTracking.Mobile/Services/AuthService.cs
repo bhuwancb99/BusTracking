@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Services
+namespace BusTracking.Mobile.Services
 {
     public class AuthService : IAuthService
     {
@@ -34,13 +34,17 @@
             // Clear any old/corrupt session before saving new one
             await _db.ClearSessionAsync();
 
-            // Save encrypted to local DB
-            await _db.SaveSessionAsync(user);
-
-            // Set token on HttpClient
+            // Fetch profile image URL right after login
             _api.SetToken(user.Token);
+            try
+            {
+                var profileResp = await _api.GetAsync<UserProfileDto>(Constants.Common.Profile);
+                if (profileResp.Success && profileResp.Data is not null)
+                    user.ProfileImageUrl = profileResp.Data.ProfileImageUrl;
+            }
+            catch { /* non-fatal — proceed without image */ }
 
-            // Cache in memory
+            await _db.SaveSessionAsync(user);
             _currentUser = user;
 
             return new ApiResponse<SessionUser>
@@ -93,18 +97,18 @@
                         // { assignedPermissionIds: [1,3], allPermissions: [{id,key,...}] }
                         // Cross-reference to get the permission key strings.
                         var url = string.Format(Constants.Admin.CoordinatorPerms, session.UserId);
-                        var r = await _api.GetAsync<PermissionsResponse>(url);
-                        if (r.Success && r.Data is not null)
+                        var permR = await _api.GetAsync<PermissionsResponse>(url);
+                        if (permR.Success && permR.Data is not null)
                         {
-                            var assignedKeys = r.Data.AllPermissions
-                                .Where(p => r.Data.AssignedPermissionIds.Contains(p.Id))
+                            var assignedKeys = permR.Data.AllPermissions
+                                .Where(p => permR.Data.AssignedPermissionIds.Contains(p.Id))
                                 .Select(p => p.Key)
                                 .ToList();
                             session.Permissions = JsonSerializer.Serialize(assignedKeys);
                             await _db.SaveSessionAsync(session);
                         }
                     }
-                    catch { /* non-fatal — carry on with empty permissions */ }
+                    catch { }
                 }
 
                 _currentUser = session;
@@ -112,9 +116,22 @@
             }
             catch
             {
-                // Corrupt DB session — wipe it so user gets a clean login
                 await _db.ClearSessionAsync();
                 return null;
+            }
+        }
+
+        // ── Update profile image URL in cached session ────────────────────────
+        /// <summary>
+        /// Called by ProfilePage after a successful photo upload or removal
+        /// so the flyout avatar stays in sync without requiring a re-login.
+        /// </summary>
+        public async Task RefreshProfileImageAsync(string? newUrl)
+        {
+            if (_currentUser is not null)
+            {
+                _currentUser.ProfileImageUrl = newUrl;
+                await _db.SaveSessionAsync(_currentUser);
             }
         }
 

@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.Common.ProfilePage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Common"
+    Title="{Binding Title}"
+    x:DataType="vm:ProfileViewModel"
+    x:TypeArguments="vm:ProfileViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24,32,24,40" Spacing="0">
+
+            <!--  ══ AVATAR CARD ══════════════════════════════════════════════  -->
+            <Border
+                Padding="28,32"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                HorizontalOptions="Fill"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0">
+
+                <VerticalStackLayout HorizontalOptions="Center" Spacing="18">
+
+                    <!--  ── Avatar stack ────────────────────────────────────  -->
+                    <Grid
+                        HeightRequest="100"
+                        HorizontalOptions="Center"
+                        WidthRequest="100">
+
+                        <!--
+                            Initials circle — visible when ProfileImageUrl is null/empty
+                            Uses InvertBool( StringToBool(ProfileImageUrl) )
+                        -->
+                        <Border
+                            BackgroundColor="{StaticResource Primary}"
+                            HeightRequest="100"
+                            IsVisible="{Binding ProfileImageUrl, Converter={StaticResource StringToBool}, ConverterParameter=invert}"
+                            StrokeShape="RoundRectangle 50"
+                            StrokeThickness="0"
+                            WidthRequest="100">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="36"
+                                HorizontalOptions="Center"
+                                Text="{Binding Initials}"
+                                TextColor="White"
+                                VerticalOptions="Center" />
+                        </Border>
+
+                        <!--
+                            Photo border — visible when ProfileImageUrl has a value
+                            Uses StringToBool(ProfileImageUrl)
+                        -->
+                        <Border
+                            HeightRequest="100"
+                            IsVisible="{Binding ProfileImageUrl, Converter={StaticResource StringToBool}}"
+                            StrokeShape="RoundRectangle 50"
+                            StrokeThickness="0"
+                            WidthRequest="100">
+                            <Image
+                                Aspect="AspectFill"
+                                HeightRequest="100"
+                                WidthRequest="100">
+                                <Image.Source>
+                                    <!--
+                                        UriImageSource: caches for 1 h, refreshes on each upload.
+                                        Binding to ProfileImageUrl (resolved URL set by ViewModel).
+                                    -->
+                                    <UriImageSource
+                                        CacheValidity="0:01:00:00"
+                                        CachingEnabled="True"
+                                        Uri="{Binding ProfileImageUrl}" />
+                                </Image.Source>
+                            </Image>
+                        </Border>
+                    </Grid>
+
+                    <!--  Full name  -->
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="20"
+                        HorizontalOptions="Center"
+                        Text="{Binding FullName}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
+
+                    <!--  Role badge  -->
+                    <Border
+                        Padding="14,5"
+                        BackgroundColor="{StaticResource Accent}"
+                        HorizontalOptions="Center"
+                        StrokeShape="RoundRectangle 20"
+                        StrokeThickness="0">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            Text="{Binding RoleDisplay}"
+                            TextColor="White" />
+                    </Border>
+
+                    <!--  Email  -->
+                    <Label
+                        FontSize="13"
+                        HorizontalOptions="Center"
+                        Text="{Binding Email}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                    Dark={StaticResource TextMutedDark}}" />
+
+                    <!--  ── Photo action buttons ────────────────────────────  -->
+                    <VerticalStackLayout HorizontalOptions="Fill" Spacing="10">
+
+                        <!--
+                            Upload / Change Photo
+                            Visible: CanUpdateImage = true
+                            Text:    UploadButtonText ("Upload Photo" or "Change Photo")
+                            Command: UploadPhotoCommand
+                        -->
+                        <Border
+                            BackgroundColor="{StaticResource Primary}"
+                            IsVisible="{Binding CanUpdateImage}"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="0">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding UploadPhotoCommand}" />
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout
+                                Padding="20,14"
+                                HorizontalOptions="Center"
+                                Spacing="10">
+                                <Image
+                                    HeightRequest="18"
+                                    Source="upload.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="18">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="White" />
+                                    </Image.Behaviors>
+                                </Image>
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="14"
+                                    Text="{Binding UploadButtonText}"
+                                    TextColor="White"
+                                    VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </Border>
+
+                        <!--
+                            Remove Photo
+                            Visible: CanUpdateImage = true AND HasPhoto = true
+                            Command: RemovePhotoCommand
+                        -->
+                        <Border
+                            BackgroundColor="{AppThemeBinding Light={StaticResource DangerLight},
+                                                              Dark={StaticResource CardBgDark}}"
+                            Stroke="{StaticResource Danger}"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="1">
+                            <Border.IsVisible>
+                                <MultiBinding Converter="{StaticResource AllTrueConverter}">
+                                    <Binding Path="CanUpdateImage" />
+                                    <Binding Path="HasPhoto" />
+                                </MultiBinding>
+                            </Border.IsVisible>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding RemovePhotoCommand}" />
+                            </Border.GestureRecognizers>
+                            <HorizontalStackLayout
+                                Padding="20,14"
+                                HorizontalOptions="Center"
+                                Spacing="10">
+                                <Image
+                                    HeightRequest="18"
+                                    Source="delete.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="18">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                    </Image.Behaviors>
+                                </Image>
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="14"
+                                    Text="Remove Photo"
+                                    TextColor="{StaticResource Danger}"
+                                    VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+
+                    <!--  Activity indicator (IsBusy from BaseViewModel)  -->
+                    <ActivityIndicator
+                        HorizontalOptions="Center"
+                        IsRunning="{Binding IsBusy}"
+                        IsVisible="{Binding IsBusy}"
+                        Color="{StaticResource Primary}" />
+
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  ══ ACCOUNT DETAILS CARD ════════════════════════════════════  -->
+            <Border
+                Margin="0,20,0,0"
+                Padding="24,20"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                HorizontalOptions="Fill"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0">
+                <VerticalStackLayout Spacing="16">
+
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="15"
+                        Text="Account Details"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
+
+                    <!--  Email row  -->
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                        <Border
+                            Grid.Column="0"
+                            BackgroundColor="{StaticResource PrimaryLight}"
+                            HeightRequest="38"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="0"
+                            VerticalOptions="Center"
+                            WidthRequest="38">
+                            <Image
+                                HeightRequest="18"
+                                HorizontalOptions="Center"
+                                Source="email.png"
+                                VerticalOptions="Center"
+                                WidthRequest="18">
+                                <Image.Behaviors>
+                                    <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                </Image.Behaviors>
+                            </Image>
+                        </Border>
+                        <VerticalStackLayout
+                            Grid.Column="1"
+                            Spacing="2"
+                            VerticalOptions="Center">
+                            <Label
+                                FontSize="11"
+                                Text="Email"
+                                TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                            Dark={StaticResource TextMutedDark}}" />
+                            <Label
+                                FontSize="14"
+                                Text="{Binding Email}"
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                            Dark={StaticResource TextPrimaryDark}}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                    <!--  Role row  -->
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                        <Border
+                            Grid.Column="0"
+                            BackgroundColor="{StaticResource PrimaryLight}"
+                            HeightRequest="38"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="0"
+                            VerticalOptions="Center"
+                            WidthRequest="38">
+                            <Image
+                                HeightRequest="18"
+                                HorizontalOptions="Center"
+                                Source="role.png"
+                                VerticalOptions="Center"
+                                WidthRequest="18">
+                                <Image.Behaviors>
+                                    <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                </Image.Behaviors>
+                            </Image>
+                        </Border>
+                        <VerticalStackLayout
+                            Grid.Column="1"
+                            Spacing="2"
+                            VerticalOptions="Center">
+                            <Label
+                                FontSize="11"
+                                Text="Role"
+                                TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                            Dark={StaticResource TextMutedDark}}" />
+                            <Label
+                                FontSize="14"
+                                Text="{Binding RoleDisplay}"
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                            Dark={StaticResource TextPrimaryDark}}" />
+                        </VerticalStackLayout>
+                    </Grid>
+
+                </VerticalStackLayout>
+            </Border>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</views:ViewBase>

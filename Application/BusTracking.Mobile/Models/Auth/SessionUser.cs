@@ -1,4 +1,4 @@
-﻿using SQLite;
+using SQLite;
 
 namespace BusTracking.Mobile.Models.Auth
 {
@@ -14,5 +14,6 @@ namespace BusTracking.Mobile.Models.Auth
         public string Token { get; set; } = "";   // stored encrypted
         public DateTime Expiry { get; set; }
         public string Permissions { get; set; } = ""; // JSON array of permission keys
+        public string? ProfileImageUrl { get; set; }  // full URL from API server
     }
 }

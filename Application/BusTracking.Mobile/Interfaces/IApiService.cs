@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Interfaces
+namespace BusTracking.Mobile.Interfaces
 {
     /// <summary>
     /// Central API service. All HTTP calls go through here.
@@ -11,6 +11,7 @@
         Task<ApiResponse<T>> PostAsync<T>(string endpoint, object? body = null);
         Task<ApiResponse<T>> PutAsync<T>(string endpoint, object? body = null);
         Task<ApiResponse<T>> DeleteAsync<T>(string endpoint);
+        Task<ApiResponse<T>> PostMultipartAsync<T>(string endpoint, MultipartFormDataContent content);
         void SetToken(string token);
         void ClearToken();
     }

@@ -1,4 +1,4 @@
-﻿using BusTracking.Mobile.Helpers;
+using BusTracking.Mobile.Helpers;
 
 namespace BusTracking.Mobile;
 
@@ -6,13 +6,15 @@ public partial class AppShell : Shell
 {
     private readonly IAuthService _auth;
     private readonly INavigationService _nav;
+    private readonly IAppConfigService _appConfig;
     int _backPressCounter = 0;
     private static string _svgImageColor = "#ffffff";
 
-    public AppShell(IAuthService auth, INavigationService nav)
+    public AppShell(IAuthService auth, INavigationService nav, IAppConfigService appConfig)
     {
         _auth = auth;
         _nav = nav;
+        _appConfig = appConfig;
         InitializeComponent();
     }
 
@@ -21,40 +23,123 @@ public partial class AppShell : Shell
     {
         var user = await _auth.GetCurrentUserAsync();
         if (user is null) return;
-        _svgImageColor = ResourceColorHelper.GetColor("SvgImageLight", "SvgImageDark");
-        LblUserName.Text = user.FullName ?? "User";
-        LblRoleLabel.Text = user.Role switch
-        {
-            Constants.Roles.SuperAdmin => "Super Admin",
-            Constants.Roles.BusCoordinator => "Coordinator",
-            Constants.Roles.Driver => "Driver",
-            Constants.Roles.Parent => "Parent",
-            Constants.Roles.Student => "Student",
-            _ => user.Role ?? ""
-        };
 
-        // Initials for avatar circle
+        _svgImageColor = ResourceColorHelper.GetColor("SvgImageLight", "SvgImageDark");
+
+        LblUserName.Text = user.FullName ?? "User";
+        LblRoleLabel.Text = FriendlyRole(user.Role);
+
+        // Initials for fallback circle
         var parts = (user.FullName ?? "U").Split(' ', StringSplitOptions.RemoveEmptyEntries);
         LblInitials.Text = string.Concat(parts.Take(2).Select(w => char.ToUpper(w[0]).ToString()));
+
+        // Load avatar (respects IsMobileUpdateImage config)
+        await LoadAvatarAsync(user.ProfileImageUrl);
 
         BuildMenuForRole(user.Role ?? "", user.Permissions ?? "");
     }
 
+    // ── Called from ProfilePage after upload or remove ────────────────────
+    public async Task RefreshAvatarAsync(string? newStoredUrl)
+    {
+        await LoadAvatarAsync(newStoredUrl);
+    }
+
+    // ── Resolve image URL and show in flyout header ───────────────────────
+    /// <summary>
+    /// Always extracts only the path from storedUrl and prepends the correct base:
+    ///   IsMobileUpdateImage=1 → Constants.ApiBaseUrl   (API server)
+    ///   IsMobileUpdateImage=0 → WebsiteImageUrl         (website server)
+    ///
+    /// This ensures the URL works regardless of which host the API recorded when
+    /// saving the image (browser vs emulator vs physical device differ in hostname).
+    /// </summary>
+    private async Task LoadAvatarAsync(string? storedUrl)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(storedUrl))
+            {
+                ShowInitials();
+                return;
+            }
+
+            var resolvedUrl = await ResolveImageUrlAsync(storedUrl);
+
+            if (!string.IsNullOrWhiteSpace(resolvedUrl))
+            {
+                AvatarImage.Source = ImageSource.FromUri(new Uri(resolvedUrl));
+                AvatarImageBorder.IsVisible = true;
+                AvatarInitialsBorder.IsVisible = false;
+            }
+            else
+            {
+                ShowInitials();
+            }
+        }
+        catch
+        {
+            ShowInitials();
+        }
+    }
+
+    /// <summary>
+    /// Extracts the AbsolutePath from the stored URL and prepends the correct base URL.
+    /// Stored URL example: https://10.0.2.2:7001/media/images/driver/u_5.jpg
+    ///   IsMobileUpdateImage=1 → https://10.0.2.2:7001/media/images/driver/u_5.jpg
+    ///   IsMobileUpdateImage=0 → https://website.bustracking.com/media/images/driver/u_5.jpg
+    /// </summary>
+    private async Task<string?> ResolveImageUrlAsync(string? storedUrl)
+    {
+        if (string.IsNullOrWhiteSpace(storedUrl)) return null;
+
+        // Extract just the path portion
+        string imagePath;
+        try
+        {
+            imagePath = new Uri(storedUrl).AbsolutePath;
+        }
+        catch
+        {
+            imagePath = storedUrl.StartsWith('/') ? storedUrl : "/" + storedUrl;
+        }
+
+        bool mobileImageEnabled = await _appConfig.IsMobileImageUpdateEnabledAsync();
+
+        if (mobileImageEnabled)
+        {
+            // IsMobileUpdateImage = 1: serve from API server
+            return Constants.ApiBaseUrl.TrimEnd('/') + imagePath;
+        }
+        else
+        {
+            // IsMobileUpdateImage = 0: serve from website server
+            var websiteBase = await _appConfig.GetWebsiteImageUrlAsync();
+            return string.IsNullOrWhiteSpace(websiteBase)
+                ? null
+                : websiteBase.TrimEnd('/') + imagePath;
+        }
+    }
+
+    private void ShowInitials()
+    {
+        AvatarImageBorder.IsVisible = false;
+        AvatarInitialsBorder.IsVisible = true;
+    }
+
+    // ── Build flyout menu ─────────────────────────────────────────────────
     private void BuildMenuForRole(string role, string permissionsJson)
     {
         var items = GetMenuForRole(role, permissionsJson);
-        // Mark first item (Dashboard) as active
         if (items.Count > 0) items[0].IsActive = true;
         MenuList.ItemsSource = new ObservableCollection<FlyoutMenuItem>(items);
         MenuList.SelectedItem = null;
     }
 
-    // ── CollectionView tap → navigate and close drawer ────────────────────
     private async void OnMenuItemSelected(object? sender, SelectionChangedEventArgs e)
     {
         if (e.CurrentSelection.FirstOrDefault() is not FlyoutMenuItem item) return;
 
-        // Update IsActive on all items
         if (MenuList.ItemsSource is ObservableCollection<FlyoutMenuItem> list)
             foreach (var i in list) i.IsActive = (i == item);
 
@@ -79,17 +164,18 @@ public partial class AppShell : Shell
 
     private static List<FlyoutMenuItem> SuperAdminMenu() =>
     [
-        new() { IconSvg = "dashboard.png",IconColor=_svgImageColor,   Title = "Dashboard",        Route = "AdminDashboard"       },
-        new() { IconSvg = "config.png",IconColor=_svgImageColor,      Title = "App Config",       Route = "AdminConfigList"      },
-        new() { IconSvg = "coordinator.png",IconColor=_svgImageColor, Title = "Bus Coordinators", Route = "AdminCoordinatorList" },
-        new() { IconSvg = "route.png",IconColor=_svgImageColor,       Title = "Routes",           Route = "AdminRouteList"       },
-        new() { IconSvg = "bus.png",IconColor=_svgImageColor,         Title = "Buses",            Route = "AdminBusList"         },
-        new() { IconSvg = "driver.png",IconColor=_svgImageColor,      Title = "Drivers",          Route = "AdminDriverList"      },
-        new() { IconSvg = "parent.png",IconColor=_svgImageColor,      Title = "Parents",          Route = "AdminParentList"      },
-        new() { IconSvg = "student.png",IconColor=_svgImageColor,     Title = "Students",         Route = "AdminStudentList"     },
-        new() { IconSvg = "trip.png",IconColor=_svgImageColor,        Title = "Trips",            Route = "AdminTripList"        },
-        new() { IconSvg = "notification.png",IconColor=_svgImageColor,Title = "Notifications",    Route = ""                     },
-        new() { IconSvg = "help.png",IconColor=_svgImageColor,        Title = "Help & Support",   Route = ""                     },
+        new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "Dashboard",        Route = "AdminDashboard"       },
+        new() { IconSvg = "config.png",       IconColor = _svgImageColor, Title = "App Config",       Route = "AdminConfigList"      },
+        new() { IconSvg = "coordinator.png",  IconColor = _svgImageColor, Title = "Bus Coordinators", Route = "AdminCoordinatorList" },
+        new() { IconSvg = "route.png",        IconColor = _svgImageColor, Title = "Routes",           Route = "AdminRouteList"       },
+        new() { IconSvg = "bus.png",          IconColor = _svgImageColor, Title = "Buses",            Route = "AdminBusList"         },
+        new() { IconSvg = "driver.png",       IconColor = _svgImageColor, Title = "Drivers",          Route = "AdminDriverList"      },
+        new() { IconSvg = "parent.png",       IconColor = _svgImageColor, Title = "Parents",          Route = "AdminParentList"      },
+        new() { IconSvg = "student.png",      IconColor = _svgImageColor, Title = "Students",         Route = "AdminStudentList"     },
+        new() { IconSvg = "trip.png",         IconColor = _svgImageColor, Title = "Trips",            Route = "AdminTripList"        },
+        new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications",    Route = ""                     },
+        new() { IconSvg = "help.png",         IconColor = _svgImageColor, Title = "Help & Support",   Route = ""                     },
+        new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",       Route = "Profile"              },
     ];
 
     private static List<FlyoutMenuItem> CoordinatorMenu(string permissionsJson)
@@ -105,66 +191,59 @@ public partial class AppShell : Shell
             catch { }
         }
         bool Has(string key) => perms.Contains(key);
-        // NO fallback — zero permissions = only Dashboard (user sees access-denied if they navigate)
 
         var menu = new List<FlyoutMenuItem>
         {
             new() { IconSvg = "dashboard.png", IconColor = _svgImageColor, Title = "Dashboard", Route = "CoordinatorDashboard" }
         };
 
-        // ── Same order as SuperAdmin menu ────────────────────────
         if (Has("appconfig.view"))
             menu.Add(new() { IconSvg = "config.png", IconColor = _svgImageColor, Title = "App Config", Route = "CoordConfigList" });
-
         if (Has("subadmin.view"))
             menu.Add(new() { IconSvg = "coordinator.png", IconColor = _svgImageColor, Title = "Bus Coordinators", Route = "CoordSubAdminList" });
-
         if (Has("route.view"))
             menu.Add(new() { IconSvg = "route.png", IconColor = _svgImageColor, Title = "Routes", Route = "CoordRouteList" });
-
         if (Has("bus.view"))
             menu.Add(new() { IconSvg = "bus.png", IconColor = _svgImageColor, Title = "Buses", Route = "CoordBusList" });
-
         if (Has("driver.view"))
             menu.Add(new() { IconSvg = "driver.png", IconColor = _svgImageColor, Title = "Drivers", Route = "CoordDriverList" });
-
         if (Has("parent.view"))
             menu.Add(new() { IconSvg = "parent.png", IconColor = _svgImageColor, Title = "Parents", Route = "CoordParentList" });
-
         if (Has("student.view"))
             menu.Add(new() { IconSvg = "student.png", IconColor = _svgImageColor, Title = "Students", Route = "CoordStudentList" });
-
         if (Has("trip.view") || Has("trip.manage"))
             menu.Add(new() { IconSvg = "trip.png", IconColor = _svgImageColor, Title = "Trips", Route = "CoordTripList" });
-
         if (Has("notification.manage"))
             menu.Add(new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications", Route = "CoordNotificationList" });
-
         if (Has("helpsupport.view") || Has("helpsupport.manage"))
             menu.Add(new() { IconSvg = "feedback.png", IconColor = _svgImageColor, Title = "Help & Support", Route = "CoordFeedbackList" });
 
+        menu.Add(new() { IconSvg = "profile.png", IconColor = _svgImageColor, Title = "My Profile", Route = "Profile" });
         return menu;
     }
 
     private static List<FlyoutMenuItem> ParentMenu() =>
     [
-        new() { IconSvg = "dashboard.png", IconColor = _svgImageColor, Title = "My Dashboard",   Route = "ParentDashboard"  },
-        new() { IconSvg = "tracking.png", IconColor = _svgImageColor, Title = "Track Bus",      Route = "ParentTracking"   },
+        new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "My Dashboard",   Route = "ParentDashboard"    },
+        new() { IconSvg = "tracking.png",     IconColor = _svgImageColor, Title = "Track Bus",      Route = "ParentTracking"     },
         new() { IconSvg = "availability.png", IconColor = _svgImageColor, Title = "Availability",   Route = "ParentAvailability" },
-        new() { IconSvg = "feedback.png", IconColor = _svgImageColor, Title = "Help & Support", Route = "ParentFeedback"   },
+        new() { IconSvg = "feedback.png",     IconColor = _svgImageColor, Title = "Help & Support", Route = "ParentFeedback"     },
+        new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",     Route = "Profile"            },
     ];
 
     private static List<FlyoutMenuItem> StudentMenu() =>
     [
-        new() { IconSvg = "dashboard.png", IconColor = _svgImageColor, Title = "My Dashboard",    Route = "StudentDashboard"    },
-        new() { IconSvg = "tracking.png", IconColor = _svgImageColor, Title = "Track My Bus",    Route = "StudentTracking"     },
+        new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "My Dashboard",    Route = "StudentDashboard"    },
+        new() { IconSvg = "tracking.png",     IconColor = _svgImageColor, Title = "Track My Bus",    Route = "StudentTracking"     },
         new() { IconSvg = "availability.png", IconColor = _svgImageColor, Title = "My Availability", Route = "StudentAvailability" },
+        new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",      Route = "Profile"             },
     ];
 
     private static List<FlyoutMenuItem> DriverMenu() =>
     [
-        new() { IconSvg = "dashboard.png", IconColor = _svgImageColor, Title = "Dashboard", Route = "DriverDashboard" },
-        new() { IconSvg = "trip.png",      IconColor = _svgImageColor, Title = "My Trips",  Route = "DriverTripList"  },
+        new() { IconSvg = "dashboard.png", IconColor = _svgImageColor, Title = "Dashboard",  Route = "DriverDashboard" },
+        new() { IconSvg = "trip.png",      IconColor = _svgImageColor, Title = "My Trips",   Route = "DriverTripList"  },
+        new() { IconSvg = "profile.png",   IconColor = _svgImageColor, Title = "My Profile", Route = "Profile"         },
     ];
 
     // ── Logout ────────────────────────────────────────────────────────────
@@ -184,9 +263,21 @@ public partial class AppShell : Shell
         LblUserName.Text = "";
         LblRoleLabel.Text = "";
         LblInitials.Text = "";
+        ShowInitials();
 
         await _nav.GoToLoginAsync();
     }
+
+    // ── Helper ────────────────────────────────────────────────────────────
+    private static string FriendlyRole(string? role) => role switch
+    {
+        Constants.Roles.SuperAdmin => "Super Admin",
+        Constants.Roles.BusCoordinator => "Coordinator",
+        Constants.Roles.Driver => "Driver",
+        Constants.Roles.Parent => "Parent",
+        Constants.Roles.Student => "Student",
+        _ => role ?? ""
+    };
 
     // ── Android back button ───────────────────────────────────────────────
 #pragma warning disable CS8602
@@ -212,7 +303,10 @@ public partial class AppShell : Shell
                     Android.Widget.ToastLength.Long)?.Show();
 #endif
             }
-            else { Navigation.PopAsync(); }
+            else
+            {
+                Navigation.PopAsync();
+            }
         }
         catch (Exception ex) { Console.WriteLine(ex.Message); }
         return true;

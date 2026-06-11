@@ -9,7 +9,8 @@
     Title="My Dashboard"
     x:DataType="vm:StudentDashboardViewModel"
     x:TypeArguments="vm:StudentDashboardViewModel"
-    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
@@ -42,12 +43,14 @@
                     FontAttributes="Bold"
                     FontSize="22"
                     Text="{Binding WelcomeText}"
-                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                Dark={StaticResource TextPrimaryDark}}" />
 
                 <!--  Bus info card  -->
                 <Border
                     Padding="20"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource HeroCardBgLight}, Dark={StaticResource HeroCardBgDark}}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource HeroCardBgLight},
+                                                      Dark={StaticResource HeroCardBgDark}}"
                     StrokeShape="RoundRectangle 20">
                     <VerticalStackLayout Spacing="8">
                         <Label
@@ -88,7 +91,8 @@
                         TextColor="White" />
                     <Button
                         Grid.Column="1"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                          Dark={StaticResource CardBgDark}}"
                         BorderColor="{StaticResource Primary}"
                         BorderWidth="1.5"
                         Command="{Binding ViewAvailabilityCommand}"

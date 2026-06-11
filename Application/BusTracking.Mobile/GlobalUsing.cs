@@ -1,4 +1,4 @@
-﻿global using BusTracking.Mobile.Database;
+global using BusTracking.Mobile.Database;
 global using BusTracking.Mobile.Interfaces;
 global using BusTracking.Mobile.Models.AppConfig;
 global using BusTracking.Mobile.Models.Auth;
@@ -14,6 +14,7 @@ global using BusTracking.Mobile.Models.Route;
 global using BusTracking.Mobile.Models.Student;
 global using BusTracking.Mobile.Models.Tracking;
 global using BusTracking.Mobile.Models.Trip;
+global using BusTracking.Mobile.Models.User;
 global using BusTracking.Mobile.Services;
 global using BusTracking.Mobile.Viewmodels.Auth;
 global using BusTracking.Mobile.Viewmodels.Coordinator;
@@ -42,3 +43,4 @@ global using System.Text;
 global using System.Text.Json;
 global using BusTracking.Mobile.Models.Notification;
 global using BusTracking.Mobile.Helpers;
+global using BusTracking.Mobile.Viewmodels.Common;

@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Services
+namespace BusTracking.Mobile.Services
 {
     public class AppConfigService : IAppConfigService
     {
@@ -42,6 +42,27 @@
         {
             var v = await GetValueAsync("MandatoryUpdateApp");
             return v == "1";
+        }
+
+        /// <summary>
+        /// Returns true when IsMobileUpdateImage = "1".
+        /// When true: app uploads images via API and shows Upload/Remove buttons.
+        /// When false: app only displays images using WebsiteImageUrl as base.
+        /// </summary>
+        public async Task<bool> IsMobileImageUpdateEnabledAsync()
+        {
+            var v = await GetValueAsync("IsMobileUpdateImage");
+            return v == "1";
+        }
+
+        /// <summary>
+        /// Returns the base URL stored in WebsiteImageUrl config key.
+        /// Used to construct full image URLs when IsMobileUpdateImage = 0.
+        /// E.g. "https://website.com" + "/media/images/driver/u_5.jpg"
+        /// </summary>
+        public async Task<string?> GetWebsiteImageUrlAsync()
+        {
+            return await GetValueAsync("WebsiteImageUrl");
         }
     }
 }

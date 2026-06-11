@@ -26,6 +26,7 @@
             <converters:DrawerIconTintConverter x:Key="DrawerIconTintConverter" />
             <converters:DrawerTextColorConverter x:Key="DrawerTextColorConverter" />
             <converters:DrawerFontAttribConverter x:Key="DrawerFontAttribConverter" />
+            <converters:AllTrueMultiConverter x:Key="AllTrueConverter" />
 
             <ResourceDictionary.MergedDictionaries>
                 <!--

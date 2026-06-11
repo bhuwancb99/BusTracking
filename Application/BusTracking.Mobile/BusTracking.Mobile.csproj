@@ -79,7 +79,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Viewmodels\Common\" />
+		<Folder Include="Resources\SvgImages\" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -96,6 +96,9 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Common\MaintenancePage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="Views\Common\ProfilePage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Coordinator\CoordBusDetailPage.xaml">

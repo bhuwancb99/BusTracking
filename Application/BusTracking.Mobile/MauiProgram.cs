@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile
+namespace BusTracking.Mobile
 {
     public static class MauiProgram
     {
@@ -19,7 +19,7 @@
             builder.Logging.AddDebug();
 #endif
             MauiControlsHandlers();
-            RegisterRoutes();           // ← MUST be called before Build()
+            RegisterRoutes();
             RegisterServices(builder.Services);
             RegisterViewModels(builder.Services);
             RegisterViews(builder.Services);
@@ -37,6 +37,9 @@
         {
             // ── Auth ──────────────────────────────────────────────────────────
             Routing.RegisterRoute("ChangePassword", typeof(ChangePasswordPage));
+
+            // ── Common ────────────────────────────────────────────────────────
+            Routing.RegisterRoute("Profile", typeof(ProfilePage));
 
             // ── Super Admin — Form pages ──────────────────────────────────────
             Routing.RegisterRoute("AdminConfigForm", typeof(AdminConfigFormPage));
@@ -76,7 +79,7 @@
             Routing.RegisterRoute("CoordTripDetail", typeof(CoordTripDetailPage));
             Routing.RegisterRoute("CoordSubAdminDetail", typeof(CoordSubAdminDetailPage));
 
-            // ── Driver — Detail page (list/dashboard/tracking in ShellContent) ─
+            // ── Driver — Detail page ──────────────────────────────────────────
             Routing.RegisterRoute("DriverTripDetail", typeof(DriverTripDetailPage));
         }
 
@@ -111,6 +114,7 @@
             // Auth
             s.AddTransient<LoginViewModel>();
             s.AddTransient<ChangePasswordViewModel>();
+            s.AddTransient<ProfileViewModel>();
 
             // SuperAdmin
             s.AddTransient<AdminDashboardViewModel>();
@@ -185,13 +189,15 @@
         }
 
         // ── Views (Pages) ─────────────────────────────────────────────────────
-        // Pages must be registered in DI so the ServiceProvider can resolve them
-        // when Routing.RegisterRoute creates instances via the DI container.
         private static void RegisterViews(IServiceCollection s)
         {
             // Auth
             s.AddTransient<LoginPage>();
             s.AddTransient<ChangePasswordPage>();
+
+            // Common
+            s.AddTransient<MaintenancePage>();
+            s.AddTransient<ProfilePage>();
 
             // SuperAdmin
             s.AddTransient<AdminDashboardPage>();
@@ -263,9 +269,6 @@
             s.AddTransient<StudentDashboardPage>();
             s.AddTransient<StudentTrackingPage>();
             s.AddTransient<StudentAvailabilityPage>();
-
-            // Common
-            s.AddTransient<MaintenancePage>();
         }
 
         // ── Control Handlers ──────────────────────────────────────────────────

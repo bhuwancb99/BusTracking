@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile;
+namespace BusTracking.Mobile;
 
 /// <summary>
 /// Single source of truth for all app-wide constants.
@@ -106,15 +106,10 @@ public static class Constants
     }
 
     // ── Coordinator  →  CoordinatorController  [Route("api/coordinator")] ─
-    // NOTE: The API only exposes LIST endpoints for drivers/parents/students/routes
-    // for the Coordinator role. There are NO detail (/{id}) endpoints for these —
-    // detail pages for Coordinator must use the Admin endpoints above, or the
-    // API needs new endpoints added. The ByIdAsync calls fall back to Admin URLs.
     public static class Coordinator
     {
         public const string Dashboard = "/api/coordinator/dashboard";
 
-        // Trips
         public const string Trips = "/api/coordinator/trips";
         public const string TripById = "/api/coordinator/trips/{0}";
         public const string TripStart = "/api/coordinator/trips/{0}/start";
@@ -123,25 +118,18 @@ public static class Constants
         public const string TripLocation = "/api/coordinator/trips/{0}/location";
         public const string TripLocHist = "/api/coordinator/trips/{0}/location/history";
 
-        // Buses  (list + detail both exist)
         public const string Buses = "/api/coordinator/buses";
         public const string BusById = "/api/coordinator/buses/{0}";
 
-        // Routes  (list exists; stops exist; detail /{id} does NOT exist in API)
         public const string Routes = "/api/coordinator/routes";
         public const string RouteStops = "/api/coordinator/routes/{0}/stops";
 
-        // Drivers  (list only — no /{id} endpoint in API)
         public const string Drivers = "/api/coordinator/drivers";
-
-        // Parents  (list only — no /{id} endpoint in API)
         public const string Parents = "/api/coordinator/parents";
 
-        // Students  (list + detail both exist)
         public const string Students = "/api/coordinator/students";
         public const string StudentById = "/api/coordinator/students/{0}";
 
-        // Sub-Admins  (full CRUD via coordinator)
         public const string SubAdmins = "/api/coordinator/subadmins";
         public const string SubAdminById = "/api/coordinator/subadmins/{0}";
         public const string SubAdminToggle = "/api/coordinator/subadmins/{0}/toggle";
@@ -149,57 +137,45 @@ public static class Constants
         public const string SubAdminPerms = "/api/coordinator/subadmins/{0}/permissions";
         public const string CoordAllPermissions = "/api/coordinator/permissions";
 
-        // App Config  (full CRUD via coordinator)
         public const string Config = "/api/coordinator/config";
         public const string ConfigById = "/api/coordinator/config/{0}";
         public const string ConfigToggle = "/api/coordinator/config/{0}/toggle";
 
-        // Help & Support
         public const string Feedback = "/api/coordinator/feedback";
         public const string FeedbackById = "/api/coordinator/feedback/{0}";
         public const string FeedbackUpdateStatus = "/api/coordinator/feedback/{0}/status";
 
-        // Notifications
         public const string CoordNotifications = "/api/coordinator/notifications";
         public const string CoordNotifMarkRead = "/api/coordinator/notifications/{0}/read";
         public const string CoordNotifMarkAllRead = "/api/coordinator/notifications/read-all";
     }
 
-    // ── Driver  →  TripsController     [Route("api/[controller]")] = api/trips
-    //              BoardingController   [Route("api/trips/{tripId}/boarding")]
-    //              LocationController   [Route("api/[controller]")]            = api/location
-    // ALL FIXED to match real controller routes
+    // ── Driver ────────────────────────────────────────────────────────────
     public static class Driver
     {
-        public const string Dashboard = "/api/driver/dashboard";    // no API endpoint — reserved
-
-        // TripsController routes
-        public const string Trips = "/api/trips/my-trip";           // GET  — returns today's trip
-        public const string TripStart = "/api/trips/{0}/start";         // POST
-        public const string TripEnd = "/api/trips/{0}/end";           // POST
-        public const string TripStops = "/api/trips/{0}/stops";         // GET
-        public const string TripStudents = "/api/trips/{0}/students";      // GET
-        public const string StopReach = "/api/trips/{0}/stops/{1}/reach";   // POST
-        public const string StopDepart = "/api/trips/{0}/stops/{1}/depart";  // POST
-
-        // BoardingController  [Route("api/trips/{tripId}/boarding")]
-        public const string TripBoarding = "/api/trips/{0}/boarding";      // PUT
-
-        // LocationController  [Route("api/[controller]")] = api/location
-        public const string LocationPing = "/api/location/ping";          // POST
-        public const string LocationLatest = "/api/location/{0}/latest";    // GET
+        public const string Dashboard = "/api/driver/dashboard";
+        public const string Trips = "/api/trips/my-trip";
+        public const string TripStart = "/api/trips/{0}/start";
+        public const string TripEnd = "/api/trips/{0}/end";
+        public const string TripStops = "/api/trips/{0}/stops";
+        public const string TripStudents = "/api/trips/{0}/students";
+        public const string StopReach = "/api/trips/{0}/stops/{1}/reach";
+        public const string StopDepart = "/api/trips/{0}/stops/{1}/depart";
+        public const string TripBoarding = "/api/trips/{0}/boarding";
+        public const string LocationPing = "/api/location/ping";
+        public const string LocationLatest = "/api/location/{0}/latest";
     }
 
-    // ── Student  →  StudentController  [Route("api/student")] ────────────
+    // ── Student ───────────────────────────────────────────────────────────
     public static class Student
     {
         public const string Dashboard = "/api/student/dashboard";
         public const string Track = "/api/student/track";
-        public const string Tracking = "/api/student/track";   // alias — both names compile
+        public const string Tracking = "/api/student/track";
         public const string Availability = "/api/student/availability";
     }
 
-    // ── Parent  →  ParentController  [Route("api/parent")] ───────────────
+    // ── Parent ────────────────────────────────────────────────────────────
     public static class Parent
     {
         public const string Dashboard = "/api/parent/dashboard";
@@ -214,6 +190,7 @@ public static class Constants
         public const string Notifications = "/api/notifications";
         public const string DeviceToken = "/api/notifications/device-token";
         public const string Profile = "/api/profile";
+        public const string ProfilePhoto = "/api/profile/photo";   // POST multipart | DELETE
         public const string Feedback = "/api/feedback";
     }
 

@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Services
+namespace BusTracking.Mobile.Services
 {
     public class ApiService : IApiService
     {
@@ -78,6 +78,21 @@
                 var content = body is null
                     ? new StringContent("{}", Encoding.UTF8, "application/json")
                     : new StringContent(JsonSerializer.Serialize(body, _json), Encoding.UTF8, "application/json");
+                var res = await _http.PostAsync(endpoint, content);
+                return await ParseAsync<T>(res, endpoint);
+            }
+            catch (Exception ex)
+            {
+                return Fail<T>(ex.Message);
+            }
+        }
+
+        // ── POST MULTIPART (file upload) ──────────────────────────────────────
+        public async Task<ApiResponse<T>> PostMultipartAsync<T>(string endpoint, MultipartFormDataContent content)
+        {
+            try
+            {
+                await EnsureTokenAsync(endpoint);
                 var res = await _http.PostAsync(endpoint, content);
                 return await ParseAsync<T>(res, endpoint);
             }

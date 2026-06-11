@@ -80,22 +80,45 @@
                     Grid.Row="1"
                     Margin="0,20,0,0"
                     Spacing="12">
-                    <!--  Initials circle  -->
-                    <Border
-                        BackgroundColor="{StaticResource Primary}"
+
+                    <!--  Avatar: initials circle underneath, real photo on top  -->
+                    <Grid
                         HeightRequest="46"
-                        StrokeShape="RoundRectangle 23"
-                        StrokeThickness="0"
                         VerticalOptions="Center"
                         WidthRequest="46">
-                        <Label
-                            x:Name="LblInitials"
-                            FontAttributes="Bold"
-                            FontSize="16"
-                            HorizontalOptions="Center"
-                            TextColor="White"
-                            VerticalOptions="Center" />
-                    </Border>
+
+                        <!--  Fallback initials circle (always present, hidden when image loads)  -->
+                        <Border
+                            x:Name="AvatarInitialsBorder"
+                            BackgroundColor="{StaticResource Primary}"
+                            HeightRequest="46"
+                            StrokeShape="RoundRectangle 23"
+                            StrokeThickness="0">
+                            <Label
+                                x:Name="LblInitials"
+                                FontAttributes="Bold"
+                                FontSize="16"
+                                HorizontalOptions="Center"
+                                TextColor="White"
+                                VerticalOptions="Center" />
+                        </Border>
+
+                        <!--  Real profile photo (hidden until image URL resolves)  -->
+                        <Border
+                            x:Name="AvatarImageBorder"
+                            HeightRequest="46"
+                            IsVisible="False"
+                            StrokeShape="RoundRectangle 23"
+                            StrokeThickness="0"
+                            WidthRequest="46">
+                            <Image
+                                x:Name="AvatarImage"
+                                Aspect="AspectFill"
+                                HeightRequest="46"
+                                WidthRequest="46" />
+                        </Border>
+                    </Grid>
+
                     <VerticalStackLayout Spacing="4" VerticalOptions="Center">
                         <Label
                             x:Name="LblUserName"
@@ -397,5 +420,12 @@
         ContentTemplate="{DataTemplate student:StudentAvailabilityPage}"
         FlyoutItemIsVisible="False"
         Route="StudentAvailability" />
+
+    <!--  Common (Profile) — reachable from all role menus  -->
+    <ShellContent
+        ContentTemplate="{DataTemplate common:ProfilePage}"
+        FlyoutItemIsVisible="False"
+        Route="Profile"
+        Shell.NavBarIsVisible="True" />
 
 </Shell>

@@ -243,4 +243,22 @@ public class DrawerIconTintConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
+/// <summary>
+/// MultiBinding converter: returns true only when ALL bound bool values are true.
+/// Usage in XAML:
+///   <Border.IsVisible>
+///     <MultiBinding Converter="{StaticResource AllTrueConverter}">
+///       <Binding Path="CanUpdateImage" />
+///       <Binding Path="HasPhoto" />
+///     </MultiBinding>
+///   </Border.IsVisible>
+/// </summary>
+public class AllTrueMultiConverter : IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        => values.All(v => v is bool b && b);
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
 
