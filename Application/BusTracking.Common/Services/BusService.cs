@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Services
+namespace BusTracking.Common.Services
 {
     public class BusService : IBusService
     {
@@ -7,7 +7,12 @@
 
         public async Task<ApiResponse<PagedResult<BusListDto>>> GetAllAsync(int page, int pageSize, string? search, string? status)
         {
-            var q = _db.Buses.Include(b => b.Route).Include(b => b.Driver).ThenInclude(d => d!.User).Include(b => b.Students).AsQueryable();
+            var q = _db.Buses
+                .Include(b => b.Route)
+                .Include(b => b.BusType)
+                .Include(b => b.Driver).ThenInclude(d => d!.User)
+                .Include(b => b.Students)
+                .AsQueryable();
             if (!string.IsNullOrWhiteSpace(search)) q = q.Where(b => b.BusName.Contains(search) || b.BusNumber.Contains(search));
             if (status == "Active") q = q.Where(b => b.IsActive);
             else if (status == "Inactive") q = q.Where(b => !b.IsActive);
@@ -20,6 +25,8 @@
                     BusNumber = b.BusNumber,
                     RouteId = b.RouteId,
                     RouteName = b.Route != null ? b.Route.RouteName : null,
+                    BusTypeId = b.BusTypeId,
+                    BusTypeName = b.BusType != null ? b.BusType.Name : null,
                     DriverUserId = b.Driver != null ? b.Driver.UserId : (int?)null,
                     DriverName = b.Driver != null ? b.Driver.User.FullName : null,
                     DriverPhone = b.Driver != null ? b.Driver.User.PhoneNumber : null,
@@ -40,6 +47,7 @@
         {
             var b = await _db.Buses
                 .Include(x => x.Route)
+                .Include(x => x.BusType)
                 .Include(x => x.Driver).ThenInclude(d => d!.User)
                 .Include(x => x.Students)
                 .Include(x => x.Images.OrderBy(i => i.DisplayOrder))
@@ -55,6 +63,8 @@
                 BusNumber = b.BusNumber,
                 RouteId = b.RouteId,
                 RouteName = b.Route?.RouteName,
+                BusTypeId = b.BusTypeId,
+                BusTypeName = b.BusType?.Name,
                 DriverUserId = b.Driver?.UserId,
                 DriverName = b.Driver?.User.FullName,
                 DriverPhone = b.Driver?.User.PhoneNumber,
@@ -77,11 +87,16 @@
         {
             if (await _db.Buses.AnyAsync(b => b.BusNumber == dto.BusNumber))
                 return ApiResponse<bool>.Fail("Bus number exists.");
+
+            if (!await _db.BusTypeMasters.AnyAsync(t => t.Id == dto.BusTypeId))
+                return ApiResponse<bool>.Fail("Selected bus type is invalid.");
+
             var bus = new Bus
             {
                 BusName = dto.BusName,
                 BusNumber = dto.BusNumber,
                 RouteId = dto.RouteId,
+                BusTypeId = dto.BusTypeId,
                 Capacity = dto.Capacity,
                 CreatedBy = createdBy
             };
@@ -100,9 +115,14 @@
                 return ApiResponse<bool>.Fail("Not found.");
             if (await _db.Buses.AnyAsync(b => b.BusNumber == dto.BusNumber && b.BusId != busId))
                 return ApiResponse<bool>.Fail("Bus number in use.");
+
+            if (!await _db.BusTypeMasters.AnyAsync(t => t.Id == dto.BusTypeId))
+                return ApiResponse<bool>.Fail("Selected bus type is invalid.");
+
             bus.BusName = dto.BusName;
             bus.BusNumber = dto.BusNumber;
             bus.RouteId = dto.RouteId;
+            bus.BusTypeId = dto.BusTypeId;
             bus.Capacity = dto.Capacity;
             bus.IsActive = dto.IsActive;
             bus.UpdatedAt = DateTime.UtcNow;

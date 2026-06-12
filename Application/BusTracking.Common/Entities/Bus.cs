@@ -6,6 +6,10 @@ namespace BusTracking.Common.Entities
         [Required, MaxLength(100)] public string BusName { get; set; } = "";
         [Required, MaxLength(50)] public string BusNumber { get; set; } = "";
         public int? RouteId { get; set; }
+
+        [Required]
+        public int BusTypeId { get; set; }
+
         public int? Capacity { get; set; }
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -15,9 +19,12 @@ namespace BusTracking.Common.Entities
         [ForeignKey(nameof(RouteId))]
         public BusRoute? Route { get; set; }
 
+        [ForeignKey(nameof(BusTypeId))]
+        public BusTypeMaster? BusType { get; set; }
+
         public ICollection<StudentDetail> Students { get; set; } = [];
         public DriverDetail? Driver { get; set; }
         public ICollection<BusTrip> Trips { get; set; } = [];
-        public ICollection<BusImage> Images { get; set; } = [];   // ← ADDED
+        public ICollection<BusImage> Images { get; set; } = [];
     }
 }

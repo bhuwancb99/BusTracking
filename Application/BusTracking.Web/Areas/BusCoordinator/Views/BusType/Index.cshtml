@@ -1,0 +1,272 @@
+@model List<BusTracking.Common.DTOs.BusType.BusTypeDto>
+@{
+    ViewData["Title"] = "Bus Types";
+    ViewData["Breadcrumb"] = "Bus Types";
+    bool canAdd = (bool)(ViewBag.CanAdd ?? false);
+    bool canEdit = (bool)(ViewBag.CanEdit ?? false);
+    bool canDelete = (bool)(ViewBag.CanDelete ?? false);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-0"><i class="bi bi-truck-front me-2 text-primary"></i>Bus Types</h4>
+        <small class="text-muted">Manage bus type categories (e.g. Mini Bus, Standard Bus, Luxury Bus)</small>
+    </div>
+    @if (canAdd)
+    {
+        <button type="button" id="btnShowInsert" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>Add Bus Type
+        </button>
+    }
+</div>
+
+@Html.AntiForgeryToken()
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="busTypeTable">
+                <thead class="table-light">
+                    <tr>
+                        <th class="px-4" style="width:60px;">#</th>
+                        <th>Name</th>
+                        <th class="text-center" style="width:120px;">Buses</th>
+                        @if (canEdit || canDelete)
+                        {
+                            <th class="text-end px-4" style="width:160px;">Actions</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (canAdd)
+                    {
+                        <!-- ── Insert row (hidden by default) ── -->
+                        <tr id="insertRow" class="d-none table-primary">
+                            <td class="px-4 text-muted">—</td>
+                            <td>
+                                <input type="text" id="insertName" class="form-control form-control-sm"
+                                       placeholder="Enter bus type name" maxlength="100" />
+                                <span class="text-danger small d-none" id="insertError">Name is required.</span>
+                            </td>
+                            <td class="text-center text-muted">—</td>
+                            @if (canEdit || canDelete)
+                            {
+                                <td class="text-end px-4">
+                                    <button type="button" class="btn btn-sm btn-success me-1" id="btnSaveInsert" title="Save">
+                                        <i class="bi bi-check2"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-outline-secondary" id="btnCancelInsert" title="Cancel">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </td>
+                            }
+                        </tr>
+                    }
+
+                    <!-- ── Existing rows ── -->
+                    @{
+                        int i = 1;
+                    }
+                    @foreach (var t in Model)
+                    {
+                        <tr id="row-@t.Id" data-id="@t.Id">
+                            <td class="px-4 text-muted">@i</td>
+                            <td>
+                                <span class="view-mode">@t.Name</span>
+                                @if (canEdit)
+                                {
+                                    <input type="text" class="form-control form-control-sm edit-mode d-none"
+                                           value="@t.Name" maxlength="100" />
+                                    <span class="text-danger small d-none edit-error">Name is required.</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-info-subtle text-info">@t.BusCount</span>
+                            </td>
+                            @if (canEdit || canDelete)
+                            {
+                                <td class="text-end px-4">
+                                    @if (canEdit)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-warning me-1 btn-edit" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </button>
+                                    }
+                                    @if (canDelete)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-outline-danger btn-delete" title="Delete"
+                                            @(t.BusCount > 0 ? "disabled" : "")>
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    }
+                                    @if (canEdit)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-success me-1 btn-save d-none" title="Save">
+                                            <i class="bi bi-check2"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary btn-cancel d-none" title="Cancel">
+                                            <i class="bi bi-x"></i>
+                                        </button>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                        i++;
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-truck-front fs-1 d-block mb-2"></i>
+                No bus types found.
+                @if (canAdd)
+                {
+                    <span>Click <strong>Add Bus Type</strong> to create the first one.</span>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const _tok = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+        const baseUrl = '/BusCoordinator/BusType';
+        const canEdit = @Html.Raw(canEdit.ToString().ToLower());
+        const canAdd  = @Html.Raw(canAdd.ToString().ToLower());
+
+        // ── Show / hide insert row ───────────────────────────────────────
+        if (canAdd) {
+            document.getElementById('btnShowInsert')?.addEventListener('click', () => {
+                document.getElementById('insertRow').classList.remove('d-none');
+                document.getElementById('insertName').value = '';
+                document.getElementById('insertError').classList.add('d-none');
+                document.getElementById('insertName').focus();
+                document.getElementById('btnShowInsert').classList.add('d-none');
+            });
+
+            document.getElementById('btnCancelInsert')?.addEventListener('click', hideInsertRow);
+
+            document.getElementById('btnSaveInsert')?.addEventListener('click', async () => {
+                const input = document.getElementById('insertName');
+                const name  = input.value.trim();
+                const errEl = document.getElementById('insertError');
+
+                if (!name) { errEl.classList.remove('d-none'); return; }
+                errEl.classList.add('d-none');
+
+                const res = await fetch(`${baseUrl}/Create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _tok() },
+                    body: JSON.stringify({ Name: name })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    busTrack.showToast(data.message || 'Bus type added.', 'success');
+                    setTimeout(() => location.reload(), 500);
+                } else {
+                    busTrack.showToast(data.message || 'Failed to add bus type.', 'danger');
+                }
+            });
+
+            document.getElementById('insertName')?.addEventListener('keydown', e => {
+                if (e.key === 'Enter') document.getElementById('btnSaveInsert').click();
+                if (e.key === 'Escape') hideInsertRow();
+            });
+        }
+
+        function hideInsertRow() {
+            document.getElementById('insertRow')?.classList.add('d-none');
+            document.getElementById('btnShowInsert')?.classList.remove('d-none');
+        }
+
+        // ── Edit / Save / Cancel / Delete for existing rows ──────────────
+        document.querySelectorAll('#busTypeTable tbody tr[data-id]').forEach(row => {
+            const id        = row.dataset.id;
+            const viewSpan  = row.querySelector('.view-mode');
+            const editInput = row.querySelector('.edit-mode');
+            const errSpan   = row.querySelector('.edit-error');
+            const btnEdit   = row.querySelector('.btn-edit');
+            const btnDelete = row.querySelector('.btn-delete');
+            const btnSave   = row.querySelector('.btn-save');
+            const btnCancel = row.querySelector('.btn-cancel');
+            let originalValue = editInput ? editInput.value : '';
+
+            if (canEdit && editInput) {
+                btnEdit?.addEventListener('click', () => {
+                    originalValue = editInput.value;
+                    viewSpan.classList.add('d-none');
+                    editInput.classList.remove('d-none');
+                    btnEdit.classList.add('d-none');
+                    btnDelete?.classList.add('d-none');
+                    btnSave.classList.remove('d-none');
+                    btnCancel.classList.remove('d-none');
+                    errSpan.classList.add('d-none');
+                    editInput.focus();
+                    editInput.select();
+                });
+
+                btnCancel?.addEventListener('click', () => exitEditMode());
+
+                function exitEditMode(newName) {
+                    if (newName) { viewSpan.textContent = newName; editInput.value = newName; }
+                    else editInput.value = originalValue;
+                    viewSpan.classList.remove('d-none');
+                    editInput.classList.add('d-none');
+                    btnEdit.classList.remove('d-none');
+                    btnDelete?.classList.remove('d-none');
+                    btnSave.classList.add('d-none');
+                    btnCancel.classList.add('d-none');
+                    errSpan.classList.add('d-none');
+                }
+
+                btnSave?.addEventListener('click', async () => {
+                    const name = editInput.value.trim();
+                    if (!name) { errSpan.classList.remove('d-none'); return; }
+                    errSpan.classList.add('d-none');
+
+                    const res = await fetch(`${baseUrl}/Edit/${id}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _tok() },
+                        body: JSON.stringify({ Name: name })
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        busTrack.showToast(data.message || 'Bus type updated.', 'success');
+                        exitEditMode(data.name || name);
+                    } else {
+                        busTrack.showToast(data.message || 'Failed to update bus type.', 'danger');
+                    }
+                });
+
+                editInput.addEventListener('keydown', e => {
+                    if (e.key === 'Enter') btnSave.click();
+                    if (e.key === 'Escape') exitEditMode();
+                });
+            }
+
+            btnDelete?.addEventListener('click', async () => {
+                if (btnDelete.disabled) return;
+                if (!confirm(`Delete bus type "${viewSpan.textContent}"? This cannot be undone.`)) return;
+
+                const res = await fetch(`${baseUrl}/Delete/${id}`, {
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': _tok() }
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    busTrack.showToast(data.message || 'Bus type deleted.', 'success');
+                    row.remove();
+                } else {
+                    busTrack.showToast(data.message || 'Failed to delete bus type.', 'danger');
+                }
+            });
+        });
+    </script>
+}

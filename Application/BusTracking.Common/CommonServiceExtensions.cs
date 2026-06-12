@@ -26,6 +26,7 @@ public static class CommonServiceExtensions
         services.AddScoped<ISubAdminService, SubAdminService>();
         services.AddScoped<IRouteService, RouteService>();
         services.AddScoped<IBusService, BusService>();
+        services.AddScoped<IBusTypeService, BusTypeService>();
         services.AddScoped<IDriverService, DriverService>();
         services.AddScoped<IParentService, ParentService>();
         services.AddScoped<IStudentService, StudentService>();

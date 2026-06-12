@@ -33,6 +33,15 @@
                             <label asp-for="Capacity" class="form-label fw-semibold">Capacity (seats)</label>
                             <input asp-for="Capacity" type="number" min="1" class="form-control" />
                         </div>
+                        <!-- ── Bus Type dropdown ── -->
+                        <div class="col-md-6">
+                            <label asp-for="BusTypeId" class="form-label fw-semibold">Bus Type <span class="text-danger">*</span></label>
+                            <select asp-for="BusTypeId" class="form-select"
+                                    asp-items="@(ViewBag.BusTypes as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])">
+                                <option value="">-- Select Bus Type --</option>
+                            </select>
+                            <span asp-validation-for="BusTypeId" class="text-danger small"></span>
+                        </div>
                         <div class="col-md-6">
                             <label asp-for="RouteId" class="form-label fw-semibold">
                                 Assign Route <span class="text-danger">*</span>

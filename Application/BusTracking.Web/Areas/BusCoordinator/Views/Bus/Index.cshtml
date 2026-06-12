@@ -43,7 +43,7 @@
     <div class="card-body p-4">
         <div class="table-responsive">
             <table class="table table-hover align-middle">
-                <thead class="table-light"><tr><th>#</th><th>Bus Name</th><th>Number</th><th>Route</th><th>Driver</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+                <thead class="table-light"><tr><th>#</th><th>Bus Name</th><th>Number</th><th>Route</th><th>Type</th><th>Driver</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
                 <tbody>
                     @if (Model?.Items.Count == 0)
                     {
@@ -56,6 +56,7 @@
                             <td class="fw-semibold">@b.BusName</td>
                             <td><span class="badge bg-primary-subtle text-primary">@b.BusNumber</span></td>
                             <td>@(b.RouteName ?? "–")</td>
+                            <td><span class="badge bg-secondary-subtle text-secondary">@(b.BusTypeName ?? "–")</span></td>
                             <td>
                                 @if (!string.IsNullOrEmpty(b.DriverName))
                                 {

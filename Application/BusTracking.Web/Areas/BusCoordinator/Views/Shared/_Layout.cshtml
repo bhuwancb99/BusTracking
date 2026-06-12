@@ -29,6 +29,7 @@
 
                 // Dashboard always visible
                 bool showAppConfig  = Has("appconfig.view");
+                bool showBusType    = Has("bustype.view");
                 bool showSubAdmins  = Has("subadmin.view");
                 bool showRoutes     = Has("route.view");
                 bool showBuses      = Has("bus.view");
@@ -57,7 +58,17 @@
                 </li>
             }
 
-            @* Sub-Admins — mirrors SuperAdmin position 3 *@
+            @* Bus Type — mirrors SuperAdmin position 3 *@
+            @if (showBusType)
+            {
+                <li class="sidebar-item @(ctrl == "BusType" ? "active" : "")">
+                    <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="BusType" asp-action="Index">
+                        <i class="bi-truck-front"></i><span>Bus Types</span>
+                    </a>
+                </li>
+            }
+
+            @* Sub-Admins — mirrors SuperAdmin position 4 *@
             @if (showSubAdmins)
             {
                 <li class="sidebar-item @(ctrl == "SubAdmin" ? "active" : "")">

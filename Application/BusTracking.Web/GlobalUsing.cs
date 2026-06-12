@@ -5,6 +5,7 @@ global using BusTracking.Common.DTOs.Assign;
 global using BusTracking.Common.DTOs.Auth;
 global using BusTracking.Common.DTOs.Availability;
 global using BusTracking.Common.DTOs.Bus;
+global using BusTracking.Common.DTOs.BusType;
 global using BusTracking.Common.DTOs.Driver;
 global using BusTracking.Common.DTOs.Feedback;
 global using BusTracking.Common.DTOs.Parent;

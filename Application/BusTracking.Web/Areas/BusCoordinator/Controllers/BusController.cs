@@ -5,11 +5,13 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
     {
         private readonly IBusService _bus;
         private readonly IRouteService _route;
+        private readonly IBusTypeService _busType;
         private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
-        public BusController(IBusService b, IRouteService r)
+        public BusController(IBusService b, IRouteService r, IBusTypeService busType)
         {
             _bus = b;
             _route = r;
+            _busType = busType;
         }
 
         public async Task<IActionResult> Index(int page = 1, string? search = null, string? status = "Active")
@@ -35,6 +37,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
         {
             if (!PermissionHelper.Can(User, "bus.add")) return Forbid();
             await LoadRoutes();
+            await LoadBusTypes();
             return View(new CreateBusDto());
         }
 
@@ -42,12 +45,18 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
         public async Task<IActionResult> Create(CreateBusDto m)
         {
             if (!PermissionHelper.Can(User, "bus.add")) return Forbid();
-            if (!ModelState.IsValid) { await LoadRoutes(); return View(m); }
+            if (!ModelState.IsValid)
+            {
+                await LoadRoutes();
+                await LoadBusTypes(m.BusTypeId);
+                return View(m);
+            }
             var r = await _bus.CreateAsync(m, UserId);
             if (!r.Success)
             {
                 ModelState.AddModelError("", r.Message);
                 await LoadRoutes();
+                await LoadBusTypes(m.BusTypeId);
                 return View(m);
             }
             TempData["SuccessMessage"] = r.Message;
@@ -62,13 +71,15 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             if (!r.Success) return NotFound();
             ViewBag.BusId = id;
             await LoadRoutes(r.Data!.RouteId);
+            await LoadBusTypes(r.Data.BusTypeId);
             return View(new UpdateBusDto
             {
-                BusName   = r.Data.BusName,
+                BusName = r.Data.BusName,
                 BusNumber = r.Data.BusNumber,
-                RouteId   = r.Data.RouteId,
-                Capacity  = r.Data.Capacity,
-                IsActive  = r.Data.IsActive
+                RouteId = r.Data.RouteId,
+                BusTypeId = r.Data.BusTypeId,
+                Capacity = r.Data.Capacity,
+                IsActive = r.Data.IsActive
             });
         }
 
@@ -80,6 +91,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             {
                 ViewBag.BusId = id;
                 await LoadRoutes(m.RouteId);
+                await LoadBusTypes(m.BusTypeId);
                 return View(m);
             }
             var r = await _bus.UpdateAsync(id, m);
@@ -88,6 +100,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
                 ModelState.AddModelError("", r.Message);
                 ViewBag.BusId = id;
                 await LoadRoutes(m.RouteId);
+                await LoadBusTypes(m.BusTypeId);
                 return View(m);
             }
             TempData["SuccessMessage"] = r.Message;
@@ -118,9 +131,21 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             ViewBag.Routes = (routes.Data?.Items ?? [])
                 .Select(r => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
                 {
-                    Value    = r.RouteId.ToString(),
-                    Text     = $"{r.RouteName} ({r.RouteCode})",
+                    Value = r.RouteId.ToString(),
+                    Text = $"{r.RouteName} ({r.RouteCode})",
                     Selected = r.RouteId == selectedId
+                }).ToList();
+        }
+
+        private async Task LoadBusTypes(int? selectedId = null)
+        {
+            var types = await _busType.GetDropdownAsync();
+            ViewBag.BusTypes = (types.Data ?? [])
+                .Select(t => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = t.Id.ToString(),
+                    Text = t.Name,
+                    Selected = t.Id == selectedId
                 }).ToList();
         }
     }

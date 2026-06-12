@@ -6,12 +6,14 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
         private readonly IBusService _bus;
         private readonly IDriverService _driver;
         private readonly IRouteService _route;
+        private readonly IBusTypeService _busType;
         private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
-        public BusController(IBusService bus, IDriverService driver, IRouteService route)
+        public BusController(IBusService bus, IDriverService driver, IRouteService route, IBusTypeService busType)
         {
             _bus = bus;
             _driver = driver;
             _route = route;
+            _busType = busType;
         }
 
         public async Task<IActionResult> Index(int page = 1, string? search = null, string? status = "Active")
@@ -32,6 +34,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
         public async Task<IActionResult> Create()
         {
             await LoadRoutesDropdown();
+            await LoadBusTypesDropdown();
             return View(new CreateBusDto());
         }
 
@@ -41,13 +44,16 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             if (!ModelState.IsValid)
             {
                 await LoadRoutesDropdown();
+                await LoadBusTypesDropdown(m.BusTypeId);
                 return View(m);
             }
             var r = await _bus.CreateAsync(m, UserId);
             if (!r.Success)
             {
                 ModelState.AddModelError("", r.Message);
-                await LoadRoutesDropdown(); return View(m);
+                await LoadRoutesDropdown();
+                await LoadBusTypesDropdown(m.BusTypeId);
+                return View(m);
             }
             TempData["SuccessMessage"] = r.Message;
             return RedirectToAction(nameof(Index));
@@ -60,6 +66,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             if (!r.Success)
                 return NotFound(); ViewBag.BusId = id;
             await LoadRoutesDropdown(r.Data!.RouteId);
+            await LoadBusTypesDropdown(r.Data.BusTypeId);
             if (r.Data.DriverUserId.HasValue && r.Data.DriverName != null)
                 ViewBag.DriverDisplay = $"{r.Data.DriverName} ({r.Data.DriverPhone ?? "–"})";
             return View(new UpdateBusDto
@@ -67,6 +74,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
                 BusName = r.Data!.BusName,
                 BusNumber = r.Data.BusNumber,
                 RouteId = r.Data.RouteId,
+                BusTypeId = r.Data.BusTypeId,
                 Capacity = r.Data.Capacity,
                 DriverUserId = r.Data.DriverUserId,
                 IsActive = r.Data.IsActive
@@ -80,6 +88,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             {
                 ViewBag.BusId = id;
                 await LoadRoutesDropdown(m.RouteId);
+                await LoadBusTypesDropdown(m.BusTypeId);
                 return View(m);
             }
             var r = await _bus.UpdateAsync(id, m);
@@ -88,6 +97,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
                 ModelState.AddModelError("", r.Message);
                 ViewBag.BusId = id;
                 await LoadRoutesDropdown(m.RouteId);
+                await LoadBusTypesDropdown(m.BusTypeId);
                 return View(m);
             }
             TempData["SuccessMessage"] = r.Message;
@@ -103,6 +113,18 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
                     Value = r.RouteId.ToString(),
                     Text = $"{r.RouteName} ({r.RouteCode})",
                     Selected = r.RouteId == selectedId
+                }).ToList();
+        }
+
+        private async Task LoadBusTypesDropdown(int? selectedId = null)
+        {
+            var types = await _busType.GetDropdownAsync();
+            ViewBag.BusTypes = (types.Data ?? [])
+                .Select(t => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = t.Id.ToString(),
+                    Text = t.Name,
+                    Selected = t.Id == selectedId
                 }).ToList();
         }
 

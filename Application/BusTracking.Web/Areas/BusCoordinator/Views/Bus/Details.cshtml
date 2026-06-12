@@ -29,6 +29,7 @@
                         <tr><th class="text-muted w-40">Bus Name</th><td class="fw-semibold">@Model.BusName</td></tr>
                         <tr><th class="text-muted">Number</th><td><span class="badge bg-primary-subtle text-primary px-2">@Model.BusNumber</span></td></tr>
                         <tr><th class="text-muted">Route</th><td>@(Model.RouteName ?? "–")</td></tr>
+                        <tr><th class="text-muted">Bus Type</th><td><span class="badge bg-secondary-subtle text-secondary">@(Model.BusTypeName ?? "–")</span></td></tr>
                         <tr><th class="text-muted">Capacity</th><td>@(Model.Capacity?.ToString() ?? "–")</td></tr>
                         <tr><th class="text-muted">Students</th><td><span class="badge bg-info-subtle text-info">@Model.StudentCount enrolled</span></td></tr>
                         <tr>
