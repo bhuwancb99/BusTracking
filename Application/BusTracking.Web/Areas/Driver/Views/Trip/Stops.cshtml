@@ -1,0 +1,91 @@
+@model List<TripStopEventDto>
+@{
+    ViewData["Title"] = "Manage Stops";
+    int tripId = (int)ViewBag.TripId;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0">Manage Stops</h3>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i> Back to Trip
+    </a>
+</div>
+
+@if (Model is null || Model.Count == 0)
+{
+    <div class="alert alert-info">No stops configured for this route.</div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:60px;">#</th>
+                        <th>Stop Name</th>
+                        <th>Status</th>
+                        <th>Reached At</th>
+                        <th>Departed At</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var stop in Model)
+                    {
+                        var badgeClass = stop.Status switch
+                        {
+                            "Reached" => "bg-warning text-dark",
+                            "Departed" => "bg-success",
+                            _ => "bg-secondary"
+                        };
+
+                        <tr>
+                            <td>@stop.StopOrder</td>
+                            <td>@stop.StopName</td>
+                            <td><span class="badge @badgeClass">@stop.Status</span></td>
+                            <td>
+                                @(stop.ReachedAt is not null
+                                    ? stop.ReachedAt.Value.ToLocalTime().ToString("hh:mm tt")
+                                    : "—")
+                            </td>
+                            <td>
+                                @(stop.DepartedAt is not null
+                                    ? stop.DepartedAt.Value.ToLocalTime().ToString("hh:mm tt")
+                                    : "—")
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    @if (stop.Status == "Pending")
+                                    {
+                                        <form asp-action="ReachStop" method="post"
+                                              asp-route-tripId="@tripId" asp-route-stopId="@stop.StopId">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-warning">
+                                                <i class="bi bi-geo-alt me-1"></i> Reached
+                                            </button>
+                                        </form>
+                                    }
+                                    @if (stop.Status == "Reached")
+                                    {
+                                        <form asp-action="DepartStop" method="post"
+                                              asp-route-tripId="@tripId" asp-route-stopId="@stop.StopId">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-success">
+                                                <i class="bi bi-arrow-right-circle me-1"></i> Depart
+                                            </button>
+                                        </form>
+                                    }
+                                    @if (stop.Status == "Departed")
+                                    {
+                                        <span class="text-muted small">Completed</span>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

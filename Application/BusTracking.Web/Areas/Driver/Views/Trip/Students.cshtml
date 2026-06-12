@@ -1,0 +1,70 @@
+@model List<StudentTripStatusDto>
+@{
+    ViewData["Title"] = "Trip Students";
+    int tripId = (int)ViewBag.TripId;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="mb-0">Trip Students</h3>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i> Back to Trip
+    </a>
+</div>
+
+@if (Model is null || Model.Count == 0)
+{
+    <div class="alert alert-info">No students assigned to this bus.</div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:60px;">#</th>
+                        <th>Student Name</th>
+                        <th>Stop</th>
+                        <th>Status</th>
+                        <th>Availability</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int i = 1;
+                    }
+                    @foreach (var s in Model)
+                    {
+                        var badgeClass = s.BoardingStatus switch
+                        {
+                            "Boarded" => "bg-success",
+                            "Dropped" => "bg-secondary",
+                            "Absent" => "bg-danger",
+                            _ => "bg-light text-dark"
+                        };
+
+                        <tr class="@(s.IsUnavailable ? "table-secondary" : "")">
+                            <td>@i</td>
+                            <td>@s.StudentName</td>
+                            <td>@s.StopName</td>
+                            <td><span class="badge @badgeClass">@s.BoardingStatus</span></td>
+                            <td>
+                                @if (s.IsUnavailable)
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="bi bi-calendar-x me-1"></i>Unavailable today
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-success small"><i class="bi bi-check-circle me-1"></i>Available</span>
+                                }
+                            </td>
+                        </tr>
+                        i++;
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

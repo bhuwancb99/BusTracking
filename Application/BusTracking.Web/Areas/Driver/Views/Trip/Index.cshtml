@@ -1,0 +1,125 @@
+@model DriverMyTripDto
+@{
+    ViewData["Title"] = "My Trip";
+}
+
+<h3 class="mb-4">My Trip</h3>
+
+@if (Model is null)
+{
+    <div class="alert alert-warning d-flex align-items-center gap-2">
+        <i class="bi bi-exclamation-triangle"></i>
+        <span>No bus is currently assigned to you. Please contact your coordinator.</span>
+    </div>
+    return;
+}
+
+<div class="row g-4">
+    <!-- Bus / Route card -->
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-bus-front text-primary me-2"></i>Assigned Bus</h5>
+                <table class="table table-sm mb-0">
+                    <tr>
+                        <th class="text-muted" style="width:140px;">Bus Name</th>
+                        <td>@Model.BusName</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Bus Number</th>
+                        <td>@Model.BusNumber</td>
+                    </tr>
+                    <tr>
+                        <th class="text-muted">Route</th>
+                        <td>@Model.RouteName</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Trip card -->
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-calendar-check text-success me-2"></i>Today's Trip</h5>
+
+                @if (Model.Trip is null)
+                {
+                    <p class="text-muted mb-0">No trip scheduled for today.</p>
+                }
+                else
+                {
+                    var trip = Model.Trip;
+                    <table class="table table-sm mb-3">
+                        <tr>
+                            <th class="text-muted" style="width:140px;">Trip Type</th>
+                            <td>@trip.TripType</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Status</th>
+                            <td>
+                                @{
+                                    var badgeClass = trip.Status switch
+                                    {
+                                        "Scheduled" => "bg-secondary",
+                                        "InProgress" => "bg-warning text-dark",
+                                        "Completed" => "bg-success",
+                                        _ => "bg-light text-dark"
+                                    };
+                                }
+                                <span class="badge @badgeClass">@trip.Status</span>
+                            </td>
+                        </tr>
+                        @if (trip.StartedAt is not null)
+                        {
+                            <tr>
+                                <th class="text-muted">Started At</th>
+                                <td>@trip.StartedAt.Value.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</td>
+                            </tr>
+                        }
+                        @if (trip.EndedAt is not null)
+                        {
+                            <tr>
+                                <th class="text-muted">Ended At</th>
+                                <td>@trip.EndedAt.Value.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</td>
+                            </tr>
+                        }
+                    </table>
+
+                    <div class="d-flex gap-2 flex-wrap">
+                        @if (trip.CanStart)
+                        {
+                            <form asp-action="Start" asp-route-tripId="@trip.TripId" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-play-fill me-1"></i> Start Trip
+                                </button>
+                            </form>
+                        }
+
+                        @if (trip.CanEnd)
+                        {
+                            <form asp-action="End" asp-route-tripId="@trip.TripId" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-stop-fill me-1"></i> End Trip
+                                </button>
+                            </form>
+                        }
+
+                        @if (trip.IsActive || trip.CanEnd)
+                        {
+                            <a asp-action="Stops" asp-route-tripId="@trip.TripId" class="btn btn-outline-primary">
+                                <i class="bi bi-signpost-2 me-1"></i> Manage Stops
+                            </a>
+                            <a asp-action="Students" asp-route-tripId="@trip.TripId" class="btn btn-outline-secondary">
+                                <i class="bi bi-people me-1"></i> Students
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

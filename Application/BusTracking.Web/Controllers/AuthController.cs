@@ -125,18 +125,15 @@ public class AuthController : Controller
         // Coordinators get a richer, in-layout denied page inside their own area
         if (User.IsInRole("BusCoordinator"))
             return Redirect($"/BusCoordinator/AccessDenied/Index?returnUrl={Uri.EscapeDataString(returnUrl ?? "")}");
-
         return View();
     }
 
-    // ── Helper: role → absolute area path ───────────────────────────
-    // Use absolute path strings — safest way to redirect into an Area
-    // from a non-area controller. RedirectToAction({ area=... }) can
-    // generate wrong URLs depending on current route context.
+    // ── Role → dashboard redirect ─────────────────────────────────────────
     private IActionResult DashboardRedirect(string? role) => role switch
     {
         "SuperAdmin" => Redirect("/SuperAdmin/Dashboard/Index"),
         "BusCoordinator" => Redirect("/BusCoordinator/Dashboard/Index"),
+        "Driver" => Redirect("/Driver/Dashboard/Index"),   // ← ADDED
         "Parent" => Redirect("/Parent/Dashboard/Index"),
         "Student" => Redirect("/Student/Dashboard/Index"),
         _ => RedirectToAction(nameof(Login))
