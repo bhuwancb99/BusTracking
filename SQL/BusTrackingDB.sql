@@ -116,7 +116,7 @@ CREATE TABLE Users (
 );
 GO
 
-INSERT INTO Users VALUES(1,'Super Admin','admin@bustracking.com',NULL,'$2a$12$gRiCpH9Cj4ztBpZsTgntH.BM2d/G9mO6VmcbIKD7gRdkk4vT3PpoW',
+INSERT INTO Users VALUES(1,'System Administrator','admin@bustracking.com',NULL,'$2a$12$gRiCpH9Cj4ztBpZsTgntH.BM2d/G9mO6VmcbIKD7gRdkk4vT3PpoW',
 '$2a$12$gRiCpH9Cj4ztBpZsTgntH.',NULL,1,1,GETDATE(),GETDATE(),GETDATE(),1)
 GO
 
