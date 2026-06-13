@@ -15,7 +15,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
 
         // POST /SuperAdmin/BusType/Create  (AJAX — row insert)
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(SaveBusTypeDto dto)
+        public async Task<IActionResult> Create([FromBody] SaveBusTypeDto dto)
         {
             if (!ModelState.IsValid)
                 return Json(new { success = false, message = "Name is required." });
@@ -38,7 +38,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
 
         // POST /SuperAdmin/BusType/Edit/{id}  (AJAX — row update)
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, SaveBusTypeDto dto)
+        public async Task<IActionResult> Edit(int id, [FromBody] SaveBusTypeDto dto)
         {
             if (!ModelState.IsValid)
                 return Json(new { success = false, message = "Name is required." });

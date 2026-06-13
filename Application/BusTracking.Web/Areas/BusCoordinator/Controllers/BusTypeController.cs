@@ -21,7 +21,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
 
         // POST /BusCoordinator/BusType/Create  (AJAX — row insert)
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(SaveBusTypeDto dto)
+        public async Task<IActionResult> Create([FromBody] SaveBusTypeDto dto)
         {
             if (!PermissionHelper.Can(User, "bustype.add"))
                 return Json(new { success = false, message = "Permission denied." });
@@ -46,7 +46,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
 
         // POST /BusCoordinator/BusType/Edit/{id}  (AJAX — row update)
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, SaveBusTypeDto dto)
+        public async Task<IActionResult> Edit(int id, [FromBody] SaveBusTypeDto dto)
         {
             if (!PermissionHelper.Can(User, "bustype.edit"))
                 return Json(new { success = false, message = "Permission denied." });
