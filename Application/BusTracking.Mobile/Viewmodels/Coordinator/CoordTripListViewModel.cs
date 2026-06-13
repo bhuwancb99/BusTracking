@@ -37,6 +37,11 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         private Task DetailAsync(TripItem t) =>
             Nav.GoToAsync("CoordTripDetail", new Dictionary<string, object> { ["TripId"] = t.TripId });
 
+        // ── NEW: open live map for an InProgress trip ─────────────────────
+        [RelayCommand]
+        private Task TrackLiveAsync(TripItem t) =>
+            Nav.GoToAsync("LiveTracking", new Dictionary<string, object> { ["TripId"] = t.TripId });
+
         [RelayCommand]
         private async Task StartAsync(TripItem t)
         {

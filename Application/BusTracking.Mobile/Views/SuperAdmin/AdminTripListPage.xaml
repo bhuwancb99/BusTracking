@@ -165,76 +165,97 @@
                         </Border.GestureRecognizers>
                         <Grid
                             Padding="14"
-                            ColumnDefinitions="Auto,*,Auto"
-                            ColumnSpacing="12">
-                            <Border
-                                Grid.Column="0"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg},
-                                                                  Dark={StaticResource StatTripBgDark}}"
-                                Style="{StaticResource IconTileBorder}"
-                                VerticalOptions="Center">
-                                <Image
-                                    HeightRequest="22"
-                                    HorizontalOptions="Center"
-                                    Source="trip.png"
-                                    VerticalOptions="Center"
-                                    WidthRequest="22">
-                                    <Image.Behaviors>
-                                        <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
-                                    </Image.Behaviors>
-                                </Image>
-                            </Border>
-                            <VerticalStackLayout
-                                Grid.Column="1"
-                                Spacing="4"
-                                VerticalOptions="Center">
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontSize="15"
-                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                                Dark={StaticResource TextPrimaryDark}}">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span Text="{Binding TripTypeIcon}" />
-                                            <Span Text=" " />
-                                            <Span FontAttributes="Bold" Text="{Binding TripType}" />
-                                            <Span Text=" – " />
-                                            <Span Text="{Binding TripDate}" />
-                                        </FormattedString>
-                                    </Label.FormattedText>
-                                </Label>
-                                <Label FontSize="12">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span
-                                                FontAttributes="Bold"
-                                                Text="{Binding BusNumber}"
-                                                TextColor="{StaticResource Primary}" />
-                                            <Span Text=" · " TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
-                                            <Span Text="{Binding DriverName}" TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
-                                        </FormattedString>
-                                    </Label.FormattedText>
-                                </Label>
-                                <Label
-                                    FontSize="11"
-                                    Text="{Binding RouteName}"
-                                    TextColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                                Dark={StaticResource TextMutedDark}}" />
-                            </VerticalStackLayout>
+                            RowDefinitions="Auto,Auto"
+                            RowSpacing="10">
 
-                            <Border
-                                Grid.Column="2"
-                                Padding="8,4"
-                                BackgroundColor="{Binding StatusColor, Converter={StaticResource ColorToTranslucentConverter}}"
-                                Stroke="Transparent"
-                                StrokeShape="RoundRectangle 20"
-                                VerticalOptions="Start">
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontSize="10"
-                                    Text="{Binding Status}"
-                                    TextColor="{Binding StatusColor}" />
-                            </Border>
+                            <!--  Row 0: trip info  -->
+                            <Grid
+                                Grid.Row="0"
+                                ColumnDefinitions="Auto,*,Auto"
+                                ColumnSpacing="12">
+                                <Border
+                                    Grid.Column="0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg},
+                                                                      Dark={StaticResource StatTripBgDark}}"
+                                    Style="{StaticResource IconTileBorder}"
+                                    VerticalOptions="Center">
+                                    <Image
+                                        HeightRequest="22"
+                                        HorizontalOptions="Center"
+                                        Source="trip.png"
+                                        VerticalOptions="Center"
+                                        WidthRequest="22">
+                                        <Image.Behaviors>
+                                            <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                        </Image.Behaviors>
+                                    </Image>
+                                </Border>
+                                <VerticalStackLayout
+                                    Grid.Column="1"
+                                    Spacing="4"
+                                    VerticalOptions="Center">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="15"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                    Dark={StaticResource TextPrimaryDark}}">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding TripTypeIcon}" />
+                                                <Span Text=" " />
+                                                <Span FontAttributes="Bold" Text="{Binding TripType}" />
+                                                <Span Text=" – " />
+                                                <Span Text="{Binding TripDate}" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                    <Label FontSize="12">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span
+                                                    FontAttributes="Bold"
+                                                    Text="{Binding BusNumber}"
+                                                    TextColor="{StaticResource Primary}" />
+                                                <Span Text=" · " TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                                                <Span Text="{Binding DriverName}" TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                    <Label
+                                        FontSize="11"
+                                        Text="{Binding RouteName}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                    Dark={StaticResource TextMutedDark}}" />
+                                </VerticalStackLayout>
+                                <Border
+                                    Grid.Column="2"
+                                    Padding="8,4"
+                                    BackgroundColor="{Binding StatusColor, Converter={StaticResource ColorToTranslucentConverter}}"
+                                    Stroke="Transparent"
+                                    StrokeShape="RoundRectangle 20"
+                                    VerticalOptions="Start">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="10"
+                                        Text="{Binding Status}"
+                                        TextColor="{Binding StatusColor}" />
+                                </Border>
+                            </Grid>
+
+                            <!--  Row 1: 📍 Track Live button — only when InProgress  -->
+                            <Button
+                                Grid.Row="1"
+                                BackgroundColor="#6366f1"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminTripListViewModel}}, Path=TrackLiveCommand}"
+                                CommandParameter="{Binding .}"
+                                CornerRadius="10"
+                                FontAttributes="Bold"
+                                FontSize="13"
+                                HeightRequest="38"
+                                HorizontalOptions="Fill"
+                                IsVisible="{Binding Status, Converter={StaticResource StatusToEndVisible}}"
+                                Text="📍 Track Live"
+                                TextColor="White" />
                         </Grid>
                     </Border>
                 </DataTemplate>

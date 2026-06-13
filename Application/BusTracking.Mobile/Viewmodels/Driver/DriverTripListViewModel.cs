@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.Driver
+namespace BusTracking.Mobile.Viewmodels.Driver
 {
     public partial class DriverTripListViewModel : BaseViewModel
     {
@@ -38,35 +38,41 @@
         {
             if (trip.Status == "InProgress")
             {
-                // Go straight to live tracking
+                // Already started — go straight to tracking page
                 await Nav.GoToAsync("DriverTracking",
                     new Dictionary<string, object> { ["TripId"] = trip.TripId });
+                return;
             }
-            else
+
+            if (trip.Status == "Scheduled")
             {
-                // Show detail / start options
-                await Nav.GoToAsync("DriverTripDetail",
-                    new Dictionary<string, object> { ["TripId"] = trip.TripId });
+                // Confirm then start the trip — merged from removed StartTripAsync
+                if (!await ConfirmAsync("Start Trip", $"Start the {trip.TripType} trip for {trip.TripDate}?"))
+                    return;
+                await RunAsync(async () =>
+                {
+                    var r = await _driverTrip.StartTripAsync(trip.TripId);
+                    if (r.Success)
+                    {
+                        await ShowToastAsync("Trip started.");
+                        await Nav.GoToAsync("DriverTracking",
+                            new Dictionary<string, object> { ["TripId"] = trip.TripId });
+                    }
+                    else SetError(r.Message);
+                });
+                return;
             }
+
+            // Completed / Cancelled — open detail view (read-only)
+            await Nav.GoToAsync("DriverTripDetail",
+                new Dictionary<string, object> { ["TripId"] = trip.TripId });
         }
 
+        // ── Driver watches live map for their own InProgress trip ─────────
         [RelayCommand]
-        private async Task StartTripAsync(DriverTripItem trip)
-        {
-            if (!await ConfirmAsync("Start Trip", $"Start the {trip.TripType} trip for {trip.TripDate}?"))
-                return;
-            await RunAsync(async () =>
-            {
-                var r = await _driverTrip.StartTripAsync(trip.TripId);
-                if (r.Success)
-                {
-                    await ShowToastAsync("Trip started.");
-                    await Nav.GoToAsync("DriverTracking",
-                        new Dictionary<string, object> { ["TripId"] = trip.TripId });
-                }
-                else SetError(r.Message);
-            });
-        }
+        private Task TrackLiveAsync(DriverTripItem trip) =>
+            Nav.GoToAsync("LiveTracking",
+                new Dictionary<string, object> { ["TripId"] = trip.TripId });
 
         [RelayCommand]
         private async Task CancelTripAsync(DriverTripItem trip)

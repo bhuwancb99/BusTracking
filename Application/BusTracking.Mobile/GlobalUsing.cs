@@ -45,3 +45,5 @@ global using BusTracking.Mobile.Models.Notification;
 global using BusTracking.Mobile.Helpers;
 global using BusTracking.Mobile.Viewmodels.Common;
 global using Microsoft.AspNetCore.SignalR.Client;
+global using BusTracking.Mobile.Viewmodels.Shared;
+global using BusTracking.Mobile.Views.Shared;

@@ -1,12 +1,12 @@
-namespace BusTracking.Mobile.Views.Parent;
+namespace BusTracking.Mobile.Views.Shared;
 
-public partial class ParentLiveTrackingPage : ViewBase<ParentLiveTrackingViewModel>
+public partial class LiveTrackingPage : ViewBase<LiveTrackingViewModel>
 {
-    public ParentLiveTrackingPage(ParentLiveTrackingViewModel vm) : base(vm)
+    public LiveTrackingPage(LiveTrackingViewModel vm) : base(vm)
     {
         InitializeComponent();
 
-        // Wire JS bridge: ViewModel → WebView
+        // Wire the JS bridge: ViewModel → WebView
         vm.SendToMap = js =>
             MainThread.BeginInvokeOnMainThread(async () =>
             {
@@ -20,8 +20,6 @@ public partial class ParentLiveTrackingPage : ViewBase<ParentLiveTrackingViewMod
         base.OnAppearing();
         Shell.SetNavBarIsVisible(this, false);
     }
-
-    // Cleanup SignalR subscriptions when page is left — correct place per project pattern
     protected override void OnDisappearing()
     {
         ViewModel.Cleanup();

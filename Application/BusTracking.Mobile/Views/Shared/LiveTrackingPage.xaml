@@ -1,42 +1,43 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
-    x:Class="BusTracking.Mobile.Views.Parent.ParentLiveTrackingPage"
+    x:Class="BusTracking.Mobile.Views.Shared.LiveTrackingPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     xmlns:tracking="clr-namespace:BusTracking.Mobile.Models.Tracking"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
-    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Parent"
-    x:DataType="vm:ParentLiveTrackingViewModel"
-    x:TypeArguments="vm:ParentLiveTrackingViewModel">
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Shared"
+    x:DataType="vm:LiveTrackingViewModel"
+    x:TypeArguments="vm:LiveTrackingViewModel">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="Transparent" StatusBarStyle="DarkContent" />
     </views:ViewBase.Behaviors>
 
-    <!--  Full-screen Grid: map underneath, panels on top (same as Uber/Ola)  -->
+    <!--  Full-screen stack: map fills screen, panels float on top  -->
     <Grid>
 
-        <!--  ═══════════════════════════════════════════════════════════════  -->
-        <!--  LAYER 1 — Google Maps WebView (fills entire screen)  -->
-        <!--  ═══════════════════════════════════════════════════════════════  -->
+        <!--  ══════════════════════════════════════════════════════════════  -->
+        <!--  LAYER 1 — Google Maps WebView  -->
+        <!--  ══════════════════════════════════════════════════════════════  -->
         <WebView
             x:Name="MapWebView"
             HorizontalOptions="Fill"
             Source="tracking_map.html"
             VerticalOptions="Fill" />
 
-        <!--  ═══════════════════════════════════════════════════════════════  -->
-        <!--  LAYER 2 — Top bar (back + live pill + bus info)  -->
-        <!--  ═══════════════════════════════════════════════════════════════  -->
+        <!--  ══════════════════════════════════════════════════════════════  -->
+        <!--  LAYER 2 — Top bar: back button + live pill + bus card  -->
+        <!--  ══════════════════════════════════════════════════════════════  -->
         <Grid
-            Margin="0"
             Padding="14,50,14,14"
             RowDefinitions="Auto,Auto"
             VerticalOptions="Start">
 
-            <!--  Back button + Live status pill  -->
+            <!--  Row 0: back + live pill  -->
             <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+
+                <!--  Back button  -->
                 <Border
                     Grid.Column="0"
                     Padding="0"
@@ -64,9 +65,22 @@
                 <Border
                     Grid.Column="2"
                     Padding="12,6"
-                    BackgroundColor="{Binding IsLive, Converter={StaticResource BoolToLiveBg}}"
                     StrokeShape="RoundRectangle 20"
                     StrokeThickness="0">
+                    <Border.Triggers>
+                        <DataTrigger
+                            Binding="{Binding IsLive}"
+                            TargetType="Border"
+                            Value="True">
+                            <Setter Property="BackgroundColor" Value="#16a34a" />
+                        </DataTrigger>
+                        <DataTrigger
+                            Binding="{Binding IsLive}"
+                            TargetType="Border"
+                            Value="False">
+                            <Setter Property="BackgroundColor" Value="#64748b" />
+                        </DataTrigger>
+                    </Border.Triggers>
                     <Border.Shadow>
                         <Shadow
                             Brush="#20000000"
@@ -82,7 +96,7 @@
                 </Border>
             </Grid>
 
-            <!--  Bus info card  -->
+            <!--  Row 1: bus info card  -->
             <Border
                 Grid.Row="1"
                 Margin="0,10,0,0"
@@ -97,6 +111,8 @@
                         Offset="0,3" />
                 </Border.Shadow>
                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+
+                    <!--  Bus icon badge  -->
                     <Border
                         Grid.Column="0"
                         Padding="0"
@@ -111,6 +127,7 @@
                             VerticalOptions="Center" />
                     </Border>
 
+                    <!--  Bus name + number  -->
                     <VerticalStackLayout
                         Grid.Column="1"
                         Spacing="2"
@@ -126,6 +143,7 @@
                             TextColor="#666" />
                     </VerticalStackLayout>
 
+                    <!--  Speed + last update  -->
                     <VerticalStackLayout
                         Grid.Column="2"
                         HorizontalOptions="End"
@@ -147,11 +165,10 @@
             </Border>
         </Grid>
 
-        <!--  ═══════════════════════════════════════════════════════════════  -->
+        <!--  ══════════════════════════════════════════════════════════════  -->
         <!--  LAYER 3 — Bottom sheet: route stops list  -->
-        <!--  ═══════════════════════════════════════════════════════════════  -->
+        <!--  ══════════════════════════════════════════════════════════════  -->
         <Border
-            Margin="0"
             Padding="0"
             BackgroundColor="White"
             StrokeShape="RoundRectangle 24,24,0,0"
@@ -163,8 +180,9 @@
                     Radius="16"
                     Offset="0,-4" />
             </Border.Shadow>
-
             <VerticalStackLayout>
+
+                <!--  Drag handle  -->
                 <BoxView
                     Margin="0,10,0,8"
                     BackgroundColor="#e5e7eb"
@@ -180,53 +198,67 @@
                     Text="Route Stops"
                     TextColor="#1a1a2e" />
 
+                <!--  Empty state  -->
+                <Label
+                    Margin="18,0,18,20"
+                    FontSize="13"
+                    IsVisible="{Binding IsEmpty}"
+                    Text="No stop data for this trip."
+                    TextColor="#94a3b8" />
+
+                <!--  Stops list  -->
                 <CollectionView
-                    Margin="0,0,0,20"
-                    HeightRequest="180"
+                    Margin="0,0,0,24"
+                    HeightRequest="200"
+                    IsVisible="{Binding IsEmpty, Converter={StaticResource InvertBoolConverter}}"
                     ItemsSource="{Binding Stops}">
                     <CollectionView.ItemsLayout>
                         <LinearItemsLayout ItemSpacing="0" Orientation="Vertical" />
                     </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
-                        <DataTemplate x:DataType="tracking:RouteStopPin">
+                        <DataTemplate x:DataType="tracking:StopStatus">
                             <Grid
-                                Padding="18,8"
-                                ColumnDefinitions="Auto,Auto,*,Auto"
-                                ColumnSpacing="10">
+                                Padding="18,10"
+                                ColumnDefinitions="28,12,*,Auto"
+                                ColumnSpacing="0">
 
-                                <BoxView
+                                <!--  Numbered circle  -->
+                                <Border
                                     Grid.Column="0"
-                                    BackgroundColor="#e5e7eb"
-                                    HorizontalOptions="Center"
-                                    VerticalOptions="Fill"
-                                    WidthRequest="2" />
+                                    BackgroundColor="{Binding StatusColor}"
+                                    HeightRequest="28"
+                                    StrokeShape="RoundRectangle 14"
+                                    StrokeThickness="0"
+                                    WidthRequest="28">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="11"
+                                        HorizontalOptions="Center"
+                                        Text="{Binding StopOrder}"
+                                        TextColor="White"
+                                        VerticalOptions="Center" />
+                                </Border>
 
-                                <Ellipse
-                                    Grid.Column="0"
-                                    Fill="{Binding Status, Converter={StaticResource StopStatusToColor}}"
-                                    HeightRequest="14"
-                                    HorizontalOptions="Center"
-                                    VerticalOptions="Center"
-                                    WidthRequest="14" />
-
+                                <!--  Stop name  -->
                                 <Label
                                     Grid.Column="2"
                                     FontSize="13"
                                     Text="{Binding StopName}"
-                                    TextColor="#333"
+                                    TextColor="#1a1a2e"
                                     VerticalOptions="Center" />
 
+                                <!--  Status badge  -->
                                 <Border
                                     Grid.Column="3"
                                     Padding="8,3"
-                                    BackgroundColor="{Binding Status, Converter={StaticResource StopStatusToBg}}"
+                                    BackgroundColor="{Binding StatusColor}"
                                     StrokeShape="RoundRectangle 10"
                                     StrokeThickness="0"
                                     VerticalOptions="Center">
                                     <Label
                                         FontSize="10"
                                         Text="{Binding Status}"
-                                        TextColor="{Binding Status, Converter={StaticResource StopStatusToFg}}" />
+                                        TextColor="White" />
                                 </Border>
                             </Grid>
                         </DataTemplate>
@@ -235,9 +267,9 @@
             </VerticalStackLayout>
         </Border>
 
-        <!--  ═══════════════════════════════════════════════════════════════  -->
-        <!--  LAYER 4 — "Trip Ended" overlay  -->
-        <!--  ═══════════════════════════════════════════════════════════════  -->
+        <!--  ══════════════════════════════════════════════════════════════  -->
+        <!--  LAYER 4 — Trip Ended overlay  -->
+        <!--  ══════════════════════════════════════════════════════════════  -->
         <Border
             BackgroundColor="#CC000000"
             IsVisible="{Binding TripEnded}"
@@ -259,7 +291,7 @@
                 <Label
                     FontSize="14"
                     HorizontalOptions="Center"
-                    Text="Your child's bus has reached the destination."
+                    Text="The bus has reached the final stop."
                     TextColor="#ccc" />
                 <Button
                     Margin="40,10"
@@ -272,9 +304,9 @@
             </VerticalStackLayout>
         </Border>
 
-        <!--  ═══════════════════════════════════════════════════════════════  -->
+        <!--  ══════════════════════════════════════════════════════════════  -->
         <!--  LAYER 5 — Connecting spinner  -->
-        <!--  ═══════════════════════════════════════════════════════════════  -->
+        <!--  ══════════════════════════════════════════════════════════════  -->
         <Border
             BackgroundColor="#99FFFFFF"
             IsVisible="{Binding IsBusy}"

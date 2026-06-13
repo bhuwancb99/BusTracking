@@ -205,10 +205,10 @@
 	  <MauiXaml Update="Views\Parent\ParentFeedbackPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Parent\ParentLiveTrackingPage.xaml">
+	  <MauiXaml Update="Views\Parent\ParentTrackingPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\Parent\ParentTrackingPage.xaml">
+	  <MauiXaml Update="Views\Shared\LiveTrackingPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\Student\StudentAvailabilityPage.xaml">

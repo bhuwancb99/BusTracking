@@ -11,6 +11,7 @@
     xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     xmlns:model="clr-namespace:BusTracking.Mobile.Models"
     xmlns:parent="clr-namespace:BusTracking.Mobile.Views.Parent"
+    xmlns:shared="clr-namespace:BusTracking.Mobile.Views.Shared"
     xmlns:student="clr-namespace:BusTracking.Mobile.Views.Student"
     FlyoutBehavior="Flyout"
     FlyoutWidth="270"
@@ -408,11 +409,6 @@
         ContentTemplate="{DataTemplate parent:ParentFeedbackPage}"
         FlyoutItemIsVisible="False"
         Route="ParentFeedback" />
-    <ShellContent
-        Title="Live Tracking"
-        ContentTemplate="{DataTemplate parent:ParentLiveTrackingPage}"
-        FlyoutItemIsVisible="False"
-        Route="ParentLiveTracking" />
 
     <!--  Student  -->
     <ShellContent
@@ -437,5 +433,11 @@
         FlyoutItemIsVisible="False"
         Route="Profile"
         Shell.NavBarIsVisible="True" />
+
+    <ShellContent
+        Title="Live Tracking"
+        ContentTemplate="{DataTemplate shared:LiveTrackingPage}"
+        FlyoutItemIsVisible="False"
+        Route="LiveTracking" />
 
 </Shell>
