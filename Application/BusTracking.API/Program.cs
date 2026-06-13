@@ -27,12 +27,42 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
+
+        // ── SignalR: accept JWT from query string (?access_token=...)
+        // WebSocket connections cannot set HTTP headers, so the token
+        // must travel in the URL. This is the standard ASP.NET Core pattern.
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = ctx =>
+            {
+                var token = ctx.Request.Query["access_token"];
+                var path = ctx.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(token) &&
+                    path.StartsWithSegments("/hubs"))
+                {
+                    ctx.Token = token;
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
 
+// ── SignalR ──────────────────────────────────────────────────────────────────
+builder.Services.AddSignalR(o =>
+{
+    o.EnableDetailedErrors = builder.Environment.IsDevelopment();
+    o.KeepAliveInterval = TimeSpan.FromSeconds(15);
+    o.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
+});
+
+// ── CORS — must use SetIsOriginAllowed + AllowCredentials for SignalR ────────
 builder.Services.AddCors(o => o.AddPolicy("AllowAll", p =>
-    p.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+    p.SetIsOriginAllowed(_ => true)
+     .AllowAnyMethod()
+     .AllowAnyHeader()
+     .AllowCredentials()));
 
 //builder.WebHost.UseUrls("https://0.0.0.0:7001", "http://0.0.0.0:5001");
 
@@ -51,12 +81,15 @@ var mediaFolder = Path.Combine(builder.Environment.ContentRootPath, "media");
 Directory.CreateDirectory(mediaFolder);
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(mediaFolder),
+    FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(mediaFolder),
     RequestPath = "/media"
 });
 
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// ── SignalR hub endpoint ─────────────────────────────────────────────────────
+app.MapHub<BusTracking.API.Hubs.TripTrackingHub>("/hubs/tracking");
 
 app.Run();

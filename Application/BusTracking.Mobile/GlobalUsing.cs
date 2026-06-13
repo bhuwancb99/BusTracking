@@ -44,3 +44,4 @@ global using System.Text.Json;
 global using BusTracking.Mobile.Models.Notification;
 global using BusTracking.Mobile.Helpers;
 global using BusTracking.Mobile.Viewmodels.Common;
+global using Microsoft.AspNetCore.SignalR.Client;

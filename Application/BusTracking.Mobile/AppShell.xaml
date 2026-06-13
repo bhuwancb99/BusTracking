@@ -408,6 +408,11 @@
         ContentTemplate="{DataTemplate parent:ParentFeedbackPage}"
         FlyoutItemIsVisible="False"
         Route="ParentFeedback" />
+    <ShellContent
+        Title="Live Tracking"
+        ContentTemplate="{DataTemplate parent:ParentLiveTrackingPage}"
+        FlyoutItemIsVisible="False"
+        Route="ParentLiveTracking" />
 
     <!--  Student  -->
     <ShellContent

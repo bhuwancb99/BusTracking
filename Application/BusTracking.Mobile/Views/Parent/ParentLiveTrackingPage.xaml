@@ -1,0 +1,296 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.Parent.ParentLiveTrackingPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:tracking="clr-namespace:BusTracking.Mobile.Models.Tracking"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Parent"
+    x:DataType="vm:ParentLiveTrackingViewModel"
+    x:TypeArguments="vm:ParentLiveTrackingViewModel">
+
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="Transparent" StatusBarStyle="DarkContent" />
+    </views:ViewBase.Behaviors>
+
+    <!--  Full-screen Grid: map underneath, panels on top (same as Uber/Ola)  -->
+    <Grid>
+
+        <!--  ═══════════════════════════════════════════════════════════════  -->
+        <!--  LAYER 1 — Google Maps WebView (fills entire screen)  -->
+        <!--  ═══════════════════════════════════════════════════════════════  -->
+        <WebView
+            x:Name="MapWebView"
+            HorizontalOptions="Fill"
+            Source="tracking_map.html"
+            VerticalOptions="Fill" />
+
+        <!--  ═══════════════════════════════════════════════════════════════  -->
+        <!--  LAYER 2 — Top bar (back + live pill + bus info)  -->
+        <!--  ═══════════════════════════════════════════════════════════════  -->
+        <Grid
+            Margin="0"
+            Padding="14,50,14,14"
+            RowDefinitions="Auto,Auto"
+            VerticalOptions="Start">
+
+            <!--  Back button + Live status pill  -->
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+                <Border
+                    Grid.Column="0"
+                    Padding="0"
+                    BackgroundColor="White"
+                    HeightRequest="40"
+                    StrokeShape="RoundRectangle 20"
+                    WidthRequest="40">
+                    <Border.Shadow>
+                        <Shadow
+                            Brush="#20000000"
+                            Radius="6"
+                            Offset="0,2" />
+                    </Border.Shadow>
+                    <ImageButton
+                        BackgroundColor="Transparent"
+                        Command="{Binding GoBackCommand}"
+                        HeightRequest="24"
+                        HorizontalOptions="Center"
+                        Source="back.png"
+                        VerticalOptions="Center"
+                        WidthRequest="24" />
+                </Border>
+
+                <!--  Live / Reconnecting pill  -->
+                <Border
+                    Grid.Column="2"
+                    Padding="12,6"
+                    BackgroundColor="{Binding IsLive, Converter={StaticResource BoolToLiveBg}}"
+                    StrokeShape="RoundRectangle 20"
+                    StrokeThickness="0">
+                    <Border.Shadow>
+                        <Shadow
+                            Brush="#20000000"
+                            Radius="6"
+                            Offset="0,2" />
+                    </Border.Shadow>
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="{Binding ConnectionStatus}"
+                        TextColor="White"
+                        VerticalOptions="Center" />
+                </Border>
+            </Grid>
+
+            <!--  Bus info card  -->
+            <Border
+                Grid.Row="1"
+                Margin="0,10,0,0"
+                Padding="14,12"
+                BackgroundColor="White"
+                StrokeShape="RoundRectangle 16"
+                StrokeThickness="0">
+                <Border.Shadow>
+                    <Shadow
+                        Brush="#25000000"
+                        Radius="10"
+                        Offset="0,3" />
+                </Border.Shadow>
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                    <Border
+                        Grid.Column="0"
+                        Padding="0"
+                        BackgroundColor="#EEF2FF"
+                        HeightRequest="46"
+                        StrokeShape="RoundRectangle 12"
+                        WidthRequest="46">
+                        <Label
+                            FontSize="22"
+                            HorizontalOptions="Center"
+                            Text="🚌"
+                            VerticalOptions="Center" />
+                    </Border>
+
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Spacing="2"
+                        VerticalOptions="Center">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="15"
+                            Text="{Binding BusName}"
+                            TextColor="#1a1a2e" />
+                        <Label
+                            FontSize="12"
+                            Text="{Binding BusNumber}"
+                            TextColor="#666" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout
+                        Grid.Column="2"
+                        HorizontalOptions="End"
+                        Spacing="2"
+                        VerticalOptions="Center">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="15"
+                            HorizontalOptions="End"
+                            Text="{Binding SpeedLabel}"
+                            TextColor="#6366f1" />
+                        <Label
+                            FontSize="10"
+                            HorizontalOptions="End"
+                            Text="{Binding LastUpdateLabel}"
+                            TextColor="#aaa" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!--  ═══════════════════════════════════════════════════════════════  -->
+        <!--  LAYER 3 — Bottom sheet: route stops list  -->
+        <!--  ═══════════════════════════════════════════════════════════════  -->
+        <Border
+            Margin="0"
+            Padding="0"
+            BackgroundColor="White"
+            StrokeShape="RoundRectangle 24,24,0,0"
+            StrokeThickness="0"
+            VerticalOptions="End">
+            <Border.Shadow>
+                <Shadow
+                    Brush="#30000000"
+                    Radius="16"
+                    Offset="0,-4" />
+            </Border.Shadow>
+
+            <VerticalStackLayout>
+                <BoxView
+                    Margin="0,10,0,8"
+                    BackgroundColor="#e5e7eb"
+                    CornerRadius="3"
+                    HeightRequest="4"
+                    HorizontalOptions="Center"
+                    WidthRequest="40" />
+
+                <Label
+                    Margin="18,4,18,10"
+                    FontAttributes="Bold"
+                    FontSize="15"
+                    Text="Route Stops"
+                    TextColor="#1a1a2e" />
+
+                <CollectionView
+                    Margin="0,0,0,20"
+                    HeightRequest="180"
+                    ItemsSource="{Binding Stops}">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout ItemSpacing="0" Orientation="Vertical" />
+                    </CollectionView.ItemsLayout>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="tracking:RouteStopPin">
+                            <Grid
+                                Padding="18,8"
+                                ColumnDefinitions="Auto,Auto,*,Auto"
+                                ColumnSpacing="10">
+
+                                <BoxView
+                                    Grid.Column="0"
+                                    BackgroundColor="#e5e7eb"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Fill"
+                                    WidthRequest="2" />
+
+                                <Ellipse
+                                    Grid.Column="0"
+                                    Fill="{Binding Status, Converter={StaticResource StopStatusToColor}}"
+                                    HeightRequest="14"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"
+                                    WidthRequest="14" />
+
+                                <Label
+                                    Grid.Column="2"
+                                    FontSize="13"
+                                    Text="{Binding StopName}"
+                                    TextColor="#333"
+                                    VerticalOptions="Center" />
+
+                                <Border
+                                    Grid.Column="3"
+                                    Padding="8,3"
+                                    BackgroundColor="{Binding Status, Converter={StaticResource StopStatusToBg}}"
+                                    StrokeShape="RoundRectangle 10"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center">
+                                    <Label
+                                        FontSize="10"
+                                        Text="{Binding Status}"
+                                        TextColor="{Binding Status, Converter={StaticResource StopStatusToFg}}" />
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </VerticalStackLayout>
+        </Border>
+
+        <!--  ═══════════════════════════════════════════════════════════════  -->
+        <!--  LAYER 4 — "Trip Ended" overlay  -->
+        <!--  ═══════════════════════════════════════════════════════════════  -->
+        <Border
+            BackgroundColor="#CC000000"
+            IsVisible="{Binding TripEnded}"
+            StrokeThickness="0">
+            <VerticalStackLayout
+                HorizontalOptions="Center"
+                Spacing="16"
+                VerticalOptions="Center">
+                <Label
+                    FontSize="48"
+                    HorizontalOptions="Center"
+                    Text="🏁" />
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="22"
+                    HorizontalOptions="Center"
+                    Text="Trip Completed!"
+                    TextColor="White" />
+                <Label
+                    FontSize="14"
+                    HorizontalOptions="Center"
+                    Text="Your child's bus has reached the destination."
+                    TextColor="#ccc" />
+                <Button
+                    Margin="40,10"
+                    BackgroundColor="#6366f1"
+                    Command="{Binding GoBackCommand}"
+                    CornerRadius="14"
+                    FontAttributes="Bold"
+                    Text="OK, Go Back"
+                    TextColor="White" />
+            </VerticalStackLayout>
+        </Border>
+
+        <!--  ═══════════════════════════════════════════════════════════════  -->
+        <!--  LAYER 5 — Connecting spinner  -->
+        <!--  ═══════════════════════════════════════════════════════════════  -->
+        <Border
+            BackgroundColor="#99FFFFFF"
+            IsVisible="{Binding IsBusy}"
+            StrokeThickness="0">
+            <VerticalStackLayout
+                HorizontalOptions="Center"
+                Spacing="12"
+                VerticalOptions="Center">
+                <ActivityIndicator IsRunning="True" Color="#6366f1" />
+                <Label
+                    FontSize="14"
+                    HorizontalOptions="Center"
+                    Text="Connecting to live tracking…"
+                    TextColor="#333" />
+            </VerticalStackLayout>
+        </Border>
+
+    </Grid>
+</views:ViewBase>

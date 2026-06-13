@@ -186,6 +186,7 @@ public static class Constants
         public const string TrackBus = "/api/parent/children/{0}/track";
         public const string Availability = "/api/parent/children/{0}/availability";
         public const string TripHistory = "/api/parent/trips/history";
+        public const string TripRouteInfo = "/api/parent/trips/{0}/route-info";
     }
 
     // ── Common  →  NotificationsController / FeedbackController / ProfileController ─
@@ -197,6 +198,9 @@ public static class Constants
         public const string ProfilePhoto = "/api/profile/photo";   // POST multipart | DELETE
         public const string Feedback = "/api/feedback";
     }
+
+    // SignalR hub URL (used by TrackingHubService)
+    public const string TrackingHubUrl = ApiBaseUrl + "/hubs/tracking";
 
     // ── Local DB ──────────────────────────────────────────────────────────
     public static class Database

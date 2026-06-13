@@ -1,25 +1,26 @@
-﻿namespace BusTracking.API.Controllers
+namespace BusTracking.API.Controllers
 {
     [Authorize(Roles = "Driver"), Route("api/[controller]")]
     public class LocationController : ApiBaseController
     {
         private readonly AppDbContext _db;
-        public LocationController(AppDbContext db) => _db = db;
+        private readonly IHubContext<TripTrackingHub> _hub;
 
-        public class GpsPingRequest
+        public LocationController(AppDbContext db, IHubContext<TripTrackingHub> hub)
         {
-            public int TripId { get; set; }
-            public int BusId { get; set; }
-            public decimal Latitude { get; set; }
-            public decimal Longitude { get; set; }
-            public decimal? Speed { get; set; }
-            public decimal? Heading { get; set; }
+            _db = db;
+            _hub = hub;
         }
 
-        /// <summary>Receive GPS ping from MAUI Driver app</summary>
+        /// <summary>
+        /// POST /api/location/ping
+        /// Driver GPS ping → saves to DB + broadcasts to SignalR group instantly.
+        /// Called by DriverTrackingViewModel every 5 seconds during an active trip.
+        /// </summary>
         [HttpPost("ping")]
         public async Task<IActionResult> Ping([FromBody] GpsPingRequest req)
         {
+            // 1. Persist
             _db.BusLiveLocations.Add(new BusLiveLocation
             {
                 TripId = req.TripId,
@@ -31,10 +32,21 @@
                 RecordedAt = DateTime.UtcNow
             });
             await _db.SaveChangesAsync();
+
+            // 2. Real-time broadcast to everyone watching this trip
+            await _hub.Clients.Group($"trip-{req.TripId}")
+                .SendAsync("BusLocationUpdated",
+                    req.Latitude, req.Longitude,
+                    req.Speed, req.Heading,
+                    DateTime.UtcNow.ToString("o"));
+
             return Ok(ApiResponse<bool>.Ok(true));
         }
 
-        /// <summary>Get latest bus location (Student/Parent view)</summary>
+        /// <summary>
+        /// GET /api/location/{tripId}/latest
+        /// Returns the last known location for late-joining clients.
+        /// </summary>
         [Authorize, HttpGet("{tripId}/latest")]
         public async Task<IActionResult> GetLatest(int tripId)
         {
@@ -51,8 +63,26 @@
                 })
                 .FirstOrDefaultAsync();
 
-            if (loc is null) return NotFound(ApiResponse<BusLocationDto>.Fail("No location data."));
+            if (loc is null)
+                return NotFound(ApiResponse<BusLocationDto>.Fail("No location data yet."));
+
             return Ok(ApiResponse<BusLocationDto>.Ok(loc));
+        }
+
+        /// <summary>
+        /// GET /api/location/{tripId}/history
+        /// Full polyline path for the route replay view.
+        /// </summary>
+        [Authorize, HttpGet("{tripId}/history")]
+        public async Task<IActionResult> GetHistory(int tripId)
+        {
+            var history = await _db.BusLiveLocations
+                .Where(l => l.TripId == tripId)
+                .OrderBy(l => l.RecordedAt)
+                .Select(l => new { l.Latitude, l.Longitude, l.Speed, l.RecordedAt })
+                .ToListAsync();
+
+            return Ok(ApiResponse<object>.Ok(history));
         }
     }
 }

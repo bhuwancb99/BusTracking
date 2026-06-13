@@ -82,6 +82,8 @@ namespace BusTracking.Mobile
             // ── Driver — Detail page ──────────────────────────────────────────
             Routing.RegisterRoute("DriverTripDetail", typeof(DriverTripDetailPage));
             Routing.RegisterRoute("DriverNotification", typeof(DriverNotificationPage));
+
+            Routing.RegisterRoute("ParentLiveTracking", typeof(ParentLiveTrackingPage));
         }
 
         // ── Services ──────────────────────────────────────────────────────────
@@ -107,6 +109,7 @@ namespace BusTracking.Mobile
             s.AddTransient<ICoordSubAdminService, CoordSubAdminService>();
             s.AddTransient<ICoordAppConfigService, CoordAppConfigService>();
             s.AddTransient<IDriverTripService, DriverTripService>();
+            s.AddSingleton<ITrackingHubService, TrackingHubService>();
         }
 
         // ── ViewModels ────────────────────────────────────────────────────────
@@ -188,6 +191,8 @@ namespace BusTracking.Mobile
             s.AddTransient<StudentDashboardViewModel>();
             s.AddTransient<StudentTrackingViewModel>();
             s.AddTransient<StudentAvailabilityViewModel>();
+
+            s.AddTransient<ParentLiveTrackingViewModel>();
         }
 
         // ── Views (Pages) ─────────────────────────────────────────────────────
@@ -272,6 +277,8 @@ namespace BusTracking.Mobile
             s.AddTransient<StudentDashboardPage>();
             s.AddTransient<StudentTrackingPage>();
             s.AddTransient<StudentAvailabilityPage>();
+
+            s.AddTransient<ParentLiveTrackingPage>();
         }
 
         // ── Control Handlers ──────────────────────────────────────────────────
