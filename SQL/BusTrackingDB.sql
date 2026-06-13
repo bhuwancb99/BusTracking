@@ -74,6 +74,10 @@ INSERT INTO Permissions (ModuleName, PermissionKey, Description) VALUES
 ('ManageBuses',         'bus.edit',                 'Edit bus'),
 ('ManageBuses',         'bus.delete',               'Delete bus'),
 ('ManageBuses',         'bus.track',                'Track bus live'),
+('ManageBusTypes',      'bustype.view',             'View bus types'),
+('ManageBusTypes',      'bustype.add',              'Add bus type'),
+('ManageBusTypes',      'bustype.edit',             'Edit bus type'),
+('ManageBusTypes',      'bustype.delete',           'Delete bus type'),
 ('ManageDrivers',       'driver.view',              'View drivers'),
 ('ManageDrivers',       'driver.add',               'Add driver'),
 ('ManageDrivers',       'driver.edit',              'Edit driver'),
@@ -182,6 +186,19 @@ CREATE TABLE Stops (
 GO
 
 -- ============================================================
+-- 7a. BUS TYPE MASTERS  (Mini Bus, Standard Bus, Luxury Bus, ...)
+-- ============================================================
+CREATE TABLE BusTypeMasters (
+    Id        INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    Name      NVARCHAR(100) NOT NULL,
+    CreatedAt DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
+    UpdatedAt DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
+
+    CONSTRAINT UQ_BusTypeMasters_Name UNIQUE (Name)
+);
+GO
+
+-- ============================================================
 -- 8. BUSES
 -- ============================================================
 CREATE TABLE Buses (
@@ -189,6 +206,7 @@ CREATE TABLE Buses (
     BusName       NVARCHAR(100) NOT NULL,
     BusNumber     NVARCHAR(50)  NOT NULL UNIQUE,
     RouteId       INT           NULL REFERENCES Routes(RouteId),
+    BusTypeId     INT           NOT NULL REFERENCES BusTypeMasters(Id),
     Capacity      INT           NULL,
     IsActive      BIT           NOT NULL DEFAULT 1,
     CreatedAt     DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
