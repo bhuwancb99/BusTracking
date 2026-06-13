@@ -66,5 +66,19 @@ namespace BusTracking.Mobile.Services
             var r = await _api.GetAsync<List<DropdownItem>>(url);
             return r.Data ?? [];
         }
+
+        public async Task<List<DriverNotificationItem>> GetAllNotificationAsync()
+        {
+            var r = await _api.GetAsync<List<DriverNotificationItem>>(
+                Constants.Driver.Notifications);
+            return r.Data ?? [];
+        }
+
+        public Task<ApiResponse<object>> MarkReadAsync(int notificationId) =>
+            _api.PostAsync<object>(
+                string.Format(Constants.Driver.NotifMarkRead, notificationId));
+
+        public Task<ApiResponse<object>> MarkAllReadAsync() =>
+            _api.PostAsync<object>(Constants.Driver.NotifMarkAllRead);
     }
 }

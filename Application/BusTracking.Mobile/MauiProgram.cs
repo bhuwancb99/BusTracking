@@ -81,6 +81,7 @@ namespace BusTracking.Mobile
 
             // ── Driver — Detail page ──────────────────────────────────────────
             Routing.RegisterRoute("DriverTripDetail", typeof(DriverTripDetailPage));
+            Routing.RegisterRoute("DriverNotification", typeof(DriverNotificationPage));
         }
 
         // ── Services ──────────────────────────────────────────────────────────
@@ -175,6 +176,7 @@ namespace BusTracking.Mobile
             s.AddTransient<DriverTripListViewModel>();
             s.AddTransient<DriverTripDetailViewModel>();
             s.AddTransient<DriverTrackingViewModel>();
+            s.AddTransient<DriverNotificationViewModel>();
 
             // Parent
             s.AddTransient<ParentDashboardViewModel>();
@@ -258,6 +260,7 @@ namespace BusTracking.Mobile
             s.AddTransient<DriverTripListPage>();
             s.AddTransient<DriverTripDetailPage>();
             s.AddTransient<DriverTrackingPage>();
+            s.AddTransient<DriverNotificationPage>();
 
             // Parent
             s.AddTransient<ParentDashboardPage>();

@@ -164,6 +164,10 @@ public static class Constants
         public const string TripBoarding = "/api/trips/{0}/boarding";
         public const string LocationPing = "/api/location/ping";
         public const string LocationLatest = "/api/location/{0}/latest";
+        public const string Profile = "/api/driver/profile";
+        public const string Notifications = "/api/driver/notifications";
+        public const string NotifMarkRead = "/api/driver/notifications/{0}/read";
+        public const string NotifMarkAllRead = "/api/driver/notifications/read-all";
     }
 
     // ── Student ───────────────────────────────────────────────────────────

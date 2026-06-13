@@ -381,6 +381,11 @@
         ContentTemplate="{DataTemplate driver:DriverTrackingPage}"
         FlyoutItemIsVisible="False"
         Route="DriverTracking" />
+    <ShellContent
+        Title="Notifications"
+        ContentTemplate="{DataTemplate driver:DriverNotificationPage}"
+        FlyoutItemIsVisible="False"
+        Route="DriverNotification" />
 
     <!--  Parent  -->
     <ShellContent

@@ -10,5 +10,8 @@
         Task<ApiResponse<object>> ToggleAsync(int id);
         Task<ApiResponse<object>> ResetPasswordAsync(int id);
         Task<List<DropdownItem>> GetDropdownAsync(string? search = null);
+        Task<List<DriverNotificationItem>> GetAllNotificationAsync();
+        Task<ApiResponse<object>> MarkReadAsync(int notificationId);
+        Task<ApiResponse<object>> MarkAllReadAsync();
     }
 }

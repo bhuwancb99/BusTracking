@@ -242,9 +242,10 @@ public partial class AppShell : Shell
 
     private static List<FlyoutMenuItem> DriverMenu() =>
     [
-        new() { IconSvg = "profile.png",   IconColor = _svgImageColor, Title = "My Profile", Route = "Profile"         },
-        new() { IconSvg = "dashboard.png", IconColor = _svgImageColor, Title = "Dashboard",  Route = "DriverDashboard" },
-        new() { IconSvg = "trip.png",      IconColor = _svgImageColor, Title = "My Trips",   Route = "DriverTripList"  },
+        new() { IconSvg = "profile.png",        IconColor = _svgImageColor,     Title = "My Profile",       Route = "Profile"         },
+        new() { IconSvg = "dashboard.png",      IconColor = _svgImageColor,     Title = "Dashboard",        Route = "DriverDashboard" },
+        new() { IconSvg = "trip.png",           IconColor = _svgImageColor,     Title = "My Trips",         Route = "DriverTripList"  },
+        new() { IconSvg = "notification.png",   IconColor = _svgImageColor,     Title = "Notifications",    Route = "DriverNotification"   },
     ];
 
     // ── Logout ────────────────────────────────────────────────────────────
