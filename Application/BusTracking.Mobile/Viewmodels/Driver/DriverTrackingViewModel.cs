@@ -49,7 +49,18 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         {
             await ConnectHubAsync();
             await LoadStopsCommand.ExecuteAsync(null);
+            await RequestLocationPermissionAsync();
             StartGpsTimer();
+        }
+
+        public async Task RequestLocationPermissionAsync()
+        {
+            var status = await Permissions.CheckStatusAsync<Permissions.LocationAlways>();
+            if (status != PermissionStatus.Granted)
+                status = await Permissions.RequestAsync<Permissions.LocationAlways>();
+
+            if (status != PermissionStatus.Granted)
+                SetError("Background location permission is required for live tracking.");
         }
 
         // ── SignalR connect + join driver group ───────────────────────────

@@ -38,5 +38,14 @@
 		<string>This app needs access to photos gallery for picking photos and videos.</string>
 		<key>NSLocationWhenInUseUsageDescription</key>
 		<string>Bus location is needed to show live tracking.</string>
+
+		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+		<string>Bus location is shared with parents during the trip.</string>
+		<key>NSLocationAlwaysUsageDescription</key>
+		<string>Bus location is shared even when the app is in background.</string>
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>location</string>
+		</array>
 	</dict>
 </plist>
