@@ -7,7 +7,6 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [ObservableProperty] private ObservableCollection<BusTypeItem> _items = [];
         [ObservableProperty] private string _searchText = "";
 
-        // Add / Edit form fields
         [ObservableProperty] private string _formName = "";
         [ObservableProperty] private bool _isFormOpen;
         [ObservableProperty] private bool _isEditing;
@@ -26,6 +25,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         public override async Task InitializeAsync() => await LoadAsync();
         public override async Task RefreshOnReturnAsync() => await LoadAsync();
 
+        // ── Load list — standalone, never called inside another RunAsync ──
         [RelayCommand]
         private async Task LoadAsync()
         {
@@ -41,7 +41,6 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [RelayCommand]
         private async Task SearchAsync() => await LoadAsync();
 
-        // ── Open blank Add form ───────────────────────────────────────────
         [RelayCommand]
         private void OpenAdd()
         {
@@ -51,7 +50,6 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             IsFormOpen = true;
         }
 
-        // ── Open pre-filled Edit form ─────────────────────────────────────
         [RelayCommand]
         private void OpenEdit(BusTypeItem item)
         {
@@ -69,6 +67,8 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         }
 
         // ── Save (Create or Update) ───────────────────────────────────────
+        // FIX: close form first, then LoadAsync is called OUTSIDE RunAsync
+        // so IsBusy is false by then and the list actually refreshes.
         [RelayCommand]
         private async Task SaveAsync()
         {
@@ -78,6 +78,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                 return;
             }
 
+            bool success = false;
             await RunAsync(async () =>
             {
                 ApiResponse<object> r;
@@ -88,32 +89,39 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 
                 if (r.Success)
                 {
+                    success = true;
                     IsFormOpen = false;
                     FormName = "";
                     await ShowToastAsync(r.Message ?? (IsEditing ? "Updated." : "Created."));
-                    await LoadAsync();
                 }
                 else SetError(r.Message);
             });
+
+            // Called AFTER RunAsync finishes — IsBusy is now false so LoadAsync runs
+            if (success) await LoadAsync();
         }
 
-        // ── Delete with confirm ───────────────────────────────────────────
+        // ── Delete ────────────────────────────────────────────────────────
+        // FIX: same pattern — LoadAsync called after RunAsync completes
         [RelayCommand]
         private async Task DeleteAsync(BusTypeItem item)
         {
             if (!await ConfirmAsync("Delete Bus Type",
                     $"Delete '{item.Name}'? This cannot be undone.")) return;
 
+            bool success = false;
             await RunAsync(async () =>
             {
                 var r = await _busTypes.DeleteAsync(item.Id);
                 if (r.Success)
                 {
+                    success = true;
                     await ShowToastAsync(r.Message ?? "Deleted.");
-                    await LoadAsync();
                 }
                 else SetError(r.Message);
             });
+
+            if (success) await LoadAsync();
         }
     }
 }

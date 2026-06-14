@@ -172,7 +172,7 @@
                         </Border.Shadow>
                         <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
 
-                            <!--  Icon  -->
+                            <!--  Icon tile  -->
                             <Border
                                 Grid.Column="0"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
@@ -214,37 +214,55 @@
                                                                 Dark={StaticResource TextMutedDark}}" />
                             </VerticalStackLayout>
 
-                            <!--  Edit — smaller icon  -->
-                            <ImageButton
+                            <!--  Edit — Border+Image pattern matching existing pages  -->
+                            <Border
                                 Grid.Column="2"
-                                BackgroundColor="Transparent"
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBusTypeListViewModel}}, Path=OpenEditCommand}"
-                                CommandParameter="{Binding .}"
-                                HeightRequest="28"
+                                Padding="7"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
+                                                                  Dark={StaticResource StatBusBgDark}}"
                                 IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBusTypeListViewModel}}, Path=CanManage}"
-                                Source="edit.png"
-                                VerticalOptions="Center"
-                                WidthRequest="28">
-                                <ImageButton.Behaviors>
-                                    <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
-                                </ImageButton.Behaviors>
-                            </ImageButton>
+                                StrokeShape="RoundRectangle 10"
+                                StrokeThickness="0"
+                                VerticalOptions="Center">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBusTypeListViewModel}}, Path=OpenEditCommand}" CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Image
+                                    HeightRequest="18"
+                                    HorizontalOptions="Center"
+                                    Source="edit.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="18">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Border>
 
-                            <!--  Delete — smaller icon  -->
-                            <ImageButton
+                            <!--  Delete — Border+Image pattern  -->
+                            <Border
                                 Grid.Column="3"
-                                BackgroundColor="Transparent"
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBusTypeListViewModel}}, Path=DeleteCommand}"
-                                CommandParameter="{Binding .}"
-                                HeightRequest="28"
+                                Padding="7"
+                                BackgroundColor="#FFEAEA"
                                 IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBusTypeListViewModel}}, Path=CanManage}"
-                                Source="delete.png"
-                                VerticalOptions="Center"
-                                WidthRequest="28">
-                                <ImageButton.Behaviors>
-                                    <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
-                                </ImageButton.Behaviors>
-                            </ImageButton>
+                                StrokeShape="RoundRectangle 10"
+                                StrokeThickness="0"
+                                VerticalOptions="Center">
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBusTypeListViewModel}}, Path=DeleteCommand}" CommandParameter="{Binding .}" />
+                                </Border.GestureRecognizers>
+                                <Image
+                                    HeightRequest="18"
+                                    HorizontalOptions="Center"
+                                    Source="delete.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="18">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Border>
+
                         </Grid>
                     </Border>
                 </DataTemplate>
@@ -269,7 +287,7 @@
                 VerticalOptions="Center">
                 <VerticalStackLayout Spacing="16">
 
-                    <!--  Title: Add or Edit — driven by DataTrigger, no converter needed  -->
+                    <!--  Title via DataTrigger  -->
                     <Label
                         FontAttributes="Bold"
                         FontSize="17"
@@ -297,25 +315,45 @@
                         TextColor="{StaticResource Danger}" />
 
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+
+                        <!--  Cancel  -->
                         <Button
                             Grid.Column="0"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                              Dark={StaticResource CardBgDark}}"
+                            BorderColor="{AppThemeBinding Light={StaticResource BorderColor},
+                                                          Dark={StaticResource BorderColorDark}}"
+                            BorderWidth="1.5"
                             Command="{Binding CloseFormCommand}"
-                            Style="{StaticResource OutlineButton}"
-                            Text="Cancel" />
+                            CornerRadius="12"
+                            FontAttributes="Bold"
+                            HeightRequest="50"
+                            Text="Cancel"
+                            TextColor="{StaticResource Primary}" />
 
-                        <!--  Save button text: Save or Update — DataTrigger  -->
+                        <!--  Save / Update — inline style + DataTrigger for IsBusy  -->
                         <Button
                             Grid.Column="1"
+                            BackgroundColor="{StaticResource Primary}"
                             Command="{Binding SaveCommand}"
-                            IsEnabled="{Binding IsBusy, Converter={StaticResource InvertBoolConverter}}"
-                            Style="{StaticResource PrimaryButton}"
-                            Text="Save">
+                            CornerRadius="12"
+                            FontAttributes="Bold"
+                            HeightRequest="50"
+                            Text="Save"
+                            TextColor="White">
                             <Button.Triggers>
                                 <DataTrigger
                                     Binding="{Binding IsEditing}"
                                     TargetType="Button"
                                     Value="True">
                                     <Setter Property="Text" Value="Update" />
+                                </DataTrigger>
+                                <DataTrigger
+                                    Binding="{Binding IsBusy}"
+                                    TargetType="Button"
+                                    Value="True">
+                                    <Setter Property="Text" Value="Saving…" />
+                                    <Setter Property="IsEnabled" Value="False" />
                                 </DataTrigger>
                             </Button.Triggers>
                         </Button>

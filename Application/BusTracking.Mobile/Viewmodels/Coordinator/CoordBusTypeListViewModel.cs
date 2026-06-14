@@ -14,7 +14,6 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         public string SearchPlaceholder => "Search bus types…";
 
-        // Granular permission properties — match web: bustype.view/add/edit/delete
         public bool CanView => Can("bustype.view");
         public bool CanAdd => Can("bustype.add");
         public bool CanEdit => Can("bustype.edit");
@@ -66,6 +65,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [RelayCommand]
         private void CloseForm() { IsFormOpen = false; FormName = ""; }
 
+        // ── Save (Create or Update) ───────────────────────────────────────
         [RelayCommand]
         private async Task SaveAsync()
         {
@@ -74,6 +74,8 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                 SetError("Bus type name is required.");
                 return;
             }
+
+            bool success = false;
             await RunAsync(async () =>
             {
                 var r = IsEditing
@@ -82,27 +84,37 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
                 if (r.Success)
                 {
+                    success = true;
                     IsFormOpen = false;
                     FormName = "";
                     await ShowToastAsync(r.Message ?? (IsEditing ? "Updated." : "Created."));
-                    await LoadAsync();
                 }
                 else SetError(r.Message);
             });
+
+            if (success) await LoadAsync();
         }
 
+        // ── Delete ────────────────────────────────────────────────────────
         [RelayCommand]
         private async Task DeleteAsync(BusTypeItem item)
         {
             if (!await ConfirmAsync("Delete Bus Type",
                     $"Delete '{item.Name}'? This cannot be undone.")) return;
 
+            bool success = false;
             await RunAsync(async () =>
             {
                 var r = await _busTypes.DeleteAsync(item.Id);
-                if (r.Success) { await ShowToastAsync(r.Message ?? "Deleted."); await LoadAsync(); }
+                if (r.Success)
+                {
+                    success = true;
+                    await ShowToastAsync(r.Message ?? "Deleted.");
+                }
                 else SetError(r.Message);
             });
+
+            if (success) await LoadAsync();
         }
     }
 }
