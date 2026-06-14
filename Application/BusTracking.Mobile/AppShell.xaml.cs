@@ -167,6 +167,7 @@ public partial class AppShell : Shell
         new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "Dashboard",        Route = "AdminDashboard"       },
         new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",       Route = "Profile"              },
         new() { IconSvg = "config.png",       IconColor = _svgImageColor, Title = "App Config",       Route = "AdminConfigList"      },
+        new() { IconSvg = "bus.png",          IconColor = _svgImageColor, Title = "Bus Types",        Route = "AdminBusTypeList"      },
         new() { IconSvg = "coordinator.png",  IconColor = _svgImageColor, Title = "Bus Coordinators", Route = "AdminCoordinatorList" },
         new() { IconSvg = "route.png",        IconColor = _svgImageColor, Title = "Routes",           Route = "AdminRouteList"       },
         new() { IconSvg = "bus.png",          IconColor = _svgImageColor, Title = "Buses",            Route = "AdminBusList"         },
@@ -201,6 +202,8 @@ public partial class AppShell : Shell
 
         if (Has("appconfig.view"))
             menu.Add(new() { IconSvg = "config.png", IconColor = _svgImageColor, Title = "App Config", Route = "CoordConfigList" });
+        if (Has("bustype.manage") || Has("bus.view"))
+            menu.Add(new() { IconSvg = "bus.png", IconColor = _svgImageColor, Title = "Bus Types", Route = "CoordBusTypeList" });
         if (Has("subadmin.view"))
             menu.Add(new() { IconSvg = "coordinator.png", IconColor = _svgImageColor, Title = "Bus Coordinators", Route = "CoordSubAdminList" });
         if (Has("route.view"))

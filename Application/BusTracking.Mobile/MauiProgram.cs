@@ -110,6 +110,7 @@ namespace BusTracking.Mobile
             s.AddTransient<ICoordAppConfigService, CoordAppConfigService>();
             s.AddTransient<IDriverTripService, DriverTripService>();
             s.AddSingleton<ITrackingHubService, TrackingHubService>();
+            s.AddTransient<IBusTypeService, BusTypeService>();
         }
 
         // ── ViewModels ────────────────────────────────────────────────────────
@@ -193,6 +194,9 @@ namespace BusTracking.Mobile
             s.AddTransient<StudentAvailabilityViewModel>();
 
             s.AddTransient<LiveTrackingViewModel>();
+
+            s.AddTransient<AdminBusTypeListViewModel>();
+            s.AddTransient<CoordBusTypeListViewModel>();
         }
 
         // ── Views (Pages) ─────────────────────────────────────────────────────
@@ -279,6 +283,9 @@ namespace BusTracking.Mobile
             s.AddTransient<StudentAvailabilityPage>();
 
             s.AddTransient<LiveTrackingPage>();
+
+            s.AddTransient<AdminBusTypeListPage>();
+            s.AddTransient<CoordBusTypeListPage>();
         }
 
         // ── Control Handlers ──────────────────────────────────────────────────

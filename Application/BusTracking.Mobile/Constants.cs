@@ -202,6 +202,15 @@ public static class Constants
     // SignalR hub URL (used by TrackingHubService)
     public const string TrackingHubUrl = ApiBaseUrl + "/hubs/tracking";
 
+    // ── BusType  →  BusTypeController  [Route("api/bustype")] ────────────
+    public static class BusType
+    {
+        public const string All = "/api/bustype";
+        public const string ById = "/api/bustype/{0}";
+        public const string Dropdown = "/api/bustype/dropdown";
+    }
+
+
     // ── Local DB ──────────────────────────────────────────────────────────
     public static class Database
     {

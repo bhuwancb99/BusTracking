@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminBusTypeListPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:bus="clr-namespace:BusTracking.Mobile.Models.Bus"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
+    x:DataType="vm:AdminBusTypeListViewModel"
+    x:TypeArguments="vm:AdminBusTypeListViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
+
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+    </views:ViewBase.Behaviors>
+
+    <Shell.TitleView>
+        <Grid Padding="0,0,8,0" ColumnDefinitions="*,Auto">
+            <Label
+                Grid.Column="0"
+                FontAttributes="Bold"
+                FontSize="18"
+                Text="Bus Types"
+                TextColor="White"
+                VerticalOptions="Center" />
+            <Border
+                Grid.Column="1"
+                Padding="8"
+                BackgroundColor="White"
+                IsVisible="{Binding CanManage}"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0"
+                VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding OpenAddCommand}" />
+                </Border.GestureRecognizers>
+                <Image
+                    HeightRequest="20"
+                    Source="add.png"
+                    WidthRequest="20">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                    </Image.Behaviors>
+                </Image>
+            </Border>
+        </Grid>
+    </Shell.TitleView>
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!--  Search  -->
+        <Border
+            Grid.Row="0"
+            Margin="14,12,14,4"
+            Style="{StaticResource SearchBarBorder}">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
+                <Image
+                    Grid.Column="0"
+                    HeightRequest="18"
+                    Source="search.png"
+                    VerticalOptions="Center"
+                    WidthRequest="18">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                    </Image.Behaviors>
+                </Image>
+                <Entry
+                    Grid.Column="1"
+                    Placeholder="{Binding SearchPlaceholder}"
+                    ReturnCommand="{Binding SearchCommand}"
+                    Text="{Binding SearchText}" />
+                <ImageButton
+                    Grid.Column="2"
+                    Padding="8"
+                    BackgroundColor="{StaticResource Primary}"
+                    Command="{Binding SearchCommand}"
+                    CornerRadius="10"
+                    HeightRequest="36"
+                    Source="search.png"
+                    WidthRequest="36">
+                    <ImageButton.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="White" />
+                    </ImageButton.Behaviors>
+                </ImageButton>
+            </Grid>
+        </Border>
+
+        <!--  Error  -->
+        <Border
+            Grid.Row="1"
+            Margin="14,0"
+            IsVisible="{Binding HasError}"
+            Style="{StaticResource ErrorBannerBorder}">
+            <Label
+                FontSize="13"
+                Text="{Binding ErrorMessage}"
+                TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
+                                            Dark={StaticResource ErrorTextDark}}" />
+        </Border>
+
+        <!--  Busy  -->
+        <ActivityIndicator
+            Grid.Row="2"
+            HorizontalOptions="Center"
+            IsRunning="{Binding IsBusy}"
+            IsVisible="{Binding IsBusy}"
+            VerticalOptions="Center" />
+
+        <!--  Empty  -->
+        <VerticalStackLayout
+            Grid.Row="2"
+            HorizontalOptions="Center"
+            IsVisible="{Binding IsEmpty}"
+            Spacing="14"
+            VerticalOptions="Center">
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
+                                                  Dark={StaticResource StatBusBgDark}}"
+                HeightRequest="72"
+                HorizontalOptions="Center"
+                StrokeShape="RoundRectangle 36"
+                StrokeThickness="0"
+                WidthRequest="72">
+                <Image
+                    HeightRequest="36"
+                    HorizontalOptions="Center"
+                    Source="bus.png"
+                    VerticalOptions="Center"
+                    WidthRequest="36">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                    </Image.Behaviors>
+                </Image>
+            </Border>
+            <Label
+                FontSize="16"
+                HorizontalOptions="Center"
+                Text="No bus types found"
+                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                            Dark={StaticResource TextSecondaryDark}}" />
+            <Button
+                Padding="24,0"
+                Command="{Binding OpenAddCommand}"
+                HorizontalOptions="Center"
+                IsVisible="{Binding CanManage}"
+                Style="{StaticResource PrimaryButton}"
+                Text="+ Add Bus Type" />
+        </VerticalStackLayout>
+
+        <!--  List  -->
+        <CollectionView
+            Grid.Row="2"
+            Margin="14,4,14,0"
+            ItemsSource="{Binding Items}"
+            SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="bus:BusTypeItem">
+                    <Border
+                        Margin="0,0,0,10"
+                        Padding="14"
+                        BackgroundColor="{AppThemeBinding Light=White,
+                                                          Dark={StaticResource CardBgDark}}"
+                        StrokeShape="RoundRectangle 14"
+                        StrokeThickness="0">
+                        <Border.Shadow>
+                            <Shadow
+                                Brush="#12000000"
+                                Radius="6"
+                                Offset="0,2" />
+                        </Border.Shadow>
+                        <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
+
+                            <!--  Icon  -->
+                            <Border
+                                Grid.Column="0"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
+                                                                  Dark={StaticResource StatBusBgDark}}"
+                                Style="{StaticResource IconTileBorder}"
+                                VerticalOptions="Center">
+                                <Image
+                                    HeightRequest="22"
+                                    HorizontalOptions="Center"
+                                    Source="bus.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="22">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Border>
+
+                            <!--  Name + meta  -->
+                            <VerticalStackLayout
+                                Grid.Column="1"
+                                Spacing="3"
+                                VerticalOptions="Center">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="15"
+                                    Text="{Binding Name}"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                Dark={StaticResource TextPrimaryDark}}" />
+                                <Label
+                                    FontSize="12"
+                                    Text="{Binding BusCountLabel}"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                Dark={StaticResource TextMutedDark}}" />
+                                <Label
+                                    FontSize="11"
+                                    Text="{Binding UpdatedLabel, StringFormat='Updated {0}'}"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                Dark={StaticResource TextMutedDark}}" />
+                            </VerticalStackLayout>
+
+                            <!--  Edit — smaller icon  -->
+                            <ImageButton
+                                Grid.Column="2"
+                                BackgroundColor="Transparent"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBusTypeListViewModel}}, Path=OpenEditCommand}"
+                                CommandParameter="{Binding .}"
+                                HeightRequest="28"
+                                IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBusTypeListViewModel}}, Path=CanManage}"
+                                Source="edit.png"
+                                VerticalOptions="Center"
+                                WidthRequest="28">
+                                <ImageButton.Behaviors>
+                                    <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                </ImageButton.Behaviors>
+                            </ImageButton>
+
+                            <!--  Delete — smaller icon  -->
+                            <ImageButton
+                                Grid.Column="3"
+                                BackgroundColor="Transparent"
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBusTypeListViewModel}}, Path=DeleteCommand}"
+                                CommandParameter="{Binding .}"
+                                HeightRequest="28"
+                                IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminBusTypeListViewModel}}, Path=CanManage}"
+                                Source="delete.png"
+                                VerticalOptions="Center"
+                                WidthRequest="28">
+                                <ImageButton.Behaviors>
+                                    <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                </ImageButton.Behaviors>
+                            </ImageButton>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!--  Add / Edit bottom sheet  -->
+        <Grid
+            Grid.RowSpan="3"
+            BackgroundColor="#80000000"
+            IsVisible="{Binding IsFormOpen}">
+            <Grid.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding CloseFormCommand}" />
+            </Grid.GestureRecognizers>
+            <Border
+                Margin="20,0"
+                Padding="20"
+                BackgroundColor="{AppThemeBinding Light=White,
+                                                  Dark={StaticResource CardBgDark}}"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0"
+                VerticalOptions="Center">
+                <VerticalStackLayout Spacing="16">
+
+                    <!--  Title: Add or Edit — driven by DataTrigger, no converter needed  -->
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="17"
+                        Text="Add Bus Type"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}">
+                        <Label.Triggers>
+                            <DataTrigger
+                                Binding="{Binding IsEditing}"
+                                TargetType="Label"
+                                Value="True">
+                                <Setter Property="Text" Value="Edit Bus Type" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+
+                    <Border Style="{StaticResource InputBorder}">
+                        <Entry Placeholder="Bus type name (e.g. Mini Bus, AC Coach)" Text="{Binding FormName}" />
+                    </Border>
+
+                    <Label
+                        FontSize="12"
+                        IsVisible="{Binding HasError}"
+                        Text="{Binding ErrorMessage}"
+                        TextColor="{StaticResource Danger}" />
+
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                        <Button
+                            Grid.Column="0"
+                            Command="{Binding CloseFormCommand}"
+                            Style="{StaticResource OutlineButton}"
+                            Text="Cancel" />
+
+                        <!--  Save button text: Save or Update — DataTrigger  -->
+                        <Button
+                            Grid.Column="1"
+                            Command="{Binding SaveCommand}"
+                            IsEnabled="{Binding IsBusy, Converter={StaticResource InvertBoolConverter}}"
+                            Style="{StaticResource PrimaryButton}"
+                            Text="Save">
+                            <Button.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding IsEditing}"
+                                    TargetType="Button"
+                                    Value="True">
+                                    <Setter Property="Text" Value="Update" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+        </Grid>
+
+    </Grid>
+</views:ViewBase>
