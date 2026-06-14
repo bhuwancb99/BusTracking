@@ -51,11 +51,11 @@
         // if called from child card, pass that specific student
         [RelayCommand]
         private Task TrackChildAsync(LinkedStudent child) =>
-            Nav.GoToAsync("ParentTracking", new Dictionary<string, object> { ["StudentId"] = child.StudentId });
+            Shell.Current.GoToAsync("///ParentTracking");
 
         [RelayCommand]
         private Task LeaveChildAsync(LinkedStudent child) =>
-            Nav.GoToAsync("ParentAvailability", new Dictionary<string, object> { ["PreselectedStudentId"] = child.StudentId });
+            Shell.Current.GoToAsync("///ParentAvailability");
 
         [RelayCommand]
         private Task GoToTrackingAsync() => Shell.Current.GoToAsync("//ParentTracking");

@@ -225,8 +225,8 @@ public partial class AppShell : Shell
 
     private static List<FlyoutMenuItem> ParentMenu() =>
     [
-        new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",     Route = "Profile"            },
         new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "My Dashboard",   Route = "ParentDashboard"    },
+        new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",     Route = "Profile"            },
         new() { IconSvg = "tracking.png",     IconColor = _svgImageColor, Title = "Track Bus",      Route = "ParentTracking"     },
         new() { IconSvg = "availability.png", IconColor = _svgImageColor, Title = "Availability",   Route = "ParentAvailability" },
         new() { IconSvg = "feedback.png",     IconColor = _svgImageColor, Title = "Help & Support", Route = "ParentFeedback"     },
@@ -234,16 +234,16 @@ public partial class AppShell : Shell
 
     private static List<FlyoutMenuItem> StudentMenu() =>
     [
-        new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",      Route = "Profile"             },
         new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "My Dashboard",    Route = "StudentDashboard"    },
+        new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",      Route = "Profile"             },
         new() { IconSvg = "tracking.png",     IconColor = _svgImageColor, Title = "Track My Bus",    Route = "StudentTracking"     },
         new() { IconSvg = "availability.png", IconColor = _svgImageColor, Title = "My Availability", Route = "StudentAvailability" },
     ];
 
     private static List<FlyoutMenuItem> DriverMenu() =>
     [
-        new() { IconSvg = "profile.png",        IconColor = _svgImageColor,     Title = "My Profile",       Route = "Profile"         },
         new() { IconSvg = "dashboard.png",      IconColor = _svgImageColor,     Title = "Dashboard",        Route = "DriverDashboard" },
+        new() { IconSvg = "profile.png",        IconColor = _svgImageColor,     Title = "My Profile",       Route = "Profile"         },
         new() { IconSvg = "trip.png",           IconColor = _svgImageColor,     Title = "My Trips",         Route = "DriverTripList"  },
         new() { IconSvg = "notification.png",   IconColor = _svgImageColor,     Title = "Notifications",    Route = "DriverNotification"   },
     ];
