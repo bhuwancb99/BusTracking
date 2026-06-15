@@ -36,13 +36,18 @@
 		<string>This app needs access to the photo gallery for picking photos and videos.</string>
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>This app needs access to photos gallery for picking photos and videos.</string>
+
+		<!-- Location permission descriptions (iOS requires these for App Store) -->
 		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>Bus location is needed to show live tracking.</string>
+		<string>Bus location is shared with parents while a trip is active.</string>
 
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-		<string>Bus location is shared with parents during the trip.</string>
+		<string>Bus location continues to be shared even when the app is in the background during an active trip.</string>
+
 		<key>NSLocationAlwaysUsageDescription</key>
-		<string>Bus location is shared even when the app is in background.</string>
+		<string>Bus location is tracked in the background so parents can see the bus even when you lock your screen.</string>
+
+		<!-- Background modes — "location" keeps CLLocationManager running when screen locks -->
 		<key>UIBackgroundModes</key>
 		<array>
 			<string>location</string>

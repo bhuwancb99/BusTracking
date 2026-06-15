@@ -89,6 +89,14 @@ namespace BusTracking.Mobile
         // ── Services ──────────────────────────────────────────────────────────
         private static void RegisterServices(IServiceCollection s)
         {
+#if ANDROID
+            s.AddSingleton<IBackgroundLocationService,
+                BusTracking.Mobile.Platforms.Android.BackgroundLocationService>();
+#elif IOS
+            s.AddSingleton<IBackgroundLocationService,
+                BusTracking.Mobile.Platforms.iOS.BackgroundLocationService>();
+#endif
+            s.AddSingleton<ITrackingHubService, TrackingHubService>();
             s.AddSingleton<AppShell>();
             s.AddSingleton<LocalDatabase>();
             s.AddSingleton<ICacheService, CacheService>();
@@ -109,7 +117,6 @@ namespace BusTracking.Mobile
             s.AddTransient<ICoordSubAdminService, CoordSubAdminService>();
             s.AddTransient<ICoordAppConfigService, CoordAppConfigService>();
             s.AddTransient<IDriverTripService, DriverTripService>();
-            s.AddSingleton<ITrackingHubService, TrackingHubService>();
             s.AddTransient<IBusTypeService, BusTypeService>();
         }
 
