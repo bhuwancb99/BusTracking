@@ -6,7 +6,7 @@ public partial class LiveTrackingPage : ViewBase<LiveTrackingViewModel>
     {
         InitializeComponent();
 
-        // Wire the JS bridge: ViewModel → WebView
+        // Wire JS bridge: ViewModel → WebView
         vm.SendToMap = js =>
             MainThread.BeginInvokeOnMainThread(async () =>
             {
@@ -15,11 +15,24 @@ public partial class LiveTrackingPage : ViewBase<LiveTrackingViewModel>
             });
     }
 
-    protected override void OnAppearing()
+    protected override async void OnAppearing()
     {
         base.OnAppearing();
-        Shell.SetNavBarIsVisible(this, false);
+
+        // Inject the API key from AppConfig into the HTML at runtime
+        // instead of hardcoding it in the .html file
+        try
+        {
+            var html = await GoogleMapKeyHolder.GetMapHtmlAsync();
+            MapWebView.Source = new HtmlWebViewSource { Html = html };
+        }
+        catch
+        {
+            // Fallback: load html file directly (key will be the placeholder)
+            MapWebView.Source = "tracking_map.html";
+        }
     }
+
     protected override void OnDisappearing()
     {
         ViewModel.Cleanup();

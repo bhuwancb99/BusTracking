@@ -84,6 +84,7 @@ namespace BusTracking.Mobile
             Routing.RegisterRoute("DriverNotification", typeof(DriverNotificationPage));
 
             Routing.RegisterRoute("LiveTracking", typeof(LiveTrackingPage));
+            Routing.RegisterRoute("DriverTracking", typeof(DriverTrackingPage));
         }
 
         // ── Services ──────────────────────────────────────────────────────────

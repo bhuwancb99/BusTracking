@@ -2,7 +2,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true">
 
-		<!-- Foreground Service declaration — required for background GPS on Android 8+ -->
+		<!--
+		    Google Maps API key for native Android Maps SDK (if used).
+		    For WebView-based maps (tracking_map.html), the key is injected
+		    at runtime from AppConfig via GoogleMapKeyHolder — so this value
+		    is only needed if you add a native MapView later.
+		    Leave as empty string to avoid exposing the key in the APK.
+		-->
+		<meta-data
+			android:name="com.google.android.geo.API_KEY"
+			android:value="" />
+
+		<!-- Background GPS foreground service -->
 		<service
 			android:name="busTracking.mobile.platforms.android.LocationForegroundService"
 			android:enabled="true"
