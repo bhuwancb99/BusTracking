@@ -6,14 +6,29 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         private readonly IDriverTripService _driverTrip;
         private readonly IBackgroundLocationService _bgLocation;
         private readonly ITrackingHubService _hub;
+        private IDispatcherTimer? _gpsTimer;
 
         [ObservableProperty] private int _tripId;
         [ObservableProperty] private string _tripStatus = "Loading…";
         [ObservableProperty] private string _tripTypeLabel = "";
         [ObservableProperty] private bool _isInProgress;
-        [ObservableProperty] private string _gpsStatus = "Connecting…";
         [ObservableProperty] private ObservableCollection<DriverTripStop> _stops = [];
         [ObservableProperty] private DriverTripStop? _selectedStop;
+
+        // ── Permission state ──────────────────────────────────────────────
+        [ObservableProperty] private bool _locationGranted;
+        [ObservableProperty] private bool _locationDeniedPermanently;
+        [ObservableProperty] private string _gpsStatus = "";
+
+        /// <summary>True when location is denied — bottom banner is visible.</summary>
+        public bool ShowLocationBanner => !LocationGranted;
+
+        /// <summary>
+        /// "Enable Location" when permission can still be asked.
+        /// "Open Settings" when permanently denied.
+        /// </summary>
+        public string LocationBannerButtonText =>
+            LocationDeniedPermanently ? "Open Settings" : "Enable Location";
 
         public DriverTrackingViewModel(
             IAuthService auth, INavigationService nav,
@@ -44,45 +59,105 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         }
 
         // ── Called by DriverTrackingPage.OnAppearing ──────────────────────
-        // Starts background GPS + SignalR connection
         public async Task StartGpsTimer()
         {
-            try
-            {
-                // Connect SignalR hub
-                var user = await Auth.GetCurrentUserAsync();
-                if (user is not null)
-                {
-                    await _hub.ConnectAsync(user.Token);
-                    await _hub.JoinAsDriverAsync(TripId);
-                }
+            var granted = await RequestLocationPermissionAsync();
+            if (!granted) return;
 
-                // Start background GPS — fires even when screen is locked
-                await _bgLocation.StartAsync(TripId, OnLocationReceived);
-                GpsStatus = "● Live";
-            }
-            catch (Exception ex)
+            // Connect SignalR
+            var user = await Auth.GetCurrentUserAsync();
+            if (user is not null)
             {
-                GpsStatus = "GPS Error";
-                SetError(ex.Message);
+                await _hub.ConnectAsync(user.Token);
+                await _hub.JoinAsDriverAsync(TripId);
             }
+
+            // Start background GPS
+            await _bgLocation.StartAsync(TripId, OnLocationReceived);
+            GpsStatus = "● Live";
         }
 
         // ── Called by DriverTrackingPage.OnDisappearing ───────────────────
-        public async void StopGpsTimer()
+        public void StopGpsTimer()
         {
-            await _bgLocation.StopAsync();
-            GpsStatus = "Stopped";
+            _gpsTimer?.Stop();
+            _ = _bgLocation.StopAsync();
+            GpsStatus = "";
         }
 
-        // ── GPS callback — called every 5s even when screen is off ────────
+        // ── Permission request — called on page appear and Enable button ──
+        [RelayCommand]
+        public async Task RequestLocationAsync()
+        {
+            var granted = await RequestLocationPermissionAsync();
+
+            if (granted)
+            {
+                // Permission just granted — start GPS and refresh the page
+                await StartGpsTimer();
+                await LoadStopsCommand.ExecuteAsync(null);
+            }
+            else if (LocationDeniedPermanently)
+            {
+                // Permanently denied — send driver to Settings
+                if (AppInfo.Current.ShowSettingsUI != null)
+                    AppInfo.Current.ShowSettingsUI();
+            }
+        }
+
+        // ── Core permission logic ─────────────────────────────────────────
+        private async Task<bool> RequestLocationPermissionAsync()
+        {
+            // Check current status first (no prompt if already granted)
+            var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+
+            if (status == PermissionStatus.Granted)
+            {
+                // Android 10+ also needs background permission
+                status = await EnsureBackgroundLocationAsync();
+            }
+
+            if (status != PermissionStatus.Granted)
+            {
+                // Request the permission — system dialog appears
+                status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+            }
+
+            if (status == PermissionStatus.Granted)
+                status = await EnsureBackgroundLocationAsync();
+
+            LocationGranted = status == PermissionStatus.Granted;
+            LocationDeniedPermanently = status == PermissionStatus.Denied;
+            OnPropertyChanged(nameof(ShowLocationBanner));
+            OnPropertyChanged(nameof(LocationBannerButtonText));
+
+            if (!LocationGranted)
+                SetError("Location permission is required for live tracking.");
+
+            return LocationGranted;
+        }
+
+        private static async Task<PermissionStatus> EnsureBackgroundLocationAsync()
+        {
+#if ANDROID
+            if (OperatingSystem.IsAndroidVersionAtLeast(29))
+            {
+                var bg = await Permissions.CheckStatusAsync<Permissions.LocationAlways>();
+                if (bg != PermissionStatus.Granted)
+                    bg = await Permissions.RequestAsync<Permissions.LocationAlways>();
+                return bg;
+            }
+#endif
+            return PermissionStatus.Granted;
+        }
+
+        // ── GPS callback — every 5s even when screen off ──────────────────
         private async void OnLocationReceived(
             double lat, double lng,
             double? speed, double? heading)
         {
             GpsStatus = $"● Live  {(speed.HasValue ? $"{(int)speed} km/h" : "")}";
 
-            // Send via SignalR (broadcasts to all watchers instantly)
             if (_hub.IsConnected)
             {
                 await _hub.SendLocationAsync(
@@ -93,7 +168,6 @@ namespace BusTracking.Mobile.Viewmodels.Driver
             }
             else
             {
-                // Fallback: REST ping if SignalR is not connected
                 await _driverTrip.PingLocationAsync(TripId, new LocationPingRequest
                 {
                     Latitude = lat,
@@ -161,19 +235,19 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         private async Task EndTripAsync()
         {
             if (!await ConfirmAsync("End Trip",
-                    "End this trip? GPS tracking will stop for all parents."))
+                    "End this trip? All tracking will stop for parents."))
                 return;
 
             await RunAsync(async () =>
             {
-                await _bgLocation.StopAsync();
+                StopGpsTimer();
                 await _hub.NotifyTripEndedAsync(TripId);
                 await _hub.DisconnectAsync();
 
                 var r = await _driverTrip.EndTripAsync(TripId);
                 if (r.Success)
                 {
-                    await ShowToastAsync("Trip ended. Parents have been notified.");
+                    await ShowToastAsync("Trip ended successfully.");
                     await Nav.GoToAsync("//DriverDashboard");
                 }
                 else SetError(r.Message);

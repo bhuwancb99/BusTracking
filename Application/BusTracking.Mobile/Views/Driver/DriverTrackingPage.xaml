@@ -10,7 +10,8 @@
     Title="Live Tracking"
     x:DataType="vm:DriverTrackingViewModel"
     x:TypeArguments="vm:DriverTrackingViewModel"
-    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
@@ -24,14 +25,25 @@
                 Command="{Binding GoBackCommand}"
                 Source="back.png"
                 WidthRequest="22" />
-            <Label
+            <VerticalStackLayout
                 Grid.Column="1"
-                FontAttributes="Bold"
-                FontSize="17"
                 HorizontalOptions="Center"
-                Text="Live Tracking"
-                TextColor="White"
-                VerticalOptions="Center" />
+                Spacing="0"
+                VerticalOptions="Center">
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="17"
+                    HorizontalOptions="Center"
+                    Text="Live Tracking"
+                    TextColor="White" />
+                <!--  GPS live status pill — hidden when location is not granted  -->
+                <Label
+                    FontSize="10"
+                    HorizontalOptions="Center"
+                    IsVisible="{Binding LocationGranted}"
+                    Text="{Binding GpsStatus}"
+                    TextColor="#90FFFFFF" />
+            </VerticalStackLayout>
             <Button
                 Grid.Column="2"
                 BackgroundColor="{StaticResource DangerDark}"
@@ -46,16 +58,19 @@
         </Grid>
     </Shell.TitleView>
 
-    <Grid RowDefinitions="Auto,*">
+    <!--  Root grid: rows = error banner | content | location banner  -->
+    <Grid RowDefinitions="Auto,*,Auto">
 
         <!--  Error banner  -->
         <Border
             Grid.Row="0"
             Margin="16,10,16,0"
             Padding="12,8"
-            BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
+            BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight},
+                                              Dark={StaticResource ErrorBannerBgDark}}"
             IsVisible="{Binding HasError}"
-            Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}"
+            Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
+                                     Dark={StaticResource ErrorBannerBorderDark}}"
             StrokeShape="RoundRectangle 10">
             <Label
                 FontSize="13"
@@ -63,12 +78,11 @@
                 TextColor="{StaticResource Danger}" />
         </Border>
 
-        <!--  Stops + students  -->
+        <!--  Stops + students list  -->
         <RefreshView
             Grid.Row="1"
             Command="{Binding LoadStopsCommand}"
             IsRefreshing="{Binding IsBusy}">
-
             <CollectionView
                 Margin="16,12,16,32"
                 ItemsSource="{Binding Stops}"
@@ -79,7 +93,8 @@
                         FontSize="15"
                         HorizontalOptions="Center"
                         Text="No stops found for this trip"
-                        TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                    Dark={StaticResource TextSecondaryDark}}"
                         VerticalOptions="Center" />
                 </CollectionView.EmptyView>
 
@@ -88,7 +103,9 @@
                         <Border
                             Margin="0,0,0,14"
                             Padding="16"
-                            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" StrokeShape="RoundRectangle 16">
+                            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                              Dark={StaticResource CardBgDark}}"
+                            StrokeShape="RoundRectangle 16">
                             <VerticalStackLayout Spacing="12">
 
                                 <!--  Stop header  -->
@@ -116,11 +133,13 @@
                                             FontAttributes="Bold"
                                             FontSize="15"
                                             Text="{Binding StopName}"
-                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                        Dark={StaticResource TextPrimaryDark}}" />
                                         <Label
                                             FontSize="12"
                                             Text="{Binding StatusLabel}"
-                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                                        Dark={StaticResource TextSecondaryDark}}" />
                                     </VerticalStackLayout>
                                 </Grid>
 
@@ -159,7 +178,8 @@
                                     FontAttributes="Bold"
                                     FontSize="13"
                                     Text="Students"
-                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                Dark={StaticResource TextPrimaryDark}}" />
 
                                 <CollectionView
                                     HeightRequest="{Binding Students.Count, Converter={StaticResource CountToHeight}, ConverterParameter=60}"
@@ -194,17 +214,19 @@
                                                         FontAttributes="Bold"
                                                         FontSize="13"
                                                         Text="{Binding StudentName}"
-                                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                                    Dark={StaticResource TextPrimaryDark}}" />
                                                     <Label
                                                         FontSize="11"
                                                         Text="{Binding StudentCode}"
-                                                        TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                                                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                                    Dark={StaticResource TextSecondaryDark}}" />
                                                 </VerticalStackLayout>
 
-                                                <!--  PickedUp  -->
                                                 <Button
                                                     Grid.Column="2"
-                                                    BackgroundColor="{AppThemeBinding Light={StaticResource StatusActiveBg}, Dark={StaticResource StatusActiveBgDark}}"
+                                                    BackgroundColor="{AppThemeBinding Light={StaticResource StatusActiveBg},
+                                                                                      Dark={StaticResource StatusActiveBgDark}}"
                                                     BorderColor="{StaticResource SuccessDark}"
                                                     BorderWidth="1"
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverTrackingViewModel}}, Path=UpdateBoardingCommand}"
@@ -217,11 +239,12 @@
                                                     TextColor="{StaticResource Success}"
                                                     WidthRequest="40" />
 
-                                                <!--  NoShow  -->
                                                 <Button
                                                     Grid.Column="3"
-                                                    BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
-                                                    BorderColor="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}"
+                                                    BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight},
+                                                                                      Dark={StaticResource ErrorBannerBgDark}}"
+                                                    BorderColor="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
+                                                                                  Dark={StaticResource ErrorBannerBorderDark}}"
                                                     BorderWidth="1"
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverTrackingViewModel}}, Path=UpdateBoardingCommand}"
                                                     CommandParameter="{Binding ., Converter={StaticResource StudentNoShowTuple}}"
@@ -233,12 +256,12 @@
                                                     TextColor="{StaticResource Danger}"
                                                     WidthRequest="40" />
 
-                                                <!--  On leave badge  -->
                                                 <Border
                                                     Grid.Column="2"
                                                     Grid.ColumnSpan="2"
                                                     Padding="8,4"
-                                                    BackgroundColor="{AppThemeBinding Light={StaticResource WarningLight}, Dark={StaticResource StatCoordBgDark}}"
+                                                    BackgroundColor="{AppThemeBinding Light={StaticResource WarningLight},
+                                                                                      Dark={StaticResource StatCoordBgDark}}"
                                                     IsVisible="{Binding IsUnavailable}"
                                                     StrokeShape="RoundRectangle 8">
                                                     <Label
@@ -256,10 +279,76 @@
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
-
             </CollectionView>
         </RefreshView>
 
-    </Grid>
+        <!--
+            ═══════════════════════════════════════════════════════════════
+            LOCATION PERMISSION BANNER — bottom of screen
+            Visible whenever location is not granted.
+            Same UX as Google Maps / Uber when location is off.
+            ═══════════════════════════════════════════════════════════════
+        -->
+        <Border
+            Grid.Row="2"
+            Padding="16,14"
+            BackgroundColor="#1a1a2e"
+            IsVisible="{Binding ShowLocationBanner}"
+            StrokeShape="RoundRectangle 20,20,0,0"
+            StrokeThickness="0">
+            <Border.Shadow>
+                <Shadow
+                    Brush="#40000000"
+                    Radius="16"
+                    Offset="0,-4" />
+            </Border.Shadow>
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
 
+                <!--  Warning icon  -->
+                <Border
+                    Grid.Column="0"
+                    Padding="0"
+                    BackgroundColor="#FF6B35"
+                    HeightRequest="40"
+                    StrokeShape="RoundRectangle 20"
+                    WidthRequest="40">
+                    <Label
+                        FontSize="18"
+                        HorizontalOptions="Center"
+                        Text="📍"
+                        VerticalOptions="Center" />
+                </Border>
+
+                <!--  Message  -->
+                <VerticalStackLayout
+                    Grid.Column="1"
+                    Spacing="2"
+                    VerticalOptions="Center">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        Text="Location not enabled"
+                        TextColor="White" />
+                    <Label
+                        FontSize="11"
+                        Text="Parents cannot see the bus without your location."
+                        TextColor="#AAAACC" />
+                </VerticalStackLayout>
+
+                <!--  Enable / Open Settings button  -->
+                <Button
+                    Grid.Column="2"
+                    Padding="12,0"
+                    BackgroundColor="#FF6B35"
+                    Command="{Binding RequestLocationCommand}"
+                    CornerRadius="10"
+                    FontAttributes="Bold"
+                    FontSize="12"
+                    HeightRequest="38"
+                    Text="{Binding LocationBannerButtonText}"
+                    TextColor="White" />
+            </Grid>
+        </Border>
+
+    </Grid>
 </views:ViewBase>
