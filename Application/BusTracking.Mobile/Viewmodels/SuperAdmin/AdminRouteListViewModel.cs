@@ -6,10 +6,12 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 
         [ObservableProperty] private ObservableCollection<RouteItem> _items = [];
         [ObservableProperty] private string _searchText = "";
+        [ObservableProperty] private string _selectedStatus = "Active";
         [ObservableProperty] private int _currentPage = 1;
         [ObservableProperty] private bool _canLoadMore;
 
         public string SearchPlaceholder => "Search routes…";
+        public List<string> StatusOptions => ["Active", "Inactive", "Both"];
         public bool CanAdd => true;
         public bool CanEdit => true;
         public bool CanDelete => true;
@@ -28,7 +30,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             {
                 CurrentPage = 1;
                 var data = await _routes.GetAllAsync(
-                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage);
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage, SelectedStatus);
                 Items = new ObservableCollection<RouteItem>(data.Items);
                 IsEmpty = !Items.Any();
                 CanLoadMore = data.PageNumber < data.TotalPages;
@@ -43,13 +45,17 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             {
                 CurrentPage++;
                 var data = await _routes.GetAllAsync(
-                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage);
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage, SelectedStatus);
                 foreach (var item in data.Items) Items.Add(item);
                 CanLoadMore = data.PageNumber < data.TotalPages;
             });
         }
 
         [RelayCommand] private async Task SearchAsync() => await LoadAsync();
+
+        // Filter re-loads when status picker changes
+        partial void OnSelectedStatusChanged(string value) => LoadCommand.ExecuteAsync(null);
+
         [RelayCommand] private Task AddAsync() => Nav.GoToAsync("AdminRouteForm");
 
         // Tap row → Detail

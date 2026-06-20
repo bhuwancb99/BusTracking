@@ -51,43 +51,72 @@
 
     <Grid RowDefinitions="Auto,Auto,*">
 
-        <!--  Search  -->
-        <Border
+        <!--  Status filter + Search (one row)  -->
+        <Grid
             Grid.Row="0"
             Margin="14,12,14,4"
-            Style="{StaticResource SearchBarBorder}">
-            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
-                <Image
-                    Grid.Column="0"
-                    HeightRequest="18"
-                    Source="search.png"
-                    VerticalOptions="Center"
-                    WidthRequest="18">
-                    <Image.Behaviors>
-                        <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
-                    </Image.Behaviors>
-                </Image>
-                <Entry
-                    Grid.Column="1"
-                    Placeholder="{Binding SearchPlaceholder}"
-                    ReturnCommand="{Binding SearchCommand}"
-                    Text="{Binding SearchText}" />
-                <ImageButton
-                    Grid.Column="2"
-                    Padding="8"
-                    BackgroundColor="{StaticResource Primary}"
-                    Command="{Binding SearchCommand}"
-                    CornerRadius="10"
-                    HeightRequest="36"
-                    HorizontalOptions="End"
-                    Source="search.png"
-                    WidthRequest="36">
-                    <ImageButton.Behaviors>
-                        <mct:IconTintColorBehavior TintColor="White" />
-                    </ImageButton.Behaviors>
-                </ImageButton>
-            </Grid>
-        </Border>
+            ColumnDefinitions="Auto,*"
+            ColumnSpacing="8">
+
+            <!--  Status filter, bordered  -->
+            <Border
+                Grid.Column="0"
+                Padding="10,0"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                HeightRequest="52"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 16"
+                StrokeThickness="1.5"
+                VerticalOptions="Center"
+                WidthRequest="118">
+                <Picker
+                    Title="Status"
+                    BackgroundColor="Transparent"
+                    FontSize="13"
+                    ItemsSource="{Binding StatusOptions}"
+                    SelectedItem="{Binding SelectedStatus}"
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                Dark={StaticResource TextPrimaryDark}}"
+                    VerticalOptions="Center" />
+            </Border>
+
+            <!--  Search  -->
+            <Border Grid.Column="1" Style="{StaticResource SearchBarBorder}">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
+                    <Image
+                        Grid.Column="0"
+                        HeightRequest="18"
+                        Source="search.png"
+                        VerticalOptions="Center"
+                        WidthRequest="18">
+                        <Image.Behaviors>
+                            <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                        </Image.Behaviors>
+                    </Image>
+                    <Entry
+                        Grid.Column="1"
+                        Placeholder="{Binding SearchPlaceholder}"
+                        ReturnCommand="{Binding SearchCommand}"
+                        Text="{Binding SearchText}" />
+                    <ImageButton
+                        Grid.Column="2"
+                        Padding="8"
+                        BackgroundColor="{StaticResource Primary}"
+                        Command="{Binding SearchCommand}"
+                        CornerRadius="10"
+                        HeightRequest="36"
+                        HorizontalOptions="End"
+                        Source="search.png"
+                        WidthRequest="36">
+                        <ImageButton.Behaviors>
+                            <mct:IconTintColorBehavior TintColor="White" />
+                        </ImageButton.Behaviors>
+                    </ImageButton>
+                </Grid>
+            </Border>
+        </Grid>
 
         <ActivityIndicator
             Grid.Row="2"
