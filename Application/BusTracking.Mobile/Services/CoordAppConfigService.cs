@@ -5,14 +5,15 @@ namespace BusTracking.Mobile.Services
         private readonly IApiService _api;
         public CoordAppConfigService(IApiService api) => _api = api;
 
-        public async Task<List<AppConfigItem>> GetAllAsync(string? platform = null)
+        public async Task<PagedResult<AppConfigItem>> GetAllAsync(string? platform = null, string? search = null, int page = 1)
         {
             var url = Constants.Coordinator.Config;
-            var q = new List<string>();
-            if (!string.IsNullOrWhiteSpace(platform)) q.Add($"platform={platform}");
-            if (q.Count > 0) url += "?" + string.Join("&", q);
-            var r = await _api.GetAsync<List<AppConfigItem>>(url);
-            return r.Data ?? [];
+            var q = new List<string> { $"page={page}" };
+            if (!string.IsNullOrWhiteSpace(platform)) q.Add($"platform={Uri.EscapeDataString(platform)}");
+            if (!string.IsNullOrWhiteSpace(search)) q.Add($"search={Uri.EscapeDataString(search)}");
+            url += "?" + string.Join("&", q);
+            var r = await _api.GetAsync<PagedResult<AppConfigItem>>(url);
+            return r.Data ?? new PagedResult<AppConfigItem>();
         }
 
         public async Task<AppConfigItem?> GetByIdAsync(int id)

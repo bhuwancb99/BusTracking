@@ -48,7 +48,7 @@
         </Grid>
     </Shell.TitleView>
 
-    <Grid RowDefinitions="Auto,Auto,*">
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
 
         <!--  Search  -->
         <Border
@@ -88,9 +88,20 @@
             </Grid>
         </Border>
 
+        <!--  Platform filter  -->
+        <Picker
+            Title="Filter by platform"
+            Grid.Row="1"
+            Margin="14,4"
+            BackgroundColor="Transparent"
+            ItemsSource="{Binding PlatformOptions}"
+            SelectedItem="{Binding SelectedPlatform}"
+            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                        Dark={StaticResource TextPrimaryDark}}" />
+
         <!--  Error  -->
         <Border
-            Grid.Row="1"
+            Grid.Row="2"
             Margin="14,0"
             IsVisible="{Binding HasError}"
             Style="{StaticResource ErrorBannerBorder}">
@@ -102,14 +113,14 @@
         </Border>
 
         <ActivityIndicator
-            Grid.Row="2"
+            Grid.Row="3"
             HorizontalOptions="Center"
             IsRunning="{Binding IsBusy}"
             IsVisible="{Binding IsBusy}"
             VerticalOptions="Center" />
 
         <VerticalStackLayout
-            Grid.Row="2"
+            Grid.Row="3"
             HorizontalOptions="Center"
             IsVisible="{Binding IsEmpty}"
             Spacing="14"
@@ -149,7 +160,7 @@
         </VerticalStackLayout>
 
         <CollectionView
-            Grid.Row="2"
+            Grid.Row="3"
             Margin="14,4,14,0"
             ItemsSource="{Binding Items}"
             RemainingItemsThreshold="3"

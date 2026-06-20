@@ -5,15 +5,17 @@
         private readonly IApiService _api;
         public AdminConfigService(IApiService api) => _api = api;
 
-        public async Task<List<AppConfigItem>> GetAllAsync(string? platform = null)
+        public async Task<PagedResult<AppConfigItem>> GetAllAsync(string? platform = null, string? search = null, int page = 1)
         {
-            var url = Constants.Admin.Config;
+            var url = $"{Constants.Admin.Config}?page={page}";
 
-            if (platform != null)
-                url += $"?platform={platform}";
+            if (!string.IsNullOrWhiteSpace(platform))
+                url += $"&platform={Uri.EscapeDataString(platform)}";
+            if (!string.IsNullOrWhiteSpace(search))
+                url += $"&search={Uri.EscapeDataString(search)}";
 
-            var r = await _api.GetAsync<List<AppConfigItem>>(url);
-            return r.Data ?? [];
+            var r = await _api.GetAsync<PagedResult<AppConfigItem>>(url);
+            return r.Data ?? new PagedResult<AppConfigItem>();
         }
 
         public async Task<AppConfigItem?> GetByIdAsync(int id)

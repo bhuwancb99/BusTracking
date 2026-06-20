@@ -1,5 +1,3 @@
-using BusTracking.Web.Helpers;
-
 namespace BusTracking.Web.Areas.BusCoordinator.Controllers
 {
     [Area("BusCoordinator"), Authorize(Roles = "BusCoordinator")]
@@ -11,14 +9,15 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
         public AppConfigController(IAppConfigService config) => _config = config;
 
         // GET /BusCoordinator/AppConfig
-        public async Task<IActionResult> Index(string? platform, string? search, bool? isActive)
+        public async Task<IActionResult> Index(
+            string? platform = "Web", string? search = null, bool? isActive = null, int page = 1)
         {
             if (!PermissionHelper.Can(User, "appconfig.view")) return Forbid();
             ViewBag.Platform = platform;
             ViewBag.Search   = search;
             ViewBag.IsActive = isActive;
-            var r = await _config.GetAllAsync(platform, search, isActive);
-            return View(r.Data ?? []);
+            var r = await _config.GetAllAsync(platform, search, isActive, page);
+            return View(r.Data ?? new PagedResult<AppConfigDto>());
         }
 
         // GET /BusCoordinator/AppConfig/Details/{id}

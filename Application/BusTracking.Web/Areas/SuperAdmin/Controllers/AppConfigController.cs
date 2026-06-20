@@ -9,13 +9,15 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
         public AppConfigController(IAppConfigService config) => _config = config;
 
         // GET /SuperAdmin/AppConfig
-        public async Task<IActionResult> Index([FromQuery] string? platform, [FromQuery] string? search, [FromQuery] bool? isActive)
+        public async Task<IActionResult> Index(
+            [FromQuery] string? platform = "Web", [FromQuery] string? search = null,
+            [FromQuery] bool? isActive = null, [FromQuery] int page = 1)
         {
             ViewBag.Platform = platform;
             ViewBag.Search = search;
             ViewBag.IsActive = isActive;
-            var r = await _config.GetAllAsync(platform, search, isActive);
-            return View(r.Data ?? []);
+            var r = await _config.GetAllAsync(platform, search, isActive, page);
+            return View(r.Data ?? new PagedResult<AppConfigDto>());
         }
 
         // GET /SuperAdmin/AppConfig/Create

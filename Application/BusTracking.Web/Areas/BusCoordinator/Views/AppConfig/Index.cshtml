@@ -1,12 +1,12 @@
-@model List<BusTracking.Common.DTOs.AppConfig.AppConfigDto>
+@model BusTracking.Common.DTOs.Common.PagedResult<BusTracking.Common.DTOs.AppConfig.AppConfigDto>
 @using BusTracking.Web.Helpers
 @{
     ViewData["Title"] = "App Configuration";
-    bool canAdd    = PermissionHelper.Can(User, "appconfig.add");
-    bool canEdit   = PermissionHelper.Can(User, "appconfig.edit");
+    bool canAdd = PermissionHelper.Can(User, "appconfig.add");
+    bool canEdit = PermissionHelper.Can(User, "appconfig.edit");
     bool canDelete = PermissionHelper.Can(User, "appconfig.delete");
     var platformFilter = ViewBag.Platform as string;
-    var searchFilter   = ViewBag.Search as string;
+    var searchFilter = ViewBag.Search as string;
 }
 
 @if (TempData["SuccessMessage"] is string sm)
@@ -37,11 +37,10 @@
               class="d-flex flex-wrap gap-3 align-items-end">
             <div>
                 <label class="form-label fw-semibold small mb-1">Platform</label>
-                <select name="platform" class="form-select form-select-sm" style="width:160px">
-                    <option value="">All Platforms</option>
-                    <option value="Web"    selected="@(platformFilter == "Web")">Web only</option>
+                <select name="platform" class="form-select form-select-sm" style="width:160px" onchange="this.form.submit()">
+                    <option value="Web" selected="@(platformFilter == "Web")">Web only</option>
                     <option value="Mobile" selected="@(platformFilter == "Mobile")">Mobile only</option>
-                    <option value="Both"   selected="@(platformFilter == "Both")">Both (Web + Mobile)</option>
+                    <option value="Both" selected="@(platformFilter == "Both")">Web/Mobile</option>
                 </select>
             </div>
             <div>
@@ -50,17 +49,17 @@
                        style="width:240px" placeholder="Key or value…" />
             </div>
             <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-search me-1"></i>Filter</button>
-            @if (!string.IsNullOrEmpty(platformFilter) || !string.IsNullOrEmpty(searchFilter))
+            @if (!string.IsNullOrEmpty(searchFilter))
             {
-                <a asp-area="BusCoordinator" asp-controller="AppConfig" asp-action="Index"
-                   class="btn btn-sm btn-outline-danger"><i class="bi bi-x me-1"></i>Clear</a>
+                <a asp-area="BusCoordinator" asp-controller="AppConfig" asp-action="Index" asp-route-platform="@platformFilter"
+                   class="btn btn-sm btn-outline-danger"><i class="bi bi-x me-1"></i>Clear search</a>
             }
         </form>
     </div>
 </div>
 
 @{
-    var grouped = Model.GroupBy(c => c.Platform).OrderBy(g => g.Key);
+    var grouped = Model.Items.GroupBy(c => c.Platform).OrderBy(g => g.Key);
 }
 
 @foreach (var group in grouped)
@@ -68,14 +67,14 @@
     var badgeStyle = group.Key switch
     {
         "Mobile" => "background:#e8f0fe;color:#1a73e8",
-        "Web"    => "background:#e6f4ea;color:#1e8e3e",
-        _        => "background:#f1f3f4;color:#5f6368"
+        "Web" => "background:#e6f4ea;color:#1e8e3e",
+        _ => "background:#f1f3f4;color:#5f6368"
     };
     var icon = group.Key switch
     {
         "Mobile" => "bi-phone",
-        "Web"    => "bi-globe",
-        _        => "bi-layers"
+        "Web" => "bi-globe",
+        _ => "bi-layers"
     };
 
     <div class="card border-0 shadow-sm mb-4">
@@ -156,7 +155,7 @@
     </div>
 }
 
-@if (!Model.Any())
+@if (!Model.Items.Any())
 {
     <div class="card border-0 shadow-sm text-center py-5">
         <i class="bi bi-sliders fs-1 text-muted d-block mb-2"></i>
@@ -165,6 +164,64 @@
             @if (canAdd)
             {
                 <a asp-area="BusCoordinator" asp-controller="AppConfig" asp-action="Create">Add the first one.</a>
+            }
+        </div>
+    </div>
+}
+else
+{
+    @* Pagination — page size comes from the "AppConfigPageSize" AppConfiguration
+       record (default 10). Filters are preserved across pages. *@
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body py-2 px-4">
+            @{
+                int currentPage = Model.PageNumber;
+                int totalPages = Model.TotalPages;
+                int totalCount = Model.TotalCount;
+                int pageSize = Model.PageSize;
+                var pageNums = PaginationHelper.GetPageNumbers(currentPage, totalPages);
+            }
+            @if (totalPages > 1)
+            {
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <small class="text-muted">
+                        Showing @((currentPage - 1) * pageSize + 1)–@(Math.Min(currentPage * pageSize, totalCount))
+                        of <strong>@totalCount</strong> results
+                    </small>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                                <a class="page-link" asp-area="BusCoordinator" asp-controller="AppConfig" asp-action="Index"
+                                   asp-route-platform="@platformFilter" asp-route-search="@searchFilter"
+                                   asp-route-page="@(currentPage - 1)">&laquo;</a>
+                            </li>
+                            @foreach (var p in pageNums)
+                            {
+                                if (p is null)
+                                {
+                                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                                }
+                                else
+                                {
+                                    <li class="page-item @(p == currentPage ? "active" : "")">
+                                        <a class="page-link" asp-area="BusCoordinator" asp-controller="AppConfig" asp-action="Index"
+                                           asp-route-platform="@platformFilter" asp-route-search="@searchFilter"
+                                           asp-route-page="@p">@p</a>
+                                    </li>
+                                }
+                            }
+                            <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                                <a class="page-link" asp-area="BusCoordinator" asp-controller="AppConfig" asp-action="Index"
+                                   asp-route-platform="@platformFilter" asp-route-search="@searchFilter"
+                                   asp-route-page="@(currentPage + 1)">&raquo;</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            }
+            else
+            {
+                <small class="text-muted">Showing all @totalCount result@(totalCount == 1 ? "" : "s")</small>
             }
         </div>
     </div>

@@ -21,6 +21,12 @@
         public const int DefaultPageSize = 10;
         public const int MaxPageSize = 100;
 
+        // AppConfiguration key that drives the App Configuration list's page size
+        // (Web SuperAdmin/BusCoordinator + Mobile Admin/Coordinator). Seeded with
+        // value "10" — see BusTrackingDB.sql. Falls back to DefaultPageSize if
+        // the key is missing, inactive, or not a valid positive integer.
+        public const string AppConfigPageSizeKey = "AppConfigPageSize";
+
         // GPS ping interval (seconds) — used in MAUI
         public const int GpsPingIntervalSeconds = 10;
 

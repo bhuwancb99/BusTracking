@@ -740,9 +740,9 @@ namespace BusTracking.API.Controllers
 
         [HttpGet("config")]
         public async Task<IActionResult> GetConfigs([FromQuery] string? platform,
-            [FromQuery] string? search, [FromQuery] bool? isActive)
+            [FromQuery] string? search, [FromQuery] bool? isActive, [FromQuery] int page = 1)
         {
-            var r = await _config.GetAllAsync(platform, search, isActive);
+            var r = await _config.GetAllAsync(platform, search, isActive, page);
             return Ok(r);
         }
 

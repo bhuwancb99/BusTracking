@@ -5,16 +5,19 @@
         private readonly AppDbContext _db;
         public AppConfigService(AppDbContext db) => _db = db;
 
-        public async Task<ApiResponse<List<AppConfigDto>>> GetAllAsync(
-            string? platform, string? search, bool? isActive)
+        public async Task<ApiResponse<PagedResult<AppConfigDto>>> GetAllAsync(
+            string? platform, string? search, bool? isActive, int page = 1)
         {
             var q = _db.AppConfigurations
                 .Include(c => c.CreatedByUser)
                 .AsQueryable();
 
+            // Exact platform match only — selecting "Web" shows Web-only rows,
+            // "Mobile" shows Mobile-only rows, "Both" shows Web/Mobile rows.
+            // (No implicit merge with "Both" when a single platform is selected.)
             if (!string.IsNullOrWhiteSpace(platform) &&
                 Enum.TryParse<ConfigPlatform>(platform, true, out var p))
-                q = q.Where(c => c.Platform == p || c.Platform == ConfigPlatform.Both);
+                q = q.Where(c => c.Platform == p);
 
             if (!string.IsNullOrWhiteSpace(search))
                 q = q.Where(c => c.ConfigKey.Contains(search) || c.ConfigValue.Contains(search));
@@ -22,7 +25,12 @@
             if (isActive.HasValue)
                 q = q.Where(c => c.IsActive == isActive.Value);
 
-            var list = await q.OrderBy(c => c.Platform).ThenBy(c => c.ConfigKey)
+            var pageSize = await GetListPageSizeAsync();
+            page = PaginationHelper.Clamp(page);
+
+            var total = await q.CountAsync();
+            var items = await q.OrderBy(c => c.Platform).ThenBy(c => c.ConfigKey)
+                .Skip((page - 1) * pageSize).Take(pageSize)
                 .Select(c => new AppConfigDto
                 {
                     ConfigId = c.ConfigId,
@@ -36,7 +44,25 @@
                     CreatedByName = c.CreatedByUser.FullName
                 }).ToListAsync();
 
-            return ApiResponse<List<AppConfigDto>>.Ok(list);
+            return ApiResponse<PagedResult<AppConfigDto>>.Ok(new PagedResult<AppConfigDto>
+            {
+                Items = items,
+                TotalCount = total,
+                PageNumber = page,
+                PageSize = pageSize
+            });
+        }
+
+        public async Task<int> GetListPageSizeAsync()
+        {
+            var raw = await _db.AppConfigurations
+                .Where(c => c.ConfigKey == AppConstants.AppConfigPageSizeKey && c.IsActive)
+                .Select(c => c.ConfigValue)
+                .FirstOrDefaultAsync();
+
+            return int.TryParse(raw, out var size) && size > 0
+                ? PaginationHelper.ClampPageSize(size)
+                : AppConstants.DefaultPageSize;
         }
 
         public async Task<ApiResponse<AppConfigDto>> GetByIdAsync(int configId)

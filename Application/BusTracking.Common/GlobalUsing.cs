@@ -19,6 +19,7 @@ global using BusTracking.Common.DTOs.Trip;
 global using BusTracking.Common.DTOs.User;
 global using BusTracking.Common.Entities;
 global using BusTracking.Common.Enums;
+global using BusTracking.Common.Helpers;
 global using BusTracking.Common.Interfaces;
 global using BusTracking.Common.Services;
 global using MailKit.Net.Smtp;

@@ -2,7 +2,7 @@
 {
     public interface IAdminConfigService
     {
-        Task<List<AppConfigItem>> GetAllAsync(string? platform = null);
+        Task<PagedResult<AppConfigItem>> GetAllAsync(string? platform = null, string? search = null, int page = 1);
         Task<AppConfigItem?> GetByIdAsync(int id);
         Task<ApiResponse<object>> CreateAsync(CreateAppConfigRequest req);
         Task<ApiResponse<object>> UpdateAsync(int id, UpdateAppConfigRequest req);

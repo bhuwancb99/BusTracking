@@ -1,4 +1,4 @@
-@model List<BusTracking.Common.DTOs.AppConfig.AppConfigDto>
+@model BusTracking.Common.DTOs.Common.PagedResult<BusTracking.Common.DTOs.AppConfig.AppConfigDto>
 @{
     ViewData["Title"] = "App Configuration";
     ViewData["Breadcrumb"] = "App Configuration";
@@ -21,11 +21,10 @@
         <form asp-area="SuperAdmin" asp-action="Index" method="get" class="d-flex flex-wrap gap-3 align-items-end">
             <div>
                 <label class="form-label fw-semibold small mb-1">Platform</label>
-                <select name="platform" class="form-select form-select-sm" style="width:160px">
-                    <option value="">All Platforms</option>
+                <select name="platform" class="form-select form-select-sm" style="width:160px" onchange="this.form.submit()">
                     <option value="Web" selected="@(platformFilter == "Web")">Web only</option>
                     <option value="Mobile" selected="@(platformFilter == "Mobile")">Mobile only</option>
-                    <option value="Both" selected="@(platformFilter == "Both")">Both (Web + Mobile)</option>
+                    <option value="Both" selected="@(platformFilter == "Both")">Web/Mobile</option>
                 </select>
             </div>
             <div>
@@ -34,10 +33,10 @@
                        style="width:240px" placeholder="Key or value…" />
             </div>
             <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-search me-1"></i>Filter</button>
-            @if (!string.IsNullOrEmpty(platformFilter) || !string.IsNullOrEmpty(searchFilter))
+            @if (!string.IsNullOrEmpty(searchFilter))
             {
-                <a asp-area="SuperAdmin" asp-action="Index" class="btn btn-sm btn-outline-danger">
-                    <i class="bi bi-x me-1"></i>Clear
+                <a asp-area="SuperAdmin" asp-action="Index" asp-route-platform="@platformFilter" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-x me-1"></i>Clear search
                 </a>
             }
         </form>
@@ -45,7 +44,7 @@
 </div>
 
 @{
-    var grouped = Model.GroupBy(c => c.Platform).OrderBy(g => g.Key);
+    var grouped = Model.Items.GroupBy(c => c.Platform).OrderBy(g => g.Key);
 }
 
 @foreach (var group in grouped)
@@ -134,11 +133,69 @@
     </div>
 }
 
-@if (!Model.Any())
+@if (!Model.Items.Any())
 {
     <div class="card border-0 shadow-sm text-center py-5">
         <i class="bi bi-sliders fs-1 text-muted d-block mb-2"></i>
         <div class="text-muted">No configurations found. <a asp-area="SuperAdmin" asp-action="Create">Add the first one.</a></div>
+    </div>
+}
+else
+{
+    @* Pagination — page size comes from the "AppConfigPageSize" AppConfiguration
+       record (default 10). Filters are preserved across pages. *@
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body py-2 px-4">
+            @{
+                int currentPage = Model.PageNumber;
+                int totalPages = Model.TotalPages;
+                int totalCount = Model.TotalCount;
+                int pageSize = Model.PageSize;
+                var pageNums = PaginationHelper.GetPageNumbers(currentPage, totalPages);
+            }
+            @if (totalPages > 1)
+            {
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <small class="text-muted">
+                        Showing @((currentPage - 1) * pageSize + 1)–@(Math.Min(currentPage * pageSize, totalCount))
+                        of <strong>@totalCount</strong> results
+                    </small>
+                    <nav>
+                        <ul class="pagination pagination-sm mb-0">
+                            <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                                <a class="page-link" asp-area="SuperAdmin" asp-action="Index"
+                                   asp-route-platform="@platformFilter" asp-route-search="@searchFilter"
+                                   asp-route-page="@(currentPage - 1)">&laquo;</a>
+                            </li>
+                            @foreach (var p in pageNums)
+                            {
+                                if (p is null)
+                                {
+                                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                                }
+                                else
+                                {
+                                    <li class="page-item @(p == currentPage ? "active" : "")">
+                                        <a class="page-link" asp-area="SuperAdmin" asp-action="Index"
+                                           asp-route-platform="@platformFilter" asp-route-search="@searchFilter"
+                                           asp-route-page="@p">@p</a>
+                                    </li>
+                                }
+                            }
+                            <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                                <a class="page-link" asp-area="SuperAdmin" asp-action="Index"
+                                   asp-route-platform="@platformFilter" asp-route-search="@searchFilter"
+                                   asp-route-page="@(currentPage + 1)">&raquo;</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            }
+            else
+            {
+                <small class="text-muted">Showing all @totalCount result@(totalCount == 1 ? "" : "s")</small>
+            }
+        </div>
     </div>
 }
 

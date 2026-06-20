@@ -6,17 +6,17 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         [ObservableProperty] private ObservableCollection<AppConfigItem> _items = [];
         [ObservableProperty] private string _searchText = "";
-        [ObservableProperty] private string _selectedPlatform = "";
+        [ObservableProperty] private string _selectedPlatform = "Web";
+        [ObservableProperty] private int _currentPage = 1;
+        [ObservableProperty] private bool _canLoadMore;
 
         public string SearchPlaceholder => "Search configs…";
         public bool CanAdd => Can("appconfig.add");
         public bool CanEdit => Can("appconfig.edit");
         public bool CanDelete => Can("appconfig.delete");
-        public bool CanLoadMore => false;
-        public List<string> PlatformOptions => ["", "Mobile", "Web", "Both"];
 
-        [RelayCommand] private async Task LoadMoreAsync() { }
-        [RelayCommand] private async Task SearchAsync() => await LoadAsync();
+        // No blank "All Platforms" entry — always one of Web / Mobile / Both.
+        public List<string> PlatformOptions => ["Web", "Mobile", "Both"];
 
         public CoordConfigListViewModel(IAuthService auth, INavigationService nav, ICoordAppConfigService config)
             : base(auth, nav) { _config = config; Title = "App Config"; }
@@ -29,15 +29,32 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         {
             await RunAsync(async () =>
             {
-                var platform = SelectedPlatform.Length > 0 ? SelectedPlatform : null;
-                var data = await _config.GetAllAsync(platform);
-                if (!string.IsNullOrWhiteSpace(SearchText))
-                    data = data.Where(c => c.ConfigKey.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                                          c.ConfigValue.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
-                Items = new ObservableCollection<AppConfigItem>(data);
+                CurrentPage = 1;
+                var data = await _config.GetAllAsync(
+                    SelectedPlatform, SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage);
+                Items = new ObservableCollection<AppConfigItem>(data.Items);
                 IsEmpty = !Items.Any();
+                CanLoadMore = data.PageNumber < data.TotalPages;
             });
         }
+
+        // Fired by the CollectionView when scrolling nears the end
+        // (RemainingItemsThreshold on CoordConfigListPage.xaml) — appends the next page.
+        [RelayCommand]
+        private async Task LoadMoreAsync()
+        {
+            if (!CanLoadMore || IsBusy) return;
+            await RunAsync(async () =>
+            {
+                CurrentPage++;
+                var data = await _config.GetAllAsync(
+                    SelectedPlatform, SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage);
+                foreach (var item in data.Items) Items.Add(item);
+                CanLoadMore = data.PageNumber < data.TotalPages;
+            });
+        }
+
+        [RelayCommand] private async Task SearchAsync() => await LoadAsync();
 
         partial void OnSelectedPlatformChanged(string value) => LoadCommand.ExecuteAsync(null);
 
