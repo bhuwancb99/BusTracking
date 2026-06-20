@@ -507,6 +507,7 @@ SELECT * FROM (VALUES
     ('GpsIntervalSeconds', '10',  'How often the driver app sends GPS pings (seconds)',        'Mobile', 1, 1),
     ('SupportEmail',       '',    'Support email shown inside the mobile app',                'Mobile', 1, 1),
     ('SupportPhone',       '',    'Support phone number shown inside the mobile app',         'Mobile', 1, 1),
+    ('AppConfigPageSize',  '',    'Number of rows per page on the App Configuration list (Web & Mobile)',         'Both', 1, 1),
     ('IsMobileUpdateImage',       '1',    'When true: app uploads images via API and shows Upload/Remove buttons',         'Mobile', 1, 1),
     ('WebsiteImageUrl',       'https://10.0.2.2:7001',    'Used to construct full image URLs when IsMobileUpdateImage = 1',         'Mobile', 1, 1)
 ) AS v(ConfigKey, ConfigValue, Description, Platform, IsActive, CreatedBy)
