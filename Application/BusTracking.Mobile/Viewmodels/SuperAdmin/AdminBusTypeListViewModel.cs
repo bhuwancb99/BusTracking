@@ -6,6 +6,8 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 
         [ObservableProperty] private ObservableCollection<BusTypeItem> _items = [];
         [ObservableProperty] private string _searchText = "";
+        [ObservableProperty] private int _currentPage = 1;
+        [ObservableProperty] private bool _canLoadMore;
 
         [ObservableProperty] private string _formName = "";
         [ObservableProperty] private bool _isFormOpen;
@@ -31,10 +33,26 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         {
             await RunAsync(async () =>
             {
+                CurrentPage = 1;
                 var data = await _busTypes.GetAllAsync(
-                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null);
-                Items = new ObservableCollection<BusTypeItem>(data);
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage);
+                Items = new ObservableCollection<BusTypeItem>(data.Items);
                 IsEmpty = !Items.Any();
+                CanLoadMore = data.PageNumber < data.TotalPages;
+            });
+        }
+
+        [RelayCommand]
+        private async Task LoadMoreAsync()
+        {
+            if (!CanLoadMore || IsBusy) return;
+            await RunAsync(async () =>
+            {
+                CurrentPage++;
+                var data = await _busTypes.GetAllAsync(
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage);
+                foreach (var item in data.Items) Items.Add(item);
+                CanLoadMore = data.PageNumber < data.TotalPages;
             });
         }
 

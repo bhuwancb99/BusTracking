@@ -5,14 +5,14 @@ namespace BusTracking.Mobile.Services
         private readonly IApiService _api;
         public BusTypeService(IApiService api) => _api = api;
 
-        public async Task<List<BusTypeItem>> GetAllAsync(string? search = null)
+        public async Task<PagedResult<BusTypeItem>> GetAllAsync(string? search = null, int page = 1)
         {
-            var url = Constants.BusType.All;
+            var url = $"{Constants.BusType.All}?page={page}";
             if (!string.IsNullOrWhiteSpace(search))
-                url += $"?search={Uri.EscapeDataString(search)}";
+                url += $"&search={Uri.EscapeDataString(search)}";
 
-            var r = await _api.GetAsync<List<BusTypeItem>>(url);
-            return r.Data ?? [];
+            var r = await _api.GetAsync<PagedResult<BusTypeItem>>(url);
+            return r.Data ?? new PagedResult<BusTypeItem>();
         }
 
         public Task<ApiResponse<object>> CreateAsync(string name) =>

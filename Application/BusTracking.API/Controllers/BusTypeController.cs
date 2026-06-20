@@ -12,9 +12,9 @@ namespace BusTracking.API.Controllers
 
         // GET /api/bustype
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] string? search, [FromQuery] int page = 1)
         {
-            var r = await _busType.GetAllAsync();
+            var r = await _busType.GetAllAsync(search, page);
             return Ok(r);
         }
 

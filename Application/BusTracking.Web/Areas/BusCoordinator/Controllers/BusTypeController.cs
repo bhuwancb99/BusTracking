@@ -1,3 +1,5 @@
+using BusTracking.Common.DTOs.Common;
+
 namespace BusTracking.Web.Areas.BusCoordinator.Controllers
 {
     [Area("BusCoordinator"), Authorize(Roles = "BusCoordinator")]
@@ -7,16 +9,17 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
         public BusTypeController(IBusTypeService busType) => _busType = busType;
 
         // GET /BusCoordinator/BusType
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] string? search = null, [FromQuery] int page = 1)
         {
             if (!PermissionHelper.Can(User, "bustype.view")) return Forbid();
 
             ViewBag.CanAdd = PermissionHelper.Can(User, "bustype.add");
             ViewBag.CanEdit = PermissionHelper.Can(User, "bustype.edit");
             ViewBag.CanDelete = PermissionHelper.Can(User, "bustype.delete");
+            ViewBag.Search = search;
 
-            var r = await _busType.GetAllAsync();
-            return View(r.Data ?? []);
+            var r = await _busType.GetAllAsync(search, page);
+            return View(r.Data ?? new PagedResult<BusTypeDto>());
         }
 
         // POST /BusCoordinator/BusType/Create  (AJAX — row insert)
@@ -32,15 +35,13 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             var r = await _busType.CreateAsync(dto);
             if (!r.Success) return Json(new { success = false, message = r.Message });
 
-            var all = await _busType.GetAllAsync();
-            var created = all.Data?.FirstOrDefault(x => x.Name == dto.Name.Trim());
             return Json(new
             {
                 success = true,
                 message = r.Message,
-                id = created?.Id,
-                name = created?.Name,
-                busCount = created?.BusCount ?? 0
+                id = r.Data?.Id,
+                name = r.Data?.Name,
+                busCount = r.Data?.BusCount ?? 0
             });
         }
 

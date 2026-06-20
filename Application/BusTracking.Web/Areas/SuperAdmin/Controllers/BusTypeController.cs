@@ -1,3 +1,5 @@
+using BusTracking.Common.DTOs.Common;
+
 namespace BusTracking.Web.Areas.SuperAdmin.Controllers
 {
     [Area("SuperAdmin"), Authorize(Roles = "SuperAdmin")]
@@ -7,10 +9,11 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
         public BusTypeController(IBusTypeService busType) => _busType = busType;
 
         // GET /SuperAdmin/BusType
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index([FromQuery] string? search = null, [FromQuery] int page = 1)
         {
-            var r = await _busType.GetAllAsync();
-            return View(r.Data ?? []);
+            ViewBag.Search = search;
+            var r = await _busType.GetAllAsync(search, page);
+            return View(r.Data ?? new PagedResult<BusTypeDto>());
         }
 
         // POST /SuperAdmin/BusType/Create  (AJAX — row insert)
@@ -23,16 +26,13 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             var r = await _busType.CreateAsync(dto);
             if (!r.Success) return Json(new { success = false, message = r.Message });
 
-            // Return the newly created row data so JS can render it
-            var all = await _busType.GetAllAsync();
-            var created = all.Data?.FirstOrDefault(x => x.Name == dto.Name.Trim());
             return Json(new
             {
                 success = true,
                 message = r.Message,
-                id = created?.Id,
-                name = created?.Name,
-                busCount = created?.BusCount ?? 0
+                id = r.Data?.Id,
+                name = r.Data?.Name,
+                busCount = r.Data?.BusCount ?? 0
             });
         }
 
