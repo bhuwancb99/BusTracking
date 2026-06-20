@@ -142,9 +142,9 @@ namespace BusTracking.API.Controllers
 
         [HttpGet("buses")]
         public async Task<IActionResult> GetBuses([FromQuery] int page = 1,
-            [FromQuery] string? search = null, [FromQuery] string? status = null)
+            [FromQuery] string? search = null, [FromQuery] string? status = "Active")
         {
-            var r = await _bus.GetAllAsync(page, 20, search, status);
+            var r = await _bus.GetAllAsync(page, search, status);
             return Ok(r);
         }
 

@@ -33,7 +33,7 @@
         {
             await RunAsync(async () =>
             {
-                BusOptions = await _buses.GetAllAsync();
+                BusOptions = await _buses.GetAllForFormAsync();
                 if (IsEditMode && StudentId.HasValue)
                 {
                     var s = await _students.GetByIdAsync(StudentId.Value);

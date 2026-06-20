@@ -2,7 +2,8 @@
 {
     public interface IBusService
     {
-        Task<ApiResponse<PagedResult<BusListDto>>> GetAllAsync(int page, int pageSize, string? search, string? status);
+        Task<ApiResponse<PagedResult<BusListDto>>> GetAllAsync(int page, string? search, string? status);
+        Task<int> GetListPageSizeAsync();
         Task<ApiResponse<BusListDto>> GetByIdAsync(int busId);
         Task<ApiResponse<bool>> CreateAsync(CreateBusDto dto, int createdBy);
         Task<ApiResponse<bool>> UpdateAsync(int busId, UpdateBusDto dto);

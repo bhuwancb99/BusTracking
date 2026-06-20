@@ -16,14 +16,15 @@ namespace BusTracking.API.Controllers
         private readonly INotificationService _notif;
         private readonly IImageService _img;
         private readonly IRouteService _route;
+        private readonly IBusService _bus;
 
         public CoordinatorController(AppDbContext db, IDashboardService dash, ITripService trip,
             ISubAdminService subAdmin, IAppConfigService appConfig, IFeedbackService feedback,
-            INotificationService notif, IImageService img, IRouteService route)  // ← NEW
+            INotificationService notif, IImageService img, IRouteService route, IBusService bus) 
         {
             _db = db; _dash = dash; _trip = trip;
             _subAdmin = subAdmin; _appConfig = appConfig;
-            _feedback = feedback; _notif = notif; _img = img; _route = route;
+            _feedback = feedback; _notif = notif; _img = img; _route = route; _bus = bus;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -210,29 +211,10 @@ namespace BusTracking.API.Controllers
         // ════════════════════════════════════════════════════════════
 
         [HttpGet("buses")]
-        public async Task<IActionResult> Buses([FromQuery] string? search)
+        public async Task<IActionResult> Buses([FromQuery] int page = 1, [FromQuery] string? search = null, [FromQuery] string? status = "Active")
         {
-            var q = _db.Buses
-                .Include(b => b.Route)
-                .Include(b => b.Driver).ThenInclude(d => d!.User)
-                .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(search))
-                q = q.Where(b => b.BusName.Contains(search) || b.BusNumber.Contains(search));
-
-            var buses = await q.Where(b => b.IsActive).OrderBy(b => b.BusName)
-                .Select(b => new
-                {
-                    b.BusId,
-                    b.BusName,
-                    b.BusNumber,
-                    b.Capacity,
-                    RouteName = b.Route != null ? b.Route.RouteName : null,
-                    DriverName = b.Driver != null ? b.Driver.User.FullName : null,
-                    b.IsActive
-                }).ToListAsync();
-
-            return Ok(ApiResponse<object>.Ok(buses));
+            var r = await _bus.GetAllAsync(page, search, status);
+            return Ok(r);
         }
 
         [HttpGet("buses/{busId}")]

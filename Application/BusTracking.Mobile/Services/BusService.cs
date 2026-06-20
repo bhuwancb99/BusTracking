@@ -12,26 +12,33 @@
         private string BaseEndpoint => _auth.CurrentRole == Constants.Roles.SuperAdmin
             ? Constants.Admin.Buses : Constants.Coordinator.Buses;
 
-        private bool IsCoordinator => _auth.CurrentRole == Constants.Roles.BusCoordinator;
-
-        public async Task<List<BusItem>> GetAllAsync(string? search = null, int page = 1, bool? isActive = true)
+        public async Task<PagedResult<BusItem>> GetAllAsync(string? search = null, int page = 1, string? status = "Active")
         {
-            if (IsCoordinator)
+            var url = $"{BaseEndpoint}?page={page}";
+            if (!string.IsNullOrWhiteSpace(search))
+                url += $"&search={Uri.EscapeDataString(search)}";
+            if (!string.IsNullOrWhiteSpace(status))
+                url += $"&status={Uri.EscapeDataString(status)}";
+
+            var r = await _api.GetAsync<PagedResult<BusItem>>(url);
+            return r.Data ?? new PagedResult<BusItem>();
+        }
+
+        // Unpaginated lookup for dropdowns/pickers that need full BusItem fields
+        // (Trip/Student forms) — walks all pages so every active bus is selectable.
+        public async Task<List<BusItem>> GetAllForFormAsync(string? search = null)
+        {
+            var all = new List<BusItem>();
+            int page = 1;
+            PagedResult<BusItem> data;
+            do
             {
-                var url = BaseEndpoint + (search != null ? $"?search={Uri.EscapeDataString(search)}" : "");
-                var r = await _api.GetAsync<List<BusItem>>(url);
-                return r.Data ?? [];
-            }
-            else
-            {
-                var url = $"{BaseEndpoint}?page={page}";
-                if (!string.IsNullOrWhiteSpace(search))
-                    url += $"&search={Uri.EscapeDataString(search)}";
-                if (isActive.HasValue)
-                    url += $"&isActive={isActive.Value.ToString().ToLower()}";
-                var r = await _api.GetAsync<PagedResult<BusItem>>(url);
-                return r.Data?.Items ?? [];
-            }
+                data = await GetAllAsync(search, page, "Active");
+                all.AddRange(data.Items);
+                page++;
+            } while (page <= data.TotalPages);
+
+            return all;
         }
 
         public async Task<BusItem?> GetByIdAsync(int id)

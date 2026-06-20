@@ -121,10 +121,10 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
 
         private async Task LoadDropdowns()
         {
-            var buses   = await _bus.GetAllAsync(1, 100, null, "Active");
+            var buses   = await _bus.GetDropdownAsync(null);
             var drivers = await _driver.GetAllAsync(1, 100, null, "Active");
             var routes  = await _route.GetDropdownAsync();
-            ViewBag.Buses   = (buses.Data?.Items ?? []).Select(b => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = b.BusId.ToString(), Text = $"{b.BusName} ({b.BusNumber})" }).ToList();
+            ViewBag.Buses   = (buses.Data ?? []).Select(b => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = b.BusId.ToString(), Text = b.Display }).ToList();
             ViewBag.Drivers = (drivers.Data?.Items ?? []).Select(d => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = d.UserId.ToString(), Text = d.FullName }).ToList();
             ViewBag.Routes  = routes.Select(r => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = r.RouteId.ToString(), Text = $"{r.RouteName} ({r.RouteCode})" }).ToList();
         }

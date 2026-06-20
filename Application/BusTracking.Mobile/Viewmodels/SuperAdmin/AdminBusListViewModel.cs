@@ -13,14 +13,6 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         public string SearchPlaceholder => "Search buses…";
         public List<string> FilterOptions => ["Active", "Inactive", "Both"];
 
-        // null = both, true = active, false = inactive
-        private bool? ActiveFilter => SelectedFilter switch
-        {
-            "Active" => true,
-            "Inactive" => false,
-            _ => null
-        };
-
         public bool CanAdd => Can("bus.add");
         public bool CanEdit => Can("bus.edit");
         public bool CanDelete => Can("bus.delete");
@@ -41,10 +33,10 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             {
                 CurrentPage = 1;
                 var data = await _buses.GetAllAsync(
-                    SearchText.Trim().Length > 0 ? SearchText : null, 1, ActiveFilter);
-                Items = new ObservableCollection<BusItem>(data);
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage, SelectedFilter);
+                Items = new ObservableCollection<BusItem>(data.Items);
                 IsEmpty = !Items.Any();
-                CanLoadMore = data.Count == 20;
+                CanLoadMore = data.PageNumber < data.TotalPages;
             });
         }
 
@@ -55,9 +47,10 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             await RunAsync(async () =>
             {
                 CurrentPage++;
-                var data = await _buses.GetAllAsync(SearchText, CurrentPage, ActiveFilter);
-                foreach (var item in data) Items.Add(item);
-                CanLoadMore = data.Count == 20;
+                var data = await _buses.GetAllAsync(
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage, SelectedFilter);
+                foreach (var item in data.Items) Items.Add(item);
+                CanLoadMore = data.PageNumber < data.TotalPages;
             });
         }
 

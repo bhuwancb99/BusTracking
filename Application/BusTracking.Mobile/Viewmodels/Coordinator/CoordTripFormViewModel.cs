@@ -23,7 +23,7 @@
         {
             await RunAsync(async () =>
             {
-                BusOptions = await _buses.GetAllAsync();
+                BusOptions = await _buses.GetAllForFormAsync();
                 RouteOptions = await _routes.GetDropdownAsync();
             });
         }

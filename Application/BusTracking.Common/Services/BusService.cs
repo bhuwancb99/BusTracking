@@ -5,7 +5,7 @@ namespace BusTracking.Common.Services
         private readonly AppDbContext _db;
         public BusService(AppDbContext db) => _db = db;
 
-        public async Task<ApiResponse<PagedResult<BusListDto>>> GetAllAsync(int page, int pageSize, string? search, string? status)
+        public async Task<ApiResponse<PagedResult<BusListDto>>> GetAllAsync(int page, string? search, string? status)
         {
             var q = _db.Buses
                 .Include(b => b.Route)
@@ -16,6 +16,10 @@ namespace BusTracking.Common.Services
             if (!string.IsNullOrWhiteSpace(search)) q = q.Where(b => b.BusName.Contains(search) || b.BusNumber.Contains(search));
             if (status == "Active") q = q.Where(b => b.IsActive);
             else if (status == "Inactive") q = q.Where(b => !b.IsActive);
+
+            var pageSize = await GetListPageSizeAsync();
+            page = PaginationHelper.Clamp(page);
+
             var total = await q.CountAsync();
             var items = await q.OrderBy(b => b.BusName).Skip((page - 1) * pageSize).Take(pageSize)
                 .Select(b => new BusListDto
@@ -41,6 +45,18 @@ namespace BusTracking.Common.Services
                 PageNumber = page,
                 PageSize = pageSize
             });
+        }
+
+        public async Task<int> GetListPageSizeAsync()
+        {
+            var raw = await _db.AppConfigurations
+                .Where(c => c.ConfigKey == AppConstants.AppConfigPageSizeKey && c.IsActive)
+                .Select(c => c.ConfigValue)
+                .FirstOrDefaultAsync();
+
+            return int.TryParse(raw, out var size) && size > 0
+                ? PaginationHelper.ClampPageSize(size)
+                : AppConstants.DefaultPageSize;
         }
 
         public async Task<ApiResponse<BusListDto>> GetByIdAsync(int busId)

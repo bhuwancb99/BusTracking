@@ -20,7 +20,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             var normalised = (status == "Both" || string.IsNullOrEmpty(status)) ? null : status;
             ViewBag.Search = search;
             ViewBag.Status = status ?? "Active";
-            var r0 = await _bus.GetAllAsync(page, 10, search, normalised);
+            var r0 = await _bus.GetAllAsync(page, search, normalised);
             return View(r0.Data);
         }
 

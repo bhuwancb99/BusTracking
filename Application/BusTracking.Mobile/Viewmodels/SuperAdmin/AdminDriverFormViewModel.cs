@@ -36,7 +36,7 @@
         {
             await RunAsync(async () =>
             {
-                var buses = await _buses.GetAllAsync();
+                var buses = await _buses.GetAllForFormAsync();
                 BusOptions = buses;
 
                 if (IsEditMode && UserId.HasValue)
