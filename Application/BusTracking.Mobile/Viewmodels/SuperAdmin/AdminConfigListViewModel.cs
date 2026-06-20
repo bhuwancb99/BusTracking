@@ -6,7 +6,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 
         [ObservableProperty] private ObservableCollection<AppConfigItem> _items = [];
         [ObservableProperty] private string _searchText = "";
-        [ObservableProperty] private string _selectedPlatform = "Web";
+        [ObservableProperty] private string _selectedPlatform = "Mobile";
         [ObservableProperty] private int _currentPage = 1;
         [ObservableProperty] private bool _canLoadMore;
 
@@ -56,6 +56,9 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 
         // Filter re-loads when platform picker changes
         partial void OnSelectedPlatformChanged(string value) => LoadCommand.ExecuteAsync(null);
+
+        [RelayCommand]
+        private void Filter(string platform) => SelectedPlatform = platform;
 
         [RelayCommand] private Task AddAsync() => Nav.GoToAsync("AdminConfigForm");
 

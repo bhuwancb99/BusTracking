@@ -6,7 +6,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         [ObservableProperty] private ObservableCollection<AppConfigItem> _items = [];
         [ObservableProperty] private string _searchText = "";
-        [ObservableProperty] private string _selectedPlatform = "Web";
+        [ObservableProperty] private string _selectedPlatform = "Mobile";
         [ObservableProperty] private int _currentPage = 1;
         [ObservableProperty] private bool _canLoadMore;
 
@@ -57,6 +57,9 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [RelayCommand] private async Task SearchAsync() => await LoadAsync();
 
         partial void OnSelectedPlatformChanged(string value) => LoadCommand.ExecuteAsync(null);
+
+        [RelayCommand]
+        private void Filter(string platform) => SelectedPlatform = platform;
 
         [RelayCommand] private Task AddAsync() => Nav.GoToAsync("CoordConfigForm");
 
