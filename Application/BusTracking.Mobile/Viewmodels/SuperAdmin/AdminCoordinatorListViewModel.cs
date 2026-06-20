@@ -7,9 +7,8 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [ObservableProperty] private ObservableCollection<CoordinatorItem> _items = [];
         [ObservableProperty] private string _searchText = "";
         [ObservableProperty] private string _selectedFilter = "Active";
-
-        // CoordinatorService returns all results in one call — no pagination
-        public bool CanLoadMore => false;
+        [ObservableProperty] private int _currentPage = 1;
+        [ObservableProperty] private bool _canLoadMore;
 
         public string SearchPlaceholder => "Search coordinators…";
         public bool CanAdd => Can("coordinator.add");
@@ -31,6 +30,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         {
             await RunAsync(async () =>
             {
+                CurrentPage = 1;
                 bool? isActive = SelectedFilter switch
                 {
                     "Active" => true,
@@ -38,14 +38,34 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                     _ => null
                 };
                 var data = await _coords.GetAllAsync(
-                    SearchText.Trim().Length > 0 ? SearchText : null, isActive);
-                Items = new ObservableCollection<CoordinatorItem>(data);
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, isActive, CurrentPage);
+                Items = new ObservableCollection<CoordinatorItem>(data.Items);
                 IsEmpty = !Items.Any();
+                CanLoadMore = data.PageNumber < data.TotalPages;
             });
         }
 
-        // No-op: service does not support pagination
-        [RelayCommand] private Task LoadMoreAsync() => Task.CompletedTask;
+        // Fired by the CollectionView when scrolling nears the end
+        // (RemainingItemsThreshold on AdminCoordinatorListPage.xaml) — appends the next page.
+        [RelayCommand]
+        private async Task LoadMoreAsync()
+        {
+            if (!CanLoadMore || IsBusy) return;
+            await RunAsync(async () =>
+            {
+                CurrentPage++;
+                bool? isActive = SelectedFilter switch
+                {
+                    "Active" => true,
+                    "Inactive" => false,
+                    _ => null
+                };
+                var data = await _coords.GetAllAsync(
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, isActive, CurrentPage);
+                foreach (var item in data.Items) Items.Add(item);
+                CanLoadMore = data.PageNumber < data.TotalPages;
+            });
+        }
 
         [RelayCommand] private async Task SearchAsync() => await LoadAsync();
         [RelayCommand] private Task AddAsync() => Nav.GoToAsync("AdminCoordinatorForm");

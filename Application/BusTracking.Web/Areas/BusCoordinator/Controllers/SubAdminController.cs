@@ -17,7 +17,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             var normalised = (status == "Both" || string.IsNullOrEmpty(status)) ? null : status;
             ViewBag.Status = status;
             ViewBag.CurrentUserId = UserId;   // view uses this to hide edit/delete/toggle for own row
-            var result = await _sa.GetAllAsync(page, 10, search, normalised);
+            var result = await _sa.GetAllAsync(page, search, normalised);
             return View(result);
         }
 

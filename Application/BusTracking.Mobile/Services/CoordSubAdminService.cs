@@ -5,13 +5,13 @@ namespace BusTracking.Mobile.Services
         private readonly IApiService _api;
         public CoordSubAdminService(IApiService api) => _api = api;
 
-        public async Task<List<CoordinatorItem>> GetAllAsync(string? search = null, string? status = null, int page = 1)
+        public async Task<PagedResult<CoordinatorItem>> GetAllAsync(string? search = null, string? status = null, int page = 1)
         {
             var url = $"{Constants.Coordinator.SubAdmins}?page={page}";
             if (!string.IsNullOrWhiteSpace(search)) url += $"&search={Uri.EscapeDataString(search)}";
             if (!string.IsNullOrWhiteSpace(status)) url += $"&status={status}";
             var r = await _api.GetAsync<PagedResult<CoordinatorItem>>(url);
-            return r.Data?.Items ?? [];
+            return r.Data ?? new PagedResult<CoordinatorItem>();
         }
 
         public async Task<CoordinatorItem?> GetByIdAsync(int id)

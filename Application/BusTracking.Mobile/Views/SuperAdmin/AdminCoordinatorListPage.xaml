@@ -58,29 +58,30 @@
             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
                 <Image
                     Grid.Column="0"
-                    HeightRequest="18"
+                    HeightRequest="14"
                     Source="search.png"
                     VerticalOptions="Center"
-                    WidthRequest="18">
+                    WidthRequest="14">
                     <Image.Behaviors>
                         <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
                     </Image.Behaviors>
                 </Image>
                 <Entry
                     Grid.Column="1"
+                    FontSize="13"
                     Placeholder="{Binding SearchPlaceholder}"
                     ReturnCommand="{Binding SearchCommand}"
                     Text="{Binding SearchText}" />
                 <ImageButton
                     Grid.Column="2"
-                    Padding="8"
+                    Padding="6"
                     BackgroundColor="{StaticResource Primary}"
                     Command="{Binding SearchCommand}"
-                    CornerRadius="10"
-                    HeightRequest="36"
+                    CornerRadius="8"
+                    HeightRequest="28"
                     HorizontalOptions="End"
                     Source="search.png"
-                    WidthRequest="36">
+                    WidthRequest="28">
                     <ImageButton.Behaviors>
                         <mct:IconTintColorBehavior TintColor="White" />
                     </ImageButton.Behaviors>

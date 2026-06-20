@@ -5,13 +5,17 @@
         private readonly AppDbContext _db; private readonly IPasswordService _pwd; private readonly IEmailService _email;
         public SubAdminService(AppDbContext db, IPasswordService pwd, IEmailService email) { _db = db; _pwd = pwd; _email = email; }
 
-        public async Task<ApiResponse<PagedResult<SubAdminListDto>>> GetAllAsync(int page, int pageSize, string? search, string? status)
+        public async Task<ApiResponse<PagedResult<SubAdminListDto>>> GetAllAsync(int page, string? search, string? status)
         {
             var roleId = await _db.Roles.Where(r => r.RoleName == "BusCoordinator").Select(r => r.RoleId).FirstAsync();
             var q = _db.Users.Include(u => u.SubAdminPermissions).ThenInclude(sp => sp.Permission).Where(u => u.RoleId == roleId);
             if (!string.IsNullOrWhiteSpace(search)) q = q.Where(u => u.FullName.Contains(search) || u.Email.Contains(search));
             if (status == "Active") q = q.Where(u => u.IsActive);
             else if (status == "Inactive") q = q.Where(u => !u.IsActive);
+
+            var pageSize = await GetListPageSizeAsync();
+            page = PaginationHelper.Clamp(page);
+
             var total = await q.CountAsync();
             var items = await q.OrderBy(u => u.FullName).Skip((page - 1) * pageSize).Take(pageSize)
                 .Select(u => new SubAdminListDto
@@ -26,6 +30,18 @@
                     CreatedAt = u.CreatedAt
                 }).ToListAsync();
             return ApiResponse<PagedResult<SubAdminListDto>>.Ok(new PagedResult<SubAdminListDto> { Items = items, TotalCount = total, PageNumber = page, PageSize = pageSize });
+        }
+
+        public async Task<int> GetListPageSizeAsync()
+        {
+            var raw = await _db.AppConfigurations
+                .Where(c => c.ConfigKey == AppConstants.AppConfigPageSizeKey && c.IsActive)
+                .Select(c => c.ConfigValue)
+                .FirstOrDefaultAsync();
+
+            return int.TryParse(raw, out var size) && size > 0
+                ? PaginationHelper.ClampPageSize(size)
+                : AppConstants.DefaultPageSize;
         }
         public async Task<ApiResponse<SubAdminListDto>> GetByIdAsync(int userId)
         {

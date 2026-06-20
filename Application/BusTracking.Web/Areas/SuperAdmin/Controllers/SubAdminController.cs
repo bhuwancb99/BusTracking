@@ -12,7 +12,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             var normalised = (status == "Both" || string.IsNullOrEmpty(status)) ? null : status;
             ViewBag.Status = status;
             // Keep submitted value in ViewBag so radio stays selected
-            return View(await _sa.GetAllAsync(page, 10, search, normalised).D());
+            return View(await _sa.GetAllAsync(page, search, normalised).D());
         }
 
         public async Task<IActionResult> Details(int id)

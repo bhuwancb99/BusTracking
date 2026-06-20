@@ -398,32 +398,8 @@ namespace BusTracking.API.Controllers
         public async Task<IActionResult> SubAdmins([FromQuery] string? search, [FromQuery] string? status, [FromQuery] int page = 1)
         {
             RequirePermission("subadmin.view");
-            var roleId = await _db.Roles.Where(r => r.RoleName == "BusCoordinator").Select(r => r.RoleId).FirstAsync();
-            var q = _db.Users
-                .Include(u => u.SubAdminPermissions).ThenInclude(p => p.Permission)
-                .Where(u => u.RoleId == roleId);
-
-            if (!string.IsNullOrWhiteSpace(search))
-                q = q.Where(u => u.FullName.Contains(search) || u.Email.Contains(search));
-            if (status == "Active") q = q.Where(u => u.IsActive);
-            if (status == "Inactive") q = q.Where(u => !u.IsActive);
-
-            var total = await q.CountAsync();
-            const int ps = 20;
-            var items = await q.OrderBy(u => u.FullName).Skip((page - 1) * ps).Take(ps)
-                .Select(u => new
-                {
-                    u.UserId,
-                    u.FullName,
-                    u.Email,
-                    u.PhoneNumber,
-                    u.IsActive,
-                    u.CreatedAt,
-                    u.ProfileImageUrl,                         // ← NEW
-                    Permissions = u.SubAdminPermissions.Select(p => p.Permission.PermissionKey).ToList()
-                }).ToListAsync();
-
-            return Ok(ApiResponse<object>.Ok(new { items, total, page, pageSize = ps }));
+            var r = await _subAdmin.GetAllAsync(page, search, status);
+            return Ok(r);
         }
 
         [HttpGet("subadmins/{id:int}")]

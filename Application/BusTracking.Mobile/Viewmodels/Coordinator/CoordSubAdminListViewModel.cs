@@ -6,14 +6,14 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         [ObservableProperty] private ObservableCollection<CoordinatorItem> _items = [];
         [ObservableProperty] private string _searchText = "";
+        [ObservableProperty] private int _currentPage = 1;
+        [ObservableProperty] private bool _canLoadMore;
 
         public string SearchPlaceholder => "Search bus coordinators…";
         public bool CanAdd => Can("subadmin.add");
         public bool CanEdit => Can("subadmin.edit");
         public bool CanDelete => Can("subadmin.delete");
-        public bool CanLoadMore => false;
 
-        [RelayCommand] private async Task LoadMoreAsync() { }
         [RelayCommand] private async Task SearchAsync() => await LoadAsync();
 
         public CoordSubAdminListViewModel(IAuthService auth, INavigationService nav, ICoordSubAdminService service)
@@ -27,10 +27,28 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         {
             await RunAsync(async () =>
             {
+                CurrentPage = 1;
                 var data = await _service.GetAllAsync(
-                    SearchText.Trim().Length > 0 ? SearchText : null);
-                Items = new ObservableCollection<CoordinatorItem>(data);
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, null, CurrentPage);
+                Items = new ObservableCollection<CoordinatorItem>(data.Items);
                 IsEmpty = !Items.Any();
+                CanLoadMore = data.PageNumber < data.TotalPages;
+            });
+        }
+
+        // Fired by the CollectionView when scrolling nears the end
+        // (RemainingItemsThreshold on CoordSubAdminListPage.xaml) — appends the next page.
+        [RelayCommand]
+        private async Task LoadMoreAsync()
+        {
+            if (!CanLoadMore || IsBusy) return;
+            await RunAsync(async () =>
+            {
+                CurrentPage++;
+                var data = await _service.GetAllAsync(
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, null, CurrentPage);
+                foreach (var item in data.Items) Items.Add(item);
+                CanLoadMore = data.PageNumber < data.TotalPages;
             });
         }
 

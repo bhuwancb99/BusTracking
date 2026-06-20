@@ -55,7 +55,7 @@ namespace BusTracking.API.Controllers
         public async Task<IActionResult> GetCoordinators([FromQuery] int page = 1,
             [FromQuery] string? search = null, [FromQuery] string? status = null)
         {
-            var r = await _subAdmin.GetAllAsync(page, 20, search, status);
+            var r = await _subAdmin.GetAllAsync(page, search, status);
             return Ok(r);
         }
 
