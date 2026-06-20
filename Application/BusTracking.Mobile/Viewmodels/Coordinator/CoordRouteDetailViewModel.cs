@@ -22,7 +22,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         {
             await RunAsync(async () =>
             {
-                var all = await _routes.GetAllAsync();
+                var all = await _routes.GetDropdownAsync();
                 Route = all.FirstOrDefault(r => r.RouteId == RouteId);
                 Stops = new ObservableCollection<StopItem>(await _routes.GetStopsAsync(RouteId));
                 OnPropertyChanged(nameof(CanEdit));

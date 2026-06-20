@@ -157,6 +157,24 @@
             RemainingItemsThreshold="3"
             RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
             SelectionMode="None">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout
+                    Padding="0,60"
+                    HorizontalOptions="Center"
+                    Spacing="12"
+                    VerticalOptions="Center">
+                    <Label
+                        FontSize="48"
+                        HorizontalOptions="Center"
+                        Text="🗺️" />
+                    <Label
+                        FontSize="15"
+                        HorizontalOptions="Center"
+                        Text="No routes found"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Route.RouteItem">
                     <Border Style="{StaticResource ListItemBorder}">

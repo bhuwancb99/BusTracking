@@ -2,7 +2,9 @@ namespace BusTracking.Common.Interfaces
 {
     public interface IRouteService
     {
-        Task<ApiResponse<PagedResult<RouteListDto>>> GetAllAsync(int page, int pageSize, string? search, string? status = "Active");
+        Task<ApiResponse<PagedResult<RouteListDto>>> GetAllAsync(int page, string? search, string? status = "Active");
+        Task<int> GetListPageSizeAsync();
+        Task<List<RouteListDto>> GetDropdownAsync(string? search = null);
         Task<ApiResponse<bool>> ToggleActiveAsync(int routeId);
         Task<ApiResponse<RouteDetailDto>> GetByIdAsync(int routeId);
         Task<ApiResponse<bool>> CreateAsync(CreateRouteDto dto, int createdBy);

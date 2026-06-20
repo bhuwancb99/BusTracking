@@ -320,9 +320,9 @@ namespace BusTracking.API.Controllers
         // ════════════════════════════════════════════════════════════
 
         [HttpGet("routes")]
-        public async Task<IActionResult> GetRoutes([FromQuery] int page = 1, [FromQuery] string? search = null)
+        public async Task<IActionResult> GetRoutes([FromQuery] int page = 1, [FromQuery] string? search = null, [FromQuery] string? status = "Active")
         {
-            var r = await _route.GetAllAsync(page, 20, search);
+            var r = await _route.GetAllAsync(page, search, status);
             return Ok(r);
         }
 

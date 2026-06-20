@@ -106,8 +106,8 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
 
         private async Task LoadRoutesDropdown(int? selectedId = null)
         {
-            var routes = await _route.GetAllAsync(1, 100, null);
-            ViewBag.Routes = (routes.Data?.Items ?? [])
+            var routes = await _route.GetDropdownAsync();
+            ViewBag.Routes = routes
                 .Select(r => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
                 {
                     Value = r.RouteId.ToString(),
@@ -131,8 +131,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
         [HttpGet]
         public async Task<IActionResult> SearchRoutes(string? q)
         {
-            var r = await _route.GetAllAsync(1, 20, q);
-            var list = (r.Data?.Items ?? []).Select(x => new { routeId = x.RouteId, display = $"{x.RouteName} ({x.RouteCode})" });
+            var list = (await _route.GetDropdownAsync(q)).Select(x => new { routeId = x.RouteId, display = $"{x.RouteName} ({x.RouteCode})" });
             return Json(list);
         }
 

@@ -101,6 +101,8 @@
             Grid.Row="2"
             Margin="14,4,14,0"
             ItemsSource="{Binding Items}"
+            RemainingItemsThreshold="3"
+            RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
             SelectionMode="None">
             <CollectionView.EmptyView>
                 <VerticalStackLayout
@@ -188,6 +190,12 @@
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
+            <CollectionView.Footer>
+                <ActivityIndicator
+                    Margin="0,8"
+                    IsRunning="{Binding CanLoadMore}"
+                    IsVisible="{Binding CanLoadMore}" />
+            </CollectionView.Footer>
         </CollectionView>
 
     </Grid>

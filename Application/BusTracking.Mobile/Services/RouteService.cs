@@ -14,18 +14,33 @@
         private string BaseUrl => _auth.CurrentRole == Constants.Roles.SuperAdmin
             ? Constants.Admin.Routes : Constants.Coordinator.Routes;
 
-        public async Task<List<RouteItem>> GetAllAsync()
+        public async Task<PagedResult<RouteItem>> GetAllAsync(string? search = null, int page = 1, string? status = "Active")
         {
-            if (_auth.CurrentRole == Constants.Roles.BusCoordinator)
+            var url = $"{BaseUrl}?page={page}";
+            if (!string.IsNullOrWhiteSpace(search))
+                url += $"&search={Uri.EscapeDataString(search)}";
+            if (!string.IsNullOrWhiteSpace(status))
+                url += $"&status={Uri.EscapeDataString(status)}";
+
+            var r = await _api.GetAsync<PagedResult<RouteItem>>(url);
+            return r.Data ?? new PagedResult<RouteItem>();
+        }
+
+        // Unpaginated lookup for dropdowns/pickers (Add Bus, Add Trip, etc.)
+        // — walks all pages so every active route is available to select.
+        public async Task<List<RouteItem>> GetDropdownAsync(string? search = null)
+        {
+            var all = new List<RouteItem>();
+            int page = 1;
+            PagedResult<RouteItem> data;
+            do
             {
-                var r = await _api.GetAsync<List<RouteItem>>(BaseUrl);
-                return r.Data ?? [];
-            }
-            else
-            {
-                var r = await _api.GetAsync<PagedResult<RouteItem>>(BaseUrl);
-                return r.Data?.Items ?? [];
-            }
+                data = await GetAllAsync(search, page, "Active");
+                all.AddRange(data.Items);
+                page++;
+            } while (page <= data.TotalPages);
+
+            return all;
         }
 
         public async Task<List<StopItem>> GetStopsAsync(int routeId)

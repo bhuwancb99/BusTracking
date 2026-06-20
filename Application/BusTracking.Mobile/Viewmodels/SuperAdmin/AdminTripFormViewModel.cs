@@ -27,7 +27,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             await RunAsync(async () =>
             {
                 BusOptions = await _buses.GetAllAsync();
-                RouteOptions = await _routes.GetAllAsync();
+                RouteOptions = await _routes.GetDropdownAsync();
             });
         }
 

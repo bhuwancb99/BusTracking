@@ -14,15 +14,16 @@ namespace BusTracking.API.Controllers
         private readonly IAppConfigService _appConfig;
         private readonly IFeedbackService _feedback;
         private readonly INotificationService _notif;
-        private readonly IImageService _img;        // ← NEW
+        private readonly IImageService _img;
+        private readonly IRouteService _route;
 
         public CoordinatorController(AppDbContext db, IDashboardService dash, ITripService trip,
             ISubAdminService subAdmin, IAppConfigService appConfig, IFeedbackService feedback,
-            INotificationService notif, IImageService img)  // ← NEW
+            INotificationService notif, IImageService img, IRouteService route)  // ← NEW
         {
             _db = db; _dash = dash; _trip = trip;
             _subAdmin = subAdmin; _appConfig = appConfig;
-            _feedback = feedback; _notif = notif; _img = img;
+            _feedback = feedback; _notif = notif; _img = img; _route = route;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -263,24 +264,10 @@ namespace BusTracking.API.Controllers
         // ════════════════════════════════════════════════════════════
 
         [HttpGet("routes")]
-        public async Task<IActionResult> Routes()
+        public async Task<IActionResult> Routes([FromQuery] int page = 1, [FromQuery] string? search = null, [FromQuery] string? status = "Active")
         {
-            var routes = await _db.Routes
-                .Include(r => r.Stops)
-                .Where(r => r.IsActive)
-                .OrderBy(r => r.RouteName)
-                .Select(r => new
-                {
-                    r.RouteId,
-                    r.RouteName,
-                    r.RouteCode,
-                    r.MorningTime,
-                    r.EveningTime,
-                    StopCount = r.Stops.Count,
-                    r.IsActive
-                }).ToListAsync();
-
-            return Ok(ApiResponse<object>.Ok(routes));
+            var r = await _route.GetAllAsync(page, search, status);
+            return Ok(r);
         }
 
         [HttpGet("routes/{routeId}/stops")]

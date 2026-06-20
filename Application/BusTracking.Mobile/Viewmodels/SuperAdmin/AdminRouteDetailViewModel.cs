@@ -23,7 +23,7 @@
         {
             await RunAsync(async () =>
             {
-                var all = await _routes.GetAllAsync();
+                var all = await _routes.GetDropdownAsync();
                 Route = all.FirstOrDefault(r => r.RouteId == RouteId);
                 var stops = await _routes.GetStopsAsync(RouteId);
                 Stops = new ObservableCollection<StopItem>(stops);

@@ -28,7 +28,7 @@
         {
             await RunAsync(async () =>
             {
-                RouteOptions = await _routes.GetAllAsync();
+                RouteOptions = await _routes.GetDropdownAsync();
                 if (IsEditMode && BusId.HasValue)
                 {
                     var bus = await _buses.GetByIdAsync(BusId.Value);

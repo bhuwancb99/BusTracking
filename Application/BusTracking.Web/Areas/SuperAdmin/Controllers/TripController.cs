@@ -154,7 +154,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
         {
             var buses = await _bus.GetAllAsync(1, 100, null, "Active");
             var drivers = await _driver.GetAllAsync(1, 100, null, "Active");
-            var routes = await _route.GetAllAsync(1, 100, null);
+            var routes = await _route.GetDropdownAsync();
 
             ViewBag.Buses = (buses.Data?.Items ?? [])
                 .Select(b => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
@@ -164,7 +164,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
                 .Select(d => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
                 { Value = d.UserId.ToString(), Text = d.FullName }).ToList();
 
-            ViewBag.Routes = (routes.Data?.Items ?? [])
+            ViewBag.Routes = routes
                 .Select(r => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
                 { Value = r.RouteId.ToString(), Text = $"{r.RouteName} ({r.RouteCode})" }).ToList();
         }

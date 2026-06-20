@@ -6,6 +6,8 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 
         [ObservableProperty] private ObservableCollection<RouteItem> _items = [];
         [ObservableProperty] private string _searchText = "";
+        [ObservableProperty] private int _currentPage = 1;
+        [ObservableProperty] private bool _canLoadMore;
 
         public string SearchPlaceholder => "Search routes…";
         public bool CanAdd => true;
@@ -18,19 +20,32 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         public override async Task InitializeAsync() => await LoadAsync();
         public override async Task RefreshOnReturnAsync() => await LoadAsync();
 
+        // ── Load list — standalone, never called inside another RunAsync ──
         [RelayCommand]
         private async Task LoadAsync()
         {
             await RunAsync(async () =>
             {
-                var data = await _routes.GetAllAsync();
-                // Client-side search since API doesn't support it for routes
-                if (!string.IsNullOrWhiteSpace(SearchText))
-                    data = data.Where(r =>
-                        r.RouteName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                        r.RouteCode.Contains(SearchText, StringComparison.OrdinalIgnoreCase)).ToList();
-                Items = new ObservableCollection<RouteItem>(data);
+                CurrentPage = 1;
+                var data = await _routes.GetAllAsync(
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage);
+                Items = new ObservableCollection<RouteItem>(data.Items);
                 IsEmpty = !Items.Any();
+                CanLoadMore = data.PageNumber < data.TotalPages;
+            });
+        }
+
+        [RelayCommand]
+        private async Task LoadMoreAsync()
+        {
+            if (!CanLoadMore || IsBusy) return;
+            await RunAsync(async () =>
+            {
+                CurrentPage++;
+                var data = await _routes.GetAllAsync(
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage);
+                foreach (var item in data.Items) Items.Add(item);
+                CanLoadMore = data.PageNumber < data.TotalPages;
             });
         }
 

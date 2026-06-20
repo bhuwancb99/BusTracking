@@ -27,7 +27,7 @@
             await RunAsync(async () =>
             {
                 // GetByIdAsync not in IRouteService — load from list and find
-                var all = await _routes.GetAllAsync();
+                var all = await _routes.GetDropdownAsync();
                 var r = all.FirstOrDefault(x => x.RouteId == RouteId.Value);
                 if (r is null) return;
                 RouteName = r.RouteName; RouteCode = r.RouteCode;

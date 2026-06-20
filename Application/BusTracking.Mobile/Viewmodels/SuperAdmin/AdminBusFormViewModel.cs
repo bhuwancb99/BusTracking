@@ -35,7 +35,7 @@
         {
             await RunAsync(async () =>
             {
-                RouteOptions = await _routes.GetAllAsync();
+                RouteOptions = await _routes.GetDropdownAsync();
 
                 // Only ACTIVE drivers should be assignable to a bus
                 DriverOptions = await _drivers.GetAllAsync(isActive: true);

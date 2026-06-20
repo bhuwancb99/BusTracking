@@ -6,9 +6,10 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         [ObservableProperty] private ObservableCollection<RouteItem> _items = [];
         [ObservableProperty] private string _searchText = "";
+        [ObservableProperty] private int _currentPage = 1;
+        [ObservableProperty] private bool _canLoadMore;
 
         public string SearchPlaceholder => "Search routes…";
-        public bool CanLoadMore => false;
         public bool CanAdd => Can("route.add");
         public bool CanEdit => Can("route.edit");
         public bool CanDelete => Can("route.delete");
@@ -17,19 +18,36 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             : base(auth, nav) { _routes = routes; Title = "Routes"; }
 
         public override async Task InitializeAsync() => await LoadAsync();
+        public override async Task RefreshOnReturnAsync() => await LoadAsync();
 
         [RelayCommand]
         private async Task LoadAsync()
         {
             await RunAsync(async () =>
             {
-                var data = await _routes.GetAllAsync();
-                Items = new ObservableCollection<RouteItem>(data);
+                CurrentPage = 1;
+                var data = await _routes.GetAllAsync(
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage);
+                Items = new ObservableCollection<RouteItem>(data.Items);
                 IsEmpty = !Items.Any();
+                CanLoadMore = data.PageNumber < data.TotalPages;
             });
         }
 
-        [RelayCommand] private async Task LoadMoreAsync() { }
+        [RelayCommand]
+        private async Task LoadMoreAsync()
+        {
+            if (!CanLoadMore || IsBusy) return;
+            await RunAsync(async () =>
+            {
+                CurrentPage++;
+                var data = await _routes.GetAllAsync(
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage);
+                foreach (var item in data.Items) Items.Add(item);
+                CanLoadMore = data.PageNumber < data.TotalPages;
+            });
+        }
+
         [RelayCommand] private async Task SearchAsync() => await LoadAsync();
         [RelayCommand] private Task AddAsync() => Nav.GoToAsync("CoordRouteForm");
         [RelayCommand]

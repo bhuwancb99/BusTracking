@@ -127,8 +127,8 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
 
         private async Task LoadRoutes(int? selectedId = null)
         {
-            var routes = await _route.GetAllAsync(1, 100, null);
-            ViewBag.Routes = (routes.Data?.Items ?? [])
+            var routes = await _route.GetDropdownAsync();
+            ViewBag.Routes = routes
                 .Select(r => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
                 {
                     Value = r.RouteId.ToString(),

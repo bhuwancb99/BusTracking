@@ -4,16 +4,51 @@ namespace BusTracking.Common.Services
     {
         private readonly AppDbContext _db;
         public RouteService(AppDbContext db) => _db = db;
-        public async Task<ApiResponse<PagedResult<RouteListDto>>> GetAllAsync(int page, int pageSize, string? search, string? status = "Active")
+        public async Task<ApiResponse<PagedResult<RouteListDto>>> GetAllAsync(int page, string? search, string? status = "Active")
         {
             var q = _db.Routes.Include(r => r.Stops).AsQueryable();
             if (status == "Active") q = q.Where(r => r.IsActive);
             else if (status == "Inactive") q = q.Where(r => !r.IsActive);
             if (!string.IsNullOrWhiteSpace(search)) q = q.Where(r => r.RouteName.Contains(search) || r.RouteCode.Contains(search));
+
+            var pageSize = await GetListPageSizeAsync();
+            page = PaginationHelper.Clamp(page);
+
             var total = await q.CountAsync();
             var items = await q.OrderBy(r => r.RouteName).Skip((page - 1) * pageSize).Take(pageSize)
                 .Select(r => new RouteListDto { RouteId = r.RouteId, RouteName = r.RouteName, RouteCode = r.RouteCode, MorningTime = r.MorningTime != null ? r.MorningTime.Value.ToString("HH:mm") : null, EveningTime = r.EveningTime != null ? r.EveningTime.Value.ToString("HH:mm") : null, StopCount = r.Stops.Count(s => s.IsActive), IsActive = r.IsActive }).ToListAsync();
             return ApiResponse<PagedResult<RouteListDto>>.Ok(new PagedResult<RouteListDto> { Items = items, TotalCount = total, PageNumber = page, PageSize = pageSize });
+        }
+
+        public async Task<List<RouteListDto>> GetDropdownAsync(string? search = null)
+        {
+            var q = _db.Routes.Include(r => r.Stops).Where(r => r.IsActive).AsQueryable();
+            if (!string.IsNullOrWhiteSpace(search))
+                q = q.Where(r => r.RouteName.Contains(search) || r.RouteCode.Contains(search));
+
+            return await q.OrderBy(r => r.RouteName).Take(100)
+                .Select(r => new RouteListDto
+                {
+                    RouteId = r.RouteId,
+                    RouteName = r.RouteName,
+                    RouteCode = r.RouteCode,
+                    MorningTime = r.MorningTime != null ? r.MorningTime.Value.ToString("HH:mm") : null,
+                    EveningTime = r.EveningTime != null ? r.EveningTime.Value.ToString("HH:mm") : null,
+                    StopCount = r.Stops.Count(s => s.IsActive),
+                    IsActive = r.IsActive
+                }).ToListAsync();
+        }
+
+        public async Task<int> GetListPageSizeAsync()
+        {
+            var raw = await _db.AppConfigurations
+                .Where(c => c.ConfigKey == AppConstants.AppConfigPageSizeKey && c.IsActive)
+                .Select(c => c.ConfigValue)
+                .FirstOrDefaultAsync();
+
+            return int.TryParse(raw, out var size) && size > 0
+                ? PaginationHelper.ClampPageSize(size)
+                : AppConstants.DefaultPageSize;
         }
         public async Task<ApiResponse<RouteDetailDto>> GetByIdAsync(int routeId)
         {
