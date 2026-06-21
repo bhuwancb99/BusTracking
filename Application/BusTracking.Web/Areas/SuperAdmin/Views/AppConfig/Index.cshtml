@@ -146,54 +146,13 @@ else
        record (default 10). Filters are preserved across pages. *@
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-body py-2 px-4">
-            @{
-                int currentPage = Model.PageNumber;
-                int totalPages = Model.TotalPages;
-                int totalCount = Model.TotalCount;
-                int pageSize = Model.PageSize;
-                var pageNums = PaginationHelper.GetPageNumbers(currentPage, totalPages);
-            }
-            @if (totalPages > 1)
+            @if (Model.TotalPages > 1)
             {
-                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-                    <small class="text-muted">
-                        Showing @((currentPage - 1) * pageSize + 1)–@(Math.Min(currentPage * pageSize, totalCount))
-                        of <strong>@totalCount</strong> results
-                    </small>
-                    <nav>
-                        <ul class="pagination pagination-sm mb-0">
-                            <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
-                                <a class="page-link" asp-area="SuperAdmin" asp-action="Index"
-                                   asp-route-platform="@platformFilter" asp-route-search="@searchFilter"
-                                   asp-route-page="@(currentPage - 1)">&laquo;</a>
-                            </li>
-                            @foreach (var p in pageNums)
-                            {
-                                if (p is null)
-                                {
-                                    <li class="page-item disabled"><span class="page-link">…</span></li>
-                                }
-                                else
-                                {
-                                    <li class="page-item @(p == currentPage ? "active" : "")">
-                                        <a class="page-link" asp-area="SuperAdmin" asp-action="Index"
-                                           asp-route-platform="@platformFilter" asp-route-search="@searchFilter"
-                                           asp-route-page="@p">@p</a>
-                                    </li>
-                                }
-                            }
-                            <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
-                                <a class="page-link" asp-area="SuperAdmin" asp-action="Index"
-                                   asp-route-platform="@platformFilter" asp-route-search="@searchFilter"
-                                   asp-route-page="@(currentPage + 1)">&raquo;</a>
-                            </li>
-                        </ul>
-                    </nav>
-                </div>
+                <partial name="_Pagination" model="Model" />
             }
             else
             {
-                <small class="text-muted">Showing all @totalCount result@(totalCount == 1 ? "" : "s")</small>
+                <small class="text-muted">Showing all @Model.TotalCount result@(Model.TotalCount == 1 ? "" : "s")</small>
             }
         </div>
     </div>

@@ -1,5 +1,7 @@
 ﻿@* ── _Pagination.cshtml ──────────────────────────────────────────────
-   Usage: <partial name="_Pagination" model='new PaginationModel { ... }' />
+   Usage: <partial name="_Pagination" model="Model" />
+   Preserves every current query-string parameter (search, status,
+   platform, busId, date, etc.) across page links — only "page" changes.
 *@
 @using BusTracking.Common.Models
 @model dynamic
@@ -11,6 +13,21 @@
     int pageSize = (int)(Model?.PageSize ?? 10);
     string action = (string)(ViewContext.RouteData.Values["action"] ?? "Index");
     var pageNums = PaginationHelper.GetPageNumbers(currentPage, totalPages);
+
+    // Forward every current query-string value except "page" so filters
+    // (search, status, platform, busId, date, ...) survive pagination.
+    Func<int, Dictionary<string, string>> routeFor = p =>
+    {
+        var values = new Dictionary<string, string>();
+        foreach (var kv in ViewContext.HttpContext.Request.Query)
+        {
+            if (string.Equals(kv.Key, "page", StringComparison.OrdinalIgnoreCase)) continue;
+            var v = kv.Value.ToString();
+            if (!string.IsNullOrEmpty(v)) values[kv.Key] = v;
+        }
+        values["page"] = p.ToString();
+        return values;
+    };
 }
 
 @if (totalPages > 1)
@@ -23,7 +40,7 @@
         <nav>
             <ul class="pagination pagination-sm mb-0">
                 <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
-                    <a class="page-link" asp-action="@action" asp-route-page="@(currentPage - 1)">&laquo;</a>
+                    <a class="page-link" asp-action="@action" asp-all-route-data="@routeFor(currentPage - 1)">&laquo;</a>
                 </li>
                 @foreach (var p in pageNums)
                 {
@@ -34,12 +51,12 @@
                     else
                     {
                         <li class="page-item @(p == currentPage ? "active" : "")">
-                            <a class="page-link" asp-action="@action" asp-route-page="@p">@p</a>
+                            <a class="page-link" asp-action="@action" asp-all-route-data="@routeFor(p.Value)">@p</a>
                         </li>
                     }
                 }
                 <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
-                    <a class="page-link" asp-action="@action" asp-route-page="@(currentPage + 1)">&raquo;</a>
+                    <a class="page-link" asp-action="@action" asp-all-route-data="@routeFor(currentPage + 1)">&raquo;</a>
                 </li>
             </ul>
         </nav>
