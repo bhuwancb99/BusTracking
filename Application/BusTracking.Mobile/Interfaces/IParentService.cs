@@ -2,7 +2,8 @@
 {
     public interface IParentService
     {
-        Task<List<ParentItem>> GetAllAsync(string? search = null, int page = 1);
+        Task<PagedResult<ParentItem>> GetAllAsync(string? search = null, int page = 1, string? status = "Active");
+        Task<List<ParentItem>> GetAllForFormAsync(string? search = null);
         Task<ParentItem?> GetByIdAsync(int id);
         Task<ApiResponse<object>> CreateAsync(CreateParentRequest req);
         Task<ApiResponse<object>> UpdateAsync(int id, UpdateParentRequest req);

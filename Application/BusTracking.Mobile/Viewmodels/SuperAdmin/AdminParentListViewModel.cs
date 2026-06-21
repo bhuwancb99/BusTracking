@@ -6,9 +6,12 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 
         [ObservableProperty] private ObservableCollection<ParentItem> _items = [];
         [ObservableProperty] private string _searchText = "";
+        [ObservableProperty] private string _selectedFilter = "Active";   // Active | Inactive | Both
+        [ObservableProperty] private int _currentPage = 1;
         [ObservableProperty] private bool _canLoadMore;
 
         public string SearchPlaceholder => "Search parents…";
+        public List<string> FilterOptions => ["Active", "Inactive", "Both"];
         public bool CanAdd => Can("parent.add");
         public bool CanEdit => Can("parent.edit");
         public bool CanDelete => Can("parent.delete");
@@ -19,15 +22,20 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         public override async Task InitializeAsync() => await LoadAsync();
         public override async Task RefreshOnReturnAsync() => await LoadAsync();   // ← reload after Add/Edit
 
+        // Re-load when filter chip changes
+        partial void OnSelectedFilterChanged(string value) => LoadCommand.ExecuteAsync(null);
+
         [RelayCommand]
         private async Task LoadAsync()
         {
             await RunAsync(async () =>
             {
-                var data = await _parents.GetAllAsync(SearchText.Trim().Length > 0 ? SearchText : null);
-                Items = new ObservableCollection<ParentItem>(data);
+                CurrentPage = 1;
+                var data = await _parents.GetAllAsync(
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage, SelectedFilter);
+                Items = new ObservableCollection<ParentItem>(data.Items);
                 IsEmpty = !Items.Any();
-                CanLoadMore = data.Count == 20;
+                CanLoadMore = data.PageNumber < data.TotalPages;
             });
         }
 
@@ -37,9 +45,11 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             if (!CanLoadMore || IsBusy) return;
             await RunAsync(async () =>
             {
-                var data = await _parents.GetAllAsync(SearchText);
-                foreach (var item in data) Items.Add(item);
-                CanLoadMore = data.Count == 20;
+                CurrentPage++;
+                var data = await _parents.GetAllAsync(
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage, SelectedFilter);
+                foreach (var item in data.Items) Items.Add(item);
+                CanLoadMore = data.PageNumber < data.TotalPages;
             });
         }
 
@@ -73,10 +83,12 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             if (r.Success) { Items.Remove(p); await ShowToastAsync("Parent deleted."); }
             else SetError(r.Message);
         }
-    
+
         [RelayCommand]
         private Task DetailAsync(ParentItem p) =>
             Nav.GoToAsync("AdminParentDetail", new Dictionary<string, object> { ["ParentId"] = p.UserId });
 
+        [RelayCommand]
+        private void Filter(string filter) => SelectedFilter = filter;
     }
 }

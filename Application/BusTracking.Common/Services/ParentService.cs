@@ -12,12 +12,16 @@
             _email = email;
         }
 
-        public async Task<ApiResponse<PagedResult<ParentListDto>>> GetAllAsync(int page, int pageSize, string? search, string? status)
+        public async Task<ApiResponse<PagedResult<ParentListDto>>> GetAllAsync(int page, string? search, string? status)
         {
             var q = _db.Parents.Include(p => p.User).Include(p => p.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.User).Include(p => p.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.Bus).AsQueryable();
             if (!string.IsNullOrWhiteSpace(search)) q = q.Where(p => p.User.FullName.Contains(search) || p.User.Email.Contains(search));
             if (status == "Active") q = q.Where(p => p.User.IsActive);
             else if (status == "Inactive") q = q.Where(p => !p.User.IsActive);
+
+            var pageSize = await GetListPageSizeAsync();
+            page = PaginationHelper.Clamp(page);
+
             var total = await q.CountAsync();
             var items = await q.OrderBy(p => p.User.FullName).Skip((page - 1) * pageSize).Take(pageSize)
                 .Select(p => new ParentListDto
@@ -44,6 +48,18 @@
                 PageNumber = page,
                 PageSize = pageSize
             });
+        }
+
+        public async Task<int> GetListPageSizeAsync()
+        {
+            var raw = await _db.AppConfigurations
+                .Where(c => c.ConfigKey == AppConstants.AppConfigPageSizeKey && c.IsActive)
+                .Select(c => c.ConfigValue)
+                .FirstOrDefaultAsync();
+
+            return int.TryParse(raw, out var size) && size > 0
+                ? PaginationHelper.ClampPageSize(size)
+                : AppConstants.DefaultPageSize;
         }
         public async Task<ApiResponse<ParentListDto>> GetByIdAsync(int userId)
         {

@@ -17,7 +17,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             if (!PermissionHelper.Can(User, "parent.view")) return Forbid();
             var normalised = (status == "Both" || string.IsNullOrEmpty(status)) ? null : status;
             ViewBag.Search = search; ViewBag.Status = status ?? "Active";
-            var r = await _parent.GetAllAsync(page, 10, search, normalised);
+            var r = await _parent.GetAllAsync(page, search, normalised);
             return View(r.Data);
         }
 

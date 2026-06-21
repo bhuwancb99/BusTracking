@@ -443,9 +443,9 @@ namespace BusTracking.API.Controllers
 
         [HttpGet("parents")]
         public async Task<IActionResult> GetParents([FromQuery] int page = 1,
-            [FromQuery] string? search = null, [FromQuery] string? status = null)
+            [FromQuery] string? search = null, [FromQuery] string? status = "Active")
         {
-            var r = await _parent.GetAllAsync(page, 20, search, status);
+            var r = await _parent.GetAllAsync(page, search, status);
             return Ok(r);
         }
 

@@ -2,7 +2,8 @@
 {
     public interface IParentService
     {
-        Task<ApiResponse<PagedResult<ParentListDto>>> GetAllAsync(int page, int pageSize, string? search, string? status);
+        Task<ApiResponse<PagedResult<ParentListDto>>> GetAllAsync(int page, string? search, string? status);
+        Task<int> GetListPageSizeAsync();
         Task<ApiResponse<ParentListDto>> GetByIdAsync(int userId);
         Task<ApiResponse<CreatedUserResultDto>> CreateAsync(CreateParentDto dto, int createdBy);
         Task<ApiResponse<bool>> UpdateAsync(int userId, UpdateParentDto dto);

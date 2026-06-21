@@ -18,14 +18,15 @@ namespace BusTracking.API.Controllers
         private readonly IRouteService _route;
         private readonly IBusService _bus;
         private readonly IDriverService _driver;
+        private readonly IParentService _parent;
 
         public CoordinatorController(AppDbContext db, IDashboardService dash, ITripService trip,
             ISubAdminService subAdmin, IAppConfigService appConfig, IFeedbackService feedback,
-            INotificationService notif, IImageService img, IRouteService route, IBusService bus, IDriverService driver)
+            INotificationService notif, IImageService img, IRouteService route, IBusService bus, IDriverService driver, IParentService parent)
         {
             _db = db; _dash = dash; _trip = trip;
             _subAdmin = subAdmin; _appConfig = appConfig;
-            _feedback = feedback; _notif = notif; _img = img; _route = route; _bus = bus; _driver = driver;
+            _feedback = feedback; _notif = notif; _img = img; _route = route; _bus = bus; _driver = driver; _parent = parent;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -281,30 +282,10 @@ namespace BusTracking.API.Controllers
         // ════════════════════════════════════════════════════════════
 
         [HttpGet("parents")]
-        public async Task<IActionResult> Parents([FromQuery] string? search, [FromQuery] int page = 1)
+        public async Task<IActionResult> Parents([FromQuery] int page = 1, [FromQuery] string? search = null, [FromQuery] string? status = "Active")
         {
-            var roleId = await _db.Roles.Where(r => r.RoleName == "Parent").Select(r => r.RoleId).FirstAsync();
-            var q = _db.Users
-                .Include(u => u.ParentDetail)
-                    .ThenInclude(p => p!.ParentStudents).ThenInclude(ps => ps.Student)
-                .Where(u => u.RoleId == roleId);
-
-            if (!string.IsNullOrWhiteSpace(search))
-                q = q.Where(u => u.FullName.Contains(search) || u.Email.Contains(search));
-
-            var parents = await q.OrderBy(u => u.FullName).Skip((page - 1) * 20).Take(20)
-                .Select(u => new
-                {
-                    u.UserId,
-                    u.FullName,
-                    u.Email,
-                    u.PhoneNumber,
-                    u.IsActive,
-                    u.ProfileImageUrl,                         // ← includes photo
-                    ChildrenCount = u.ParentDetail != null ? u.ParentDetail.ParentStudents.Count : 0
-                }).ToListAsync();
-
-            return Ok(ApiResponse<object>.Ok(parents));
+            var r = await _parent.GetAllAsync(page, search, status);
+            return Ok(r);
         }
 
         // ════════════════════════════════════════════════════════════

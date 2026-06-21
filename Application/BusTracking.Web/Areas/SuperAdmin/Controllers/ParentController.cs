@@ -17,7 +17,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             var normalised = (status == "Both" || string.IsNullOrEmpty(status)) ? null : status;
             ViewBag.Search = search;
             ViewBag.Status = status ?? "Active";
-            return View(await _parent.GetAllAsync(page, 10, search, normalised).D());
+            return View(await _parent.GetAllAsync(page, search, normalised).D());
         }
 
         public async Task<IActionResult> Details(int id)
