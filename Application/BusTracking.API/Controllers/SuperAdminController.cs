@@ -382,9 +382,9 @@ namespace BusTracking.API.Controllers
 
         [HttpGet("drivers")]
         public async Task<IActionResult> GetDrivers([FromQuery] int page = 1,
-            [FromQuery] string? search = null, [FromQuery] string? status = null)
+            [FromQuery] string? search = null, [FromQuery] string? status = "Active")
         {
-            var r = await _driver.GetAllAsync(page, 20, search, status);
+            var r = await _driver.GetAllAsync(page, search, status);
             return Ok(r);
         }
 

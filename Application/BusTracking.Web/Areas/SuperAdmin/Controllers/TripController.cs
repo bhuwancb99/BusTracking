@@ -153,16 +153,16 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
         private async Task LoadDropdowns()
         {
             var buses = await _bus.GetDropdownAsync(null);
-            var drivers = await _driver.GetAllAsync(1, 100, null, "Active");
+            var drivers = await _driver.GetDropdownAsync(null);
             var routes = await _route.GetDropdownAsync();
 
             ViewBag.Buses = (buses.Data ?? [])
                 .Select(b => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
                 { Value = b.BusId.ToString(), Text = b.Display }).ToList();
 
-            ViewBag.Drivers = (drivers.Data?.Items ?? [])
+            ViewBag.Drivers = (drivers.Data ?? [])
                 .Select(d => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
-                { Value = d.UserId.ToString(), Text = d.FullName }).ToList();
+                { Value = d.UserId.ToString(), Text = d.Display }).ToList();
 
             ViewBag.Routes = routes
                 .Select(r => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem

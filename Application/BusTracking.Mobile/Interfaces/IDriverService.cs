@@ -2,7 +2,8 @@
 {
     public interface IDriverService
     {
-        Task<List<DriverItem>> GetAllAsync(string? search = null, int page = 1, bool? isActive = true);
+        Task<PagedResult<DriverItem>> GetAllAsync(string? search = null, int page = 1, string? status = "Active");
+        Task<List<DriverItem>> GetAllForFormAsync(string? search = null);
         Task<DriverItem?> GetByIdAsync(int id);
         Task<ApiResponse<object>> CreateAsync(CreateDriverRequest req);
         Task<ApiResponse<object>> UpdateAsync(int id, UpdateDriverRequest req);

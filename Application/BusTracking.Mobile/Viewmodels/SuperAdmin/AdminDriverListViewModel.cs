@@ -13,13 +13,6 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         public string SearchPlaceholder => "Search drivers…";
         public List<string> FilterOptions => ["Active", "Inactive", "Both"];
 
-        private bool? ActiveFilter => SelectedFilter switch
-        {
-            "Active" => true,
-            "Inactive" => false,
-            _ => null
-        };
-
         public bool CanAdd => Can("driver.add");
         public bool CanEdit => Can("driver.edit");
         public bool CanDelete => Can("driver.delete");
@@ -39,10 +32,10 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             {
                 CurrentPage = 1;
                 var data = await _drivers.GetAllAsync(
-                    SearchText.Trim().Length > 0 ? SearchText : null, 1, ActiveFilter);
-                Items = new ObservableCollection<DriverItem>(data);
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage, SelectedFilter);
+                Items = new ObservableCollection<DriverItem>(data.Items);
                 IsEmpty = !Items.Any();
-                CanLoadMore = data.Count == 20;
+                CanLoadMore = data.PageNumber < data.TotalPages;
             });
         }
 
@@ -53,9 +46,10 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             await RunAsync(async () =>
             {
                 CurrentPage++;
-                var data = await _drivers.GetAllAsync(SearchText, CurrentPage, ActiveFilter);
-                foreach (var item in data) Items.Add(item);
-                CanLoadMore = data.Count == 20;
+                var data = await _drivers.GetAllAsync(
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, CurrentPage, SelectedFilter);
+                foreach (var item in data.Items) Items.Add(item);
+                CanLoadMore = data.PageNumber < data.TotalPages;
             });
         }
 

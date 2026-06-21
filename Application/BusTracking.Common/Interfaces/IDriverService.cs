@@ -2,7 +2,8 @@
 {
     public interface IDriverService
     {
-        Task<ApiResponse<PagedResult<DriverListDto>>> GetAllAsync(int page, int pageSize, string? search, string? status);
+        Task<ApiResponse<PagedResult<DriverListDto>>> GetAllAsync(int page, string? search, string? status);
+        Task<int> GetListPageSizeAsync();
         Task<ApiResponse<DriverListDto>> GetByIdAsync(int userId);
         Task<ApiResponse<CreatedUserResultDto>> CreateAsync(CreateDriverDto dto, int createdBy);
         Task<ApiResponse<bool>> UpdateAsync(int userId, UpdateDriverDto dto);

@@ -12,24 +12,33 @@ namespace BusTracking.Mobile.Services
 
         private bool IsCoordinator => _auth.CurrentRole == Constants.Roles.BusCoordinator;
 
-        public async Task<List<DriverItem>> GetAllAsync(string? search = null, int page = 1, bool? isActive = true)
+        public async Task<PagedResult<DriverItem>> GetAllAsync(string? search = null, int page = 1, string? status = "Active")
         {
-            if (IsCoordinator)
+            var url = $"{BaseUrl}?page={page}";
+            if (!string.IsNullOrWhiteSpace(search))
+                url += $"&search={Uri.EscapeDataString(search)}";
+            if (!string.IsNullOrWhiteSpace(status))
+                url += $"&status={Uri.EscapeDataString(status)}";
+
+            var r = await _api.GetAsync<PagedResult<DriverItem>>(url);
+            return r.Data ?? new PagedResult<DriverItem>();
+        }
+
+        // Unpaginated lookup for dropdowns/pickers that need full DriverItem fields
+        // (Trip/Bus forms) — walks all pages so every active driver is selectable.
+        public async Task<List<DriverItem>> GetAllForFormAsync(string? search = null)
+        {
+            var all = new List<DriverItem>();
+            int page = 1;
+            PagedResult<DriverItem> data;
+            do
             {
-                var url = BaseUrl + (search != null ? $"?search={Uri.EscapeDataString(search)}" : "");
-                var r = await _api.GetAsync<List<DriverItem>>(url);
-                return r.Data ?? [];
-            }
-            else
-            {
-                var url = $"{BaseUrl}?page={page}";
-                if (!string.IsNullOrWhiteSpace(search))
-                    url += $"&search={Uri.EscapeDataString(search)}";
-                if (isActive.HasValue)
-                    url += $"&isActive={isActive.Value.ToString().ToLower()}";
-                var r = await _api.GetAsync<PagedResult<DriverItem>>(url);
-                return r.Data?.Items ?? [];
-            }
+                data = await GetAllAsync(search, page, "Active");
+                all.AddRange(data.Items);
+                page++;
+            } while (page <= data.TotalPages);
+
+            return all;
         }
 
         public async Task<DriverItem?> GetByIdAsync(int id)
@@ -37,7 +46,7 @@ namespace BusTracking.Mobile.Services
             // Coordinator has no /{id} endpoint — fetch from list and find by id
             if (IsCoordinator)
             {
-                var list = await GetAllAsync();
+                var list = await GetAllForFormAsync();
                 return list.FirstOrDefault(d => d.UserId == id);
             }
             var r = await _api.GetAsync<DriverItem>(string.Format(Constants.Admin.DriverById, id));

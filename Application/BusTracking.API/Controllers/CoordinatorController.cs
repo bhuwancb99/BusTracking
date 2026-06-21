@@ -17,14 +17,15 @@ namespace BusTracking.API.Controllers
         private readonly IImageService _img;
         private readonly IRouteService _route;
         private readonly IBusService _bus;
+        private readonly IDriverService _driver;
 
         public CoordinatorController(AppDbContext db, IDashboardService dash, ITripService trip,
             ISubAdminService subAdmin, IAppConfigService appConfig, IFeedbackService feedback,
-            INotificationService notif, IImageService img, IRouteService route, IBusService bus) 
+            INotificationService notif, IImageService img, IRouteService route, IBusService bus, IDriverService driver)
         {
             _db = db; _dash = dash; _trip = trip;
             _subAdmin = subAdmin; _appConfig = appConfig;
-            _feedback = feedback; _notif = notif; _img = img; _route = route; _bus = bus;
+            _feedback = feedback; _notif = notif; _img = img; _route = route; _bus = bus; _driver = driver;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -269,30 +270,10 @@ namespace BusTracking.API.Controllers
         // ════════════════════════════════════════════════════════════
 
         [HttpGet("drivers")]
-        public async Task<IActionResult> Drivers([FromQuery] string? search)
+        public async Task<IActionResult> Drivers([FromQuery] int page = 1, [FromQuery] string? search = null, [FromQuery] string? status = "Active")
         {
-            var roleId = await _db.Roles.Where(r => r.RoleName == "Driver").Select(r => r.RoleId).FirstAsync();
-            var q = _db.Users
-                .Include(u => u.DriverDetail).ThenInclude(d => d!.Bus)
-                .Where(u => u.RoleId == roleId && u.IsActive);
-
-            if (!string.IsNullOrWhiteSpace(search))
-                q = q.Where(u => u.FullName.Contains(search) || u.Email.Contains(search));
-
-            var drivers = await q.OrderBy(u => u.FullName).Select(u => new
-            {
-                u.UserId,
-                u.FullName,
-                u.Email,
-                u.PhoneNumber,
-                u.ProfileImageUrl,                             // ← includes photo
-                BusNumber = u.DriverDetail != null && u.DriverDetail.Bus != null ? u.DriverDetail.Bus.BusNumber : null,
-                BusName = u.DriverDetail != null && u.DriverDetail.Bus != null ? u.DriverDetail.Bus.BusName : null,
-                LicenseNumber = u.DriverDetail != null ? u.DriverDetail.LicenseNumber : null,
-                u.IsActive
-            }).ToListAsync();
-
-            return Ok(ApiResponse<object>.Ok(drivers));
+            var r = await _driver.GetAllAsync(page, search, status);
+            return Ok(r);
         }
 
         // ════════════════════════════════════════════════════════════
