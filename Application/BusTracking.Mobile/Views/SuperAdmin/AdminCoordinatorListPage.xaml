@@ -48,7 +48,7 @@
         </Grid>
     </Shell.TitleView>
 
-    <Grid RowDefinitions="Auto,Auto,*">
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
 
         <!--  Search  -->
         <Border
@@ -89,9 +89,55 @@
             </Grid>
         </Border>
 
+        <!--  Status filter chips  -->
+        <HorizontalStackLayout
+            Grid.Row="1"
+            Margin="14,0,14,4"
+            Spacing="8">
+            <Border
+                Padding="14,6"
+                BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Active'}"
+                StrokeShape="RoundRectangle 16"
+                StrokeThickness="0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Active" />
+                </Border.GestureRecognizers>
+                <Label
+                    FontSize="12"
+                    Text="Active"
+                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Active'}" />
+            </Border>
+            <Border
+                Padding="14,6"
+                BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Inactive'}"
+                StrokeShape="RoundRectangle 16"
+                StrokeThickness="0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Inactive" />
+                </Border.GestureRecognizers>
+                <Label
+                    FontSize="12"
+                    Text="Inactive"
+                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Inactive'}" />
+            </Border>
+            <Border
+                Padding="14,6"
+                BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Both'}"
+                StrokeShape="RoundRectangle 16"
+                StrokeThickness="0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Both" />
+                </Border.GestureRecognizers>
+                <Label
+                    FontSize="12"
+                    Text="Both"
+                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Both'}" />
+            </Border>
+        </HorizontalStackLayout>
+
         <!--  Error  -->
         <Border
-            Grid.Row="1"
+            Grid.Row="2"
             Margin="14,0"
             IsVisible="{Binding HasError}"
             Style="{StaticResource ErrorBannerBorder}">
@@ -103,7 +149,7 @@
         </Border>
         <!--  Busy  -->
         <ActivityIndicator
-            Grid.Row="2"
+            Grid.Row="3"
             HorizontalOptions="Center"
             IsRunning="{Binding IsBusy}"
             IsVisible="{Binding IsBusy}"
@@ -111,7 +157,7 @@
 
         <!--  Empty  -->
         <VerticalStackLayout
-            Grid.Row="2"
+            Grid.Row="3"
             HorizontalOptions="Center"
             IsVisible="{Binding IsEmpty}"
             Spacing="14"
@@ -152,7 +198,7 @@
 
         <!--  List  -->
         <CollectionView
-            Grid.Row="2"
+            Grid.Row="3"
             Margin="14,4,14,0"
             ItemsSource="{Binding Items}"
             RemainingItemsThreshold="3"

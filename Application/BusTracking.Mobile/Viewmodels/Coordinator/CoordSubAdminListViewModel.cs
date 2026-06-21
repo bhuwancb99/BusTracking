@@ -6,6 +6,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         [ObservableProperty] private ObservableCollection<CoordinatorItem> _items = [];
         [ObservableProperty] private string _searchText = "";
+        [ObservableProperty] private string _selectedFilter = "Active";
         [ObservableProperty] private int _currentPage = 1;
         [ObservableProperty] private bool _canLoadMore;
 
@@ -13,6 +14,8 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         public bool CanAdd => Can("subadmin.add");
         public bool CanEdit => Can("subadmin.edit");
         public bool CanDelete => Can("subadmin.delete");
+
+        public List<string> FilterOptions => ["Active", "Inactive", "Both"];
 
         [RelayCommand] private async Task SearchAsync() => await LoadAsync();
 
@@ -22,6 +25,8 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         public override async Task InitializeAsync() => await LoadAsync();
         public override async Task RefreshOnReturnAsync() => await LoadAsync();
 
+        partial void OnSelectedFilterChanged(string value) => LoadCommand.ExecuteAsync(null);
+
         [RelayCommand]
         private async Task LoadAsync()
         {
@@ -29,7 +34,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             {
                 CurrentPage = 1;
                 var data = await _service.GetAllAsync(
-                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, null, CurrentPage);
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, SelectedFilter, CurrentPage);
                 Items = new ObservableCollection<CoordinatorItem>(data.Items);
                 IsEmpty = !Items.Any();
                 CanLoadMore = data.PageNumber < data.TotalPages;
@@ -46,11 +51,14 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             {
                 CurrentPage++;
                 var data = await _service.GetAllAsync(
-                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, null, CurrentPage);
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, SelectedFilter, CurrentPage);
                 foreach (var item in data.Items) Items.Add(item);
                 CanLoadMore = data.PageNumber < data.TotalPages;
             });
         }
+
+        [RelayCommand]
+        private void Filter(string filter) => SelectedFilter = filter;
 
         [RelayCommand] private Task AddAsync() => Nav.GoToAsync("CoordSubAdminForm");
 

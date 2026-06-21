@@ -31,14 +31,8 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             await RunAsync(async () =>
             {
                 CurrentPage = 1;
-                bool? isActive = SelectedFilter switch
-                {
-                    "Active" => true,
-                    "Inactive" => false,
-                    _ => null
-                };
                 var data = await _coords.GetAllAsync(
-                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, isActive, CurrentPage);
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, SelectedFilter, CurrentPage);
                 Items = new ObservableCollection<CoordinatorItem>(data.Items);
                 IsEmpty = !Items.Any();
                 CanLoadMore = data.PageNumber < data.TotalPages;
@@ -54,14 +48,8 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             await RunAsync(async () =>
             {
                 CurrentPage++;
-                bool? isActive = SelectedFilter switch
-                {
-                    "Active" => true,
-                    "Inactive" => false,
-                    _ => null
-                };
                 var data = await _coords.GetAllAsync(
-                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, isActive, CurrentPage);
+                    SearchText.Trim().Length > 0 ? SearchText.Trim() : null, SelectedFilter, CurrentPage);
                 foreach (var item in data.Items) Items.Add(item);
                 CanLoadMore = data.PageNumber < data.TotalPages;
             });

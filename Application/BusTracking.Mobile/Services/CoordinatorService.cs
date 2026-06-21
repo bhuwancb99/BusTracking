@@ -5,13 +5,13 @@
         private readonly IApiService _api;
         public CoordinatorService(IApiService api) => _api = api;
 
-        public async Task<PagedResult<CoordinatorItem>> GetAllAsync(string? search = null, bool? isActive = null, int page = 1)
+        public async Task<PagedResult<CoordinatorItem>> GetAllAsync(string? search = null, string? status = null, int page = 1)
         {
             var url = Constants.Admin.Coordinators + $"?page={page}";
             if (!string.IsNullOrWhiteSpace(search))
                 url += $"&search={Uri.EscapeDataString(search)}";
-            if (isActive.HasValue)
-                url += $"&isActive={isActive.Value.ToString().ToLower()}";
+            if (!string.IsNullOrWhiteSpace(status))
+                url += $"&status={status}";
             var r = await _api.GetAsync<PagedResult<CoordinatorItem>>(url);
             return r.Data ?? new PagedResult<CoordinatorItem>();
         }

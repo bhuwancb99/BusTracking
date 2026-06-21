@@ -2,7 +2,7 @@
 {
     public interface ICoordinatorService
     {
-        Task<PagedResult<CoordinatorItem>> GetAllAsync(string? search = null, bool? isActive = null, int page = 1);
+        Task<PagedResult<CoordinatorItem>> GetAllAsync(string? search = null, string? status = null, int page = 1);
         Task<CoordinatorItem?> GetByIdAsync(int id);
         Task<ApiResponse<object>> CreateAsync(CreateCoordinatorRequest req);
         Task<ApiResponse<object>> UpdateAsync(int id, UpdateCoordinatorRequest req);
