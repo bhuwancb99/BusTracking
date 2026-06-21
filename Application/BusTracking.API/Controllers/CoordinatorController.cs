@@ -19,14 +19,15 @@ namespace BusTracking.API.Controllers
         private readonly IBusService _bus;
         private readonly IDriverService _driver;
         private readonly IParentService _parent;
+        private readonly IStudentService _student;
 
         public CoordinatorController(AppDbContext db, IDashboardService dash, ITripService trip,
             ISubAdminService subAdmin, IAppConfigService appConfig, IFeedbackService feedback,
-            INotificationService notif, IImageService img, IRouteService route, IBusService bus, IDriverService driver, IParentService parent)
+            INotificationService notif, IImageService img, IRouteService route, IBusService bus, IDriverService driver, IParentService parent, IStudentService student)
         {
             _db = db; _dash = dash; _trip = trip;
             _subAdmin = subAdmin; _appConfig = appConfig;
-            _feedback = feedback; _notif = notif; _img = img; _route = route; _bus = bus; _driver = driver; _parent = parent;
+            _feedback = feedback; _notif = notif; _img = img; _route = route; _bus = bus; _driver = driver; _parent = parent; _student = student;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -293,31 +294,10 @@ namespace BusTracking.API.Controllers
         // ════════════════════════════════════════════════════════════
 
         [HttpGet("students")]
-        public async Task<IActionResult> Students([FromQuery] string? search, [FromQuery] int page = 1)
+        public async Task<IActionResult> Students([FromQuery] int page = 1, [FromQuery] string? search = null, [FromQuery] string? status = "Active")
         {
-            var q = _db.Students
-                .Include(s => s.User)
-                .Include(s => s.Bus)
-                .AsQueryable();
-
-            if (!string.IsNullOrWhiteSpace(search))
-                q = q.Where(s => s.User.FullName.Contains(search) || s.StudentCode.Contains(search));
-
-            var students = await q.Where(s => s.User.IsActive)
-                .OrderBy(s => s.User.FullName).Skip((page - 1) * 20).Take(20)
-                .Select(s => new
-                {
-                    s.StudentId,
-                    s.StudentCode,
-                    FullName = s.User.FullName,
-                    ProfileImageUrl = s.User.ProfileImageUrl,  // ← NEW
-                    s.Standard,
-                    BusNumber = s.Bus != null ? s.Bus.BusNumber : null,
-                    BusName = s.Bus != null ? s.Bus.BusName : null,
-                    s.User.IsActive
-                }).ToListAsync();
-
-            return Ok(ApiResponse<object>.Ok(students));
+            var r = await _student.GetAllAsync(page, search, status);
+            return Ok(r);
         }
 
         [HttpGet("students/{id:int}")]

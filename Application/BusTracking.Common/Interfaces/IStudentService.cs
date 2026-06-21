@@ -2,7 +2,8 @@
 {
     public interface IStudentService
     {
-        Task<ApiResponse<PagedResult<StudentListDto>>> GetAllAsync(int page, int pageSize, string? search, string? status);
+        Task<ApiResponse<PagedResult<StudentListDto>>> GetAllAsync(int page, string? search, string? status);
+        Task<int> GetListPageSizeAsync();
         Task<ApiResponse<StudentListDto>> GetByIdAsync(int studentId);
         Task<ApiResponse<CreatedUserResultDto>> CreateAsync(CreateStudentDto dto, int createdBy);
         Task<ApiResponse<bool>> UpdateAsync(int studentId, UpdateStudentDto dto);

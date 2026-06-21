@@ -5,12 +5,16 @@
         private readonly AppDbContext _db; private readonly IPasswordService _pwd; private readonly IEmailService _email;
         public StudentService(AppDbContext db, IPasswordService pwd, IEmailService email) { _db = db; _pwd = pwd; _email = email; }
 
-        public async Task<ApiResponse<PagedResult<StudentListDto>>> GetAllAsync(int page, int pageSize, string? search, string? status)
+        public async Task<ApiResponse<PagedResult<StudentListDto>>> GetAllAsync(int page, string? search, string? status)
         {
             var q = _db.Students.Include(s => s.User).Include(s => s.Bus).Include(s => s.Stop).AsQueryable();
             if (!string.IsNullOrWhiteSpace(search)) q = q.Where(s => s.User.FullName.Contains(search) || s.StudentCode.Contains(search));
             if (status == "Active") q = q.Where(s => s.User.IsActive);
             else if (status == "Inactive") q = q.Where(s => !s.User.IsActive);
+
+            var pageSize = await GetListPageSizeAsync();
+            page = PaginationHelper.Clamp(page);
+
             var total = await q.CountAsync();
             var items = await q.OrderBy(s => s.User.FullName).Skip((page - 1) * pageSize).Take(pageSize)
                 .Select(s => new StudentListDto
@@ -36,6 +40,18 @@
                 PageNumber = page,
                 PageSize = pageSize
             });
+        }
+
+        public async Task<int> GetListPageSizeAsync()
+        {
+            var raw = await _db.AppConfigurations
+                .Where(c => c.ConfigKey == AppConstants.AppConfigPageSizeKey && c.IsActive)
+                .Select(c => c.ConfigValue)
+                .FirstOrDefaultAsync();
+
+            return int.TryParse(raw, out var size) && size > 0
+                ? PaginationHelper.ClampPageSize(size)
+                : AppConstants.DefaultPageSize;
         }
         public async Task<ApiResponse<StudentListDto>> GetByIdAsync(int studentId)
         {

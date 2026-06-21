@@ -508,9 +508,9 @@ namespace BusTracking.API.Controllers
 
         [HttpGet("students")]
         public async Task<IActionResult> GetStudents([FromQuery] int page = 1,
-            [FromQuery] string? search = null, [FromQuery] string? status = null)
+            [FromQuery] string? search = null, [FromQuery] string? status = "Active")
         {
-            var r = await _student.GetAllAsync(page, 20, search, status);
+            var r = await _student.GetAllAsync(page, search, status);
             return Ok(r);
         }
 

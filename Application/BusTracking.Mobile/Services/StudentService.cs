@@ -10,26 +10,16 @@
         private string BaseUrl => _auth.CurrentRole == Constants.Roles.SuperAdmin
             ? Constants.Admin.Students : Constants.Coordinator.Students;
 
-        private bool IsCoordinator => _auth.CurrentRole == Constants.Roles.BusCoordinator;
-
-        public async Task<List<StudentItem>> GetAllAsync(string? search = null, int page = 1, bool? isActive = true)
+        public async Task<PagedResult<StudentItem>> GetAllAsync(string? search = null, int page = 1, string? status = "Active")
         {
-            if (IsCoordinator)
-            {
-                var url = BaseUrl + (search != null ? $"?search={Uri.EscapeDataString(search)}" : "");
-                var r = await _api.GetAsync<List<StudentItem>>(url);
-                return r.Data ?? [];
-            }
-            else
-            {
-                var url = $"{BaseUrl}?page={page}";
-                if (!string.IsNullOrWhiteSpace(search))
-                    url += $"&search={Uri.EscapeDataString(search)}";
-                if (isActive.HasValue)
-                    url += $"&isActive={isActive.Value.ToString().ToLower()}";
-                var r = await _api.GetAsync<PagedResult<StudentItem>>(url);
-                return r.Data?.Items ?? [];
-            }
+            var url = $"{BaseUrl}?page={page}";
+            if (!string.IsNullOrWhiteSpace(search))
+                url += $"&search={Uri.EscapeDataString(search)}";
+            if (!string.IsNullOrWhiteSpace(status))
+                url += $"&status={Uri.EscapeDataString(status)}";
+
+            var r = await _api.GetAsync<PagedResult<StudentItem>>(url);
+            return r.Data ?? new PagedResult<StudentItem>();
         }
 
         public async Task<StudentItem?> GetByIdAsync(int id)
@@ -58,7 +48,7 @@
 
         public async Task<List<StudentItem>> SearchAsync(string query)
         {
-            var url = $"{BaseUrl}?search={Uri.EscapeDataString(query)}&isActive=true";
+            var url = $"{BaseUrl}?search={Uri.EscapeDataString(query)}&status=Active";
             var r = await _api.GetAsync<PagedResult<StudentItem>>(url);
             return r.Data?.Items ?? [];
         }
