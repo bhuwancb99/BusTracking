@@ -5,32 +5,59 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         private readonly ITripService _trips;
 
         [ObservableProperty] private ObservableCollection<TripItem> _items = [];
-        [ObservableProperty] private string _searchText = "";
-        [ObservableProperty] private string _selectedStatus = "";
-        [ObservableProperty] private string _selectedDate = "";
+        [ObservableProperty] private string _selectedStatus = "All";
+        [ObservableProperty] private DateTime _selectedDate = DateTime.Today;
+        [ObservableProperty] private int _currentPage = 1;
+        [ObservableProperty] private bool _canLoadMore;
 
-        public string SearchPlaceholder => "Search trips…";
         public bool CanAdd => Can("trip.manage");
-        public bool CanLoadMore => false;
-        [RelayCommand] private async Task LoadMoreAsync() { }
-        [RelayCommand] private async Task SearchAsync() => await LoadAsync();
-        public List<string> StatusOptions => ["", "Scheduled", "InProgress", "Completed", "Cancelled"];
+        public List<string> StatusOptions => ["All", "Scheduled", "InProgress", "Completed", "Cancelled"];
 
         public AdminTripListViewModel(IAuthService auth, INavigationService nav, ITripService trips)
             : base(auth, nav) { _trips = trips; Title = "Trips"; }
 
         public override async Task InitializeAsync() => await LoadAsync();
+        public override async Task RefreshOnReturnAsync() => await LoadAsync();
+
+        // Status chip changed → reload current date with new filter
+        partial void OnSelectedStatusChanged(string value) => LoadCommand.ExecuteAsync(null);
+
+        // Date changed → reset status to "All" and reload that date's trips
+        partial void OnSelectedDateChanged(DateTime value)
+        {
+            if (SelectedStatus != "All") SelectedStatus = "All";
+            else LoadCommand.ExecuteAsync(null);
+        }
 
         [RelayCommand]
         private async Task LoadAsync()
         {
             await RunAsync(async () =>
             {
+                CurrentPage = 1;
                 var data = await _trips.GetAllAsync(
-                    SelectedStatus.Length > 0 ? SelectedStatus : null,
-                    SelectedDate.Length > 0 ? SelectedDate : null);
-                Items = new ObservableCollection<TripItem>(data);
+                    SelectedStatus != "All" ? SelectedStatus : null,
+                    SelectedDate.ToString("yyyy-MM-dd"),
+                    CurrentPage);
+                Items = new ObservableCollection<TripItem>(data.Items);
                 IsEmpty = !Items.Any();
+                CanLoadMore = data.PageNumber < data.TotalPages;
+            });
+        }
+
+        [RelayCommand]
+        private async Task LoadMoreAsync()
+        {
+            if (!CanLoadMore || IsBusy) return;
+            await RunAsync(async () =>
+            {
+                CurrentPage++;
+                var data = await _trips.GetAllAsync(
+                    SelectedStatus != "All" ? SelectedStatus : null,
+                    SelectedDate.ToString("yyyy-MM-dd"),
+                    CurrentPage);
+                foreach (var item in data.Items) Items.Add(item);
+                CanLoadMore = data.PageNumber < data.TotalPages;
             });
         }
 
@@ -59,5 +86,8 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             var r = await _trips.CancelAsync(t.TripId);
             if (r.Success) await LoadAsync(); else SetError(r.Message);
         }
+
+        [RelayCommand]
+        private void Filter(string status) => SelectedStatus = status;
     }
 }

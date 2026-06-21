@@ -93,38 +93,11 @@ namespace BusTracking.API.Controllers
         // ════════════════════════════════════════════════════════════
 
         [HttpGet("trips")]
-        public async Task<IActionResult> Trips([FromQuery] string? status, [FromQuery] string? date)
+        public async Task<IActionResult> Trips([FromQuery] int page = 1, [FromQuery] string? status = null, [FromQuery] string? date = null)
         {
-            var q = _db.BusTrips
-                .Include(t => t.Bus)
-                .Include(t => t.Driver)
-                .Include(t => t.Route)
-                .AsQueryable();
-
-            if (!string.IsNullOrEmpty(status) && Enum.TryParse<TripStatus>(status, true, out var s))
-                q = q.Where(t => t.Status == s);
-
-            if (DateOnly.TryParse(date, out var d))
-                q = q.Where(t => t.TripDate == d);
-            else
-                q = q.Where(t => t.TripDate == DateOnly.FromDateTime(DateTime.UtcNow));
-
-            var trips = await q.OrderByDescending(t => t.TripDate).Take(50)
-                .Select(t => new
-                {
-                    t.TripId,
-                    t.TripDate,
-                    TripType = t.TripType.ToString(),
-                    Status = t.Status.ToString(),
-                    BusNumber = t.Bus.BusNumber,
-                    BusName = t.Bus.BusName,
-                    DriverName = t.Driver != null ? t.Driver.FullName : null,
-                    RouteName = t.Route != null ? t.Route.RouteName : null,
-                    t.StartedAt,
-                    t.EndedAt
-                }).ToListAsync();
-
-            return Ok(ApiResponse<object>.Ok(trips));
+            var effectiveDate = DateOnly.TryParse(date, out _) ? date : DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd");
+            var r = await _trip.GetAllAsync(page, null, status, effectiveDate);
+            return Ok(r);
         }
 
         [HttpGet("trips/{tripId}")]

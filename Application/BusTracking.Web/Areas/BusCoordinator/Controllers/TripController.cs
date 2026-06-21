@@ -17,8 +17,9 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
         public async Task<IActionResult> Index(int page = 1, string? busId = null, string? status = null)
         {
             if (!PermissionHelper.Can(User, "trip.view") && !PermissionHelper.Can(User, "trip.manage")) return Forbid();
+            var normalised = (status == "All" || string.IsNullOrEmpty(status)) ? null : status;
             ViewBag.BusId = busId; ViewBag.Status = status;
-            var r = await _trip.GetAllAsync(page, 15, busId);
+            var r = await _trip.GetAllAsync(page, busId, normalised);
             return View(r.Data);
         }
 
@@ -28,9 +29,9 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             var tripR = await _trip.GetByIdAsync(id);
             if (!tripR.Success) return NotFound();
             var students = await _trip.GetTripStudentsAsync(id);
-            var stops    = await _trip.GetStopEventsAsync(id);
+            var stops = await _trip.GetStopEventsAsync(id);
             ViewBag.Students = students.Data ?? [];
-            ViewBag.Stops    = stops.Data ?? [];
+            ViewBag.Stops = stops.Data ?? [];
             return View(tripR.Data);
         }
 
@@ -121,12 +122,12 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
 
         private async Task LoadDropdowns()
         {
-            var buses   = await _bus.GetDropdownAsync(null);
+            var buses = await _bus.GetDropdownAsync(null);
             var drivers = await _driver.GetDropdownAsync(null);
-            var routes  = await _route.GetDropdownAsync();
-            ViewBag.Buses   = (buses.Data ?? []).Select(b => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = b.BusId.ToString(), Text = b.Display }).ToList();
+            var routes = await _route.GetDropdownAsync();
+            ViewBag.Buses = (buses.Data ?? []).Select(b => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = b.BusId.ToString(), Text = b.Display }).ToList();
             ViewBag.Drivers = (drivers.Data ?? []).Select(d => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = d.UserId.ToString(), Text = d.Display }).ToList();
-            ViewBag.Routes  = routes.Select(r => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = r.RouteId.ToString(), Text = $"{r.RouteName} ({r.RouteCode})" }).ToList();
+            ViewBag.Routes = routes.Select(r => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Value = r.RouteId.ToString(), Text = $"{r.RouteName} ({r.RouteCode})" }).ToList();
         }
     }
 }

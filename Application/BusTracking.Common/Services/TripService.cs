@@ -5,7 +5,7 @@
         private readonly AppDbContext _db;
         public TripService(AppDbContext db) => _db = db;
 
-        public async Task<ApiResponse<PagedResult<TripListDto>>> GetAllAsync(int page, int pageSize, string? busId)
+        public async Task<ApiResponse<PagedResult<TripListDto>>> GetAllAsync(int page, string? busId, string? status = null, string? date = null)
         {
             var q = _db.BusTrips
                 .Include(t => t.Bus)
@@ -15,6 +15,15 @@
 
             if (!string.IsNullOrWhiteSpace(busId) && int.TryParse(busId, out var bid))
                 q = q.Where(t => t.BusId == bid);
+
+            if (!string.IsNullOrWhiteSpace(status) && status != "All" && Enum.TryParse<TripStatus>(status, true, out var st))
+                q = q.Where(t => t.Status == st);
+
+            if (DateOnly.TryParse(date, out var d))
+                q = q.Where(t => t.TripDate == d);
+
+            var pageSize = await GetListPageSizeAsync();
+            page = PaginationHelper.Clamp(page);
 
             var total = await q.CountAsync();
             var items = await q.OrderByDescending(t => t.TripDate).ThenBy(t => t.TripType)
@@ -34,6 +43,18 @@
 
             return ApiResponse<PagedResult<TripListDto>>.Ok(new PagedResult<TripListDto>
             { Items = items, TotalCount = total, PageNumber = page, PageSize = pageSize });
+        }
+
+        public async Task<int> GetListPageSizeAsync()
+        {
+            var raw = await _db.AppConfigurations
+                .Where(c => c.ConfigKey == AppConstants.AppConfigPageSizeKey && c.IsActive)
+                .Select(c => c.ConfigValue)
+                .FirstOrDefaultAsync();
+
+            return int.TryParse(raw, out var size) && size > 0
+                ? PaginationHelper.ClampPageSize(size)
+                : AppConstants.DefaultPageSize;
         }
 
         public async Task<ApiResponse<List<StudentTripStatusDto>>> GetTripStudentsAsync(int tripId)

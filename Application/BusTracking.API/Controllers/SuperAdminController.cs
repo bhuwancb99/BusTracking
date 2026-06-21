@@ -594,9 +594,10 @@ namespace BusTracking.API.Controllers
         // ════════════════════════════════════════════════════════════
 
         [HttpGet("trips")]
-        public async Task<IActionResult> GetTrips([FromQuery] int page = 1, [FromQuery] string? busId = null)
+        public async Task<IActionResult> GetTrips([FromQuery] int page = 1, [FromQuery] string? busId = null,
+            [FromQuery] string? status = null, [FromQuery] string? date = null)
         {
-            var r = await _trip.GetAllAsync(page, 20, busId);
+            var r = await _trip.GetAllAsync(page, busId, status, date);
             return Ok(r);
         }
 

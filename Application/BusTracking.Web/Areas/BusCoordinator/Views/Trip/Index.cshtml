@@ -64,10 +64,7 @@
                 </thead>
                 <tbody>
                     @{
-                        var filterStatus = ViewBag.Status as string ?? "";
-                        var items = (Model?.Items ?? [])
-                            .Where(t => string.IsNullOrEmpty(filterStatus) || t.Status == filterStatus)
-                            .ToList();
+                        var items = Model?.Items ?? [];
                     }
                     @if (!items.Any())
                     {

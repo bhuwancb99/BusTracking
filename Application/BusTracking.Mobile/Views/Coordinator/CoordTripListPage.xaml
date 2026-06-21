@@ -48,49 +48,111 @@
         </Grid>
     </Shell.TitleView>
 
-    <Grid RowDefinitions="Auto,Auto,*">
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
 
-        <!--  Search  -->
+        <!--  Date filter  -->
         <Border
             Grid.Row="0"
             Margin="14,12,14,4"
             Style="{StaticResource SearchBarBorder}">
-            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
                 <Image
                     Grid.Column="0"
                     HeightRequest="18"
-                    Source="search.png"
+                    Source="calendar_check.png"
                     VerticalOptions="Center"
                     WidthRequest="18">
                     <Image.Behaviors>
                         <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
                     </Image.Behaviors>
                 </Image>
-                <Entry
+                <DatePicker
                     Grid.Column="1"
-                    Placeholder="{Binding SearchPlaceholder}"
-                    ReturnCommand="{Binding SearchCommand}"
-                    Text="{Binding SearchText}" />
-                <ImageButton
-                    Grid.Column="2"
-                    Padding="8"
-                    BackgroundColor="{StaticResource Primary}"
-                    Command="{Binding SearchCommand}"
-                    CornerRadius="10"
-                    HeightRequest="36"
-                    HorizontalOptions="End"
-                    Source="search.png"
-                    WidthRequest="36">
-                    <ImageButton.Behaviors>
-                        <mct:IconTintColorBehavior TintColor="White" />
-                    </ImageButton.Behaviors>
-                </ImageButton>
+                    Date="{Binding SelectedDate}"
+                    FontSize="15"
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                Dark={StaticResource TextPrimaryDark}}" />
             </Grid>
         </Border>
 
+        <!--  Status filter chips  -->
+        <ScrollView
+            Grid.Row="1"
+            Margin="14,0,14,4"
+            HorizontalScrollBarVisibility="Never"
+            Orientation="Horizontal">
+            <HorizontalStackLayout Spacing="8">
+                <Border
+                    Padding="14,6"
+                    BackgroundColor="{Binding SelectedStatus, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='All'}"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="0">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="All" />
+                    </Border.GestureRecognizers>
+                    <Label
+                        FontSize="12"
+                        Text="All"
+                        TextColor="{Binding SelectedStatus, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='All'}" />
+                </Border>
+                <Border
+                    Padding="14,6"
+                    BackgroundColor="{Binding SelectedStatus, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Scheduled'}"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="0">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Scheduled" />
+                    </Border.GestureRecognizers>
+                    <Label
+                        FontSize="12"
+                        Text="Scheduled"
+                        TextColor="{Binding SelectedStatus, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Scheduled'}" />
+                </Border>
+                <Border
+                    Padding="14,6"
+                    BackgroundColor="{Binding SelectedStatus, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='InProgress'}"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="0">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="InProgress" />
+                    </Border.GestureRecognizers>
+                    <Label
+                        FontSize="12"
+                        Text="In Progress"
+                        TextColor="{Binding SelectedStatus, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='InProgress'}" />
+                </Border>
+                <Border
+                    Padding="14,6"
+                    BackgroundColor="{Binding SelectedStatus, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Completed'}"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="0">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Completed" />
+                    </Border.GestureRecognizers>
+                    <Label
+                        FontSize="12"
+                        Text="Completed"
+                        TextColor="{Binding SelectedStatus, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Completed'}" />
+                </Border>
+                <Border
+                    Padding="14,6"
+                    BackgroundColor="{Binding SelectedStatus, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Cancelled'}"
+                    StrokeShape="RoundRectangle 16"
+                    StrokeThickness="0">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Cancelled" />
+                    </Border.GestureRecognizers>
+                    <Label
+                        FontSize="12"
+                        Text="Cancelled"
+                        TextColor="{Binding SelectedStatus, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Cancelled'}" />
+                </Border>
+            </HorizontalStackLayout>
+        </ScrollView>
+
         <!--  Error  -->
         <Border
-            Grid.Row="1"
+            Grid.Row="3"
             Margin="14,0"
             IsVisible="{Binding HasError}"
             Style="{StaticResource ErrorBannerBorder}">
@@ -102,7 +164,7 @@
         </Border>
         <!--  Busy  -->
         <ActivityIndicator
-            Grid.Row="2"
+            Grid.Row="3"
             HorizontalOptions="Center"
             IsRunning="{Binding IsBusy}"
             IsVisible="{Binding IsBusy}"
@@ -110,7 +172,7 @@
 
         <!--  Empty  -->
         <VerticalStackLayout
-            Grid.Row="2"
+            Grid.Row="3"
             HorizontalOptions="Center"
             IsVisible="{Binding IsEmpty}"
             Spacing="14"
@@ -151,7 +213,7 @@
 
         <!--  List  -->
         <CollectionView
-            Grid.Row="2"
+            Grid.Row="3"
             Margin="14,4,14,0"
             ItemsSource="{Binding Items}"
             RemainingItemsThreshold="3"

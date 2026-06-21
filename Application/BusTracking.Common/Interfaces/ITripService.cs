@@ -2,7 +2,8 @@
 {
     public interface ITripService
     {
-        Task<ApiResponse<PagedResult<TripListDto>>> GetAllAsync(int page, int pageSize, string? busId);
+        Task<ApiResponse<PagedResult<TripListDto>>> GetAllAsync(int page, string? busId, string? status = null, string? date = null);
+        Task<int> GetListPageSizeAsync();
         Task<ApiResponse<TripListDto>> GetByIdAsync(int tripId);
         Task<ApiResponse<TripListDto>> CreateAsync(CreateTripDto dto, int createdBy);
         Task<ApiResponse<bool>> StartTripAsync(int tripId);

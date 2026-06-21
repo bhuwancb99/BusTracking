@@ -2,7 +2,7 @@ namespace BusTracking.Mobile.Interfaces
 {
     public interface ITripService
     {
-        Task<List<TripItem>> GetAllAsync(string? status = null, string? date = null);
+        Task<PagedResult<TripItem>> GetAllAsync(string? status = null, string? date = null, int page = 1);
         Task<TripItem?> GetByIdAsync(int id);
         Task<ApiResponse<object>> CreateAsync(CreateTripRequest req);
         Task<ApiResponse<object>> StartAsync(int id);

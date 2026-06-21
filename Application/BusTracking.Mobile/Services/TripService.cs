@@ -9,24 +9,16 @@ namespace BusTracking.Mobile.Services
 
         private bool IsAdmin => _auth.CurrentRole == Constants.Roles.SuperAdmin;
 
-        public async Task<List<TripItem>> GetAllAsync(string? status = null, string? date = null)
+        public async Task<PagedResult<TripItem>> GetAllAsync(string? status = null, string? date = null, int page = 1)
         {
             var url = IsAdmin ? Constants.Admin.Trips : Constants.Coordinator.Trips;
-            var q = new List<string>();
-            if (status != null) q.Add($"status={status}");
-            if (date != null) q.Add($"date={date}");
-            if (q.Count > 0) url += "?" + string.Join("&", q);
+            var q = new List<string> { $"page={page}" };
+            if (!string.IsNullOrWhiteSpace(status)) q.Add($"status={Uri.EscapeDataString(status)}");
+            if (!string.IsNullOrWhiteSpace(date)) q.Add($"date={Uri.EscapeDataString(date)}");
+            url += "?" + string.Join("&", q);
 
-            if (!IsAdmin)
-            {
-                var r = await _api.GetAsync<List<TripItem>>(url);
-                return r.Data ?? [];
-            }
-            else
-            {
-                var r = await _api.GetAsync<PagedResult<TripItem>>(url);
-                return r.Data?.Items ?? [];
-            }
+            var r = await _api.GetAsync<PagedResult<TripItem>>(url);
+            return r.Data ?? new PagedResult<TripItem>();
         }
 
         public async Task<TripItem?> GetByIdAsync(int id)

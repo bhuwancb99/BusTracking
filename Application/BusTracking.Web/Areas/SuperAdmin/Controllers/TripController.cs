@@ -21,8 +21,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
         {
             var normalised = (status == "All" || string.IsNullOrEmpty(status)) ? null : status;
             ViewBag.Status = status;
-            var r = await _trip.GetAllAsync(page, 15, busId);
-            // filter by status client-side via ViewBag
+            var r = await _trip.GetAllAsync(page, busId, normalised);
             return View(r.Data);
         }
 
