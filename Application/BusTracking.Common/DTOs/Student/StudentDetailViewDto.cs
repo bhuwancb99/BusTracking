@@ -1,11 +1,12 @@
-﻿namespace BusTracking.Common.DTOs.Student
+namespace BusTracking.Common.DTOs.Student
 {
     public class StudentDetailViewDto
     {
         public int StudentId { get; set; }
         public string StudentCode { get; set; } = "";
         public string FullName { get; set; } = "";
-        public string Email { get; set; } = "";
+        public string UserName { get; set; } = "";
+        public string? Email { get; set; } = "";
         public string? PhoneNumber { get; set; }
         public string? Standard { get; set; }
         public int? BusId { get; set; }

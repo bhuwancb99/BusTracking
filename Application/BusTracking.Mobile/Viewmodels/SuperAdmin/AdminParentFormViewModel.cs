@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminParentFormViewModel : BaseViewModel, IQueryAttributable
     {
@@ -7,7 +7,8 @@
         [ObservableProperty] private int? _userId;
         [ObservableProperty] private bool _isEditMode;
         [ObservableProperty] private string _fullName = "";
-        [ObservableProperty] private string _email = "";
+        [ObservableProperty] private string _userName = "";
+        [ObservableProperty] private string _email = ""; // optional, kept for backward compat
         [ObservableProperty] private string _password = "";
         [ObservableProperty] private string _phoneNumber = "";
         [ObservableProperty] private string _studentCodes = "";   // comma-separated
@@ -46,9 +47,9 @@
         [RelayCommand]
         private async Task SaveAsync()
         {
-            if (string.IsNullOrWhiteSpace(FullName) || string.IsNullOrWhiteSpace(Email))
+            if (string.IsNullOrWhiteSpace(FullName) || string.IsNullOrWhiteSpace(UserName))
             {
-                SetError("Full name and email are required."); return;
+                SetError("Full name and username are required."); return;
             }
             if (!IsEditMode && string.IsNullOrWhiteSpace(Password))
             {
@@ -70,6 +71,7 @@
                     r = await _parents.UpdateAsync(UserId!.Value, new UpdateParentRequest
                     {
                         FullName = FullName,
+                        UserName = UserName,
                         PhoneNumber = PhoneNumber.Length > 0 ? PhoneNumber : null,
                         StudentCodes = codes,
                         IsActive = IsActive
@@ -80,7 +82,8 @@
                     r = await _parents.CreateAsync(new CreateParentRequest
                     {
                         FullName = FullName,
-                        Email = Email,
+                        UserName = UserName,
+                        Email = Email.Length > 0 ? Email : null,
                         Password = Password,
                         PhoneNumber = PhoneNumber.Length > 0 ? PhoneNumber : null,
                         StudentCodes = codes,

@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Services
+namespace BusTracking.Common.Services
 {
     public class UserService : IUserService
     {
@@ -8,7 +8,7 @@
         {
             var u = await _db.Users.Include(x => x.Role).FirstOrDefaultAsync(x => x.UserId == userId);
             if (u is null) return ApiResponse<UserProfileDto>.Fail("User not found.");
-            return ApiResponse<UserProfileDto>.Ok(new UserProfileDto { UserId = u.UserId, FullName = u.FullName, Email = u.Email, PhoneNumber = u.PhoneNumber, ProfileImageUrl = u.ProfileImageUrl, Role = u.Role.RoleName, IsActive = u.IsActive });
+            return ApiResponse<UserProfileDto>.Ok(new UserProfileDto { UserId = u.UserId, FullName = u.FullName, UserName = u.UserName, Email = u.Email, PhoneNumber = u.PhoneNumber, ProfileImageUrl = u.ProfileImageUrl, Role = u.Role.RoleName, IsActive = u.IsActive });
         }
         public async Task<ApiResponse<bool>> UpdateProfileAsync(int userId, UpdateProfileDto dto)
         {

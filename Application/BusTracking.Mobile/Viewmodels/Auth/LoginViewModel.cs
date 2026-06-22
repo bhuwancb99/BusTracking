@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.Auth
+namespace BusTracking.Mobile.Viewmodels.Auth
 {
     public partial class LoginViewModel : BaseViewModel
     {
@@ -7,7 +7,7 @@
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
-        private string _email = "";
+        private string _userName = "";
 
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(LoginCommand))]
@@ -72,14 +72,14 @@
         }
 
         private bool CanLogin() =>
-            !string.IsNullOrWhiteSpace(Email) && !string.IsNullOrWhiteSpace(Password);
+            !string.IsNullOrWhiteSpace(UserName) && !string.IsNullOrWhiteSpace(Password);
 
         [RelayCommand(CanExecute = nameof(CanLogin))]
         private async Task LoginAsync()
         {
             await RunAsync(async () =>
             {
-                var r = await Auth.LoginAsync(Email.Trim(), Password);
+                var r = await Auth.LoginAsync(UserName.Trim(), Password);
                 if (!r.Success || r.Data is null)
                 {
                     SetError(r.Message);
@@ -87,7 +87,7 @@
                 }
 
                 // Clear fields after successful login
-                Email = "";
+                UserName = "";
                 Password = "";
 
                 await Nav.GoToDashboardAsync(r.Data.Role);
@@ -100,17 +100,7 @@
         [RelayCommand]
         private async Task ForgotPasswordAsync()
         {
-            if (string.IsNullOrWhiteSpace(Email))
-            {
-                await ShowAlertAsync("Email Required", "Please enter your email address first.");
-                return;
-            }
-            await RunAsync(async () =>
-            {
-                var r = await Auth.ForgotPasswordAsync(Email.Trim());
-                await ShowAlertAsync(r.Success ? "Email Sent" : "Error",
-                    r.Success ? "Password reset link sent to your email." : r.Message);
-            });
+            await ShowAlertAsync("Forgot Password", "Please contact your administrator to reset your password.");
         }
     }
 }

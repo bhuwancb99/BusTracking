@@ -26,6 +26,15 @@
                             <span asp-validation-for="FullName" class="text-danger small"></span>
                         </div>
                         <div class="col-md-6">
+                            <label asp-for="UserName" class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input asp-for="UserName" class="form-control" id="usernameInput" autocomplete="off" />
+                                <button type="button" class="btn btn-outline-secondary" id="btnCheckUsername" title="Check availability"><i class="bi bi-search"></i></button>
+                            </div>
+                            <span asp-validation-for="UserName" class="text-danger small"></span>
+                            <div id="usernameMsg" class="small mt-1"></div>
+                        </div>
+                        <div class="col-md-6">
                             <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number</label>
                             <input asp-for="PhoneNumber" class="form-control" />
                         </div>
@@ -57,6 +66,13 @@
                                     <i class="bi bi-x-circle me-1"></i>Remove bus assignment
                                 </button>
                             }
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="NewPassword" class="form-label fw-semibold">New Password <span class="text-muted fw-normal">(leave blank to keep current)</span></label>
+                            <div class="input-group">
+                                <input asp-for="NewPassword" type="password" class="form-control" placeholder="Enter new password" id="pwdInputNew" autocomplete="new-password" />
+                                <button type="button" class="btn btn-outline-secondary" onclick="toggleNewPwd()"><i class="bi bi-eye" id="eyeIconNew"></i></button>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label fw-semibold">Status</label>
@@ -131,5 +147,21 @@
             document.getElementById('busSearch').value  = '';
             document.getElementById('busSelected').innerHTML = '<span class="text-muted small">No bus assigned</span>';
         }
+        const currentUserId = @ViewBag.DriverId;
+        document.getElementById('btnCheckUsername').addEventListener('click', checkUsername);
+        document.getElementById('usernameInput').addEventListener('input', () => document.getElementById('usernameMsg').innerHTML = '');
+        async function checkUsername() {
+            const val = document.getElementById('usernameInput').value.trim();
+            if (!val) { showUsernameMsg('Enter a username first.', 'text-muted'); return; }
+            const res = await fetch(`/api/auth/check-username?userName=${encodeURIComponent(val)}&excludeUserId=${currentUserId}`);
+            const data = await res.json();
+            if (!data.success) {
+                showUsernameMsg('<i class="bi bi-x-circle me-1"></i>Username already exists', 'text-danger fw-semibold');
+            } else {
+                showUsernameMsg('<i class="bi bi-check-circle me-1"></i>Username is available', 'text-success fw-semibold');
+            }
+        }
+        function showUsernameMsg(html, cls) { const el = document.getElementById('usernameMsg'); el.innerHTML = html; el.className = 'small mt-1 ' + cls; }
+        function toggleNewPwd() { const inp = document.getElementById('pwdInputNew'); const icon = document.getElementById('eyeIconNew'); inp.type = inp.type === 'password' ? 'text' : 'password'; icon.className = inp.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash'; }
     </script>
 }

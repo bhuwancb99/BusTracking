@@ -106,7 +106,8 @@ CREATE TABLE Users (
     UserId          INT            NOT NULL IDENTITY(1,1) PRIMARY KEY,
     RoleId          INT            NOT NULL REFERENCES Roles(RoleId),
     FullName        NVARCHAR(150)  NOT NULL,
-    Email           NVARCHAR(255)  NOT NULL UNIQUE,
+    UserName        NVARCHAR(100)  NOT NULL UNIQUE,          -- used for login (required)
+    Email           NVARCHAR(255)  NULL UNIQUE,              -- optional, for notifications/reset
     PhoneNumber     NVARCHAR(20)   NULL,
     PasswordHash    NVARCHAR(512)  NOT NULL,
     PasswordSalt    NVARCHAR(256)  NOT NULL,
@@ -120,7 +121,7 @@ CREATE TABLE Users (
 );
 GO
 
-INSERT INTO Users VALUES(1,'System Administrator','admin@bustracking.com',NULL,'$2a$12$gRiCpH9Cj4ztBpZsTgntH.BM2d/G9mO6VmcbIKD7gRdkk4vT3PpoW',
+INSERT INTO Users VALUES(1,'System Administrator',SuperAdmin,'admin@bustracking.com',NULL,'$2a$12$gRiCpH9Cj4ztBpZsTgntH.BM2d/G9mO6VmcbIKD7gRdkk4vT3PpoW',
 '$2a$12$gRiCpH9Cj4ztBpZsTgntH.',NULL,1,1,GETDATE(),GETDATE(),GETDATE(),1)
 GO
 
@@ -507,7 +508,6 @@ SELECT * FROM (VALUES
     ('GpsIntervalSeconds', '10',  'How often the driver app sends GPS pings (seconds)',        'Mobile', 1, 1),
     ('SupportEmail',       '',    'Support email shown inside the mobile app',                'Mobile', 1, 1),
     ('SupportPhone',       '',    'Support phone number shown inside the mobile app',         'Mobile', 1, 1),
-    ('AppConfigPageSize',  '',    'Number of rows per page on the App Configuration list (Web & Mobile)',         'Both', 1, 1),
     ('IsMobileUpdateImage',       '1',    'When true: app uploads images via API and shows Upload/Remove buttons',         'Mobile', 1, 1),
     ('WebsiteImageUrl',       'https://10.0.2.2:7001',    'Used to construct full image URLs when IsMobileUpdateImage = 1',         'Mobile', 1, 1)
 ) AS v(ConfigKey, ConfigValue, Description, Platform, IsActive, CreatedBy)
@@ -697,6 +697,7 @@ GO
 -- ============================================================
 CREATE NONCLUSTERED INDEX IX_Users_RoleId         ON Users (RoleId);
 CREATE NONCLUSTERED INDEX IX_Users_Email          ON Users (Email);
+CREATE NONCLUSTERED INDEX IX_Users_UserName        ON Users (UserName);
 CREATE NONCLUSTERED INDEX IX_Students_BusId       ON Students (BusId);
 CREATE NONCLUSTERED INDEX IX_Students_StopId      ON Students (StopId);
 CREATE NONCLUSTERED INDEX IX_Stops_RouteId        ON Stops (RouteId, StopOrder);

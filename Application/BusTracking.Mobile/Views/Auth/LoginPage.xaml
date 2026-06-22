@@ -235,13 +235,13 @@
                             </Grid>
                         </Border>
 
-                        <!--  EMAIL label  -->
+                        <!--  USERNAME label  -->
                         <Label
                             Margin="0,0,0,6"
                             CharacterSpacing="1"
                             FontAttributes="Bold"
                             FontSize="11"
-                            Text="EMAIL ADDRESS"
+                            Text="USERNAME"
                             TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
 
                         <!--  Email Entry  -->
@@ -268,11 +268,11 @@
                                     Grid.Column="1"
                                     BackgroundColor="Transparent"
                                     HeightRequest="52"
-                                    Keyboard="Email"
-                                    Placeholder="you@example.com"
+                                    Keyboard="Default"
+                                    Placeholder="Enter your username"
                                     PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
                                     ReturnType="Next"
-                                    Text="{Binding Email}"
+                                    Text="{Binding UserName}"
                                     TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
                                     VerticalOptions="Center" />
                             </Grid>

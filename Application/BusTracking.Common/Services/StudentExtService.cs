@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Services
+namespace BusTracking.Common.Services
 {
     public class StudentExtService : IStudentExtService
     {
@@ -25,6 +25,7 @@
                 StudentId = s.StudentId,
                 StudentCode = s.StudentCode,
                 FullName = s.User.FullName,
+                UserName = s.User.UserName,
                 Email = s.User.Email,
                 PhoneNumber = s.User.PhoneNumber,
                 Standard = s.Standard,
@@ -41,20 +42,23 @@
 
         public async Task<ApiResponse<CreatedUserResultDto>> CreateExtAsync(CreateStudentExtDto dto, int createdBy)
         {
-            if (await _db.Users.AnyAsync(u => u.Email == dto.Email))
+            if (await _db.Users.AnyAsync(u => u.UserName == dto.UserName))
+                return ApiResponse<CreatedUserResultDto>.Fail("Username already in use.");
+            if (!string.IsNullOrWhiteSpace(dto.Email) && await _db.Users.AnyAsync(u => u.Email == dto.Email))
                 return ApiResponse<CreatedUserResultDto>.Fail("Email already in use.");
             if (await _db.Students.AnyAsync(s => s.StudentCode == dto.StudentCode))
                 return ApiResponse<CreatedUserResultDto>.Fail("Student code already exists.");
 
             var roleId = await _db.Roles.Where(r => r.RoleName == "Student").Select(r => r.RoleId).FirstAsync();
-            var password = _pwd.GenerateRandomPassword();
+            var password = !string.IsNullOrWhiteSpace(dto.Password) ? dto.Password : _pwd.GenerateRandomPassword();
             var (hash, salt) = _pwd.HashPassword(password);
 
             var user = new User
             {
                 RoleId = roleId,
                 FullName = dto.FullName,
-                Email = dto.Email,
+                UserName = dto.UserName,
+                Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email,
                 PasswordHash = hash,
                 PasswordSalt = salt,
                 CreatedBy = createdBy
@@ -73,12 +77,12 @@
             await _db.SaveChangesAsync();
 
             bool emailSent = false;
-            if (dto.SendWelcomeEmail)
+            if (dto.SendWelcomeEmail && !string.IsNullOrWhiteSpace(dto.Email))
             {
                 try
                 {
-                    await _email.SendAsync(dto.Email, "Your Student Account",
-                        $"<p>Hi {dto.FullName},</p><p>Email: <b>{dto.Email}</b><br>Password: <b>{password}</b></p>");
+                    await _email.SendAsync(dto.Email!, "Your Student Account",
+                        $"<p>Hi {dto.FullName},</p><p>Username: <b>{dto.UserName}</b><br>Password: <b>{password}</b></p>");
                     emailSent = true;
                 }
                 catch { }
@@ -88,8 +92,10 @@
             {
                 UserId = user.UserId,
                 FullName = dto.FullName,
+                UserName = dto.UserName,
                 Email = dto.Email,
                 GeneratedPassword = password,
+                PlainPassword = password,
                 EmailSent = emailSent
             }, "Student created.");
         }
@@ -99,10 +105,24 @@
             var s = await _db.Students.Include(x => x.User).FirstOrDefaultAsync(x => x.StudentId == studentId);
             if (s is null) return ApiResponse<bool>.Fail("Student not found.");
 
+            if (await _db.Users.AnyAsync(u => u.UserName == dto.UserName && u.UserId != s.UserId))
+                return ApiResponse<bool>.Fail("Username already in use.");
+            if (!string.IsNullOrWhiteSpace(dto.Email) && await _db.Users.AnyAsync(u => u.Email == dto.Email && u.UserId != s.UserId))
+                return ApiResponse<bool>.Fail("Email already in use.");
+
             s.User.FullName = dto.FullName;
+            s.User.UserName = dto.UserName;
+            s.User.Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email;
             s.User.PhoneNumber = dto.PhoneNumber;
             s.User.IsActive = dto.IsActive;
             s.User.UpdatedAt = DateTime.UtcNow;
+
+            if (!string.IsNullOrWhiteSpace(dto.NewPassword))
+            {
+                var (hash, salt) = _pwd.HashPassword(dto.NewPassword);
+                s.User.PasswordHash = hash; s.User.PasswordSalt = salt;
+            }
+
             s.Standard = dto.Standard;
             s.BusId = dto.BusId;
             s.StopId = dto.StopId;

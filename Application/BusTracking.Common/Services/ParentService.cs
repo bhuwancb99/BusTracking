@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Services
+namespace BusTracking.Common.Services
 {
     public class ParentService : IParentService
     {
@@ -15,7 +15,7 @@
         public async Task<ApiResponse<PagedResult<ParentListDto>>> GetAllAsync(int page, string? search, string? status)
         {
             var q = _db.Parents.Include(p => p.User).Include(p => p.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.User).Include(p => p.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.Bus).AsQueryable();
-            if (!string.IsNullOrWhiteSpace(search)) q = q.Where(p => p.User.FullName.Contains(search) || p.User.Email.Contains(search));
+            if (!string.IsNullOrWhiteSpace(search)) q = q.Where(p => p.User.FullName.Contains(search) || p.User.UserName.Contains(search) || (p.User.Email != null && p.User.Email.Contains(search)));
             if (status == "Active") q = q.Where(p => p.User.IsActive);
             else if (status == "Inactive") q = q.Where(p => !p.User.IsActive);
 
@@ -108,7 +108,7 @@
             foreach (var code in dto.StudentCodes.Where(c => !string.IsNullOrWhiteSpace(c)).Distinct())
             { var s = await _db.Students.FirstOrDefaultAsync(x => x.StudentCode == code.Trim()); if (s is not null) _db.ParentStudents.Add(new ParentStudent { ParentId = parent.ParentId, StudentId = s.StudentId }); }
             await _db.SaveChangesAsync();
-            if (dto.SendEmail) await _email.SendAsync(dto.Email, "Your Parent Account", $"<p>Hi {dto.FullName},</p><p>Email: {dto.Email}<br/>Password: <b>{password}</b></p>");
+            if (dto.SendEmail && !string.IsNullOrWhiteSpace(dto.Email)) await _email.SendAsync(dto.Email!, "Your Parent Account", $"<p>Hi {dto.FullName},</p><p>Username: <b>{dto.UserName}</b><br/>Password: <b>{password}</b></p>");
             return ApiResponse<CreatedUserResultDto>.Ok(new CreatedUserResultDto
             {
                 UserId = user.UserId,

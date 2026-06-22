@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Services
+namespace BusTracking.Common.Services
 {
     public class AuthService : IAuthService
     {
@@ -19,16 +19,14 @@
         {
             var user = await _db.Users
                 .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Email == dto.Email && u.IsActive);
+                .FirstOrDefaultAsync(u => u.UserName == dto.UserName && u.IsActive);
 
             if (user is null || !_pwd.VerifyPassword(dto.Password, user.PasswordHash, user.PasswordSalt))
-                return ApiResponse<LoginResponseDto>.Fail("Invalid email or password.");
+                return ApiResponse<LoginResponseDto>.Fail("Invalid username or password.");
 
             user.LastLoginAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
 
-            // Load permissions for BusCoordinator — all other roles either have
-            // no permission system (Driver/Parent/Student) or have all permissions (SuperAdmin).
             var permissionKeys = new List<string>();
             if (user.Role.RoleName == "BusCoordinator")
                 permissionKeys = await GetCoordinatorPermissionsAsync(user.UserId);
@@ -37,19 +35,29 @@
                 ? System.Text.Json.JsonSerializer.Serialize(permissionKeys)
                 : "";
 
-            // Embed permission keys directly into the JWT so API controllers can
-            // check User.HasClaim("permission", key) without a DB round-trip.
-            var token = _jwt.GenerateToken(user.UserId, user.Email, user.Role.RoleName, permissionKeys);
+            var token = _jwt.GenerateToken(user.UserId, user.Email ?? user.UserName, user.Role.RoleName, permissionKeys);
             return ApiResponse<LoginResponseDto>.Ok(new LoginResponseDto
             {
                 UserId = user.UserId,
                 FullName = user.FullName,
+                UserName = user.UserName,
                 Email = user.Email,
                 Role = user.Role.RoleName,
                 Token = token,
                 Expiry = DateTime.UtcNow.AddHours(8),
                 Permissions = permissions
             });
+        }
+
+        public async Task<ApiResponse<bool>> CheckUsernameAsync(string userName, int? excludeUserId = null)
+        {
+            var q = _db.Users.Where(u => u.UserName == userName);
+            if (excludeUserId.HasValue)
+                q = q.Where(u => u.UserId != excludeUserId.Value);
+            var exists = await q.AnyAsync();
+            return exists
+                ? ApiResponse<bool>.Fail("Username already exists.")
+                : ApiResponse<bool>.Ok(false, "Username is available.");
         }
 
         public async Task<ApiResponse<bool>> ForgotPasswordAsync(ForgotPasswordDto dto)
@@ -70,7 +78,7 @@
             await _db.SaveChangesAsync();
 
             var resetLink = $"https://yourdomain.com/auth/reset-password?token={token}";
-            await _email.SendAsync(user.Email, "Reset Your Password",
+            await _email.SendAsync(user.Email!, "Reset Your Password",
                 $"<p>Hi {user.FullName},</p><p>Click <a href='{resetLink}'>here</a> to reset your password. Link expires in 2 hours.</p>");
 
             return ApiResponse<bool>.Ok(true, "Reset link sent to your email.");

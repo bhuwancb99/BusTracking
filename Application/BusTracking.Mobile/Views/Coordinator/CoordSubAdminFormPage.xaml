@@ -82,16 +82,16 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        Text="Email *"
+                        Text="Username *"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
                     <Entry
                         BackgroundColor="Transparent"
-                        Keyboard="Email"
-                        Placeholder="email@example.com"
+                        Keyboard="Default"
+                        Placeholder="Enter unique username"
                         PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
                                                            Dark={StaticResource TextSecondaryDark}}"
-                        Text="{Binding Email}"
+                        Text="{Binding UserName}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>

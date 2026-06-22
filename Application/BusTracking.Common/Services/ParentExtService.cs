@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Services
+namespace BusTracking.Common.Services
 {
     public class ParentExtService : IParentExtService
     {
@@ -25,6 +25,7 @@
             {
                 UserId = p.UserId,
                 FullName = p.User.FullName,
+                UserName = p.User.UserName,
                 Email = p.User.Email,
                 PhoneNumber = p.User.PhoneNumber,
                 IsActive = p.User.IsActive,
@@ -42,18 +43,21 @@
 
         public async Task<ApiResponse<CreatedUserResultDto>> CreateExtAsync(CreateParentExtDto dto, int createdBy)
         {
-            if (await _db.Users.AnyAsync(u => u.Email == dto.Email))
+            if (await _db.Users.AnyAsync(u => u.UserName == dto.UserName))
+                return ApiResponse<CreatedUserResultDto>.Fail("Username already in use.");
+            if (!string.IsNullOrWhiteSpace(dto.Email) && await _db.Users.AnyAsync(u => u.Email == dto.Email))
                 return ApiResponse<CreatedUserResultDto>.Fail("Email already in use.");
 
             var roleId = await _db.Roles.Where(r => r.RoleName == "Parent").Select(r => r.RoleId).FirstAsync();
-            var password = _pwd.GenerateRandomPassword();
+            var password = !string.IsNullOrWhiteSpace(dto.Password) ? dto.Password : _pwd.GenerateRandomPassword();
             var (hash, salt) = _pwd.HashPassword(password);
 
             var user = new User
             {
                 RoleId = roleId,
                 FullName = dto.FullName,
-                Email = dto.Email,
+                UserName = dto.UserName,
+                Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email,
                 PhoneNumber = dto.PhoneNumber,
                 PasswordHash = hash,
                 PasswordSalt = salt,
@@ -75,12 +79,12 @@
             await _db.SaveChangesAsync();
 
             bool emailSent = false;
-            if (dto.SendWelcomeEmail)
+            if (dto.SendWelcomeEmail && !string.IsNullOrWhiteSpace(dto.Email))
             {
                 try
                 {
-                    await _email.SendAsync(dto.Email, "Your Parent Account",
-                        $"<p>Hi {dto.FullName},</p><p>Email: <b>{dto.Email}</b><br>Password: <b>{password}</b></p>");
+                    await _email.SendAsync(dto.Email!, "Your Parent Account",
+                        $"<p>Hi {dto.FullName},</p><p>Username: <b>{dto.UserName}</b><br>Password: <b>{password}</b></p>");
                     emailSent = true;
                 }
                 catch { }
@@ -90,8 +94,10 @@
             {
                 UserId = user.UserId,
                 FullName = dto.FullName,
+                UserName = dto.UserName,
                 Email = dto.Email,
                 GeneratedPassword = password,
+                PlainPassword = password,
                 EmailSent = emailSent
             }, "Parent created.");
         }
@@ -102,12 +108,24 @@
                 .FirstOrDefaultAsync(x => x.UserId == userId);
             if (p is null) return ApiResponse<bool>.Fail("Parent not found.");
 
+            if (await _db.Users.AnyAsync(u => u.UserName == dto.UserName && u.UserId != userId))
+                return ApiResponse<bool>.Fail("Username already in use.");
+            if (!string.IsNullOrWhiteSpace(dto.Email) && await _db.Users.AnyAsync(u => u.Email == dto.Email && u.UserId != userId))
+                return ApiResponse<bool>.Fail("Email already in use.");
+
             p.User.FullName = dto.FullName;
+            p.User.UserName = dto.UserName;
+            p.User.Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email;
             p.User.PhoneNumber = dto.PhoneNumber;
             p.User.IsActive = dto.IsActive;
             p.User.UpdatedAt = DateTime.UtcNow;
 
-            // Replace student links
+            if (!string.IsNullOrWhiteSpace(dto.NewPassword))
+            {
+                var (hash, salt) = _pwd.HashPassword(dto.NewPassword);
+                p.User.PasswordHash = hash; p.User.PasswordSalt = salt;
+            }
+
             _db.ParentStudents.RemoveRange(p.ParentStudents);
             foreach (var code in dto.StudentCodes.Where(c => !string.IsNullOrWhiteSpace(c)))
             {

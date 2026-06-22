@@ -2,7 +2,7 @@ namespace BusTracking.Mobile.Interfaces
 {
     public interface IAuthService
     {
-        Task<ApiResponse<SessionUser>> LoginAsync(string email, string password);
+        Task<ApiResponse<SessionUser>> LoginAsync(string userName, string password);
         Task<SessionUser?> GetCurrentUserAsync();
         Task<bool> IsAuthenticatedAsync();
         Task LogoutAsync();

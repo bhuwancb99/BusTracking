@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminDriverFormViewModel : BaseViewModel, IQueryAttributable
     {
@@ -8,7 +8,8 @@
         [ObservableProperty] private int? _userId;
         [ObservableProperty] private bool _isEditMode;
         [ObservableProperty] private string _fullName = "";
-        [ObservableProperty] private string _email = "";
+        [ObservableProperty] private string _userName = "";
+        [ObservableProperty] private string _email = ""; // optional, kept for backward compat
         [ObservableProperty] private string _password = "";
         [ObservableProperty] private string _phoneNumber = "";
         [ObservableProperty] private string _licenseNumber = "";
@@ -44,7 +45,8 @@
                     var d = await _drivers.GetByIdAsync(UserId.Value);
                     if (d is null) return;
                     FullName = d.FullName;
-                    Email = d.Email;
+                    UserName = d.UserName ?? "";
+                    Email = d.Email ?? "";
                     PhoneNumber = d.PhoneNumber ?? "";
                     LicenseNumber = d.LicenseNumber ?? "";
                     LicenseExpiry = d.LicenseExpiry ?? "";
@@ -57,9 +59,9 @@
         [RelayCommand]
         private async Task SaveAsync()
         {
-            if (string.IsNullOrWhiteSpace(FullName) || string.IsNullOrWhiteSpace(Email))
+            if (string.IsNullOrWhiteSpace(FullName) || string.IsNullOrWhiteSpace(UserName))
             {
-                SetError("Full name and email are required."); return;
+                SetError("Full name and username are required."); return;
             }
             if (!IsEditMode && string.IsNullOrWhiteSpace(Password))
             {
@@ -75,6 +77,7 @@
                     r = await _drivers.UpdateAsync(UserId!.Value, new UpdateDriverRequest
                     {
                         FullName = FullName,
+                        UserName = UserName,
                         PhoneNumber = PhoneNumber.Length > 0 ? PhoneNumber : null,
                         LicenseNumber = LicenseNumber.Length > 0 ? LicenseNumber : null,
                         LicenseExpiry = LicenseExpiry.Length > 0 ? LicenseExpiry : null,
@@ -87,7 +90,8 @@
                     r = await _drivers.CreateAsync(new CreateDriverRequest
                     {
                         FullName = FullName,
-                        Email = Email,
+                        UserName = UserName,
+                        Email = Email.Length > 0 ? Email : null,
                         Password = Password,
                         PhoneNumber = PhoneNumber.Length > 0 ? PhoneNumber : null,
                         LicenseNumber = LicenseNumber.Length > 0 ? LicenseNumber : null,

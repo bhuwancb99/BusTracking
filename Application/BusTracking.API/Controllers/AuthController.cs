@@ -1,4 +1,4 @@
-﻿namespace BusTracking.API.Controllers
+namespace BusTracking.API.Controllers
 {
     [Route("api/[controller]")]
     public class AuthController : ApiBaseController
@@ -7,12 +7,22 @@
         private readonly IUserService _user;
         public AuthController(IAuthService auth, IUserService user) { _auth = auth; _user = user; }
 
-        /// <summary>Login — works for all roles: Driver, Parent, Student, BusCoordinator</summary>
+        /// <summary>Login — works for all roles using Username + Password</summary>
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
             var r = await _auth.LoginAsync(dto);
             return r.Success ? Ok(r) : Unauthorized(r);
+        }
+
+        /// <summary>Check if a username is available. Pass excludeUserId to allow editing own username.</summary>
+        [HttpGet("check-username")]
+        public async Task<IActionResult> CheckUsername([FromQuery] string userName, [FromQuery] int? excludeUserId = null)
+        {
+            if (string.IsNullOrWhiteSpace(userName))
+                return BadRequest(ApiResponse<bool>.Fail("Username is required."));
+            var r = await _auth.CheckUsernameAsync(userName.Trim(), excludeUserId);
+            return Ok(r);
         }
 
         [HttpPost("forgot-password")]

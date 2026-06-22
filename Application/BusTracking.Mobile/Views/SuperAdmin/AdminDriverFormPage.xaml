@@ -69,7 +69,7 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!--  Email (Add only)  -->
+            <!--  Username (required, used for login)  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                                   Dark={StaticResource CardBgDark}}"
@@ -82,16 +82,16 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        Text="Email *"
+                        Text="Username *"
                         TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                     Dark={StaticResource TextSecondaryDark}}" />
                     <Entry
                         BackgroundColor="Transparent"
-                        Keyboard="Email"
-                        Placeholder="driver@example.com"
+                        Keyboard="Default"
+                        Placeholder="Enter unique username"
                         PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
                                                            Dark={StaticResource TextMutedDark}}"
-                        Text="{Binding Email}"
+                        Text="{Binding UserName}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>

@@ -17,12 +17,12 @@ namespace BusTracking.Mobile.Services
         }
 
         // ── Login ─────────────────────────────────────────────────────────────
-        public async Task<ApiResponse<SessionUser>> LoginAsync(string email, string password)
+        public async Task<ApiResponse<SessionUser>> LoginAsync(string userName, string password)
         {
             var r = await _api.PostAsync<SessionUser>(Constants.Auth.Login,
                 new LoginRequest
                 {
-                    Email = email,
+                    UserName = userName,
                     Password = password
                 });
 

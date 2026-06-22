@@ -1,11 +1,12 @@
-﻿namespace BusTracking.Common.Entities
+namespace BusTracking.Common.Entities
 {
     public class User
     {
         [Key] public int UserId { get; set; }
         public int RoleId { get; set; }
         [Required, MaxLength(150)] public string FullName { get; set; } = "";
-        [Required, MaxLength(255)] public string Email { get; set; } = "";
+        [Required, MaxLength(100)] public string UserName { get; set; } = "";
+        [MaxLength(255)] public string? Email { get; set; }
         [MaxLength(20)] public string? PhoneNumber { get; set; }
         [Required, MaxLength(512)] public string PasswordHash { get; set; } = "";
         [Required, MaxLength(256)] public string PasswordSalt { get; set; } = "";

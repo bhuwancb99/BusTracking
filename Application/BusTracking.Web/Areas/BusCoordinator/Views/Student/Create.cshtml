@@ -23,9 +23,18 @@
                             <input asp-for="FullName" class="form-control" placeholder="Student full name" />
                             <span asp-validation-for="FullName" class="text-danger small"></span>
                         </div>
+                        <div class="col-md-6">
+                            <label asp-for="UserName" class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input asp-for="UserName" class="form-control" placeholder="unique_username" id="usernameInput" autocomplete="off" />
+                                <button type="button" class="btn btn-outline-secondary" id="btnCheckUsername" title="Check availability"><i class="bi bi-search"></i></button>
+                            </div>
+                            <span asp-validation-for="UserName" class="text-danger small"></span>
+                            <div id="usernameMsg" class="small mt-1"></div>
+                        </div>
 
                         <div class="col-md-6">
-                            <label asp-for="Email" class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                            <label asp-for="Email" class="form-label fw-semibold">Email <span class="text-muted fw-normal">(Optional)</span></label>
                             <input asp-for="Email" type="email" class="form-control" placeholder="student@email.com" />
                             <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
@@ -171,5 +180,20 @@
                 hint.innerHTML = '<span class="text-danger"><i class="bi bi-x-circle me-1"></i>Could not load stops.</span>';
             }
         }
+        document.getElementById('btnCheckUsername').addEventListener('click', checkUsername);
+        document.getElementById('usernameInput').addEventListener('input', () => document.getElementById('usernameMsg').innerHTML = '');
+        async function checkUsername() {
+            const val = document.getElementById('usernameInput').value.trim();
+            if (!val) { showUsernameMsg('Enter a username first.', 'text-muted'); return; }
+            const res = await fetch(`/api/auth/check-username?userName=${encodeURIComponent(val)}`);
+            const data = await res.json();
+            if (!data.success) {
+                showUsernameMsg('<i class="bi bi-x-circle me-1"></i>Username already exists', 'text-danger fw-semibold');
+            } else {
+                showUsernameMsg('<i class="bi bi-check-circle me-1"></i>Username is available', 'text-success fw-semibold');
+            }
+        }
+        function showUsernameMsg(html, cls) { const el = document.getElementById('usernameMsg'); el.innerHTML = html; el.className = 'small mt-1 ' + cls; }
+        function togglePwd() { const inp = document.getElementById('pwdInput'); const icon = document.getElementById('eyeIcon'); inp.type = inp.type === 'password' ? 'text' : 'password'; icon.className = inp.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash'; }
     </script>
 }

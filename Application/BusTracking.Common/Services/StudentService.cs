@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Services
+namespace BusTracking.Common.Services
 {
     public class StudentService : IStudentService
     {
@@ -8,7 +8,7 @@
         public async Task<ApiResponse<PagedResult<StudentListDto>>> GetAllAsync(int page, string? search, string? status)
         {
             var q = _db.Students.Include(s => s.User).Include(s => s.Bus).Include(s => s.Stop).AsQueryable();
-            if (!string.IsNullOrWhiteSpace(search)) q = q.Where(s => s.User.FullName.Contains(search) || s.StudentCode.Contains(search));
+            if (!string.IsNullOrWhiteSpace(search)) q = q.Where(s => s.User.FullName.Contains(search) || s.User.UserName.Contains(search) || s.StudentCode.Contains(search));
             if (status == "Active") q = q.Where(s => s.User.IsActive);
             else if (status == "Inactive") q = q.Where(s => !s.User.IsActive);
 
@@ -100,7 +100,7 @@
                 StopId = dto.StopId
             });
             await _db.SaveChangesAsync();
-            if (dto.SendEmail) await _email.SendAsync(dto.Email, "Your Student Account", $"<p>Hi {dto.FullName},</p><p>Email: {dto.Email}<br/>Password: <b>{password}</b></p>");
+            if (dto.SendEmail && !string.IsNullOrWhiteSpace(dto.Email)) await _email.SendAsync(dto.Email!, "Your Student Account", $"<p>Hi {dto.FullName},</p><p>Username: <b>{dto.UserName}</b><br/>Password: <b>{password}</b></p>");
             return ApiResponse<CreatedUserResultDto>.Ok(new CreatedUserResultDto
             {
                 UserId = user.UserId,
