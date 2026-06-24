@@ -8,6 +8,7 @@ namespace BusTracking.Mobile.Interfaces
         Task LogoutAsync();
         Task<ApiResponse<bool>> ChangePasswordAsync(string current, string newPwd);
         Task<ApiResponse<bool>> ForgotPasswordAsync(string email);
+        Task<ApiResponse<bool>> CheckUsernameAsync(string userName, int? excludeUserId = null);
         bool HasPermission(string permissionKey);
         string CurrentRole { get; }
 

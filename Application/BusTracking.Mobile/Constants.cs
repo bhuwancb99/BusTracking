@@ -24,6 +24,7 @@ public static class Constants
         public const string ChangePassword = "/api/auth/change-password";
         public const string ForgotPassword = "/api/auth/forgot-password";
         public const string ResetPassword = "/api/auth/reset-password";
+        public const string CheckUsername = "/api/auth/check-username";
     }
 
     // ── App Config  →  AppConfigController  [Route("api/app-config")] ────

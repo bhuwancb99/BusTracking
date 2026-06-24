@@ -148,6 +148,15 @@ namespace BusTracking.Mobile.Services
         }
 
         // ── Logout ────────────────────────────────────────────────────────────
+        public async Task<ApiResponse<bool>> CheckUsernameAsync(string userName, int? excludeUserId = null)
+        {
+            var url = string.IsNullOrWhiteSpace(userName)
+                ? Constants.Auth.CheckUsername
+                : $"{Constants.Auth.CheckUsername}?userName={Uri.EscapeDataString(userName)}" +
+                  (excludeUserId.HasValue ? $"&excludeUserId={excludeUserId}" : "");
+            return await _api.GetAsync<bool>(url);
+        }
+
         public async Task LogoutAsync()
         {
             _currentUser = null;

@@ -75,6 +75,12 @@
                         PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                         Text="{Binding UserName}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                    <Label
+                        FontAttributes="Italic"
+                        FontSize="12"
+                        IsVisible="{Binding UsernameMessage, Converter={StaticResource StringToBool}}"
+                        Text="{Binding UsernameMessage}"
+                        TextColor="{Binding UsernameMessageColor}" />
                 </VerticalStackLayout>
             </Border>
 

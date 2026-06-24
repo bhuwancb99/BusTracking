@@ -16,6 +16,64 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [ObservableProperty] private bool _showNewPassword;
         [ObservableProperty] private string _newPassword = "";
 
+
+        // ── Username live-check ───────────────────────────────────────────────
+        [ObservableProperty] private string _usernameMessage = "";
+        [ObservableProperty] private Color  _usernameMessageColor = Colors.Transparent;
+        private CancellationTokenSource? _usernameCts;
+
+        // Suppresses username check while page is loading data
+        private bool _isLoadingData = true;
+
+        partial void OnUserNameChanged(string value)
+        {
+            // Skip check entirely while InitializeAsync is populating fields
+            if (_isLoadingData) return;
+
+            _usernameCts?.Cancel();
+            _usernameCts = new CancellationTokenSource();
+            var cts = _usernameCts;
+            UsernameMessage = "";
+            UsernameMessageColor = Colors.Transparent;
+
+            if (value.Length == 0) return;
+            if (value.Length < 5)
+            {
+                UsernameMessage = "Username must have at least 5 characters";
+                UsernameMessageColor = Color.FromArgb("#ef4444");
+                return;
+            }
+
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(400, cts.Token);
+                    if (cts.IsCancellationRequested) return;
+
+                    int? excludeId = IsEditMode ? CoordId : null;
+                    var r = await Auth.CheckUsernameAsync(value.Trim(), excludeId);
+
+                    if (cts.IsCancellationRequested) return;
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        if (!r.Success)
+                        {
+                            UsernameMessage = $"The username \"{value}\" is already taken";
+                            UsernameMessageColor = Color.FromArgb("#ef4444");
+                        }
+                        else
+                        {
+                            UsernameMessage = $"\"{value}\" is available";
+                            UsernameMessageColor = Color.FromArgb("#22c55e");
+                        }
+                    });
+                }
+                catch (TaskCanceledException) { }
+                catch { }
+            });
+        }
+
         public CoordSubAdminFormViewModel(IAuthService auth, INavigationService nav, ICoordSubAdminService service)
             : base(auth, nav) { _service = service; }
 
@@ -46,8 +104,10 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                 {
                     var c = await _service.GetByIdAsync(CoordId.Value);
                     if (c is null) return;
-                    FullName = c.FullName; UserName = c.UserName ?? ""; Email = c.Email ?? ""; PhoneNumber = c.PhoneNumber ?? ""; IsActive = c.IsActive; NewPassword = "";
+                    FullName = c.FullName; UserName = c.UserName ?? "";
+                    _originalUserName = UserName; Email = c.Email ?? ""; PhoneNumber = c.PhoneNumber ?? ""; IsActive = c.IsActive; NewPassword = "";
                 }
+                _isLoadingData = false;
             });
         }
 
@@ -79,7 +139,22 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                     r = await _service.CreateAsync(new CreateCoordinatorRequest
                     { FullName = FullName, UserName = UserName, Email = Email.Length > 0 ? Email : null, PhoneNumber = PhoneNumber, Password = Password, PermissionIds = selectedIds, IsActive = IsActive });
 
-                if (r.Success) { await ShowToastAsync(IsEditMode ? "Bus coordinator updated." : "Bus coordinator created."); await Nav.GoBackAsync(); }
+                if (r.Success)
+                {
+                    if (IsEditMode)
+                    {
+                        var session = await Auth.GetCurrentUserAsync();
+                        if (session != null && session.UserId == CoordId && session.UserName != UserName)
+                        {
+                            await ShowToastAsync("Username changed. Please log in again.");
+                            await Auth.LogoutAsync();
+                            await Nav.GoToLoginAsync();
+                            return;
+                        }
+                    }
+                    await ShowToastAsync(IsEditMode ? "Bus coordinator updated." : "Bus coordinator created.");
+                    await Nav.GoBackAsync();
+                }
                 else SetError(r.Message);
             });
         }

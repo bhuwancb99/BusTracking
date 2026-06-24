@@ -19,6 +19,64 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [ObservableProperty] private List<BusItem> _busOptions = [];
         [ObservableProperty] private BusItem? _selectedBus;
 
+
+        // ── Username live-check ───────────────────────────────────────────────
+        [ObservableProperty] private string _usernameMessage = "";
+        [ObservableProperty] private Color  _usernameMessageColor = Colors.Transparent;
+        private CancellationTokenSource? _usernameCts;
+
+        // Suppresses username check while page is loading data
+        private bool _isLoadingData = true;
+
+        partial void OnUserNameChanged(string value)
+        {
+            // Skip check entirely while InitializeAsync is populating fields
+            if (_isLoadingData) return;
+
+            _usernameCts?.Cancel();
+            _usernameCts = new CancellationTokenSource();
+            var cts = _usernameCts;
+            UsernameMessage = "";
+            UsernameMessageColor = Colors.Transparent;
+
+            if (value.Length == 0) return;
+            if (value.Length < 5)
+            {
+                UsernameMessage = "Username must have at least 5 characters";
+                UsernameMessageColor = Color.FromArgb("#ef4444");
+                return;
+            }
+
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(400, cts.Token);
+                    if (cts.IsCancellationRequested) return;
+
+                    int? excludeId = IsEditMode ? UserId : null;
+                    var r = await Auth.CheckUsernameAsync(value.Trim(), excludeId);
+
+                    if (cts.IsCancellationRequested) return;
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        if (!r.Success)
+                        {
+                            UsernameMessage = $"The username \"{value}\" is already taken";
+                            UsernameMessageColor = Color.FromArgb("#ef4444");
+                        }
+                        else
+                        {
+                            UsernameMessage = $"\"{value}\" is available";
+                            UsernameMessageColor = Color.FromArgb("#22c55e");
+                        }
+                    });
+                }
+                catch (TaskCanceledException) { }
+                catch { }
+            });
+        }
+
         public AdminDriverFormViewModel(IAuthService auth, INavigationService nav,
             IDriverService drivers, IBusService buses)
             : base(auth, nav) { _drivers = drivers; _buses = buses; }
@@ -55,6 +113,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                     IsActive = d.IsActive;
                     SelectedBus = BusOptions.FirstOrDefault(b => b.BusId == d.BusId);
                 }
+                _isLoadingData = false;
             });
         }
 
@@ -107,6 +166,18 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 
                 if (r.Success)
                 {
+                    if (IsEditMode)
+                    {
+                        // Force logout if current user's own username was changed
+                    var session = await Auth.GetCurrentUserAsync();
+                    if (session != null && session.UserId == UserId && session.UserName != UserName)
+                    {
+                        await ShowToastAsync("Username changed. Please log in again.");
+                        await Auth.LogoutAsync();
+                        await Nav.GoToLoginAsync();
+                        return;
+                    }
+                    }
                     await ShowToastAsync(IsEditMode ? "Driver updated." : "Driver created.");
                     await Nav.GoBackAsync();
                 }
