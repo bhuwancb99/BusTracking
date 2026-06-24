@@ -46,7 +46,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                 {
                     var c = await _service.GetByIdAsync(CoordId.Value);
                     if (c is null) return;
-                    FullName = c.FullName; UserName = c.UserName ?? ""; PhoneNumber = c.PhoneNumber ?? ""; IsActive = c.IsActive;
+                    FullName = c.FullName; UserName = c.UserName ?? ""; Email = c.Email ?? ""; PhoneNumber = c.PhoneNumber ?? ""; IsActive = c.IsActive; NewPassword = "";
                 }
             });
         }
@@ -74,7 +74,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                 ApiResponse<object> r;
                 if (IsEditMode)
                     r = await _service.UpdateAsync(CoordId!.Value, new UpdateCoordinatorRequest
-                    { FullName = FullName, UserName = UserName, PhoneNumber = PhoneNumber, IsActive = IsActive, PermissionIds = selectedIds });
+                    { FullName = FullName, UserName = UserName, Email = Email.Length > 0 ? Email : null, NewPassword = NewPassword.Length > 0 ? NewPassword : null, PhoneNumber = PhoneNumber, IsActive = IsActive, PermissionIds = selectedIds });
                 else
                     r = await _service.CreateAsync(new CreateCoordinatorRequest
                     { FullName = FullName, UserName = UserName, Email = Email.Length > 0 ? Email : null, PhoneNumber = PhoneNumber, Password = Password, PermissionIds = selectedIds, IsActive = IsActive });

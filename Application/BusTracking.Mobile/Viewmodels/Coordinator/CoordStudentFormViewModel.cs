@@ -12,6 +12,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [ObservableProperty] private string _userName = "";
         [ObservableProperty] private string _email = ""; // optional, kept for backward compat
         [ObservableProperty] private string _password = "";
+        [ObservableProperty] private string _newPassword = "";
         [ObservableProperty] private string _phoneNumber = "";
         [ObservableProperty] private string _standard = "";
         [ObservableProperty] private bool _isActive = true;
@@ -39,7 +40,8 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                 {
                     var s = await _students.GetByIdAsync(StudentId.Value);
                     if (s is null) return;
-                    FullName = s.FullName; Email = s.Email;
+                    FullName = s.FullName; UserName = s.UserName ?? ""; Email = s.Email ?? "";
+                    NewPassword = "";
                     PhoneNumber = s.PhoneNumber ?? ""; Standard = s.Standard ?? "";
                     IsActive = s.IsActive;
                     SelectedBus = BusOptions.FirstOrDefault(b => b.BusId == s.BusId);
@@ -79,6 +81,8 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                     {
                         FullName = FullName,
                         UserName = UserName,
+                        Email = Email.Length > 0 ? Email : null,
+                        NewPassword = NewPassword.Length > 0 ? NewPassword : null,
                         PhoneNumber = PhoneNumber.Length > 0 ? PhoneNumber : null,
                         Standard = Standard.Length > 0 ? Standard : null,
                         BusId = SelectedBus?.BusId,

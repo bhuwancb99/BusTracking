@@ -11,6 +11,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [ObservableProperty] private string _email = "";
         [ObservableProperty] private string _phoneNumber = "";
         [ObservableProperty] private string _password = "";
+        [ObservableProperty] private string _newPassword = "";
         [ObservableProperty] private bool _isActive = true;
         [ObservableProperty] private ObservableCollection<PermissionGroup> _permissionGroups = [];
 
@@ -45,7 +46,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                 {
                     var c = await _coords.GetByIdAsync(UserId.Value);
                     if (c is null) return;
-                    FullName = c.FullName; UserName = c.UserName ?? ""; PhoneNumber = c.PhoneNumber ?? ""; IsActive = c.IsActive;
+                    FullName = c.FullName; UserName = c.UserName ?? ""; Email = c.Email ?? ""; PhoneNumber = c.PhoneNumber ?? ""; IsActive = c.IsActive; NewPassword = "";
                 }
             });
         }
@@ -53,9 +54,9 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [RelayCommand]
         private async Task SaveAsync()
         {
-            if (string.IsNullOrWhiteSpace(FullName))
+            if (string.IsNullOrWhiteSpace(FullName) || string.IsNullOrWhiteSpace(UserName))
             {
-                SetError("Full name is required."); return;
+                SetError("Full name and username are required."); return;
             }
             if (!IsEditMode && string.IsNullOrWhiteSpace(Password))
             {
@@ -73,12 +74,13 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                 ApiResponse<object> r;
                 if (IsEditMode)
                     r = await _coords.UpdateAsync(UserId!.Value, new UpdateCoordinatorRequest
-                    { FullName = FullName, PhoneNumber = PhoneNumber, PermissionIds = selectedIds, IsActive = IsActive });
+                    { FullName = FullName, UserName = UserName, Email = Email.Length > 0 ? Email : null, NewPassword = NewPassword.Length > 0 ? NewPassword : null, PhoneNumber = PhoneNumber, PermissionIds = selectedIds, IsActive = IsActive });
                 else
                     r = await _coords.CreateAsync(new CreateCoordinatorRequest
                     {
                         FullName = FullName,
-                        Email = Email,
+                        UserName = UserName,
+                        Email = Email.Length > 0 ? Email : null,
                         PhoneNumber = PhoneNumber,
                         Password = Password,
                         PermissionIds = selectedIds,

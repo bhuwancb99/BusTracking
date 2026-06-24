@@ -10,6 +10,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [ObservableProperty] private string _userName = "";
         [ObservableProperty] private string _email = ""; // optional, kept for backward compat
         [ObservableProperty] private string _password = "";
+        [ObservableProperty] private string _newPassword = "";
         [ObservableProperty] private string _phoneNumber = "";
         [ObservableProperty] private string _studentCodes = "";   // comma-separated
         [ObservableProperty] private bool _isActive = true;
@@ -37,9 +38,11 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                 var p = await _parents.GetByIdAsync(UserId.Value);
                 if (p is null) return;
                 FullName = p.FullName;
-                Email = p.Email;
+                UserName = p.UserName ?? "";
+                Email = p.Email ?? "";
                 PhoneNumber = p.PhoneNumber ?? "";
                 IsActive = p.IsActive;
+                NewPassword = "";
                 StudentCodes = string.Join(", ", p.Students.Select(s => s.StudentCode));
             });
         }
@@ -72,6 +75,8 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                     {
                         FullName = FullName,
                         UserName = UserName,
+                        Email = Email.Length > 0 ? Email : null,
+                        NewPassword = NewPassword.Length > 0 ? NewPassword : null,
                         PhoneNumber = PhoneNumber.Length > 0 ? PhoneNumber : null,
                         StudentCodes = codes,
                         IsActive = IsActive

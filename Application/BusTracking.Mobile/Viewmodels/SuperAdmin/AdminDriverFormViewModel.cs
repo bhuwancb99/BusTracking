@@ -11,6 +11,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [ObservableProperty] private string _userName = "";
         [ObservableProperty] private string _email = ""; // optional, kept for backward compat
         [ObservableProperty] private string _password = "";
+        [ObservableProperty] private string _newPassword = "";
         [ObservableProperty] private string _phoneNumber = "";
         [ObservableProperty] private string _licenseNumber = "";
         [ObservableProperty] private string _licenseExpiry = "";
@@ -47,6 +48,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                     FullName = d.FullName;
                     UserName = d.UserName ?? "";
                     Email = d.Email ?? "";
+                    NewPassword = "";
                     PhoneNumber = d.PhoneNumber ?? "";
                     LicenseNumber = d.LicenseNumber ?? "";
                     LicenseExpiry = d.LicenseExpiry ?? "";
@@ -78,6 +80,8 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                     {
                         FullName = FullName,
                         UserName = UserName,
+                        Email = Email.Length > 0 ? Email : null,
+                        NewPassword = NewPassword.Length > 0 ? NewPassword : null,
                         PhoneNumber = PhoneNumber.Length > 0 ? PhoneNumber : null,
                         LicenseNumber = LicenseNumber.Length > 0 ? LicenseNumber : null,
                         LicenseExpiry = LicenseExpiry.Length > 0 ? LicenseExpiry : null,
