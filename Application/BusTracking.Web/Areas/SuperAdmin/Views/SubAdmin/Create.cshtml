@@ -24,9 +24,6 @@
                             <label asp-for="UserName" class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input asp-for="UserName" class="form-control" placeholder="unique_username" id="usernameInput" autocomplete="off" />
-                                <button type="button" class="btn btn-outline-secondary" id="btnCheckUsername" title="Check availability">
-                                    <i class="bi bi-search"></i>
-                                </button>
                             </div>
                             <span asp-validation-for="UserName" class="text-danger small"></span>
                             <div id="usernameMsg" class="small mt-1"></div>
@@ -107,16 +104,9 @@
         const vs=document.getElementById('valSummary');
         if(vs&&vs.querySelector('li,span:not(:empty)'))vs.style.display='';
         document.getElementById('createForm').addEventListener('submit',()=>{if(vs)vs.style.display='';});
-
-        // Username check
-        document.getElementById('btnCheckUsername').addEventListener('click', checkUsername);
-        document.getElementById('usernameInput').addEventListener('input', () => {
             document.getElementById('usernameMsg').innerHTML = '';
         });
-        async function checkUsername() {
-            const val = document.getElementById('usernameInput').value.trim();
-            if (!val) { showUsernameMsg('Enter a username first.', 'text-muted'); return; }
-            const res = await fetch(`/api/auth/check-username?userName=${encodeURIComponent(val)}`);
+            const res = await fetch(`/Auth/CheckUsername?userName=${encodeURIComponent(val)}`);
             const data = await res.json();
             if (data.success === false && data.message.includes('already')) {
                 showUsernameMsg('<i class="bi bi-x-circle me-1"></i>Username already exists', 'text-danger fw-semibold');
@@ -124,7 +114,6 @@
                 showUsernameMsg('<i class="bi bi-check-circle me-1"></i>Username is available', 'text-success fw-semibold');
             }
         }
-        function showUsernameMsg(html, cls) {
             const el = document.getElementById('usernameMsg');
             el.innerHTML = html; el.className = 'small mt-1 ' + cls;
         }
@@ -152,5 +141,41 @@
             checks.forEach(c=>c.checked=!all);
             this.textContent=all?'Select All':'Deselect All';
         });
+        // ── Username live-check (keyup, min 5 chars, no excludeUserId on create) ──
+        const _unInput = document.getElementById('usernameInput');
+        const _unMsg   = document.getElementById('usernameMsg');
+        let   _unTimer = null;
+
+        _unInput.addEventListener('keyup', () => {
+            clearTimeout(_unTimer);
+            _unTimer = setTimeout(liveCheckUsername, 350);
+        });
+
+        async function liveCheckUsername() {
+            const val = _unInput.value.trim();
+            _unMsg.innerHTML = '';
+            _unMsg.className = 'small mt-1';
+            if (val.length === 0) return;
+            if (val.length < 5) {
+                _unMsg.innerHTML  = '<i class="bi bi-exclamation-circle me-1"></i>Username must have at least 5 characters';
+                _unMsg.className  = 'small mt-1 text-danger';
+                return;
+            }
+            try {
+                const res  = await fetch(`/Auth/CheckUsername?userName=${encodeURIComponent(val)}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!data.success) {
+                    _unMsg.innerHTML = `<i class="bi bi-x-circle me-1"></i>The username <strong>${escHtml(val)}</strong> is already taken`;
+                    _unMsg.className = 'small mt-1 text-danger';
+                } else {
+                    _unMsg.innerHTML = `<i class="bi bi-check-circle me-1"></i><strong>${escHtml(val)}</strong> is available`;
+                    _unMsg.className = 'small mt-1 text-success fw-semibold';
+                }
+            } catch (_) { /* silent */ }
+        }
+        function escHtml(s) {
+            return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
     </script>
 }

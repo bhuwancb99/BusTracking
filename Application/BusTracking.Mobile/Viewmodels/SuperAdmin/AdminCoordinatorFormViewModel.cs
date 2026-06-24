@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminCoordinatorFormViewModel : BaseViewModel, IQueryAttributable
     {
@@ -7,6 +7,7 @@
         [ObservableProperty] private int? _userId;
         [ObservableProperty] private bool _isEditMode;
         [ObservableProperty] private string _fullName = "";
+        [ObservableProperty] private string _userName = "";
         [ObservableProperty] private string _email = "";
         [ObservableProperty] private string _phoneNumber = "";
         [ObservableProperty] private string _password = "";
@@ -44,7 +45,7 @@
                 {
                     var c = await _coords.GetByIdAsync(UserId.Value);
                     if (c is null) return;
-                    FullName = c.FullName; PhoneNumber = c.PhoneNumber ?? ""; IsActive = c.IsActive;
+                    FullName = c.FullName; UserName = c.UserName ?? ""; PhoneNumber = c.PhoneNumber ?? ""; IsActive = c.IsActive;
                 }
             });
         }

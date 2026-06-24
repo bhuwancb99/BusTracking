@@ -1,6 +1,4 @@
-﻿using BusTracking.Mobile.Helpers;
-
-namespace BusTracking.Mobile.Converters;
+﻿namespace BusTracking.Mobile.Converters;
 
 /// <summary>
 /// Converts a Boolean value to its logical inverse for use in data binding.

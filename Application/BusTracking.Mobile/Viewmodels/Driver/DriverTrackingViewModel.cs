@@ -6,7 +6,7 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         private readonly IDriverTripService _driverTrip;
         private readonly IBackgroundLocationService _bgLocation;
         private readonly ITrackingHubService _hub;
-        private IDispatcherTimer? _gpsTimer;
+        private IDispatcherTimer? _gpsTimer = null;
 
         [ObservableProperty] private int _tripId;
         [ObservableProperty] private string _tripStatus = "Loading…";

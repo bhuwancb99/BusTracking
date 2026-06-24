@@ -76,6 +76,8 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             return View(new UpdateSubAdminDto
             {
                 FullName      = r.Data!.FullName,
+                UserName    = r.Data!.UserName,
+                Email       = r.Data.Email,
                 PhoneNumber   = r.Data.PhoneNumber,
                 IsActive      = r.Data.IsActive,
                 PermissionIds = permIds

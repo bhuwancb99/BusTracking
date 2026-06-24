@@ -59,6 +59,8 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             return View(new UpdateStudentDto
             {
                 FullName      = r.Data!.FullName,
+                UserName    = r.Data!.UserName,
+                Email       = r.Data.Email,
                 PhoneNumber   = r.Data.PhoneNumber,
                 StudentCode   = r.Data.StudentCode,
                 Standard      = r.Data.Standard,

@@ -60,6 +60,8 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             return View(new UpdateDriverDto
             {
                 FullName      = r.Data!.FullName,
+                UserName    = r.Data!.UserName,
+                Email       = r.Data.Email,
                 PhoneNumber   = r.Data.PhoneNumber,
                 LicenseNumber = r.Data.LicenseNumber,
                 LicenseExpiry = r.Data.LicenseExpiry,

@@ -25,7 +25,6 @@
                             <label asp-for="UserName" class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input asp-for="UserName" class="form-control" id="usernameInput" autocomplete="off" />
-                                <button type="button" class="btn btn-outline-secondary" id="btnCheckUsername" title="Check availability"><i class="bi bi-search"></i></button>
                             </div>
                             <span asp-validation-for="UserName" class="text-danger small"></span>
                             <div id="usernameMsg" class="small mt-1"></div>
@@ -35,7 +34,7 @@
                             <input asp-for="PhoneNumber" class="form-control" />
                         </div>
                         <div class="col-md-6">
-                            <label asp-for="NewPassword" class="form-label fw-semibold">New Password <span class="text-muted fw-normal">(leave blank to keep current)</span></label>
+                            <label asp-for="NewPassword" class="form-label fw-semibold">New Password <span class="text-danger fst-italic ms-1" style="font-size:0.82rem;">(leave blank to keep current)</span></label>
                             <div class="input-group">
                                 <input asp-for="NewPassword" type="password" class="form-control" placeholder="Enter new password" id="pwdInputNew" autocomplete="new-password" />
                                 <button type="button" class="btn btn-outline-secondary" onclick="toggleNewPwd()"><i class="bi bi-eye" id="eyeIconNew"></i></button>
@@ -150,13 +149,7 @@
             existingCodes.delete(chip.dataset.code);
             chip.remove();
         }
-        const currentUserId = @ViewBag.ParentId;
-        document.getElementById('btnCheckUsername').addEventListener('click', checkUsername);
-        document.getElementById('usernameInput').addEventListener('input', () => document.getElementById('usernameMsg').innerHTML = '');
-        async function checkUsername() {
-            const val = document.getElementById('usernameInput').value.trim();
-            if (!val) { showUsernameMsg('Enter a username first.', 'text-muted'); return; }
-            const res = await fetch(`/api/auth/check-username?userName=${encodeURIComponent(val)}&excludeUserId=${currentUserId}`);
+            const res = await fetch(`/Auth/CheckUsername?userName=${encodeURIComponent(val)}&excludeUserId=${currentUserId}`);
             const data = await res.json();
             if (!data.success) {
                 showUsernameMsg('<i class="bi bi-x-circle me-1"></i>Username already exists', 'text-danger fw-semibold');
@@ -164,7 +157,43 @@
                 showUsernameMsg('<i class="bi bi-check-circle me-1"></i>Username is available', 'text-success fw-semibold');
             }
         }
-        function showUsernameMsg(html, cls) { const el = document.getElementById('usernameMsg'); el.innerHTML = html; el.className = 'small mt-1 ' + cls; }
         function toggleNewPwd() { const inp = document.getElementById('pwdInputNew'); const icon = document.getElementById('eyeIconNew'); inp.type = inp.type === 'password' ? 'text' : 'password'; icon.className = inp.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash'; }
+        // ── Username live-check (keyup, min 5 chars) ────────────────────────────
+        const _unInput   = document.getElementById('usernameInput');
+        const _unMsg     = document.getElementById('usernameMsg');
+        const _currentId = @ViewBag.ParentId;
+        let   _unTimer   = null;
+
+        _unInput.addEventListener('keyup', () => {
+            clearTimeout(_unTimer);
+            _unTimer = setTimeout(liveCheckUsername, 350);
+        });
+
+        async function liveCheckUsername() {
+            const val = _unInput.value.trim();
+            _unMsg.innerHTML = '';
+            _unMsg.className = 'small mt-1';
+            if (val.length === 0) return;
+            if (val.length < 5) {
+                _unMsg.innerHTML  = '<i class="bi bi-exclamation-circle me-1"></i>Username must have at least 5 characters';
+                _unMsg.className  = 'small mt-1 text-danger';
+                return;
+            }
+            try {
+                const res  = await fetch(`/Auth/CheckUsername?userName=${encodeURIComponent(val)}&excludeUserId=${_currentId}`);
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!data.success) {
+                    _unMsg.innerHTML = `<i class="bi bi-x-circle me-1"></i>The username <strong>${escHtml(val)}</strong> is already taken`;
+                    _unMsg.className = 'small mt-1 text-danger';
+                } else {
+                    _unMsg.innerHTML = `<i class="bi bi-check-circle me-1"></i><strong>${escHtml(val)}</strong> is available`;
+                    _unMsg.className = 'small mt-1 text-success fw-semibold';
+                }
+            } catch (_) { /* network error — silent */ }
+        }
+        function escHtml(s) {
+            return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
     </script>
 }

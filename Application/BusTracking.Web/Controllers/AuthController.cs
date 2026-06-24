@@ -129,6 +129,16 @@ public class AuthController : Controller
         return View();
     }
 
+    // ── Username availability — called by the Web views via fetch ───────────
+    [HttpGet]
+    public async Task<IActionResult> CheckUsername(string userName, int? excludeUserId = null)
+    {
+        if (string.IsNullOrWhiteSpace(userName))
+            return Json(new { success = false, message = "Username is required." });
+        var r = await _auth.CheckUsernameAsync(userName.Trim(), excludeUserId);
+        return Json(new { success = r.Success, message = r.Message });
+    }
+
     // ── Role → dashboard redirect ─────────────────────────────────────────
     private IActionResult DashboardRedirect(string? role) => role switch
     {

@@ -54,6 +54,8 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             return View(new UpdateParentDto
             {
                 FullName = r.Data!.FullName,
+                UserName    = r.Data!.UserName,
+                Email       = r.Data.Email,
                 PhoneNumber = r.Data.PhoneNumber,
                 IsActive = r.Data.IsActive,
                 StudentCodes = r.Data.Students.Select(s => s.StudentCode).ToList()

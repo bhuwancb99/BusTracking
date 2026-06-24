@@ -7,6 +7,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [ObservableProperty] private int? _coordId;
         [ObservableProperty] private bool _isEditMode;
         [ObservableProperty] private string _fullName = "";
+        [ObservableProperty] private string _userName = "";
         [ObservableProperty] private string _email = "";
         [ObservableProperty] private string _phoneNumber = "";
         [ObservableProperty] private string _password = "";
@@ -45,7 +46,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                 {
                     var c = await _service.GetByIdAsync(CoordId.Value);
                     if (c is null) return;
-                    FullName = c.FullName; PhoneNumber = c.PhoneNumber ?? ""; IsActive = c.IsActive;
+                    FullName = c.FullName; UserName = c.UserName ?? ""; PhoneNumber = c.PhoneNumber ?? ""; IsActive = c.IsActive;
                 }
             });
         }
@@ -60,8 +61,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [RelayCommand]
         private async Task SaveAsync()
         {
-            if (string.IsNullOrWhiteSpace(FullName)) { SetError("Full name is required."); return; }
-            if (!IsEditMode && string.IsNullOrWhiteSpace(Email)) { SetError("Email is required."); return; }
+            if (string.IsNullOrWhiteSpace(FullName) || string.IsNullOrWhiteSpace(UserName)) { SetError("Full name and username are required."); return; }
 
             var selectedIds = PermissionGroups
                 .SelectMany(g => g.Permissions)
@@ -74,10 +74,10 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                 ApiResponse<object> r;
                 if (IsEditMode)
                     r = await _service.UpdateAsync(CoordId!.Value, new UpdateCoordinatorRequest
-                    { FullName = FullName, PhoneNumber = PhoneNumber, IsActive = IsActive, PermissionIds = selectedIds });
+                    { FullName = FullName, UserName = UserName, PhoneNumber = PhoneNumber, IsActive = IsActive, PermissionIds = selectedIds });
                 else
                     r = await _service.CreateAsync(new CreateCoordinatorRequest
-                    { FullName = FullName, Email = Email, PhoneNumber = PhoneNumber, Password = Password, PermissionIds = selectedIds, IsActive = IsActive });
+                    { FullName = FullName, UserName = UserName, Email = Email.Length > 0 ? Email : null, PhoneNumber = PhoneNumber, Password = Password, PermissionIds = selectedIds, IsActive = IsActive });
 
                 if (r.Success) { await ShowToastAsync(IsEditMode ? "Bus coordinator updated." : "Bus coordinator created."); await Nav.GoBackAsync(); }
                 else SetError(r.Message);
