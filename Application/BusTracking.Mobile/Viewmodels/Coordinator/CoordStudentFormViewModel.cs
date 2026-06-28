@@ -99,7 +99,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                     var s = await _students.GetByIdAsync(StudentId.Value);
                     if (s is null) return;
                     FullName = s.FullName; UserName = s.UserName ?? "";
-                    _originalUserName = UserName; Email = s.Email ?? "";
+                    Email = s.Email ?? "";
                     NewPassword = "";
                     PhoneNumber = s.PhoneNumber ?? ""; Standard = s.Standard ?? "";
                     IsActive = s.IsActive;

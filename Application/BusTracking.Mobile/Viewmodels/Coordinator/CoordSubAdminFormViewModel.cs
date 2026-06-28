@@ -105,7 +105,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                     var c = await _service.GetByIdAsync(CoordId.Value);
                     if (c is null) return;
                     FullName = c.FullName; UserName = c.UserName ?? "";
-                    _originalUserName = UserName; Email = c.Email ?? ""; PhoneNumber = c.PhoneNumber ?? ""; IsActive = c.IsActive; NewPassword = "";
+                    Email = c.Email ?? ""; PhoneNumber = c.PhoneNumber ?? ""; IsActive = c.IsActive; NewPassword = "";
                 }
                 _isLoadingData = false;
             });

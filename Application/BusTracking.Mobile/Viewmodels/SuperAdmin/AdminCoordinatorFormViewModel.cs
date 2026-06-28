@@ -105,7 +105,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                     var c = await _coords.GetByIdAsync(UserId.Value);
                     if (c is null) return;
                     FullName = c.FullName; UserName = c.UserName ?? "";
-                    _originalUserName = UserName; Email = c.Email ?? ""; PhoneNumber = c.PhoneNumber ?? ""; IsActive = c.IsActive; NewPassword = "";
+                    Email = c.Email ?? ""; PhoneNumber = c.PhoneNumber ?? ""; IsActive = c.IsActive; NewPassword = "";
                 }
                 _isLoadingData = false;
             });
