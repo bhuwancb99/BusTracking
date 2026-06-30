@@ -8,7 +8,7 @@
         Task<ApiResponse<object>> UpdateAsync(int id, UpdateStudentRequest req);
         Task<ApiResponse<object>> DeleteAsync(int id);
         Task<ApiResponse<object>> ToggleAsync(int id);
-        Task<ApiResponse<object>> ResetPasswordAsync(int id);
+        Task<ApiResponse<ResetPasswordResult>> ResetPasswordAsync(int id);
         Task<List<StudentItem>> SearchAsync(string query);
         Task<TrackingData?> GetTrackingAsync();
         Task<ApiResponse<bool>> SetAvailabilityAsync(object req);

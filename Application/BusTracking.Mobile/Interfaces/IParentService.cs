@@ -9,7 +9,7 @@
         Task<ApiResponse<object>> UpdateAsync(int id, UpdateParentRequest req);
         Task<ApiResponse<object>> DeleteAsync(int id);
         Task<ApiResponse<object>> ToggleAsync(int id);
-        Task<ApiResponse<object>> ResetPasswordAsync(int id);
+        Task<ApiResponse<ResetPasswordResult>> ResetPasswordAsync(int id);
         Task<object?> GetDashboardAsync();
         Task<TrackingData?> TrackChildBusAsync(int studentId);
     }

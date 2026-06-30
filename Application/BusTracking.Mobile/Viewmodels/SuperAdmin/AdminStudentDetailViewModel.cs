@@ -43,7 +43,7 @@
         {
             if (!await ConfirmAsync("Reset Password", $"Reset password for {Student?.FullName}?")) return;
             var r = await _students.ResetPasswordAsync(StudentId);
-            if (r.Success) await ShowAlertAsync("Password Reset", r.Message);
+            if (r.Success) await ShowAlertAsync("Password Reset", $"New password: {r.Data?.PlainPassword}");
             else SetError(r.Message);
         }
 

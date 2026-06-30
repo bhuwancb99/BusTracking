@@ -77,7 +77,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         {
             if (!await ConfirmAsync("Reset Password", $"Reset password for {d.FullName}?")) return;
             var r = await _drivers.ResetPasswordAsync(d.UserId);
-            if (r.Success) await ShowAlertAsync("Password Reset", $"New password: {r.Message}");
+            if (r.Success) await ShowAlertAsync("Password Reset", $"New password: {r.Data?.PlainPassword}");
             else SetError(r.Message);
         }
 

@@ -65,8 +65,8 @@ namespace BusTracking.Mobile.Services
         public Task<ApiResponse<object>> ToggleAsync(int id)
             => _api.PostAsync<object>(string.Format(Constants.Admin.ParentToggle, id));
 
-        public Task<ApiResponse<object>> ResetPasswordAsync(int id)
-            => _api.PostAsync<object>(string.Format(Constants.Admin.ParentReset, id));
+        public Task<ApiResponse<ResetPasswordResult>> ResetPasswordAsync(int id)
+            => _api.PostAsync<ResetPasswordResult>(string.Format(Constants.Admin.ParentReset, id));
 
         public async Task<object?> GetDashboardAsync()
         {

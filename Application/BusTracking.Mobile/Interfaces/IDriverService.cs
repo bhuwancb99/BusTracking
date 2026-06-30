@@ -9,7 +9,7 @@
         Task<ApiResponse<object>> UpdateAsync(int id, UpdateDriverRequest req);
         Task<ApiResponse<object>> DeleteAsync(int id);
         Task<ApiResponse<object>> ToggleAsync(int id);
-        Task<ApiResponse<object>> ResetPasswordAsync(int id);
+        Task<ApiResponse<ResetPasswordResult>> ResetPasswordAsync(int id);
         Task<List<DropdownItem>> GetDropdownAsync(string? search = null);
         Task<List<DriverNotificationItem>> GetAllNotificationAsync();
         Task<ApiResponse<object>> MarkReadAsync(int notificationId);
