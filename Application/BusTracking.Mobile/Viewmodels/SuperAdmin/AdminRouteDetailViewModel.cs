@@ -8,6 +8,15 @@
         [ObservableProperty] private RouteItem? _route;
         [ObservableProperty] private ObservableCollection<StopItem> _stops = [];
 
+        // Add Stop form fields
+        [ObservableProperty] private bool _isAddStopVisible;
+        [ObservableProperty] private string _newStopName = "";
+        [ObservableProperty] private string _newStopOrder = "";
+        [ObservableProperty] private TimeSpan? _newStopMorningTime;
+        [ObservableProperty] private TimeSpan? _newStopEveningTime;
+        [ObservableProperty] private string _newStopLatitude = "";
+        [ObservableProperty] private string _newStopLongitude = "";
+
         public AdminRouteDetailViewModel(IAuthService auth, INavigationService nav, IRouteService routes)
             : base(auth, nav) { _routes = routes; Title = "Route Details"; }
 
@@ -23,8 +32,7 @@
         {
             await RunAsync(async () =>
             {
-                var all = await _routes.GetDropdownAsync();
-                Route = all.FirstOrDefault(r => r.RouteId == RouteId);
+                Route = await _routes.GetByIdAsync(RouteId);
                 var stops = await _routes.GetStopsAsync(RouteId);
                 Stops = new ObservableCollection<StopItem>(stops);
             });
@@ -41,6 +49,61 @@
             var r = await _routes.DeleteAsync(RouteId);
             if (r.Success) { await ShowToastAsync("Route deleted."); await Nav.GoBackAsync(); }
             else SetError(r.Message);
+        }
+
+        [RelayCommand]
+        private void ToggleAddStop() => IsAddStopVisible = !IsAddStopVisible;
+
+        [RelayCommand]
+        private async Task AddStopAsync()
+        {
+            if (string.IsNullOrWhiteSpace(NewStopName) || string.IsNullOrWhiteSpace(NewStopOrder))
+            { SetError("Stop name and order are required."); return; }
+
+            if (!int.TryParse(NewStopOrder, out var order))
+            { SetError("Stop order must be a number."); return; }
+
+            decimal? lat = decimal.TryParse(NewStopLatitude, out var la) ? la : null;
+            decimal? lng = decimal.TryParse(NewStopLongitude, out var lo) ? lo : null;
+
+            await RunAsync(async () =>
+            {
+                var req = new CreateStopRequest
+                {
+                    RouteId = RouteId,
+                    StopName = NewStopName,
+                    StopOrder = order,
+                    MorningTime = NewStopMorningTime.HasValue ? NewStopMorningTime.Value.ToString(@"hh\:mm") : null,
+                    EveningTime = NewStopEveningTime.HasValue ? NewStopEveningTime.Value.ToString(@"hh\:mm") : null,
+                    Latitude = lat,
+                    Longitude = lng
+                };
+                var r = await _routes.AddStopAsync(req);
+                if (r.Success)
+                {
+                    await ShowToastAsync("Stop added.");
+                    ResetAddStopForm();
+                    IsAddStopVisible = false;
+                    await LoadAsync(); // refresh stop list + stop count
+                }
+                else SetError(r.Message);
+            });
+        }
+
+        [RelayCommand]
+        private async Task DeleteStopAsync(StopItem stop)
+        {
+            if (!await ConfirmAsync("Remove Stop", $"Remove '{stop.StopName}'?")) return;
+            var r = await _routes.DeleteStopAsync(stop.StopId, RouteId);
+            if (r.Success) { await ShowToastAsync("Stop removed."); await LoadAsync(); }
+            else SetError(r.Message);
+        }
+
+        private void ResetAddStopForm()
+        {
+            NewStopName = ""; NewStopOrder = "";
+            NewStopMorningTime = null; NewStopEveningTime = null;
+            NewStopLatitude = ""; NewStopLongitude = "";
         }
     }
 }

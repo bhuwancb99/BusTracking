@@ -95,15 +95,15 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        Text="Morning Pickup Time"
+                        Text="Morning Departure"
                         TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                     Dark={StaticResource TextSecondaryDark}}" />
-                    <Entry
+                    <TimePicker
                         BackgroundColor="Transparent"
-                        Placeholder="e.g. 07:30"
-                        Text="{Binding MorningTime}"
+                        Format="hh:mm tt"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
+                                                    Dark={StaticResource TextPrimaryDark}}"
+                        Time="{Binding MorningTime, Converter={StaticResource NullableTimeSpan}}" />
                 </VerticalStackLayout>
             </Border>
             <Border
@@ -117,13 +117,37 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        Text="Evening Drop Time"
+                        Text="Evening Departure"
                         TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                     Dark={StaticResource TextSecondaryDark}}" />
-                    <Entry
+                    <TimePicker
                         BackgroundColor="Transparent"
-                        Placeholder="e.g. 17:00"
-                        Text="{Binding EveningTime}"
+                        Format="hh:mm tt"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}"
+                        Time="{Binding EveningTime, Converter={StaticResource NullableTimeSpan}}" />
+                </VerticalStackLayout>
+            </Border>
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Description"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                    <Editor
+                        AutoSize="TextChanges"
+                        BackgroundColor="Transparent"
+                        MinimumHeightRequest="60"
+                        Placeholder="Optional notes about this route"
+                        Text="{Binding Description}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>

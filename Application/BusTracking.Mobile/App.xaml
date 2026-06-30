@@ -28,6 +28,7 @@
             <converters:DrawerFontAttribConverter x:Key="DrawerFontAttribConverter" />
             <converters:AllTrueMultiConverter x:Key="AllTrueConverter" />
             <converters:StringToInvertBoolConverter x:Key="StringToInvertBool" />
+            <converters:NullableTimeSpanConverter x:Key="NullableTimeSpan" />
 
 
             <ResourceDictionary.MergedDictionaries>

@@ -123,7 +123,9 @@ public static class Constants
         public const string BusById = "/api/coordinator/buses/{0}";
 
         public const string Routes = "/api/coordinator/routes";
+        public const string RouteById = "/api/coordinator/routes/{0}";
         public const string RouteStops = "/api/coordinator/routes/{0}/stops";
+        public const string RouteStopDelete = "/api/coordinator/routes/stops/{0}";
 
         public const string Drivers = "/api/coordinator/drivers";
         public const string Parents = "/api/coordinator/parents";

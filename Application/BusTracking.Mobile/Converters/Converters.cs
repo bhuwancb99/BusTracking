@@ -284,4 +284,21 @@ public class StringToInvertBoolConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
+/// <summary>
+/// Bridges a nullable TimeSpan? view-model property to MAUI's non-nullable
+/// TimePicker.Time property. Null is shown as midnight (00:00) until the user
+/// picks a time, after which the value flows back into the TimeSpan? property.
+///
+/// Register in App.xaml:
+///   &lt;converters:NullableTimeSpanConverter x:Key="NullableTimeSpan" /&gt;
+/// </summary>
+public class NullableTimeSpanConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is TimeSpan t ? t : TimeSpan.Zero;
+
+    public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is TimeSpan t ? t : (TimeSpan?)null;
+}
+
 

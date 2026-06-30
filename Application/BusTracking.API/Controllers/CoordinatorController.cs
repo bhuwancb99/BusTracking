@@ -228,16 +228,43 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
+        [HttpGet("routes/{id}")]
+        public async Task<IActionResult> GetRoute(int id)
+        {
+            var r = await _route.GetByIdAsync(id);
+            return r.Success ? Ok(r) : NotFound(r);
+        }
+
+        [HttpPut("routes/{id}")]
+        public async Task<IActionResult> UpdateRoute(int id, [FromBody] UpdateRouteDto dto)
+        {
+            RequirePermission("route.edit");
+            var r = await _route.UpdateAsync(id, dto);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        [HttpPost("routes/{id}/stops")]
+        public async Task<IActionResult> AddStop(int id, [FromBody] CreateStopDto dto)
+        {
+            RequirePermission("route.edit");
+            dto.RouteId = id;
+            var r = await _route.AddStopAsync(dto);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        [HttpDelete("routes/stops/{stopId}")]
+        public async Task<IActionResult> DeleteStop(int stopId)
+        {
+            RequirePermission("route.edit");
+            var r = await _route.DeleteStopAsync(stopId);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
         [HttpGet("routes/{routeId}/stops")]
         public async Task<IActionResult> RouteStops(int routeId)
         {
-            var stops = await _db.Stops
-                .Where(s => s.RouteId == routeId && s.IsActive)
-                .OrderBy(s => s.StopOrder)
-                .Select(s => new { s.StopId, s.StopName, s.StopOrder, s.Latitude, s.Longitude })
-                .ToListAsync();
-
-            return Ok(ApiResponse<object>.Ok(stops));
+            var r = await _route.GetStopsByRouteAsync(routeId);
+            return Ok(r);
         }
 
         // ════════════════════════════════════════════════════════════
@@ -522,6 +549,9 @@ namespace BusTracking.API.Controllers
 
         private void RequirePermission(string key)
         {
+            // SuperAdmin always has full access — skip permission claim check
+            if (User.IsInRole("SuperAdmin")) return;
+
             if (!User.HasClaim("permission", key))
                 throw new UnauthorizedAccessException($"Missing permission: {key}");
         }

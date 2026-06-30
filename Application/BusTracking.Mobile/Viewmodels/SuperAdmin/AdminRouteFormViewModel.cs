@@ -8,8 +8,9 @@
         [ObservableProperty] private bool _isEditMode;
         [ObservableProperty] private string _routeName = "";
         [ObservableProperty] private string _routeCode = "";
-        [ObservableProperty] private string _morningTime = "";
-        [ObservableProperty] private string _eveningTime = "";
+        [ObservableProperty] private string _description = "";
+        [ObservableProperty] private TimeSpan? _morningTime;
+        [ObservableProperty] private TimeSpan? _eveningTime;
         [ObservableProperty] private bool _isActive = true;
 
         public AdminRouteFormViewModel(IAuthService auth, INavigationService nav, IRouteService routes)
@@ -26,15 +27,21 @@
             if (!IsEditMode || !RouteId.HasValue) return;
             await RunAsync(async () =>
             {
-                // GetByIdAsync not in IRouteService — load from list and find
-                var all = await _routes.GetDropdownAsync();
-                var r = all.FirstOrDefault(x => x.RouteId == RouteId.Value);
+                var r = await _routes.GetByIdAsync(RouteId.Value);
                 if (r is null) return;
                 RouteName = r.RouteName; RouteCode = r.RouteCode;
-                MorningTime = r.MorningTime ?? ""; EveningTime = r.EveningTime ?? "";
+                Description = r.Description ?? "";
+                MorningTime = ParseTime(r.MorningTime);
+                EveningTime = ParseTime(r.EveningTime);
                 IsActive = r.IsActive;
             });
         }
+
+        private static TimeSpan? ParseTime(string? value) =>
+            TimeSpan.TryParse(value, out var t) ? t : null;
+
+        private static string? FormatTime(TimeSpan? value) =>
+            value.HasValue ? value.Value.ToString(@"hh\:mm") : null;
 
         [RelayCommand]
         private async Task SaveAsync()
@@ -48,8 +55,9 @@
                 {
                     RouteName = RouteName,
                     RouteCode = RouteCode,
-                    MorningTime = MorningTime.Length > 0 ? MorningTime : null,
-                    EveningTime = EveningTime.Length > 0 ? EveningTime : null,
+                    MorningTime = FormatTime(MorningTime),
+                    EveningTime = FormatTime(EveningTime),
+                    Description = Description.Length > 0 ? Description : null,
                     IsActive = IsActive
                 };
                 var r = IsEditMode
@@ -60,6 +68,7 @@
                         RouteCode = RouteCode,
                         MorningTime = req.MorningTime,
                         EveningTime = req.EveningTime,
+                        Description = req.Description,
                         IsActive = IsActive
                     });
 

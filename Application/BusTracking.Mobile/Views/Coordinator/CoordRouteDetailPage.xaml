@@ -146,6 +146,109 @@
                 </Grid>
             </Border>
 
+            <!--  Description  -->
+            <Border
+                Padding="16"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                IsVisible="{Binding Route.Description, Converter={StaticResource StringToBool}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 16">
+                <VerticalStackLayout Spacing="6">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        Text="Description"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
+                    <Label
+                        FontSize="13"
+                        Text="{Binding Route.Description}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Add Stop  -->
+            <Border
+                Padding="16"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                IsVisible="{Binding CanEdit}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 16">
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label
+                            Grid.Column="0"
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            Text="Add Stop"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}"
+                            VerticalOptions="Center" />
+                        <Button
+                            Grid.Column="1"
+                            Padding="14,6"
+                            BackgroundColor="{StaticResource Primary}"
+                            Command="{Binding ToggleAddStopCommand}"
+                            CornerRadius="10"
+                            FontSize="12"
+                            Text="+ Add"
+                            TextColor="White">
+                            <Button.Triggers>
+                                <DataTrigger
+                                    Binding="{Binding IsAddStopVisible}"
+                                    TargetType="Button"
+                                    Value="True">
+                                    <Setter Property="Text" Value="Close" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
+                    </Grid>
+
+                    <VerticalStackLayout IsVisible="{Binding IsAddStopVisible}" Spacing="10">
+                        <Entry Placeholder="Stop name *" Text="{Binding NewStopName}" />
+                        <Entry
+                            Keyboard="Numeric"
+                            Placeholder="Order *"
+                            Text="{Binding NewStopOrder}" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                <Label FontSize="11" Text="Morning" />
+                                <TimePicker Format="hh:mm tt" Time="{Binding NewStopMorningTime, Converter={StaticResource NullableTimeSpan}}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                <Label FontSize="11" Text="Evening" />
+                                <TimePicker Format="hh:mm tt" Time="{Binding NewStopEveningTime, Converter={StaticResource NullableTimeSpan}}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                            <Entry
+                                Grid.Column="0"
+                                Keyboard="Numeric"
+                                Placeholder="Latitude"
+                                Text="{Binding NewStopLatitude}" />
+                            <Entry
+                                Grid.Column="1"
+                                Keyboard="Numeric"
+                                Placeholder="Longitude"
+                                Text="{Binding NewStopLongitude}" />
+                        </Grid>
+                        <Button
+                            BackgroundColor="{StaticResource Primary}"
+                            Command="{Binding AddStopCommand}"
+                            CornerRadius="10"
+                            FontAttributes="Bold"
+                            HeightRequest="46"
+                            Text="Add Stop"
+                            TextColor="White" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
             <!--  Stops  -->
             <Border
                 Padding="16"
@@ -186,7 +289,7 @@
                             <DataTemplate x:DataType="models:Route.StopItem">
                                 <Grid
                                     Padding="0,8"
-                                    ColumnDefinitions="32,*,Auto"
+                                    ColumnDefinitions="32,*,Auto,Auto"
                                     ColumnSpacing="10">
                                     <Border
                                         Grid.Column="0"
@@ -216,6 +319,22 @@
                                         TextColor="{AppThemeBinding Light={StaticResource TextMuted},
                                                                     Dark={StaticResource TextSecondaryDark}}"
                                         VerticalOptions="Center" />
+                                    <Border
+                                        Grid.Column="3"
+                                        Padding="6"
+                                        BackgroundColor="Transparent"
+                                        IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordRouteDetailViewModel}}, Path=CanEdit}"
+                                        StrokeShape="RoundRectangle 12"
+                                        StrokeThickness="0"
+                                        VerticalOptions="Center">
+                                        <Border.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordRouteDetailViewModel}}, Path=DeleteStopCommand}" CommandParameter="{Binding .}" />
+                                        </Border.GestureRecognizers>
+                                        <Label
+                                            FontSize="14"
+                                            Text="✕"
+                                            TextColor="{StaticResource Danger}" />
+                                    </Border>
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
