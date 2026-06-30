@@ -32,8 +32,8 @@ namespace BusTracking.Mobile.Services
         public Task<ApiResponse<object>> ToggleAsync(int id)
             => _api.PostAsync<object>(string.Format(Constants.Coordinator.SubAdminToggle, id));
 
-        public Task<ApiResponse<object>> ResetPasswordAsync(int id)
-            => _api.PostAsync<object>(string.Format(Constants.Coordinator.SubAdminReset, id));
+        public Task<ApiResponse<ResetPasswordResult>> ResetPasswordAsync(int id)
+            => _api.PostAsync<ResetPasswordResult>(string.Format(Constants.Coordinator.SubAdminReset, id));
 
         public async Task<List<PermissionItem>> GetAllPermissionsAsync()
         {

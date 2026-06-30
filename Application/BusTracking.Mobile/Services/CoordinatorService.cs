@@ -34,8 +34,8 @@
         public Task<ApiResponse<object>> ToggleAsync(int id)
             => _api.PostAsync<object>(string.Format(Constants.Admin.CoordinatorToggle, id));
 
-        public Task<ApiResponse<object>> ResetPasswordAsync(int id)
-            => _api.PostAsync<object>(string.Format(Constants.Admin.CoordinatorReset, id));
+        public Task<ApiResponse<ResetPasswordResult>> ResetPasswordAsync(int id)
+            => _api.PostAsync<ResetPasswordResult>(string.Format(Constants.Admin.CoordinatorReset, id));
 
         public async Task<List<PermissionItem>> GetAllPermissionsAsync()
         {

@@ -8,7 +8,7 @@ namespace BusTracking.Mobile.Interfaces
         Task<ApiResponse<object>> UpdateAsync(int id, UpdateCoordinatorRequest req);
         Task<ApiResponse<object>> DeleteAsync(int id);
         Task<ApiResponse<object>> ToggleAsync(int id);
-        Task<ApiResponse<object>> ResetPasswordAsync(int id);
+        Task<ApiResponse<ResetPasswordResult>> ResetPasswordAsync(int id);
         Task<List<PermissionItem>> GetAllPermissionsAsync();
         Task<List<int>> GetAssignedPermissionsAsync(int id);
     }

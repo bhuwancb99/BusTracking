@@ -167,9 +167,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             var r = await _service.ResetPasswordAsync(CoordId.Value);
             if (r.Success)
             {
-                var json = System.Text.Json.JsonSerializer.Serialize(r.Data);
-                var doc = System.Text.Json.JsonDocument.Parse(json);
-                NewPassword = doc.RootElement.TryGetProperty("plainPassword", out var pw) ? pw.GetString() ?? "" : "";
+                NewPassword = r.Data?.PlainPassword ?? "";
                 ShowNewPassword = !string.IsNullOrEmpty(NewPassword);
                 await ShowToastAsync("Password reset. Copy it now.");
             }
