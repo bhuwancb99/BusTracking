@@ -1,4 +1,5 @@
 ﻿global using BusTracking.API.Hubs;
+global using BusTracking.API.Middleware;
 global using BusTracking.API.Models;
 global using BusTracking.Common;
 global using BusTracking.Common.Data;

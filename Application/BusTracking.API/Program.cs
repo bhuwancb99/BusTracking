@@ -64,7 +64,7 @@ builder.Services.AddCors(o => o.AddPolicy("AllowAll", p =>
      .AllowAnyHeader()
      .AllowCredentials()));
 
-//builder.WebHost.UseUrls("https://0.0.0.0:7001", "http://0.0.0.0:5001");
+builder.WebHost.UseUrls("https://0.0.0.0:7001", "http://0.0.0.0:5001");
 
 builder.Services.AddOpenApi();
 
@@ -85,6 +85,7 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = "/media"
 });
 
+app.UseExceptionMiddleware();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

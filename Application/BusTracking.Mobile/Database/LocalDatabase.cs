@@ -35,6 +35,7 @@ public class LocalDatabase
         {
             UserId = user.UserId,
             FullName = user.FullName,
+            UserName = user.UserName,
             Email = user.Email,
             Role = user.Role,
             Token = Encrypt(user.Token),
