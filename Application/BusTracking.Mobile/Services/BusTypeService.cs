@@ -15,6 +15,12 @@ namespace BusTracking.Mobile.Services
             return r.Data ?? new PagedResult<BusTypeItem>();
         }
 
+        public async Task<List<BusTypeItem>> GetDropdownAsync()
+        {
+            var r = await _api.GetAsync<List<BusTypeItem>>(Constants.BusType.Dropdown);
+            return r.Data ?? [];
+        }
+
         public Task<ApiResponse<object>> CreateAsync(string name) =>
             _api.PostAsync<object>(Constants.BusType.All, new { Name = name });
 

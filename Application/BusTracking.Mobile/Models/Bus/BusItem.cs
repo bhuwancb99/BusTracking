@@ -7,6 +7,8 @@
         public string BusNumber { get; set; } = "";
         public string? RouteName { get; set; }
         public int? RouteId { get; set; }
+        public int BusTypeId { get; set; }
+        public string? BusTypeName { get; set; }
         public int? DriverUserId { get; set; }
         public string? DriverName { get; set; }
         public string? DriverPhone { get; set; }

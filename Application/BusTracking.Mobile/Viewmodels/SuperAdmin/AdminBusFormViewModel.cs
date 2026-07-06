@@ -5,6 +5,7 @@
         private readonly IBusService _buses;
         private readonly IRouteService _routes;
         private readonly IDriverService _drivers;
+        private readonly IBusTypeService _busTypes;
 
         [ObservableProperty] private int? _busId;
         [ObservableProperty] private bool _isEditMode;
@@ -15,14 +16,17 @@
         [ObservableProperty] private int? _capacity;
         [ObservableProperty] private bool _isActive = true;
 
+        [ObservableProperty] private List<BusTypeItem> _busTypeOptions = [];
         [ObservableProperty] private List<RouteItem> _routeOptions = [];
-        [ObservableProperty] private List<DriverItem> _driverOptions = [];  // only active drivers
+        [ObservableProperty] private List<DriverItem> _driverOptions = [];
+        [ObservableProperty] private BusTypeItem? _selectedBusType;
         [ObservableProperty] private RouteItem? _selectedRoute;
         [ObservableProperty] private DriverItem? _selectedDriver;
 
         public AdminBusFormViewModel(IAuthService auth, INavigationService nav,
-            IBusService buses, IRouteService routes, IDriverService drivers)
-            : base(auth, nav) { _buses = buses; _routes = routes; _drivers = drivers; }
+            IBusService buses, IRouteService routes, IDriverService drivers, IBusTypeService busTypes)
+            : base(auth, nav)
+        { _buses = buses; _routes = routes; _drivers = drivers; _busTypes = busTypes; }
 
         public void ApplyQueryAttributes(IDictionary<string, object> query)
         {
@@ -35,9 +39,8 @@
         {
             await RunAsync(async () =>
             {
+                BusTypeOptions = await _busTypes.GetDropdownAsync();
                 RouteOptions = await _routes.GetDropdownAsync();
-
-                // Only ACTIVE drivers should be assignable to a bus
                 DriverOptions = await _drivers.GetAllForFormAsync();
 
                 if (IsEditMode && BusId.HasValue)
@@ -46,10 +49,9 @@
                     if (bus is null) return;
                     BusName = bus.BusName;
                     BusNumber = bus.BusNumber;
-                    RouteId = bus.RouteId;
                     Capacity = bus.Capacity;
-                    DriverUserId = bus.DriverUserId;
                     IsActive = bus.IsActive;
+                    SelectedBusType = BusTypeOptions.FirstOrDefault(t => t.Id == bus.BusTypeId);
                     SelectedRoute = RouteOptions.FirstOrDefault(r => r.RouteId == bus.RouteId);
                     SelectedDriver = DriverOptions.FirstOrDefault(d => d.UserId == bus.DriverUserId);
                 }
@@ -62,12 +64,16 @@
             if (string.IsNullOrWhiteSpace(BusName) || string.IsNullOrWhiteSpace(BusNumber))
             { SetError("Bus name and number are required."); return; }
 
+            if (SelectedBusType is null)
+            { SetError("Please select a bus type."); return; }
+
             await RunAsync(async () =>
             {
                 var req = new UpdateBusRequest
                 {
                     BusName = BusName,
                     BusNumber = BusNumber,
+                    BusTypeId = SelectedBusType.Id,
                     RouteId = SelectedRoute?.RouteId,
                     Capacity = Capacity,
                     DriverUserId = SelectedDriver?.UserId,
@@ -80,6 +86,7 @@
                     {
                         BusName = BusName,
                         BusNumber = BusNumber,
+                        BusTypeId = SelectedBusType.Id,
                         RouteId = req.RouteId,
                         Capacity = Capacity,
                         DriverUserId = req.DriverUserId,

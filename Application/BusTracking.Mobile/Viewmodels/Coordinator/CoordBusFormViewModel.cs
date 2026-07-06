@@ -4,6 +4,8 @@
     {
         private readonly IBusService _buses;
         private readonly IRouteService _routes;
+        private readonly IDriverService _drivers;
+        private readonly IBusTypeService _busTypes;
 
         [ObservableProperty] private int? _busId;
         [ObservableProperty] private bool _isEditMode;
@@ -11,12 +13,18 @@
         [ObservableProperty] private string _busNumber = "";
         [ObservableProperty] private int? _capacity;
         [ObservableProperty] private bool _isActive = true;
+
+        [ObservableProperty] private List<BusTypeItem> _busTypeOptions = [];
         [ObservableProperty] private List<RouteItem> _routeOptions = [];
+        [ObservableProperty] private List<DriverItem> _driverOptions = [];
+        [ObservableProperty] private BusTypeItem? _selectedBusType;
         [ObservableProperty] private RouteItem? _selectedRoute;
+        [ObservableProperty] private DriverItem? _selectedDriver;
 
         public CoordBusFormViewModel(IAuthService auth, INavigationService nav,
-            IBusService buses, IRouteService routes)
-            : base(auth, nav) { _buses = buses; _routes = routes; }
+            IBusService buses, IRouteService routes, IDriverService drivers, IBusTypeService busTypes)
+            : base(auth, nav)
+        { _buses = buses; _routes = routes; _drivers = drivers; _busTypes = busTypes; }
 
         public void ApplyQueryAttributes(IDictionary<string, object> query)
         {
@@ -28,14 +36,19 @@
         {
             await RunAsync(async () =>
             {
+                BusTypeOptions = await _busTypes.GetDropdownAsync();
                 RouteOptions = await _routes.GetDropdownAsync();
+                DriverOptions = await _drivers.GetAllForFormAsync();
+
                 if (IsEditMode && BusId.HasValue)
                 {
                     var bus = await _buses.GetByIdAsync(BusId.Value);
                     if (bus is null) return;
                     BusName = bus.BusName; BusNumber = bus.BusNumber;
                     Capacity = bus.Capacity; IsActive = bus.IsActive;
+                    SelectedBusType = BusTypeOptions.FirstOrDefault(t => t.Id == bus.BusTypeId);
                     SelectedRoute = RouteOptions.FirstOrDefault(r => r.RouteId == bus.RouteId);
+                    SelectedDriver = DriverOptions.FirstOrDefault(d => d.UserId == bus.DriverUserId);
                 }
             });
         }
@@ -46,13 +59,32 @@
             if (string.IsNullOrWhiteSpace(BusName) || string.IsNullOrWhiteSpace(BusNumber))
             { SetError("Bus name and number are required."); return; }
 
+            if (SelectedBusType is null)
+            { SetError("Please select a bus type."); return; }
+
             await RunAsync(async () =>
             {
                 ApiResponse<object> r = IsEditMode
                     ? await _buses.UpdateAsync(BusId!.Value, new UpdateBusRequest
-                    { BusName = BusName, BusNumber = BusNumber, RouteId = SelectedRoute?.RouteId, Capacity = Capacity, IsActive = IsActive })
+                    {
+                        BusName = BusName,
+                        BusNumber = BusNumber,
+                        BusTypeId = SelectedBusType.Id,
+                        RouteId = SelectedRoute?.RouteId,
+                        Capacity = Capacity,
+                        DriverUserId = SelectedDriver?.UserId,
+                        IsActive = IsActive
+                    })
                     : await _buses.CreateAsync(new CreateBusRequest
-                    { BusName = BusName, BusNumber = BusNumber, RouteId = SelectedRoute?.RouteId, Capacity = Capacity, IsActive = IsActive });
+                    {
+                        BusName = BusName,
+                        BusNumber = BusNumber,
+                        BusTypeId = SelectedBusType.Id,
+                        RouteId = SelectedRoute?.RouteId,
+                        Capacity = Capacity,
+                        DriverUserId = SelectedDriver?.UserId,
+                        IsActive = IsActive
+                    });
 
                 if (r.Success) { await ShowToastAsync(IsEditMode ? "Bus updated." : "Bus created."); await Nav.GoBackAsync(); }
                 else SetError(r.Message);
