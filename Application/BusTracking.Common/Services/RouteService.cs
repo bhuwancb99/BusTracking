@@ -75,7 +75,7 @@ namespace BusTracking.Common.Services
         public async Task<ApiResponse<bool>> AddStopAsync(CreateStopDto dto)
         { _db.Stops.Add(new Stop { RouteId = dto.RouteId, StopName = dto.StopName, StopOrder = dto.StopOrder, Latitude = dto.Latitude, Longitude = dto.Longitude, MorningTime = dto.MorningTime is not null ? TimeOnly.Parse(dto.MorningTime) : null, EveningTime = dto.EveningTime is not null ? TimeOnly.Parse(dto.EveningTime) : null }); await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Stop added."); }
         public async Task<ApiResponse<bool>> DeleteStopAsync(int stopId)
-        { var s = await _db.Stops.FindAsync(stopId); if (s is null) return ApiResponse<bool>.Fail("Not found."); s.IsActive = false; await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Removed."); }
+        { var s = await _db.Stops.FindAsync(stopId); if (s is null) return ApiResponse<bool>.Fail("Not found."); _db.Stops.Remove(s); await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Removed."); }
         public async Task<ApiResponse<List<StopDto>>> GetStopsByRouteAsync(int routeId)
         {
             var stops = await _db.Stops.Where(s => s.RouteId == routeId && s.IsActive)
