@@ -5,6 +5,7 @@
         Task<PagedResult<ParentItem>> GetAllAsync(string? search = null, int page = 1, string? status = "Active");
         Task<List<ParentItem>> GetAllForFormAsync(string? search = null);
         Task<ParentItem?> GetByIdAsync(int id);
+        Task<List<StudentSearchItem>> SearchStudentsAsync(string query);
         Task<ApiResponse<object>> CreateAsync(CreateParentRequest req);
         Task<ApiResponse<object>> UpdateAsync(int id, UpdateParentRequest req);
         Task<ApiResponse<object>> DeleteAsync(int id);

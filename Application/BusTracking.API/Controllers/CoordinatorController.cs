@@ -300,6 +300,13 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
+        [HttpGet("students/search")]
+        public async Task<IActionResult> SearchStudents([FromQuery] string? query)
+        {
+            var r = await _student.SearchAsync(query);
+            return Ok(r);
+        }
+
         [HttpGet("students/{id:int}")]
         public async Task<IActionResult> StudentById(int id)
         {

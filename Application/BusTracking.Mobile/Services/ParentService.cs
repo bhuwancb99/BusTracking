@@ -53,6 +53,15 @@ namespace BusTracking.Mobile.Services
             return r.Data;
         }
 
+        public async Task<List<StudentSearchItem>> SearchStudentsAsync(string query)
+        {
+            var url = IsCoordinator
+                ? $"{Constants.Coordinator.StudentSearch}?query={Uri.EscapeDataString(query)}"
+                : $"{Constants.Admin.StudentSearch}?query={Uri.EscapeDataString(query)}";
+            var r = await _api.GetAsync<List<StudentSearchItem>>(url);
+            return r.Data ?? [];
+        }
+
         public Task<ApiResponse<object>> CreateAsync(CreateParentRequest req)
             => _api.PostAsync<object>(BaseUrl, req);
 

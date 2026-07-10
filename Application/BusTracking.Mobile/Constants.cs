@@ -132,6 +132,7 @@ public static class Constants
 
         public const string Students = "/api/coordinator/students";
         public const string StudentById = "/api/coordinator/students/{0}";
+        public const string StudentSearch = "/api/coordinator/students/search";
 
         public const string SubAdmins = "/api/coordinator/subadmins";
         public const string SubAdminById = "/api/coordinator/subadmins/{0}";
