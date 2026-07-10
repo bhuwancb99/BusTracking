@@ -70,6 +70,7 @@ namespace BusTracking.Common.Services
             {
                 UserId = p.UserId,
                 FullName = p.User.FullName,
+                UserName = p.User.UserName,
                 Email = p.User.Email,
                 PhoneNumber = p.User.PhoneNumber,
                 IsActive = p.User.IsActive,

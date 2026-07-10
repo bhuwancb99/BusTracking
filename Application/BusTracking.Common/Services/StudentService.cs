@@ -63,6 +63,7 @@ namespace BusTracking.Common.Services
                 UserId = s.UserId,
                 StudentCode = s.StudentCode,
                 FullName = s.User.FullName,
+                UserName = s.User.UserName,
                 Email = s.User.Email,
                 PhoneNumber = s.User.PhoneNumber,
                 Standard = s.Standard,
