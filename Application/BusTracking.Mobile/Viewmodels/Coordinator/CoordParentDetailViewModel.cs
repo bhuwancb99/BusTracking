@@ -31,8 +31,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         private Task EditAsync()
         {
             if (!CanEdit) return Task.CompletedTask;
-            // Coordinator has no parent-edit page; uses Admin endpoint via ParentService
-            return ShowAlertAsync("Edit Parent", "Parent editing is managed by the Super Admin.");
+            return Nav.GoToAsync("CoordParentForm", new Dictionary<string, object> { ["UserId"] = UserId });
         }
 
         [RelayCommand]

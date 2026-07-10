@@ -74,6 +74,7 @@ namespace BusTracking.Mobile
             Routing.RegisterRoute("CoordBusDetail", typeof(CoordBusDetailPage));
             Routing.RegisterRoute("CoordDriverDetail", typeof(CoordDriverDetailPage));
             Routing.RegisterRoute("CoordParentDetail", typeof(CoordParentDetailPage));
+            Routing.RegisterRoute("CoordParentForm", typeof(CoordParentFormPage));
             Routing.RegisterRoute("CoordStudentDetail", typeof(CoordStudentDetailPage));
             Routing.RegisterRoute("CoordRouteDetail", typeof(CoordRouteDetailPage));
             Routing.RegisterRoute("CoordTripDetail", typeof(CoordTripDetailPage));
@@ -164,6 +165,7 @@ namespace BusTracking.Mobile
             s.AddTransient<CoordDriverDetailViewModel>();
             s.AddTransient<CoordParentListViewModel>();
             s.AddTransient<CoordParentDetailViewModel>();
+            s.AddTransient<CoordParentFormViewModel>();
             s.AddTransient<CoordStudentListViewModel>();
             s.AddTransient<CoordStudentFormViewModel>();
             s.AddTransient<CoordStudentDetailViewModel>();
@@ -253,6 +255,7 @@ namespace BusTracking.Mobile
             s.AddTransient<CoordDriverDetailPage>();
             s.AddTransient<CoordParentListPage>();
             s.AddTransient<CoordParentDetailPage>();
+            s.AddTransient<CoordParentFormPage>();
             s.AddTransient<CoordStudentListPage>();
             s.AddTransient<CoordStudentFormPage>();
             s.AddTransient<CoordStudentDetailPage>();

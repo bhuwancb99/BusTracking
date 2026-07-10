@@ -129,6 +129,8 @@ public static class Constants
 
         public const string Drivers = "/api/coordinator/drivers";
         public const string Parents = "/api/coordinator/parents";
+        public const string ParentById = "/api/coordinator/parents/{0}";
+        public const string ParentToggle = "/api/coordinator/parents/{0}/toggle";
 
         public const string Students = "/api/coordinator/students";
         public const string StudentById = "/api/coordinator/students/{0}";

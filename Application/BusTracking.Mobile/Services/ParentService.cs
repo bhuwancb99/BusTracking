@@ -43,13 +43,10 @@ namespace BusTracking.Mobile.Services
 
         public async Task<ParentItem?> GetByIdAsync(int id)
         {
-            // Coordinator has no /{id} endpoint — fetch from list and find by id
-            if (IsCoordinator)
-            {
-                var list = await GetAllForFormAsync();
-                return list.FirstOrDefault(p => p.UserId == id);
-            }
-            var r = await _api.GetAsync<ParentItem>(string.Format(Constants.Admin.ParentById, id));
+            var url = IsCoordinator
+                ? string.Format(Constants.Coordinator.ParentById, id)
+                : string.Format(Constants.Admin.ParentById, id);
+            var r = await _api.GetAsync<ParentItem>(url);
             return r.Data;
         }
 
@@ -66,13 +63,28 @@ namespace BusTracking.Mobile.Services
             => _api.PostAsync<object>(BaseUrl, req);
 
         public Task<ApiResponse<object>> UpdateAsync(int id, UpdateParentRequest req)
-            => _api.PutAsync<object>(string.Format(Constants.Admin.ParentById, id), req);
+        {
+            var url = IsCoordinator
+                ? string.Format(Constants.Coordinator.ParentById, id)
+                : string.Format(Constants.Admin.ParentById, id);
+            return _api.PutAsync<object>(url, req);
+        }
 
         public Task<ApiResponse<object>> DeleteAsync(int id)
-            => _api.DeleteAsync<object>(string.Format(Constants.Admin.ParentById, id));
+        {
+            var url = IsCoordinator
+                ? string.Format(Constants.Coordinator.ParentById, id)
+                : string.Format(Constants.Admin.ParentById, id);
+            return _api.DeleteAsync<object>(url);
+        }
 
         public Task<ApiResponse<object>> ToggleAsync(int id)
-            => _api.PostAsync<object>(string.Format(Constants.Admin.ParentToggle, id));
+        {
+            var url = IsCoordinator
+                ? string.Format(Constants.Coordinator.ParentToggle, id)
+                : string.Format(Constants.Admin.ParentToggle, id);
+            return _api.PostAsync<object>(url);
+        }
 
         public Task<ApiResponse<ResetPasswordResult>> ResetPasswordAsync(int id)
             => _api.PostAsync<ResetPasswordResult>(string.Format(Constants.Admin.ParentReset, id));

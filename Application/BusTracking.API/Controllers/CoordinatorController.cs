@@ -289,6 +289,45 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
+        [HttpGet("parents/{id}")]
+        public async Task<IActionResult> GetParent(int id)
+        {
+            var r = await _parent.GetByIdAsync(id);
+            return r.Success ? Ok(r) : NotFound(r);
+        }
+
+        [HttpPost("parents")]
+        public async Task<IActionResult> CreateParent([FromBody] CreateParentDto dto)
+        {
+            RequirePermission("parent.add");
+            var r = await _parent.CreateAsync(dto, CurrentUserId);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        [HttpPut("parents/{id}")]
+        public async Task<IActionResult> UpdateParent(int id, [FromBody] UpdateParentDto dto)
+        {
+            RequirePermission("parent.edit");
+            var r = await _parent.UpdateAsync(id, dto);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        [HttpDelete("parents/{id}")]
+        public async Task<IActionResult> DeleteParent(int id)
+        {
+            RequirePermission("parent.delete");
+            var r = await _parent.DeleteAsync(id);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        [HttpPost("parents/{id}/toggle")]
+        public async Task<IActionResult> ToggleParent(int id)
+        {
+            RequirePermission("parent.edit");
+            var r = await _parent.ToggleActiveAsync(id);
+            return Ok(r);
+        }
+
         // ════════════════════════════════════════════════════════════
         // STUDENTS
         // ════════════════════════════════════════════════════════════
