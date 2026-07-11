@@ -51,6 +51,7 @@ public static class Constants
         public const string RouteById = "/api/admin/routes/{0}";
         public const string RouteStops = "/api/admin/routes/{0}/stops";
         public const string RouteStopDelete = "/api/admin/routes/stops/{0}";
+        public const string RouteReorderStops = "/api/admin/routes/{0}/stops/reorder";
 
         // Drivers
         public const string Drivers = "/api/admin/drivers";
@@ -126,6 +127,7 @@ public static class Constants
         public const string RouteById = "/api/coordinator/routes/{0}";
         public const string RouteStops = "/api/coordinator/routes/{0}/stops";
         public const string RouteStopDelete = "/api/coordinator/routes/stops/{0}";
+        public const string RouteReorderStops = "/api/coordinator/routes/{0}/stops/reorder";
 
         public const string Drivers = "/api/coordinator/drivers";
         public const string Parents = "/api/coordinator/parents";

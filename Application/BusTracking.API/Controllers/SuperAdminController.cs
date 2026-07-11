@@ -376,6 +376,14 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
+        [HttpPut("routes/{id}/stops/reorder")]
+        public async Task<IActionResult> ReorderStops(int id, [FromBody] ReorderStopsDto dto)
+        {
+            dto.RouteId = id;
+            var r = await _route.ReorderStopsAsync(dto);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
         // ════════════════════════════════════════════════════════════
         // DRIVERS
         // ════════════════════════════════════════════════════════════

@@ -6,11 +6,11 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [ObservableProperty] private int _routeId;
         [ObservableProperty] private RouteItem? _route;
         [ObservableProperty] private ObservableCollection<StopItem> _stops = [];
+        [ObservableProperty] private bool _hasStops;
 
         // Add Stop form fields
         [ObservableProperty] private bool _isAddStopVisible;
         [ObservableProperty] private string _newStopName = "";
-        [ObservableProperty] private string _newStopOrder = "";
         [ObservableProperty] private TimeSpan? _newStopMorningTime;
         [ObservableProperty] private TimeSpan? _newStopEveningTime;
         [ObservableProperty] private string _newStopLatitude = "";
@@ -18,6 +18,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         public bool CanEdit   => Can("route.edit");
         public bool CanDelete => Can("route.delete");
+        public bool ShowUpdateOrder => CanEdit && HasStops;
 
         public CoordRouteDetailViewModel(IAuthService auth, INavigationService nav, IRouteService routes)
             : base(auth, nav) { _routes = routes; Title = "Route Details"; }
@@ -35,9 +36,13 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             await RunAsync(async () =>
             {
                 Route = await _routes.GetByIdAsync(RouteId);
-                Stops = new ObservableCollection<StopItem>(await _routes.GetStopsAsync(RouteId));
+                var stops = await _routes.GetStopsAsync(RouteId);
+                foreach (var s in stops) { s.OriginalOrder = s.StopOrder; s.OrderText = s.StopOrder.ToString(); }
+                Stops = new ObservableCollection<StopItem>(stops);
+                HasStops = stops.Count > 0;
                 OnPropertyChanged(nameof(CanEdit));
                 OnPropertyChanged(nameof(CanDelete));
+                OnPropertyChanged(nameof(ShowUpdateOrder));
             });
         }
 
@@ -69,11 +74,8 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         private async Task AddStopAsync()
         {
             if (!CanEdit) return;
-            if (string.IsNullOrWhiteSpace(NewStopName) || string.IsNullOrWhiteSpace(NewStopOrder))
-            { SetError("Stop name and order are required."); return; }
-
-            if (!int.TryParse(NewStopOrder, out var order))
-            { SetError("Stop order must be a number."); return; }
+            if (string.IsNullOrWhiteSpace(NewStopName))
+            { SetError("Stop name is required."); return; }
 
             decimal? lat = decimal.TryParse(NewStopLatitude, out var la) ? la : null;
             decimal? lng = decimal.TryParse(NewStopLongitude, out var lo) ? lo : null;
@@ -84,7 +86,6 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                 {
                     RouteId = RouteId,
                     StopName = NewStopName,
-                    StopOrder = order,
                     MorningTime = NewStopMorningTime.HasValue ? NewStopMorningTime.Value.ToString(@"hh\:mm") : null,
                     EveningTime = NewStopEveningTime.HasValue ? NewStopEveningTime.Value.ToString(@"hh\:mm") : null,
                     Latitude = lat,
@@ -103,6 +104,67 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         }
 
         [RelayCommand]
+        private async Task UpdateOrderAsync()
+        {
+            if (!CanEdit) return;
+
+            var parsed = new List<(StopItem Stop, int NewOrder)>();
+            foreach (var s in Stops)
+            {
+                if (!int.TryParse(s.OrderText, out var newOrder))
+                {
+                    SetError($"'{s.StopName}' has an invalid order number. Please enter a whole number.");
+                    return;
+                }
+                parsed.Add((s, newOrder));
+            }
+
+            var changed = parsed.Where(p => p.NewOrder != p.Stop.OriginalOrder).ToList();
+            if (changed.Count == 0)
+            {
+                SetError("You have not changed anything in the order. Please update the order first, then click Update.");
+                return;
+            }
+
+            var orders = parsed.Select(p => p.NewOrder).ToList();
+            if (orders.Distinct().Count() != orders.Count)
+            {
+                SetError("Order numbers must be unique. Please fix duplicate order numbers before updating.");
+                return;
+            }
+
+            var req = new ReorderStopsRequest
+            {
+                RouteId = RouteId,
+                Stops = parsed.Select(p => new StopOrderItemRequest { StopId = p.Stop.StopId, StopOrder = p.NewOrder }).ToList()
+            };
+
+            bool success = false;
+            string? failMessage = null;
+
+            await RunAsync(async () =>
+            {
+                var r = await _routes.ReorderStopsAsync(req);
+                success = r.Success;
+                failMessage = r.Message;
+            });
+
+            // LoadAsync manages its own busy state, so it must run after the RunAsync
+            // above has fully finished (and reset IsBusy) — calling it while still
+            // inside RunAsync would hit RunAsync's own re-entrancy guard and silently
+            // no-op, leaving the list showing the stale, pre-update order.
+            if (success)
+            {
+                await ShowToastAsync("Stop order updated.");
+                await LoadAsync();
+            }
+            else if (failMessage is not null)
+            {
+                SetError(failMessage);
+            }
+        }
+
+        [RelayCommand]
         private async Task DeleteStopAsync(StopItem stop)
         {
             if (!CanEdit) return;
@@ -114,7 +176,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         private void ResetAddStopForm()
         {
-            NewStopName = ""; NewStopOrder = "";
+            NewStopName = "";
             NewStopMorningTime = null; NewStopEveningTime = null;
             NewStopLatitude = ""; NewStopLongitude = "";
         }

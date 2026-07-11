@@ -211,10 +211,6 @@
 
                     <VerticalStackLayout IsVisible="{Binding IsAddStopVisible}" Spacing="10">
                         <Entry Placeholder="Stop name *" Text="{Binding NewStopName}" />
-                        <Entry
-                            Keyboard="Numeric"
-                            Placeholder="Order *"
-                            Text="{Binding NewStopOrder}" />
                         <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
                             <VerticalStackLayout Grid.Column="0" Spacing="4">
                                 <Label FontSize="11" Text="Morning" />
@@ -258,23 +254,35 @@
                                          Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 16">
                 <VerticalStackLayout Spacing="10">
-                    <Label>
-                        <Label.FormattedText>
-                            <FormattedString>
-                                <Span
-                                    FontAttributes="Bold"
-                                    FontSize="14"
-                                    Text="Stops  "
-                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                                Dark={StaticResource TextPrimaryDark}}" />
-                                <Span
-                                    FontSize="13"
-                                    Text="{Binding Route.StopCount, StringFormat='({0})'}"
-                                    TextColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                                Dark={StaticResource TextSecondaryDark}}" />
-                            </FormattedString>
-                        </Label.FormattedText>
-                    </Label>
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Grid.Column="0" VerticalOptions="Center">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span
+                                        FontAttributes="Bold"
+                                        FontSize="14"
+                                        Text="Stops  "
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                    Dark={StaticResource TextPrimaryDark}}" />
+                                    <Span
+                                        FontSize="13"
+                                        Text="{Binding Route.StopCount, StringFormat='({0})'}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                    Dark={StaticResource TextSecondaryDark}}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Button
+                            Grid.Column="1"
+                            Padding="12,6"
+                            BackgroundColor="{StaticResource Success}"
+                            Command="{Binding UpdateOrderCommand}"
+                            CornerRadius="10"
+                            FontSize="12"
+                            IsVisible="{Binding ShowUpdateOrder}"
+                            Text="Update Order"
+                            TextColor="White" />
+                    </Grid>
                     <BoxView BackgroundColor="{AppThemeBinding Light={StaticResource StatusInactiveBg}, Dark={StaticResource StatusInactiveBgDark}}" HeightRequest="1" />
                     <CollectionView ItemsSource="{Binding Stops}" SelectionMode="None">
                         <CollectionView.EmptyView>
@@ -289,22 +297,16 @@
                             <DataTemplate x:DataType="models:Route.StopItem">
                                 <Grid
                                     Padding="0,8"
-                                    ColumnDefinitions="32,*,Auto,Auto"
+                                    ColumnDefinitions="48,*,Auto,Auto"
                                     ColumnSpacing="10">
-                                    <Border
+                                    <Entry
                                         Grid.Column="0"
-                                        BackgroundColor="{StaticResource Primary}"
-                                        HeightRequest="28"
-                                        StrokeShape="RoundRectangle 14"
-                                        WidthRequest="28">
-                                        <Label
-                                            FontAttributes="Bold"
-                                            FontSize="12"
-                                            HorizontalOptions="Center"
-                                            Text="{Binding StopOrder}"
-                                            TextColor="White"
-                                            VerticalOptions="Center" />
-                                    </Border>
+                                        FontAttributes="Bold"
+                                        FontSize="13"
+                                        HorizontalTextAlignment="Center"
+                                        Keyboard="Numeric"
+                                        Text="{Binding OrderText}"
+                                        WidthRequest="48" />
                                     <Label
                                         Grid.Column="1"
                                         FontSize="14"

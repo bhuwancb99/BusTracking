@@ -4,7 +4,6 @@ namespace BusTracking.Mobile.Models.Route
     {
         public int RouteId { get; set; }
         public string StopName { get; set; } = "";
-        public int StopOrder { get; set; }
         public decimal? Latitude { get; set; }
         public decimal? Longitude { get; set; }
         public string? MorningTime { get; set; }

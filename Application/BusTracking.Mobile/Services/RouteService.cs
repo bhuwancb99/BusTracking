@@ -109,5 +109,15 @@
             if (result.Success) { _cache.Remove(ListCacheKey); _cache.Remove($"route_stops_{routeId}"); }
             return result;
         }
+
+        public async Task<ApiResponse<object>> ReorderStopsAsync(ReorderStopsRequest req)
+        {
+            var url = IsSuperAdmin
+                ? string.Format(Constants.Admin.RouteReorderStops, req.RouteId)
+                : string.Format(Constants.Coordinator.RouteReorderStops, req.RouteId);
+            var result = await _api.PutAsync<object>(url, req);
+            if (result.Success) { _cache.Remove(ListCacheKey); _cache.Remove($"route_stops_{req.RouteId}"); }
+            return result;
+        }
     }
 }

@@ -11,5 +11,6 @@
         Task<ApiResponse<object>> DeleteAsync(int id);
         Task<ApiResponse<object>> AddStopAsync(CreateStopRequest req);
         Task<ApiResponse<object>> DeleteStopAsync(int stopId, int routeId);
+        Task<ApiResponse<object>> ReorderStopsAsync(ReorderStopsRequest req);
     }
 }
