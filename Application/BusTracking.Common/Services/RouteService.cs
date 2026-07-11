@@ -90,12 +90,31 @@ namespace BusTracking.Common.Services
             var stops = await _db.Stops.Where(s => s.RouteId == dto.RouteId && s.IsActive && stopIds.Contains(s.StopId)).ToListAsync();
             if (stops.Count != dto.Stops.Count) return ApiResponse<bool>.Fail("Not found.");
 
-            foreach (var item in dto.Stops)
+            // The retrying execution strategy (EnableRetryOnFailure) must own the whole
+            // transaction so it can retry the entire unit as one block if a transient error occurs.
+            var strategy = _db.Database.CreateExecutionStrategy();
+            await strategy.ExecuteAsync(async () =>
             {
-                var stop = stops.First(s => s.StopId == item.StopId);
-                stop.StopOrder = item.StopOrder;
-            }
-            await _db.SaveChangesAsync();
+                await using var tx = await _db.Database.BeginTransactionAsync();
+
+                // Phase 1: move every affected stop to a temporary negative order so the
+                // (RouteId, StopOrder) unique index never sees a collision mid-update
+                // (a straight swap like 1<->2 would otherwise be a circular dependency EF can't order safely).
+                foreach (var stop in stops)
+                    stop.StopOrder = -stop.StopId;
+                await _db.SaveChangesAsync();
+
+                // Phase 2: apply the real, final order values.
+                foreach (var item in dto.Stops)
+                {
+                    var stop = stops.First(s => s.StopId == item.StopId);
+                    stop.StopOrder = item.StopOrder;
+                }
+                await _db.SaveChangesAsync();
+
+                await tx.CommitAsync();
+            });
+
             return ApiResponse<bool>.Ok(true, "Stop order updated.");
         }
         public async Task<ApiResponse<List<StopDto>>> GetStopsByRouteAsync(int routeId)
