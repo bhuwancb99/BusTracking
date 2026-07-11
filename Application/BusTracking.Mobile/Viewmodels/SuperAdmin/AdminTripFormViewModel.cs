@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualBasic;
-
-namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminTripFormViewModel : BaseViewModel
     {

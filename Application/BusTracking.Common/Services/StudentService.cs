@@ -78,15 +78,20 @@ namespace BusTracking.Common.Services
         }
         public async Task<ApiResponse<CreatedUserResultDto>> CreateAsync(CreateStudentDto dto, int createdBy)
         {
-            if (await _db.Users.AnyAsync(u => u.Email == dto.Email)) return ApiResponse<CreatedUserResultDto>.Fail("Email in use.");
+            if (await _db.Users.AnyAsync(u => u.UserName == dto.UserName))
+                return ApiResponse<CreatedUserResultDto>.Fail("Username already in use.");
+            if (!string.IsNullOrWhiteSpace(dto.Email) && await _db.Users.AnyAsync(u => u.Email == dto.Email))
+                return ApiResponse<CreatedUserResultDto>.Fail("Email in use.");
             if (await _db.Students.AnyAsync(s => s.StudentCode == dto.StudentCode)) return ApiResponse<CreatedUserResultDto>.Fail("Student code exists.");
             var roleId = await _db.Roles.Where(r => r.RoleName == "Student").Select(r => r.RoleId).FirstAsync();
-            var password = _pwd.GenerateRandomPassword(); var (hash, salt) = _pwd.HashPassword(password);
+            var password = !string.IsNullOrWhiteSpace(dto.Password) ? dto.Password : _pwd.GenerateRandomPassword();
+            var (hash, salt) = _pwd.HashPassword(password);
             var user = new User
             {
                 RoleId = roleId,
                 FullName = dto.FullName,
-                Email = dto.Email,
+                UserName = dto.UserName,
+                Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email,
                 PasswordHash = hash,
                 PasswordSalt = salt,
                 CreatedBy = createdBy
@@ -106,6 +111,7 @@ namespace BusTracking.Common.Services
             {
                 UserId = user.UserId,
                 FullName = dto.FullName,
+                UserName = dto.UserName,
                 Email = dto.Email,
                 PlainPassword = password,
                 Role = "Student"
@@ -115,10 +121,22 @@ namespace BusTracking.Common.Services
         {
             var s = await _db.Students.Include(x => x.User).FirstOrDefaultAsync(x => x.StudentId == studentId);
             if (s is null) return ApiResponse<bool>.Fail("Not found.");
+            if (await _db.Users.AnyAsync(u => u.UserName == dto.UserName && u.UserId != s.UserId))
+                return ApiResponse<bool>.Fail("Username already in use.");
+            if (!string.IsNullOrWhiteSpace(dto.Email) && await _db.Users.AnyAsync(u => u.Email == dto.Email && u.UserId != s.UserId))
+                return ApiResponse<bool>.Fail("Email already in use.");
             s.User.FullName = dto.FullName;
+            s.User.UserName = dto.UserName;
+            s.User.Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email;
             s.User.PhoneNumber = dto.PhoneNumber;
             s.User.IsActive = dto.IsActive;
             s.User.UpdatedAt = DateTime.UtcNow;
+            if (!string.IsNullOrWhiteSpace(dto.NewPassword))
+            {
+                var (hash, salt) = _pwd.HashPassword(dto.NewPassword);
+                s.User.PasswordHash = hash;
+                s.User.PasswordSalt = salt;
+            }
             s.StudentCode = dto.StudentCode;
             s.Standard = dto.Standard;
             s.BusId = dto.BusId;

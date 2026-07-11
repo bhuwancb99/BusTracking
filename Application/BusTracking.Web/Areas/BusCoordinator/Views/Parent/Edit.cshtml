@@ -30,6 +30,11 @@
                             <div id="usernameMsg" class="small mt-1"></div>
                         </div>
                         <div class="col-md-6">
+                            <label asp-for="Email" class="form-label fw-semibold">Email <span class="text-muted fw-normal">(Optional)</span></label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="parent@email.com" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
                             <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number</label>
                             <input asp-for="PhoneNumber" class="form-control" />
                         </div>
