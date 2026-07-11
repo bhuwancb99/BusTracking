@@ -96,6 +96,13 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> ReorderStops([FromBody] ReorderStopsDto dto)
+        {
+            var r = await _route.ReorderStopsAsync(dto);
+            return Json(new { r.Success, r.Message });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> DeleteStop(int stopId)
         {
             var r = await _route.DeleteStopAsync(stopId);

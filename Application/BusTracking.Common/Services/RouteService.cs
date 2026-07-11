@@ -73,9 +73,31 @@ namespace BusTracking.Common.Services
         public async Task<ApiResponse<bool>> DeleteAsync(int routeId)
         { var r = await _db.Routes.FindAsync(routeId); if (r is null) return ApiResponse<bool>.Fail("Not found."); r.IsActive = false; r.UpdatedAt = DateTime.UtcNow; await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Deleted."); }
         public async Task<ApiResponse<bool>> AddStopAsync(CreateStopDto dto)
-        { _db.Stops.Add(new Stop { RouteId = dto.RouteId, StopName = dto.StopName, StopOrder = dto.StopOrder, Latitude = dto.Latitude, Longitude = dto.Longitude, MorningTime = dto.MorningTime is not null ? TimeOnly.Parse(dto.MorningTime) : null, EveningTime = dto.EveningTime is not null ? TimeOnly.Parse(dto.EveningTime) : null }); await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Stop added."); }
+        {
+            var maxOrder = await _db.Stops.Where(s => s.RouteId == dto.RouteId && s.IsActive).Select(s => (int?)s.StopOrder).MaxAsync() ?? 0;
+            _db.Stops.Add(new Stop { RouteId = dto.RouteId, StopName = dto.StopName, StopOrder = maxOrder + 1, Latitude = dto.Latitude, Longitude = dto.Longitude, MorningTime = dto.MorningTime is not null ? TimeOnly.Parse(dto.MorningTime) : null, EveningTime = dto.EveningTime is not null ? TimeOnly.Parse(dto.EveningTime) : null });
+            await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Stop added.");
+        }
         public async Task<ApiResponse<bool>> DeleteStopAsync(int stopId)
         { var s = await _db.Stops.FindAsync(stopId); if (s is null) return ApiResponse<bool>.Fail("Not found."); _db.Stops.Remove(s); await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Removed."); }
+        public async Task<ApiResponse<bool>> ReorderStopsAsync(ReorderStopsDto dto)
+        {
+            if (dto.Stops is null || dto.Stops.Count == 0) return ApiResponse<bool>.Fail("No order changes received.");
+            if (dto.Stops.Select(x => x.StopOrder).Distinct().Count() != dto.Stops.Count)
+                return ApiResponse<bool>.Fail("Order numbers must be unique.");
+
+            var stopIds = dto.Stops.Select(x => x.StopId).ToList();
+            var stops = await _db.Stops.Where(s => s.RouteId == dto.RouteId && s.IsActive && stopIds.Contains(s.StopId)).ToListAsync();
+            if (stops.Count != dto.Stops.Count) return ApiResponse<bool>.Fail("Not found.");
+
+            foreach (var item in dto.Stops)
+            {
+                var stop = stops.First(s => s.StopId == item.StopId);
+                stop.StopOrder = item.StopOrder;
+            }
+            await _db.SaveChangesAsync();
+            return ApiResponse<bool>.Ok(true, "Stop order updated.");
+        }
         public async Task<ApiResponse<List<StopDto>>> GetStopsByRouteAsync(int routeId)
         {
             var stops = await _db.Stops.Where(s => s.RouteId == routeId && s.IsActive)

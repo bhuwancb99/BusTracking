@@ -6,6 +6,10 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="fw-bold mb-0"><i class="bi bi-map me-2 text-primary"></i>@Model?.RouteName</h4>
     <div class="d-flex gap-2">
+        @if (Model?.Stops.Count > 0)
+        {
+            <button class="btn btn-success btn-sm" id="btnUpdateOrder"><i class="bi bi-arrow-down-up me-1"></i>Update Order</button>
+        }
         <a asp-action="Edit" asp-route-id="@Model?.RouteId" class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil me-1"></i>Edit</a>
         <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
     </div>
@@ -44,10 +48,6 @@
                     <input type="text" id="stopName" class="form-control form-control-sm" placeholder="e.g. City Park Gate" />
                 </div>
                 <div class="row g-2 mb-3">
-                    <div class="col-6">
-                        <label class="form-label fw-semibold small">Order</label>
-                        <input type="number" id="stopOrder" class="form-control form-control-sm" min="1" placeholder="1" />
-                    </div>
                     <div class="col-6">
                         <label class="form-label fw-semibold small">Morning</label>
                         <input type="time" id="stopMorning" class="form-control form-control-sm" />
@@ -94,7 +94,12 @@
                                     <div class="d-flex justify-content-between align-items-start">
                                         <div>
                                             <span class="fw-semibold">@stop.StopName</span>
-                                            <span class="badge bg-secondary-subtle text-secondary ms-2 small">@stop.StopOrder</span>
+                                            <input type="number" min="1"
+                                                   class="form-control form-control-sm stop-order-input d-inline-block ms-2"
+                                                   style="width:70px"
+                                                   data-stop-id="@stop.StopId"
+                                                   data-original-order="@stop.StopOrder"
+                                                   value="@stop.StopOrder" />
                                         </div>
                                         <button class="btn btn-sm btn-outline-danger py-0 px-2 btn-del-stop"
                                                 data-stop-id="@stop.StopId">
@@ -131,14 +136,12 @@
 
         document.getElementById('btnAddStop')?.addEventListener('click', async () => {
             const name  = document.getElementById('stopName').value.trim();
-            const order = document.getElementById('stopOrder').value;
-            if (!name || !order) {
-                busTrack.showToast('Stop name and order are required.', 'warning'); return;
+            if (!name) {
+                busTrack.showToast('Stop name is required.', 'warning'); return;
             }
             const data = {
                 routeId,
                 stopName:    name,
-                stopOrder:   parseInt(order),
                 morningTime: document.getElementById('stopMorning').value || null,
                 eveningTime: document.getElementById('stopEvening').value || null,
                 latitude:    parseFloat(document.getElementById('stopLat').value) || null,
@@ -147,6 +150,47 @@
             const result = await busTrack.post('/SuperAdmin/Route/AddStop', data);
             if (result.success) {
                 busTrack.showToast('Stop added. Refreshing…', 'success');
+                setTimeout(() => location.reload(), 800);
+            } else {
+                busTrack.showToast(result.message, 'danger');
+            }
+        });
+
+        document.getElementById('btnUpdateOrder')?.addEventListener('click', async () => {
+            const inputs = document.querySelectorAll('.stop-order-input');
+            const allValues = [];
+            const changed = [];
+
+            inputs.forEach(inp => {
+                const original = parseInt(inp.dataset.originalOrder);
+                const current  = parseInt(inp.value);
+                allValues.push(current);
+                if (current !== original) {
+                    changed.push({ stopId: parseInt(inp.dataset.stopId), stopOrder: current });
+                }
+            });
+
+            if (changed.length === 0) {
+                busTrack.showToast('You have not changed anything in the order. Please update the order first, then click Update.', 'warning');
+                return;
+            }
+
+            const hasDuplicates = new Set(allValues).size !== allValues.length;
+            if (hasDuplicates) {
+                busTrack.showToast('Order numbers must be unique. Please fix duplicate order numbers before updating.', 'warning');
+                return;
+            }
+
+            const result = await busTrack.post('/SuperAdmin/Route/ReorderStops', {
+                routeId,
+                stops: Array.from(inputs).map(inp => ({
+                    stopId:    parseInt(inp.dataset.stopId),
+                    stopOrder: parseInt(inp.value)
+                }))
+            });
+
+            if (result.success) {
+                busTrack.showToast('Stop order updated. Refreshing…', 'success');
                 setTimeout(() => location.reload(), 800);
             } else {
                 busTrack.showToast(result.message, 'danger');

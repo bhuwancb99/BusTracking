@@ -52,8 +52,8 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             ViewBag.RouteId = id;
             return View(new UpdateRouteDto
             {
-                RouteName   = r.Data!.RouteName,
-                RouteCode   = r.Data.RouteCode,
+                RouteName = r.Data!.RouteName,
+                RouteCode = r.Data.RouteCode,
                 MorningTime = r.Data.MorningTime,
                 EveningTime = r.Data.EveningTime,
                 Description = r.Data.Description
@@ -104,6 +104,15 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             if (!PermissionHelper.Can(User, "route.edit"))
                 return Json(new { Success = false, Message = "Permission denied." });
             var r = await _route.DeleteStopAsync(stopId);
+            return Json(new { r.Success, r.Message });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ReorderStops([FromBody] ReorderStopsDto dto)
+        {
+            if (!PermissionHelper.Can(User, "route.edit"))
+                return Json(new { Success = false, Message = "Permission denied." });
+            var r = await _route.ReorderStopsAsync(dto);
             return Json(new { r.Success, r.Message });
         }
     }

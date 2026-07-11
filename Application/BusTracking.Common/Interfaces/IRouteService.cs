@@ -12,6 +12,7 @@ namespace BusTracking.Common.Interfaces
         Task<ApiResponse<bool>> DeleteAsync(int routeId);
         Task<ApiResponse<bool>> AddStopAsync(CreateStopDto dto);
         Task<ApiResponse<bool>> DeleteStopAsync(int stopId);
+        Task<ApiResponse<bool>> ReorderStopsAsync(ReorderStopsDto dto);
         Task<ApiResponse<List<StopDto>>> GetStopsByRouteAsync(int routeId);
         Task<ApiResponse<List<StopDto>>> GetStopsByBusAsync(int busId);
 
