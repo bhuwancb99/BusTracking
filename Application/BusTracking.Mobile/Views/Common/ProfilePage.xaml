@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+﻿<?xml version="1.0" encoding="UTF-8" ?>
 <!--
     AVATAR VISIBILITY
-    ─────────────────────────────────────────────────────────────────────────
-    ProfileImageUrl = null/empty  →  Initials circle visible   |  Photo circle hidden
-    ProfileImageUrl = "https://…"  →  Initials circle hidden  |  Photo circle visible
+    =========================================================================
+    ProfileImageUrl = null/empty  ?  Initials circle visible   |  Photo circle hidden
+    ProfileImageUrl = "https://…"  ?  Initials circle hidden  |  Photo circle visible
     
     CAMERA BADGE  (bottom-right of avatar)
-    ─────────────────────────────────────────────────────────────────────────
+    =========================================================================
     IsVisible = CanUpdateImage  (IsMobileUpdateImage = 1 only)
-    Tap → CaptureOrPickPhotoCommand → ActionSheet:
-    "Take Photo"          → MediaPicker.CapturePhotoAsync
-    "Choose from Gallery" → MediaPicker.PickPhotosAsync
+    Tap ? CaptureOrPickPhotoCommand ? ActionSheet:
+    "Take Photo"          ? MediaPicker.CapturePhotoAsync
+    "Choose from Gallery" ? MediaPicker.PickPhotosAsync
 -->
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Common.ProfilePage"
@@ -29,9 +29,9 @@
         <VerticalStackLayout Padding="24,32,24,40" Spacing="0">
 
             <!--
-                ══════════════════════════════════════════════════════════════
+                ==============================================================
                 AVATAR CARD
-                ══════════════════════════════════════════════════════════════════
+                ==================================================================
             -->
             <Border
                 Padding="28,32"
@@ -44,13 +44,13 @@
                 <VerticalStackLayout HorizontalOptions="Center" Spacing="20">
 
                     <!--
-                        ══ AVATAR + CAMERA BADGE ════════════════════════════
+                        = AVATAR + CAMERA BADGE ============================
                         Grid 110×110 — extra 10 px so the 34×34 badge
                         doesn't get clipped at the edge of the 100×100 photo.
                         
                         All three children share cell [0,0].
-                        Z-order (bottom → top): Initials | Photo | Camera badge
-                        ═════════════════════════════════════════════════════════
+                        Z-order (bottom ? top): Initials | Photo | Camera badge
+                        =========================================================
                     -->
                     <Grid
                         HeightRequest="110"
@@ -58,10 +58,10 @@
                         WidthRequest="110">
 
                         <!--
-                            ── INITIALS CIRCLE ──────────────────────────────
+                            = INITIALS CIRCLE ==============================
                             Primary-colour background + Initials text.
                             Visible when ProfileImageUrl is null / empty.
-                            ───────────────────────────────────────────────────
+                            ==================================================-
                         -->
                         <Border
                             BackgroundColor="{StaticResource Primary}"
@@ -82,12 +82,12 @@
                         </Border>
 
                         <!--
-                            ── PHOTO CIRCLE ─────────────────────────────────
+                            = PHOTO CIRCLE ================================-
                             Circular crop via RoundRectangle 50.
                             Visible when ProfileImageUrl is non-empty.
                             UriImageSource caches 1 h; server returns a new
                             path/timestamp after upload so cache auto-busts.
-                            ───────────────────────────────────────────────────
+                            ==================================================-
                         -->
                         <Border
                             HeightRequest="100"
@@ -111,17 +111,17 @@
                         </Border>
 
                         <!--
-                            ── CAMERA BADGE ─────────────────────────────────
+                            = CAMERA BADGE ================================-
                             Blue circle, white camera icon, bottom-right corner.
                             White stroke ring separates it from the photo/initials.
                             
                             IsVisible = CanUpdateImage
-                            true  → IsMobileUpdateImage = 1 (upload allowed)
-                            false → IsMobileUpdateImage = 0 (hidden, read-only)
+                            true  ? IsMobileUpdateImage = 1 (upload allowed)
+                            false ? IsMobileUpdateImage = 0 (hidden, read-only)
                             
-                            Tap → CaptureOrPickPhotoCommand
+                            Tap ? CaptureOrPickPhotoCommand
                             ActionSheet: "Take Photo" | "Choose from Gallery"
-                            ───────────────────────────────────────────────────
+                            ==================================================-
                         -->
                         <Border
                             Padding="0"
@@ -150,7 +150,7 @@
                         </Border>
 
                     </Grid>
-                    <!--  ══ End AVATAR + CAMERA BADGE ════════════════════════  -->
+                    <!-- - End AVATAR + CAMERA BADGE =====================-=  -->
 
                     <!--  Full name  -->
                     <Label
@@ -184,23 +184,23 @@
                                                     Dark={StaticResource TextMutedDark}}" />
 
                     <!--
-                        ══ REMOVE PHOTO BUTTON ═══════════════════════════════
+                        = REMOVE PHOTO BUTTON ===============================
                         Visible ONLY when:
                         CanUpdateImage = true   (IsMobileUpdateImage = 1)
                         AND
                         HasPhoto = true          (a photo is currently set)
                         
                         Hidden when:
-                        IsMobileUpdateImage = 0  → CanUpdateImage = false
-                        No photo exists          → HasPhoto = false
-                        ═════════════════════════════════════════════════════════
+                        IsMobileUpdateImage = 0  ? CanUpdateImage = false
+                        No photo exists          ? HasPhoto = false
+                        =========================================================
                     -->
                     <Border
                         BackgroundColor="{AppThemeBinding Light={StaticResource DangerLight},
                                                           Dark={StaticResource CardBgDark}}"
                         HorizontalOptions="Fill"
                         Stroke="{StaticResource Danger}"
-                        StrokeShape="RoundRectangle 14"
+                        StrokeShape="RoundRectangle 8"
                         StrokeThickness="1">
                         <Border.IsVisible>
                             <MultiBinding Converter="{StaticResource AllTrueConverter}">
@@ -232,23 +232,19 @@
                                 VerticalOptions="Center" />
                         </HorizontalStackLayout>
                     </Border>
-                    <!--  ══ End REMOVE PHOTO BUTTON ═══════════════════════════  -->
+                    <!-- - End REMOVE PHOTO BUTTON ==========================-  -->
 
                     <!--  Loading spinner (IsBusy from BaseViewModel)  -->
-                    <ActivityIndicator
-                        HorizontalOptions="Center"
-                        IsRunning="{Binding IsBusy}"
-                        IsVisible="{Binding IsBusy}"
-                        Color="{StaticResource Primary}" />
+                    
 
                 </VerticalStackLayout>
             </Border>
-            <!--  ══ End AVATAR CARD ══════════════════════════════════════════  -->
+            <!-- - End AVATAR CARD ==========================================  -->
 
             <!--
-                ══════════════════════════════════════════════════════════════
+                ==============================================================
                 ACCOUNT DETAILS CARD
-                ══════════════════════════════════════════════════════════════════
+                ==================================================================
             -->
             <Border
                 Margin="0,20,0,0"
@@ -273,7 +269,7 @@
                             Grid.Column="0"
                             BackgroundColor="{StaticResource PrimaryLight}"
                             HeightRequest="38"
-                            StrokeShape="RoundRectangle 10"
+                            StrokeShape="RoundRectangle 8"
                             StrokeThickness="0"
                             VerticalOptions="Center"
                             WidthRequest="38">
@@ -311,7 +307,7 @@
                             Grid.Column="0"
                             BackgroundColor="{StaticResource PrimaryLight}"
                             HeightRequest="38"
-                            StrokeShape="RoundRectangle 10"
+                            StrokeShape="RoundRectangle 8"
                             StrokeThickness="0"
                             VerticalOptions="Center"
                             WidthRequest="38">
@@ -345,7 +341,7 @@
 
                 </VerticalStackLayout>
             </Border>
-            <!--  ══ End ACCOUNT DETAILS CARD ═════════════════════════════════  -->
+            <!-- - End ACCOUNT DETAILS CARD ================================-  -->
 
         </VerticalStackLayout>
     </ScrollView>

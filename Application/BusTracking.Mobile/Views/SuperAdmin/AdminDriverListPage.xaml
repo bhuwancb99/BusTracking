@@ -13,7 +13,7 @@
                                       Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
@@ -23,7 +23,7 @@
                 FontAttributes="Bold"
                 FontSize="18"
                 Text="Drivers"
-                TextColor="White"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
                 VerticalOptions="Center" />
             <Border
                 Grid.Column="1"
@@ -48,13 +48,20 @@
         </Grid>
     </Shell.TitleView>
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*">
+    <Grid RowDefinitions="Auto,Auto,*">
 
-        <!--  Search  -->
+                <!--  Search Section Card (Separated from list)  -->
         <Border
             Grid.Row="0"
-            Margin="14,12,14,4"
-            Style="{StaticResource SearchBarBorder}">
+            Margin="5,14,5,8"
+            Padding="14,12"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+            StrokeShape="RoundRectangle 12"
+            StrokeThickness="1"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}">
+            <VerticalStackLayout Spacing="10">
+                <Border Style="{StaticResource SearchBarBorder}">
+
             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
                 <Image
                     Grid.Column="0"
@@ -76,7 +83,7 @@
                     Padding="8"
                     BackgroundColor="{StaticResource Primary}"
                     Command="{Binding SearchCommand}"
-                    CornerRadius="10"
+                    CornerRadius="8"
                     HeightRequest="36"
                     HorizontalOptions="End"
                     Source="search.png"
@@ -86,13 +93,9 @@
                     </ImageButton.Behaviors>
                 </ImageButton>
             </Grid>
-        </Border>
+                    </Border>
+                <HorizontalStackLayout Spacing="8">
 
-        <!--  Status filter chips  -->
-        <HorizontalStackLayout
-            Grid.Row="1"
-            Margin="14,0,14,4"
-            Spacing="8">
             <Border
                 Padding="14,6"
                 BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Active'}"
@@ -132,12 +135,14 @@
                     Text="Both"
                     TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Both'}" />
             </Border>
-        </HorizontalStackLayout>
+                    </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Border>
 
         <!--  Error  -->
         <Border
-            Grid.Row="2"
-            Margin="14,0"
+            Grid.Row="1"
+            Margin="5,0"
             IsVisible="{Binding HasError}"
             Style="{StaticResource ErrorBannerBorder}">
             <Label
@@ -146,17 +151,11 @@
                 TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
                                             Dark={StaticResource ErrorTextDark}}" />
         </Border>
-        <!--  Busy  -->
-        <ActivityIndicator
-            Grid.Row="3"
-            HorizontalOptions="Center"
-            IsRunning="{Binding IsBusy}"
-            IsVisible="{Binding IsBusy}"
-            VerticalOptions="Center" />
+        
 
         <!--  Empty  -->
         <VerticalStackLayout
-            Grid.Row="3"
+            Grid.Row="2"
             HorizontalOptions="Center"
             IsVisible="{Binding IsEmpty}"
             Spacing="14"
@@ -197,8 +196,8 @@
 
         <!--  List  -->
         <CollectionView
-            Grid.Row="3"
-            Margin="14,4,14,0"
+            Grid.Row="2"
+            Margin="5,4,5,0"
             ItemsSource="{Binding Items}"
             RemainingItemsThreshold="3"
             RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"

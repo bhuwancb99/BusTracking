@@ -48,14 +48,77 @@
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>-->
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net10.0-android|AnyCPU'">
-		<AndroidPackageFormat>apk</AndroidPackageFormat>
-	</PropertyGroup>
-
 	<!-- Fix: Mono.Cecil InvalidOperationException during Release APK build -->
 	<PropertyGroup Condition="$(TargetFramework.Contains('-android'))">
 		<AndroidEnableMarshalMethods>false</AndroidEnableMarshalMethods>
 	</PropertyGroup>
+
+	<!--PERFORMACE RELATED CONFIGURATION - START-->
+
+	<!-- ===================== DEBUG ===================== -->
+	<PropertyGroup Condition="'$(Configuration)'=='Debug'">
+		<!-- Fast iteration: no AOT, no trimming, incremental builds -->
+		<RunAOTCompilation>false</RunAOTCompilation>
+		<PublishAot>false</PublishAot>
+		<PublishTrimmed>false</PublishTrimmed>
+		<UseInterpreter>true</UseInterpreter>
+		<AndroidUseAapt2>true</AndroidUseAapt2>
+		<AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+		<MtouchLink>None</MtouchLink>
+		<!-- iOS: no linking in debug -->
+		<MtouchFastDev>true</MtouchFastDev>
+		<!-- iOS: incremental native builds -->
+		<AndroidFastDeploymentType>Dexes,Resources</AndroidFastDeploymentType>
+		<DebugType>portable</DebugType>
+		<Optimize>false</Optimize>
+	</PropertyGroup>
+
+	<!-- ===================== RELEASE ===================== -->
+	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+		<Optimize>true</Optimize>
+		<DebugType>none</DebugType>
+		<PublishTrimmed>true</PublishTrimmed>
+		<TrimMode>full</TrimMode>
+		<TrimmerSingleWarn>false</TrimmerSingleWarn>
+		<!-- see full warning list, not summarized -->
+	</PropertyGroup>
+
+	<!-- Android Release -->
+	<PropertyGroup Condition="'$(Configuration)'=='Release' AND $(TargetFramework.Contains('-android'))">
+		<PublishAot>true</PublishAot>
+		<!-- .NET 10 Native AOT for Android -->
+		<RunAOTCompilation>true</RunAOTCompilation>
+		<!-- fallback / used if PublishAot unsupported by a dep -->
+		<AndroidEnableProfiledAot>true</AndroidEnableProfiledAot>
+		<AndroidLinkMode>Full</AndroidLinkMode>
+		<AndroidLinkTool>r8</AndroidLinkTool>
+		<AndroidEnableMultiDex>false</AndroidEnableMultiDex>
+		<!-- shouldn't be needed once trimmed -->
+		<AndroidPackageFormat>aab</AndroidPackageFormat>
+		<EnableLLVM>true</EnableLLVM>
+		<AndroidStripILAfterAOT>true</AndroidStripILAfterAOT>
+	</PropertyGroup>
+
+	<!-- iOS / Mac Catalyst Release -->
+	<!--<PropertyGroup Condition="'$(Configuration)'=='Release' AND ($(TargetFramework.Contains('-ios')) OR $(TargetFramework.Contains('-maccatalyst')))">
+		<PublishAot>true</PublishAot>
+		--><!-- Native AOT; requires trim/AOT-safe deps --><!--
+		<MtouchLink>Full</MtouchLink>
+		--><!-- if staying on Mono AOT instead of Native AOT --><!--
+		<MtouchInterpreter>false</MtouchInterpreter>
+		<RuntimeIdentifier Condition="$(TargetFramework.Contains('-ios'))">ios-arm64</RuntimeIdentifier>
+		<CodesignKey>iPhone Distribution</CodesignKey>
+	</PropertyGroup>
+
+	--><!-- Windows Release --><!--
+	<PropertyGroup Condition="'$(Configuration)'=='Release' AND $(TargetFramework.Contains('-windows'))">
+		<WindowsPackageType>MSIX</WindowsPackageType>
+		<SelfContained>true</SelfContained>
+		--><!-- Native AOT for WinAppSDK lands post-.NET10 via servicing; leave off until available --><!--
+		<PublishReadyToRun>true</PublishReadyToRun>
+	</PropertyGroup>-->
+
+	<!--PERFORMACE RELATED CONFIGURATION - END-->
 
 	<ItemGroup>
 		<!-- App Icon -->

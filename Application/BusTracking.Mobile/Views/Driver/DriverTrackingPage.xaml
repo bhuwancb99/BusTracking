@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Driver.DriverTrackingPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -14,7 +14,7 @@
                                       Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
@@ -35,7 +35,7 @@
                     FontSize="17"
                     HorizontalOptions="Center"
                     Text="Live Tracking"
-                    TextColor="White" />
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}" />
                 <!--  GPS live status pill — hidden when location is not granted  -->
                 <Label
                     FontSize="10"
@@ -53,7 +53,7 @@
                 FontSize="12"
                 HeightRequest="34"
                 Text="End Trip"
-                TextColor="White"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
                 WidthRequest="80" />
         </Grid>
     </Shell.TitleView>
@@ -71,7 +71,7 @@
             IsVisible="{Binding HasError}"
             Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
                                      Dark={StaticResource ErrorBannerBorderDark}}"
-            StrokeShape="RoundRectangle 10">
+            StrokeShape="RoundRectangle 8">
             <Label
                 FontSize="13"
                 Text="{Binding ErrorMessage}"
@@ -115,7 +115,7 @@
                                         Padding="8"
                                         BackgroundColor="{Binding StatusColor}"
                                         HeightRequest="36"
-                                        StrokeShape="RoundRectangle 10"
+                                        StrokeShape="RoundRectangle 8"
                                         WidthRequest="36">
                                         <Label
                                             FontAttributes="Bold"
@@ -150,7 +150,7 @@
                                         BackgroundColor="{StaticResource Primary}"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverTrackingViewModel}}, Path=MarkReachedCommand}"
                                         CommandParameter="{Binding .}"
-                                        CornerRadius="10"
+                                        CornerRadius="8"
                                         FontAttributes="Bold"
                                         FontSize="12"
                                         HeightRequest="38"
@@ -162,7 +162,7 @@
                                         BackgroundColor="{StaticResource Success}"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverTrackingViewModel}}, Path=MarkDepartedCommand}"
                                         CommandParameter="{Binding .}"
-                                        CornerRadius="10"
+                                        CornerRadius="8"
                                         FontAttributes="Bold"
                                         FontSize="12"
                                         HeightRequest="38"
@@ -341,7 +341,7 @@
                     Padding="12,0"
                     BackgroundColor="#FF6B35"
                     Command="{Binding RequestLocationCommand}"
-                    CornerRadius="10"
+                    CornerRadius="8"
                     FontAttributes="Bold"
                     FontSize="12"
                     HeightRequest="38"

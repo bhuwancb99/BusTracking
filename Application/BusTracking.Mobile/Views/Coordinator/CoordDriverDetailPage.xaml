@@ -12,7 +12,7 @@
                                       Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
@@ -25,7 +25,7 @@
                 FontAttributes="Bold"
                 FontSize="17"
                 Text="Driver Details"
-                TextColor="White"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
                 VerticalOptions="Center" />
             <Border
                 Grid.Column="1"
@@ -77,12 +77,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="12">
 
-            <ActivityIndicator
-                HorizontalOptions="Center"
-                IsRunning="{Binding IsBusy}"
-                IsVisible="{Binding IsBusy}"
-                VerticalOptions="Center"
-                Color="{StaticResource Primary}" />
+            
 
             <Border
                 Padding="12,10"
@@ -91,7 +86,7 @@
                 IsVisible="{Binding HasError}"
                 Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
                                          Dark={StaticResource ErrorBannerBorderDark}}"
-                StrokeShape="RoundRectangle 10">
+                StrokeShape="RoundRectangle 8">
                 <Label
                     FontSize="13"
                     Text="{Binding ErrorMessage}"
@@ -118,7 +113,7 @@
                             FontSize="22"
                             HorizontalOptions="Center"
                             Text="{Binding Driver.InitialsDisplay}"
-                            TextColor="White"
+                            TextColor="{AppThemeBinding Light={StaticResource PrimaryButtonTextLight}, Dark={StaticResource PrimaryButtonTextDark}}"
                             VerticalOptions="Center" />
                     </Border>
                     <VerticalStackLayout

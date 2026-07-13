@@ -13,7 +13,7 @@
                                       Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
@@ -23,7 +23,7 @@
                 FontAttributes="Bold"
                 FontSize="18"
                 Text="Trips"
-                TextColor="White"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
                 VerticalOptions="Center" />
             <Border
                 Grid.Column="1"
@@ -48,13 +48,20 @@
         </Grid>
     </Shell.TitleView>
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*">
+    <Grid RowDefinitions="Auto,Auto,*">
 
-        <!--  Date filter  -->
+                <!--  Search Section Card (Separated from list)  -->
         <Border
             Grid.Row="0"
-            Margin="14,12,14,4"
-            Style="{StaticResource SearchBarBorder}">
+            Margin="5,14,5,8"
+            Padding="14,12"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+            StrokeShape="RoundRectangle 12"
+            StrokeThickness="1"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}">
+            <VerticalStackLayout Spacing="10">
+                <Border Style="{StaticResource SearchBarBorder}">
+
             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
                 <Image
                     Grid.Column="0"
@@ -73,14 +80,9 @@
                     TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                 Dark={StaticResource TextPrimaryDark}}" />
             </Grid>
-        </Border>
+                    </Border>
+                <ScrollView HorizontalScrollBarVisibility="Never" Orientation="Horizontal">
 
-        <!--  Status filter chips  -->
-        <ScrollView
-            Grid.Row="1"
-            Margin="14,0,14,4"
-            HorizontalScrollBarVisibility="Never"
-            Orientation="Horizontal">
             <HorizontalStackLayout Spacing="8">
                 <Border
                     Padding="14,6"
@@ -148,12 +150,14 @@
                         TextColor="{Binding SelectedStatus, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Cancelled'}" />
                 </Border>
             </HorizontalStackLayout>
-        </ScrollView>
+                    </ScrollView>
+            </VerticalStackLayout>
+        </Border>
 
         <!--  Error  -->
         <Border
-            Grid.Row="3"
-            Margin="14,0"
+            Grid.Row="2"
+            Margin="5,0"
             IsVisible="{Binding HasError}"
             Style="{StaticResource ErrorBannerBorder}">
             <Label
@@ -162,17 +166,11 @@
                 TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
                                             Dark={StaticResource ErrorTextDark}}" />
         </Border>
-        <!--  Busy  -->
-        <ActivityIndicator
-            Grid.Row="3"
-            HorizontalOptions="Center"
-            IsRunning="{Binding IsBusy}"
-            IsVisible="{Binding IsBusy}"
-            VerticalOptions="Center" />
+        
 
         <!--  Empty  -->
         <VerticalStackLayout
-            Grid.Row="3"
+            Grid.Row="2"
             HorizontalOptions="Center"
             IsVisible="{Binding IsEmpty}"
             Spacing="14"
@@ -213,8 +211,8 @@
 
         <!--  List  -->
         <CollectionView
-            Grid.Row="3"
-            Margin="14,4,14,0"
+            Grid.Row="2"
+            Margin="5,4,5,0"
             ItemsSource="{Binding Items}"
             RemainingItemsThreshold="3"
             RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
@@ -266,7 +264,7 @@
                                                 <Span Text="{Binding TripTypeIcon}" />
                                                 <Span Text=" " />
                                                 <Span FontAttributes="Bold" Text="{Binding TripType}" />
-                                                <Span Text=" â€“ " />
+                                                <Span Text=" – " />
                                                 <Span Text="{Binding TripDate}" />
                                             </FormattedString>
                                         </Label.FormattedText>
@@ -278,7 +276,7 @@
                                                     FontAttributes="Bold"
                                                     Text="{Binding BusNumber}"
                                                     TextColor="{StaticResource Primary}" />
-                                                <Span Text=" Â· " TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                                                <Span Text=" · " TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                                                 <Span Text="{Binding DriverName}" TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                                             </FormattedString>
                                         </Label.FormattedText>
@@ -304,19 +302,19 @@
                                 </Border>
                             </Grid>
 
-                            <!--  Row 1: ðŸ“ Track Live button â€” only when InProgress  -->
+                            <!--  Row 1: ?? Track Live button — only when InProgress  -->
                             <Button
                                 Grid.Row="1"
                                 BackgroundColor="#6366f1"
                                 Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminTripListViewModel}}, Path=TrackLiveCommand}"
                                 CommandParameter="{Binding .}"
-                                CornerRadius="10"
+                                CornerRadius="8"
                                 FontAttributes="Bold"
                                 FontSize="13"
                                 HeightRequest="38"
                                 HorizontalOptions="Fill"
                                 IsVisible="{Binding Status, Converter={StaticResource StatusToEndVisible}}"
-                                Text="ðŸ“ Track Live"
+                                Text="?? Track Live"
                                 TextColor="White" />
                         </Grid>
                     </Border>

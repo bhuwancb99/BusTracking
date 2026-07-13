@@ -12,7 +12,7 @@
                                       Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
@@ -25,7 +25,7 @@
                 FontAttributes="Bold"
                 FontSize="17"
                 Text="Bus Details"
-                TextColor="White"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
                 VerticalOptions="Center" />
             <Border
                 Grid.Column="1"
@@ -75,12 +75,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="12">
 
-            <ActivityIndicator
-                HorizontalOptions="Center"
-                IsRunning="{Binding IsBusy}"
-                IsVisible="{Binding IsBusy}"
-                VerticalOptions="Center"
-                Color="{StaticResource Primary}" />
+            
 
             <!--  Error  -->
             <Border
@@ -90,7 +85,7 @@
                 IsVisible="{Binding HasError}"
                 Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
                                          Dark={StaticResource ErrorBannerBorderDark}}"
-                StrokeShape="RoundRectangle 10">
+                StrokeShape="RoundRectangle 8">
                 <Label
                     FontSize="13"
                     Text="{Binding ErrorMessage}"
@@ -117,7 +112,7 @@
                         <Label
                             FontSize="26"
                             HorizontalOptions="Center"
-                            Text="🚌"
+                            Text="??"
                             VerticalOptions="Center" />
                     </Border>
                     <VerticalStackLayout
@@ -243,7 +238,7 @@
             <Button
                 BackgroundColor="{StaticResource Accent}"
                 Command="{Binding ToggleCommand}"
-                CornerRadius="12"
+                CornerRadius="8"
                 FontAttributes="Bold"
                 HeightRequest="50"
                 Text="Toggle Active / Inactive"

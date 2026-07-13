@@ -14,6 +14,12 @@ namespace BusTracking.Mobile.Viewmodels.Auth
         private string _password = "";
 
         [ObservableProperty] private bool _isPasswordVisible;
+
+        /// <summary>Inverse of IsPasswordVisible — bound to Entry.IsPassword.</summary>
+        public bool IsPasswordHidden => !IsPasswordVisible;
+
+        partial void OnIsPasswordVisibleChanged(bool value) =>
+            OnPropertyChanged(nameof(IsPasswordHidden));
         [ObservableProperty] private string _maintenanceMessage = "";
         [ObservableProperty] private bool _isMaintenanceMode;
 

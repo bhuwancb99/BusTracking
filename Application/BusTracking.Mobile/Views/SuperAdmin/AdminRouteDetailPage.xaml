@@ -13,7 +13,7 @@
                                       Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
 
@@ -27,7 +27,7 @@
                 FontAttributes="Bold"
                 FontSize="17"
                 Text="Route Details"
-                TextColor="White"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
                 VerticalOptions="Center" />
             <Border
                 Grid.Column="1"
@@ -77,12 +77,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="12">
 
-            <ActivityIndicator
-                HorizontalOptions="Center"
-                IsRunning="{Binding IsBusy}"
-                IsVisible="{Binding IsBusy}"
-                VerticalOptions="Center"
-                Color="{StaticResource Primary}" />
+            
 
             <!--  Error  -->
             <Border
@@ -92,7 +87,7 @@
                 IsVisible="{Binding HasError}"
                 Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
                                          Dark={StaticResource ErrorBannerBorderDark}}"
-                StrokeShape="RoundRectangle 10">
+                StrokeShape="RoundRectangle 8">
                 <Label
                     FontSize="13"
                     Text="{Binding ErrorMessage}"
@@ -116,11 +111,16 @@
                         HeightRequest="60"
                         StrokeShape="RoundRectangle 16"
                         WidthRequest="60">
-                        <Label
-                            FontSize="26"
+                        <Image
+                            HeightRequest="28"
                             HorizontalOptions="Center"
-                            Text="🗺️"
-                            VerticalOptions="Center" />
+                            Source="route.svg"
+                            VerticalOptions="Center"
+                            WidthRequest="28">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                            </Image.Behaviors>
+                        </Image>
                     </Border>
                     <VerticalStackLayout
                         Grid.Column="1"
@@ -194,7 +194,7 @@
                         Spacing="3">
                         <Label
                             FontSize="11"
-                            Text="🌆  EVENING"
+                            Text="🌙  EVENING"
                             TextColor="{AppThemeBinding Light={StaticResource TextMuted},
                                                         Dark={StaticResource TextSecondaryDark}}" />
                         <Label
@@ -254,7 +254,7 @@
                             Padding="14,6"
                             BackgroundColor="{StaticResource Primary}"
                             Command="{Binding ToggleAddStopCommand}"
-                            CornerRadius="10"
+                            CornerRadius="8"
                             FontSize="12"
                             Text="+ Add"
                             TextColor="White">
@@ -296,7 +296,7 @@
                         <Button
                             BackgroundColor="{StaticResource Primary}"
                             Command="{Binding AddStopCommand}"
-                            CornerRadius="10"
+                            CornerRadius="8"
                             FontAttributes="Bold"
                             HeightRequest="46"
                             Text="Add Stop"
@@ -337,7 +337,7 @@
                             Padding="12,6"
                             BackgroundColor="{StaticResource Success}"
                             Command="{Binding UpdateOrderCommand}"
-                            CornerRadius="10"
+                            CornerRadius="8"
                             FontSize="12"
                             IsVisible="{Binding HasStops}"
                             Text="Update Order"
@@ -385,16 +385,22 @@
                                         Grid.Column="3"
                                         Padding="6"
                                         BackgroundColor="Transparent"
-                                        StrokeShape="RoundRectangle 12"
+                                        StrokeShape="RoundRectangle 8"
                                         StrokeThickness="0"
                                         VerticalOptions="Center">
                                         <Border.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteDetailViewModel}}, Path=DeleteStopCommand}" CommandParameter="{Binding .}" />
                                         </Border.GestureRecognizers>
-                                        <Label
-                                            FontSize="14"
-                                            Text="✕"
-                                            TextColor="{StaticResource Danger}" />
+                                        <Image
+                                            HeightRequest="18"
+                                            HorizontalOptions="Center"
+                                            Source="delete.svg"
+                                            VerticalOptions="Center"
+                                            WidthRequest="18">
+                                            <Image.Behaviors>
+                                                <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                            </Image.Behaviors>
+                                        </Image>
                                     </Border>
                                 </Grid>
                             </DataTemplate>

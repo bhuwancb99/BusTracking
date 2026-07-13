@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Coordinator.CoordBusTypeListPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -13,7 +13,7 @@
                                       Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
@@ -23,7 +23,7 @@
                 FontAttributes="Bold"
                 FontSize="18"
                 Text="Bus Types"
-                TextColor="White"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
                 VerticalOptions="Center" />
             <Border
                 Grid.Column="1"
@@ -50,11 +50,17 @@
 
     <Grid RowDefinitions="Auto,Auto,*">
 
-        <!--  Search  -->
+                <!--  Search Section Card (Separated from list)  -->
         <Border
             Grid.Row="0"
-            Margin="14,12,14,4"
-            Style="{StaticResource SearchBarBorder}">
+            Margin="5,14,5,8"
+            Padding="14,12"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+            StrokeShape="RoundRectangle 12"
+            StrokeThickness="1"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}">
+            <Border Style="{StaticResource SearchBarBorder}">
+
             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
                 <Image
                     Grid.Column="0"
@@ -86,12 +92,13 @@
                     </ImageButton.Behaviors>
                 </ImageButton>
             </Grid>
+                    </Border>
         </Border>
 
         <!--  Error  -->
         <Border
             Grid.Row="1"
-            Margin="14,0"
+            Margin="5,0"
             IsVisible="{Binding HasError}"
             Style="{StaticResource ErrorBannerBorder}">
             <Label
@@ -101,13 +108,7 @@
                                             Dark={StaticResource ErrorTextDark}}" />
         </Border>
 
-        <!--  Busy  -->
-        <ActivityIndicator
-            Grid.Row="2"
-            HorizontalOptions="Center"
-            IsRunning="{Binding IsBusy}"
-            IsVisible="{Binding IsBusy}"
-            VerticalOptions="Center" />
+        
 
         <!--  Empty  -->
         <VerticalStackLayout
@@ -153,7 +154,7 @@
         <!--  List  -->
         <CollectionView
             Grid.Row="2"
-            Margin="14,4,14,0"
+            Margin="5,4,5,0"
             ItemsSource="{Binding Items}"
             RemainingItemsThreshold="3"
             RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
@@ -165,7 +166,7 @@
                         Padding="14"
                         BackgroundColor="{AppThemeBinding Light=White,
                                                           Dark={StaticResource CardBgDark}}"
-                        StrokeShape="RoundRectangle 14"
+                        StrokeShape="RoundRectangle 8"
                         StrokeThickness="0">
                         <Border.Shadow>
                             <Shadow
@@ -224,7 +225,7 @@
                                 BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
                                                                   Dark={StaticResource StatBusBgDark}}"
                                 IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordBusTypeListViewModel}}, Path=CanEdit}"
-                                StrokeShape="RoundRectangle 10"
+                                StrokeShape="RoundRectangle 8"
                                 StrokeThickness="0"
                                 VerticalOptions="Center">
                                 <Border.GestureRecognizers>
@@ -248,7 +249,7 @@
                                 Padding="7"
                                 BackgroundColor="#FFEAEA"
                                 IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordBusTypeListViewModel}}, Path=CanDelete}"
-                                StrokeShape="RoundRectangle 10"
+                                StrokeShape="RoundRectangle 8"
                                 StrokeThickness="0"
                                 VerticalOptions="Center">
                                 <Border.GestureRecognizers>
@@ -278,44 +279,95 @@
             </CollectionView.Footer>
         </CollectionView>
 
-        <!--  Add / Edit bottom sheet  -->
+                <!--  Add / Edit bottom sheet  -->
         <Grid
             Grid.RowSpan="3"
             BackgroundColor="#80000000"
+            HorizontalOptions="Fill"
+            VerticalOptions="Fill"
             IsVisible="{Binding IsFormOpen}">
-            <Grid.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding CloseFormCommand}" />
-            </Grid.GestureRecognizers>
+            
             <Border
-                Margin="20,0"
-                Padding="20"
-                BackgroundColor="{AppThemeBinding Light=White,
-                                                  Dark={StaticResource CardBgDark}}"
+                Margin="10,0"
+                Padding="16"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 20"
-                StrokeThickness="0"
-                VerticalOptions="Center">
-                <VerticalStackLayout Spacing="16">
+                StrokeThickness="1"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
+                VerticalOptions="Center"
+                HorizontalOptions="Fill">
+                <VerticalStackLayout Spacing="20">
 
-                    <!--  Title via DataTrigger  -->
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="17"
-                        Text="Add Bus Type"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}">
-                        <Label.Triggers>
-                            <DataTrigger
-                                Binding="{Binding IsEditing}"
-                                TargetType="Label"
-                                Value="True">
-                                <Setter Property="Text" Value="Edit Bus Type" />
-                            </DataTrigger>
-                        </Label.Triggers>
-                    </Label>
+                    <!-- Header Row: Icon Badge + Title -->
+                    <HorizontalStackLayout Spacing="14" VerticalOptions="Center">
+                        <Border
+                            HeightRequest="48"
+                            WidthRequest="48"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryLight}, Dark={StaticResource StatBusBgDark}}"
+                            StrokeShape="RoundRectangle 24"
+                            StrokeThickness="0">
+                            <Image
+                                Source="bus.png"
+                                HeightRequest="22"
+                                WidthRequest="22"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center">
+                                <Image.Behaviors>
+                                    <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                </Image.Behaviors>
+                            </Image>
+                        </Border>
 
-                    <Border Style="{StaticResource InputBorder}">
-                        <Entry Placeholder="Bus type name (e.g. Mini Bus, AC Coach)" Text="{Binding FormName}" />
-                    </Border>
+                        <VerticalStackLayout VerticalOptions="Center" Spacing="2">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="18"
+                                Text="Add Bus Type"
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                            Dark={StaticResource TextPrimaryDark}}">
+                                <Label.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding IsEditing}"
+                                        TargetType="Label"
+                                        Value="True">
+                                        <Setter Property="Text" Value="Edit Bus Type" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                            <Label
+                                FontSize="11"
+                                Text="Define a new bus model configuration"
+                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}">
+                                <Label.Triggers>
+                                    <DataTrigger
+                                        Binding="{Binding IsEditing}"
+                                        TargetType="Label"
+                                        Value="True">
+                                        <Setter Property="Text" Value="Modify bus model configuration" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                            </Label>
+                        </VerticalStackLayout>
+                    </HorizontalStackLayout>
+
+                    <!-- Divider -->
+                    <BoxView HeightRequest="1" Color="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}" />
+
+                    <!-- Input Section -->
+                    <VerticalStackLayout Spacing="6">
+                        <Label
+                            FontSize="11"
+                            FontAttributes="Bold"
+                            Text="BUS TYPE NAME"
+                            TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                        <Border Style="{StaticResource InputBorder}" Padding="4" StrokeShape="RoundRectangle 12">
+                            <Entry 
+                                Placeholder="e.g. Mini Bus, AC Coach" 
+                                Text="{Binding FormName}"
+                                FontSize="14"
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                        </Border>
+                    </VerticalStackLayout>
 
                     <Label
                         FontSize="12"
@@ -323,8 +375,8 @@
                         Text="{Binding ErrorMessage}"
                         TextColor="{StaticResource Danger}" />
 
+                    <!-- Actions -->
                     <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-
                         <!--  Cancel  -->
                         <Button
                             Grid.Column="0"
@@ -336,18 +388,18 @@
                             Command="{Binding CloseFormCommand}"
                             CornerRadius="12"
                             FontAttributes="Bold"
-                            HeightRequest="50"
+                            HeightRequest="46"
                             Text="Cancel"
                             TextColor="{StaticResource Primary}" />
 
-                        <!--  Save / Update — inline style + DataTrigger for IsBusy  -->
+                        <!--  Save / Update  -->
                         <Button
                             Grid.Column="1"
                             BackgroundColor="{StaticResource Primary}"
                             Command="{Binding SaveCommand}"
                             CornerRadius="12"
                             FontAttributes="Bold"
-                            HeightRequest="50"
+                            HeightRequest="46"
                             Text="Save"
                             TextColor="White">
                             <Button.Triggers>
@@ -361,7 +413,7 @@
                                     Binding="{Binding IsBusy}"
                                     TargetType="Button"
                                     Value="True">
-                                    <Setter Property="Text" Value="Saving…" />
+                                    <Setter Property="Text" Value="Saving." />
                                     <Setter Property="IsEnabled" Value="False" />
                                 </DataTrigger>
                             </Button.Triggers>

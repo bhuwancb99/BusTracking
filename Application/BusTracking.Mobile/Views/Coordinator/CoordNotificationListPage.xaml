@@ -13,7 +13,7 @@
                                       Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
@@ -23,7 +23,7 @@
                 FontAttributes="Bold"
                 FontSize="18"
                 Text="Notifications"
-                TextColor="White"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
                 VerticalOptions="Center" />
             <Border
                 Grid.Column="1"
@@ -50,7 +50,7 @@
         <!--  Error  -->
         <Border
             Grid.Row="0"
-            Margin="14,8,14,0"
+            Margin="5,8,5,0"
             IsVisible="{Binding HasError}"
             Style="{StaticResource ErrorBannerBorder}">
             <Label
@@ -60,13 +60,7 @@
                                             Dark={StaticResource ErrorTextDark}}" />
         </Border>
 
-        <ActivityIndicator
-            Grid.Row="1"
-            HorizontalOptions="Center"
-            IsRunning="{Binding IsBusy}"
-            IsVisible="{Binding IsBusy}"
-            VerticalOptions="Center"
-            Color="{StaticResource Primary}" />
+        
 
         <!--  Empty state  -->
         <VerticalStackLayout
@@ -105,18 +99,18 @@
         <!--  List  -->
         <CollectionView
             Grid.Row="1"
-            Margin="14,8,14,0"
+            Margin="5,8,5,0"
             ItemsSource="{Binding Items}"
             SelectionMode="None">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="models:Notification.NotificationItem">
                     <Border
-                        Margin="0,0,0,8"
+                        Margin="0,0,0,5"
                         Padding="0"
                         BackgroundColor="{Binding BgColor}"
                         Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                                  Dark={StaticResource BorderColorDark}}"
-                        StrokeShape="RoundRectangle 14"
+                        StrokeShape="RoundRectangle 8"
                         StrokeThickness="1">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordNotificationListViewModel}}, Path=DetailCommand}" CommandParameter="{Binding .}" />

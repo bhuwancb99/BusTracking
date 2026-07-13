@@ -15,11 +15,14 @@
     xmlns:student="clr-namespace:BusTracking.Mobile.Views.Student"
     FlyoutBehavior="Flyout"
     FlyoutWidth="270"
-    Shell.BackgroundColor="{AppThemeBinding Light={StaticResource LoginPageBgLight},
-                                            Dark={StaticResource LoginPageBgDark}}"
-    Shell.ForegroundColor="White"
-    Shell.TitleColor="White"
-    Shell.UnselectedColor="#94a3b8">
+    Shell.BackgroundColor="{AppThemeBinding Light={StaticResource NavBarBg},
+                                            Dark={StaticResource DrawerBgDark}}"
+    Shell.ForegroundColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark={StaticResource TextPrimaryDark}}"
+    Shell.TitleColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                         Dark={StaticResource TextPrimaryDark}}"
+    Shell.UnselectedColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                            Dark={StaticResource TextSecondaryDark}}">
 
     <!--
         ══════════════════════════════════════════════════════════
@@ -37,114 +40,133 @@
             <!--  ══ HEADER ══════════════════════════════════════════════════  -->
             <Grid
                 Grid.Row="0"
-                Padding="20,52,20,0"
-                RowDefinitions="Auto,Auto,Auto">
+                Padding="16,10,16,12"
+                RowDefinitions="Auto,Auto,Auto"
+                RowSpacing="12">
 
-                <!--  Brand row  -->
-                <HorizontalStackLayout Grid.Row="0" Spacing="10">
-                    <Border
-                        BackgroundColor="{StaticResource Primary}"
-                        HeightRequest="36"
-                        StrokeShape="RoundRectangle 10"
-                        StrokeThickness="0"
-                        WidthRequest="36">
-                        <Image
-                            HeightRequest="20"
-                            HorizontalOptions="Center"
-                            Source="bus.png"
-                            VerticalOptions="Center"
-                            WidthRequest="20">
-                            <Image.Behaviors>
-                                <mct:IconTintColorBehavior TintColor="White" />
-                            </Image.Behaviors>
-                        </Image>
-                    </Border>
-                    <Label VerticalOptions="Center">
-                        <Label.FormattedText>
-                            <FormattedString>
-                                <Span
-                                    FontAttributes="Bold"
-                                    FontSize="19"
-                                    Text="BusTrack "
-                                    TextColor="White" />
-                                <Span
-                                    FontSize="19"
-                                    Text="Admin"
-                                    TextColor="{StaticResource DrawerTextMuted}" />
-                            </FormattedString>
-                        </Label.FormattedText>
-                    </Label>
-                </HorizontalStackLayout>
-
-                <!--  User avatar + info  -->
-                <HorizontalStackLayout
-                    Grid.Row="1"
-                    Margin="0,20,0,0"
-                    Spacing="12">
-
-                    <!--  Avatar: initials circle underneath, real photo on top  -->
-                    <Grid
-                        HeightRequest="46"
-                        VerticalOptions="Center"
-                        WidthRequest="46">
-
-                        <!--  Fallback initials circle (always present, hidden when image loads)  -->
+                <!--  Brand Card View  -->
+                <Border
+                    Grid.Row="0"
+                    Padding="14,12"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="1">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="{AppThemeBinding Light={StaticResource DrawerItemActiveLight}, Dark=#0c1f4e}" Offset="0.0" />
+                            <GradientStop Color="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
                         <Border
-                            x:Name="AvatarInitialsBorder"
-                            BackgroundColor="{StaticResource Primary}"
-                            HeightRequest="46"
-                            StrokeShape="RoundRectangle 23"
-                            StrokeThickness="0">
-                            <Label
-                                x:Name="LblInitials"
-                                FontAttributes="Bold"
-                                FontSize="16"
-                                HorizontalOptions="Center"
-                                TextColor="White"
-                                VerticalOptions="Center" />
-                        </Border>
-
-                        <!--  Real profile photo (hidden until image URL resolves)  -->
-                        <Border
-                            x:Name="AvatarImageBorder"
-                            HeightRequest="46"
-                            IsVisible="False"
-                            StrokeShape="RoundRectangle 23"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                            HeightRequest="36"
+                            StrokeShape="RoundRectangle 8"
                             StrokeThickness="0"
-                            WidthRequest="46">
+                            WidthRequest="36">
                             <Image
-                                x:Name="AvatarImage"
-                                Aspect="AspectFill"
-                                HeightRequest="46"
-                                WidthRequest="46" />
+                                HeightRequest="20"
+                                HorizontalOptions="Center"
+                                Source="bus.png"
+                                VerticalOptions="Center"
+                                WidthRequest="20">
+                                <Image.Behaviors>
+                                    <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource PrimaryButtonTextLight}, Dark={StaticResource PrimaryButtonTextDark}}" />
+                                </Image.Behaviors>
+                            </Image>
                         </Border>
-                    </Grid>
+                        <Label VerticalOptions="Center">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span
+                                        FontAttributes="Bold"
+                                        FontSize="18"
+                                        Text="BusTrack "
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}" />
+                                    <Span
+                                        FontSize="18"
+                                        Text="Admin"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </HorizontalStackLayout>
+                </Border>
 
-                    <VerticalStackLayout Spacing="4" VerticalOptions="Center">
-                        <Label
-                            x:Name="LblUserName"
-                            FontAttributes="Bold"
-                            FontSize="14"
-                            TextColor="White" />
-                        <Border
-                            Padding="8,3"
-                            BackgroundColor="{StaticResource Accent}"
-                            HorizontalOptions="Start"
-                            StrokeShape="RoundRectangle 20"
-                            StrokeThickness="0">
+                <!--  User Details Card View  -->
+                <Border
+                    Grid.Row="1"
+                    Padding="16,14"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="1"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <!--  Avatar: initials circle underneath, real photo on top  -->
+                        <Grid
+                            Grid.Column="0"
+                            HeightRequest="46"
+                            VerticalOptions="Center"
+                            WidthRequest="46">
+
+                            <!--  Fallback initials circle (always present, hidden when image loads)  -->
+                            <Border
+                                x:Name="AvatarInitialsBorder"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
+                                HeightRequest="46"
+                                StrokeShape="RoundRectangle 23"
+                                StrokeThickness="0">
+                                <Label
+                                    x:Name="LblInitials"
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    HorizontalOptions="Center"
+                                    TextColor="{AppThemeBinding Light={StaticResource PrimaryButtonTextLight}, Dark={StaticResource PrimaryButtonTextDark}}"
+                                    VerticalOptions="Center" />
+                            </Border>
+
+                            <!--  Real profile photo (hidden until image URL resolves)  -->
+                            <Border
+                                x:Name="AvatarImageBorder"
+                                HeightRequest="46"
+                                IsVisible="False"
+                                StrokeShape="RoundRectangle 23"
+                                StrokeThickness="0"
+                                WidthRequest="46">
+                                <Image
+                                    x:Name="AvatarImage"
+                                    Aspect="AspectFill"
+                                    HeightRequest="46"
+                                    WidthRequest="46" />
+                            </Border>
+                        </Grid>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
                             <Label
-                                x:Name="LblRoleLabel"
+                                x:Name="LblUserName"
                                 FontAttributes="Bold"
-                                FontSize="10"
-                                TextColor="White" />
-                        </Border>
-                    </VerticalStackLayout>
-                </HorizontalStackLayout>
+                                FontSize="14"
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}" />
+                            <Border
+                                Padding="8,3"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource RoleBadgeBgLight}, Dark={StaticResource RoleBadgeBgDark}}"
+                                HorizontalOptions="Start"
+                                StrokeShape="RoundRectangle 8"
+                                StrokeThickness="0">
+                                <Label
+                                    x:Name="LblRoleLabel"
+                                    FontAttributes="Bold"
+                                    FontSize="10"
+                                    TextColor="{AppThemeBinding Light={StaticResource RoleBadgeTextLight}, Dark={StaticResource RoleBadgeTextDark}}" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
 
                 <!--  Divider  -->
                 <BoxView
                     Grid.Row="2"
-                    Margin="0,18,0,0"
+                    Margin="0,6,0,0"
                     BackgroundColor="{StaticResource DrawerDivider}"
                     HeightRequest="1" />
             </Grid>
@@ -163,7 +185,7 @@
                             Padding="14,13"
                             BackgroundColor="{Binding IsActive, Converter={StaticResource DrawerItemBgConverter}}"
                             Stroke="Transparent"
-                            StrokeShape="RoundRectangle 12">
+                            StrokeShape="RoundRectangle 8">
                             <Grid ColumnDefinitions="24,*" ColumnSpacing="14">
                                 <Image
                                     x:Name="menuImage"
@@ -192,7 +214,7 @@
             <!--  ══ FOOTER / LOGOUT ══════════════════════════════════════════  -->
             <Grid
                 Grid.Row="2"
-                Padding="14,0,14,44"
+                Padding="14,0,14,10"
                 RowDefinitions="Auto,Auto">
                 <BoxView
                     Grid.Row="0"
@@ -202,11 +224,10 @@
                 <Border
                     Grid.Row="1"
                     Padding="16,14"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource DangerLight},
-                                                      Dark={StaticResource CardBgDark}}"
-                    Stroke="{StaticResource Danger}"
-                    StrokeShape="RoundRectangle 14"
-                    StrokeThickness="1">
+                    BackgroundColor="{StaticResource Danger}"
+                    Stroke="Transparent"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="0">
                     <Border.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnLogoutTapped" />
                     </Border.GestureRecognizers>
@@ -217,14 +238,14 @@
                             VerticalOptions="Center"
                             WidthRequest="18">
                             <Image.Behaviors>
-                                <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                <mct:IconTintColorBehavior TintColor="White" />
                             </Image.Behaviors>
                         </Image>
                         <Label
                             FontAttributes="Bold"
                             FontSize="14"
                             Text="Logout"
-                            TextColor="{StaticResource Danger}"
+                            TextColor="White"
                             VerticalOptions="Center" />
                     </HorizontalStackLayout>
                 </Border>

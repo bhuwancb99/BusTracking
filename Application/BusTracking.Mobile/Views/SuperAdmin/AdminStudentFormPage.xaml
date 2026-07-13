@@ -13,14 +13,14 @@
 
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
     <Shell.TitleView>
         <Label
             FontAttributes="Bold"
             FontSize="17"
             Text="{Binding Title}"
-            TextColor="White"
+            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
             VerticalOptions="Center" />
     </Shell.TitleView>
     <ScrollView>
@@ -31,7 +31,7 @@
                 IsVisible="{Binding HasError}"
                 Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
                                          Dark={StaticResource ErrorBannerBorderDark}}"
-                StrokeShape="RoundRectangle 10"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <Label
                     Padding="12,10"
@@ -46,7 +46,7 @@
                                                   Dark={StaticResource CardBgDark}}"
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                          Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
@@ -70,7 +70,7 @@
                 
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                          Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
@@ -99,7 +99,7 @@
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
@@ -122,7 +122,7 @@
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
                 IsVisible="{Binding IsEditMode}"
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
@@ -152,7 +152,7 @@
                 IsVisible="{Binding IsEditMode, Converter={StaticResource InvertBool}}"
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                          Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
@@ -176,7 +176,7 @@
                                                   Dark={StaticResource CardBgDark}}"
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                          Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
@@ -200,7 +200,7 @@
                                                   Dark={StaticResource CardBgDark}}"
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                          Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
@@ -223,7 +223,7 @@
                                                   Dark={StaticResource CardBgDark}}"
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                          Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
@@ -233,7 +233,7 @@
                         TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                     Dark={StaticResource TextSecondaryDark}}" />
                     <Picker
-                        Title="Select a bus…"
+                        Title="Select a bus�"
                         BackgroundColor="Transparent"
                         ItemDisplayBinding="{Binding BusName}"
                         ItemsSource="{Binding BusOptions}"
@@ -248,7 +248,7 @@
                                                   Dark={StaticResource CardBgDark}}"
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                          Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
@@ -258,7 +258,7 @@
                         TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                     Dark={StaticResource TextSecondaryDark}}" />
                     <Picker
-                        Title="Select a stop…"
+                        Title="Select a stop�"
                         BackgroundColor="Transparent"
                         ItemDisplayBinding="{Binding StopName}"
                         ItemsSource="{Binding StopOptions}"
@@ -273,7 +273,7 @@
                                                   Dark={StaticResource CardBgDark}}"
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                          Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <Grid Padding="16" ColumnDefinitions="*,Auto">
                     <Label
@@ -305,7 +305,7 @@
                                                   Dark={StaticResource BorderColorDark}}"
                     BorderWidth="1.5"
                     Command="{Binding CancelCommand}"
-                    CornerRadius="12"
+                    CornerRadius="8"
                     FontAttributes="Bold"
                     HeightRequest="50"
                     Text="Cancel"
@@ -315,7 +315,7 @@
                     Grid.Column="1"
                     BackgroundColor="{StaticResource Primary}"
                     Command="{Binding SaveCommand}"
-                    CornerRadius="12"
+                    CornerRadius="8"
                     FontAttributes="Bold"
                     HeightRequest="50"
                     TextColor="White">
@@ -324,7 +324,7 @@
                             Binding="{Binding IsBusy}"
                             TargetType="Button"
                             Value="True">
-                            <Setter Property="Text" Value="Saving…" />
+                            <Setter Property="Text" Value="Saving�" />
                             <Setter Property="IsEnabled" Value="False" />
                         </DataTrigger>
                         <DataTrigger
@@ -342,11 +342,7 @@
                     </Button.Triggers>
                 </Button>
             </Grid>
-            <ActivityIndicator
-                HorizontalOptions="Center"
-                IsRunning="{Binding IsBusy}"
-                IsVisible="{Binding IsBusy}"
-                Color="{StaticResource Primary}" />
+            
         </VerticalStackLayout>
     </ScrollView>
 </views:ViewBase>

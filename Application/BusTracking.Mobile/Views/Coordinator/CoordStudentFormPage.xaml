@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Coordinator.CoordStudentFormPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -11,7 +11,7 @@
     BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
@@ -19,7 +19,7 @@
             FontAttributes="Bold"
             FontSize="17"
             Text="{Binding Title}"
-            TextColor="White"
+            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
             VerticalOptions="Center" />
     </Shell.TitleView>
 
@@ -31,7 +31,7 @@
                 BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
                 IsVisible="{Binding HasError}"
                 Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}"
-                StrokeShape="RoundRectangle 10">
+                StrokeShape="RoundRectangle 8">
                 <Label
                     FontSize="13"
                     Text="{Binding ErrorMessage}"
@@ -41,7 +41,7 @@
             <!--  Full Name  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14">
+                StrokeShape="RoundRectangle 8">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
@@ -60,7 +60,7 @@
             <!--  Username (required, used for login)  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14">
+                StrokeShape="RoundRectangle 8">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
@@ -89,7 +89,7 @@
                 BackgroundColor="White"
                 IsVisible="{Binding IsEditMode, Converter={StaticResource InverseBoolConverter}}"
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14">
+                StrokeShape="RoundRectangle 8">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
@@ -110,7 +110,7 @@
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
@@ -133,7 +133,7 @@
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
                 IsVisible="{Binding IsEditMode}"
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
@@ -160,7 +160,7 @@
             <!--  Phone  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14">
+                StrokeShape="RoundRectangle 8">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
@@ -180,7 +180,7 @@
             <!--  Standard/Class  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14">
+                StrokeShape="RoundRectangle 8">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
@@ -199,7 +199,7 @@
             <!--  Bus  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14">
+                StrokeShape="RoundRectangle 8">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
@@ -219,7 +219,7 @@
             <!--  Stop  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14">
+                StrokeShape="RoundRectangle 8">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
@@ -239,7 +239,7 @@
             <!--  Active  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14">
+                StrokeShape="RoundRectangle 8">
                 <Grid Padding="16" ColumnDefinitions="*,Auto">
                     <Label
                         Grid.Column="0"
@@ -266,7 +266,7 @@
                     BorderColor="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
                     BorderWidth="1.5"
                     Command="{Binding CancelCommand}"
-                    CornerRadius="12"
+                    CornerRadius="8"
                     FontAttributes="Bold"
                     HeightRequest="50"
                     Text="Cancel"
@@ -275,7 +275,7 @@
                     Grid.Column="1"
                     BackgroundColor="{StaticResource Primary}"
                     Command="{Binding SaveCommand}"
-                    CornerRadius="12"
+                    CornerRadius="8"
                     FontAttributes="Bold"
                     HeightRequest="50"
                     TextColor="White">

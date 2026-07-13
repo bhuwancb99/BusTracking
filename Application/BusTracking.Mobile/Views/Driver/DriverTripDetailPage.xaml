@@ -12,7 +12,7 @@
     BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
@@ -20,17 +20,12 @@
             FontAttributes="Bold"
             FontSize="17"
             Text="{Binding Title}"
-            TextColor="White"
+            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
             VerticalOptions="Center" />
     </Shell.TitleView>
 
     <Grid RowDefinitions="Auto,*">
-        <ActivityIndicator
-            Grid.Row="0"
-            HorizontalOptions="Center"
-            IsRunning="{Binding IsBusy}"
-            IsVisible="{Binding IsBusy}"
-            Color="{StaticResource Primary}" />
+        
 
         <ScrollView Grid.Row="1">
             <VerticalStackLayout Padding="16,16,16,32" Spacing="14">
@@ -40,7 +35,7 @@
                     BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
                     IsVisible="{Binding HasError}"
                     Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}"
-                    StrokeShape="RoundRectangle 10">
+                    StrokeShape="RoundRectangle 8">
                     <Label
                         Padding="12,10"
                         FontSize="13"
@@ -51,7 +46,7 @@
                 <!--  Trip Summary Card  -->
                 <Border
                     BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                    StrokeShape="RoundRectangle 14"
+                    StrokeShape="RoundRectangle 8"
                     StrokeThickness="1">
                     <VerticalStackLayout Padding="16" Spacing="6">
                         <Label
@@ -151,28 +146,28 @@
                         Grid.Column="0"
                         BackgroundColor="{StaticResource Success}"
                         Command="{Binding StartTripCommand}"
-                        CornerRadius="12"
+                        CornerRadius="8"
                         FontAttributes="Bold"
                         HeightRequest="50"
-                        Text="▶ Start"
+                        Text="? Start"
                         TextColor="White" />
                     <Button
                         Grid.Column="1"
                         BackgroundColor="{StaticResource Danger}"
                         Command="{Binding CancelTripCommand}"
-                        CornerRadius="12"
+                        CornerRadius="8"
                         FontAttributes="Bold"
                         HeightRequest="50"
-                        Text="✕ Cancel"
+                        Text="? Cancel"
                         TextColor="White" />
                     <Button
                         Grid.Column="2"
                         BackgroundColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}"
                         Command="{Binding EndTripCommand}"
-                        CornerRadius="12"
+                        CornerRadius="8"
                         FontAttributes="Bold"
                         HeightRequest="50"
-                        Text="■ End"
+                        Text="� End"
                         TextColor="White" />
                 </Grid>
 
@@ -196,7 +191,7 @@
                             <Border
                                 Margin="0,0,0,10"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                                StrokeShape="RoundRectangle 14"
+                                StrokeShape="RoundRectangle 8"
                                 StrokeThickness="1">
                                 <VerticalStackLayout Padding="16" Spacing="10">
                                     <!--  Stop header  -->

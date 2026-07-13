@@ -13,7 +13,7 @@
                                       Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
@@ -26,10 +26,10 @@
                 FontAttributes="Bold"
                 FontSize="17"
                 Text="Bus Coordinators"
-                TextColor="White"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
                 VerticalOptions="Center" />
 
-            <!--  Edit â€” hidden for own account or if no edit permission  -->
+            <!--  Edit — hidden for own account or if no edit permission  -->
             <Border
                 Grid.Column="1"
                 Padding="7"
@@ -51,7 +51,7 @@
                 </Image>
             </Border>
 
-            <!--  Reset Password â€” hidden for own account  -->
+            <!--  Reset Password — hidden for own account  -->
             <Border
                 Grid.Column="2"
                 Padding="7"
@@ -73,7 +73,7 @@
                 </Image>
             </Border>
 
-            <!--  Delete â€” hidden for own account or if no delete permission  -->
+            <!--  Delete — hidden for own account or if no delete permission  -->
             <Border
                 Grid.Column="3"
                 Padding="7"
@@ -100,12 +100,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="12">
 
-            <ActivityIndicator
-                HorizontalOptions="Center"
-                IsRunning="{Binding IsBusy}"
-                IsVisible="{Binding IsBusy}"
-                VerticalOptions="Center"
-                Color="{StaticResource Primary}" />
+            
 
             <!--  Error  -->
             <Border
@@ -115,7 +110,7 @@
                 IsVisible="{Binding HasError}"
                 Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
                                          Dark={StaticResource ErrorBannerBorderDark}}"
-                StrokeShape="RoundRectangle 10">
+                StrokeShape="RoundRectangle 8">
                 <Label
                     FontSize="13"
                     Text="{Binding ErrorMessage}"
@@ -128,7 +123,7 @@
                 BackgroundColor="#fffbeb"
                 IsVisible="{Binding IsSelf}"
                 Stroke="#fde68a"
-                StrokeShape="RoundRectangle 10"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
                     <Image
@@ -145,7 +140,7 @@
                         Grid.Column="1"
                         FontAttributes="Bold"
                         FontSize="13"
-                        Text="This is your account â€” edit options are disabled."
+                        Text="This is your account — edit options are disabled."
                         TextColor="#92400e"
                         VerticalOptions="Center" />
                 </Grid>
@@ -172,7 +167,7 @@
                             FontSize="22"
                             HorizontalOptions="Center"
                             Text="{Binding Coordinator.InitialsDisplay}"
-                            TextColor="White"
+                            TextColor="{AppThemeBinding Light={StaticResource PrimaryButtonTextLight}, Dark={StaticResource PrimaryButtonTextDark}}"
                             VerticalOptions="Center" />
                     </Border>
                     <VerticalStackLayout
@@ -360,11 +355,11 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!--  Toggle Active button â€” hidden for own account  -->
+            <!--  Toggle Active button — hidden for own account  -->
             <Button
                 BackgroundColor="{StaticResource Accent}"
                 Command="{Binding ToggleCommand}"
-                CornerRadius="12"
+                CornerRadius="8"
                 FontAttributes="Bold"
                 HeightRequest="50"
                 IsVisible="{Binding CanToggle}"

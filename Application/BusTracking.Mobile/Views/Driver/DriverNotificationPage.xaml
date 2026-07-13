@@ -13,7 +13,7 @@
                                       Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
@@ -23,7 +23,7 @@
                 FontAttributes="Bold"
                 FontSize="18"
                 Text="Notifications"
-                TextColor="White"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
                 VerticalOptions="Center" />
             <Button
                 Grid.Column="1"
@@ -32,7 +32,7 @@
                 IsVisible="{Binding HasUnread}"
                 Style="{StaticResource OutlineButtonSmall}"
                 Text="Mark All Read"
-                TextColor="White" />
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}" />
         </Grid>
     </Shell.TitleView>
 
@@ -41,7 +41,7 @@
         <!--  Error Banner  -->
         <Border
             Grid.Row="0"
-            Margin="14,8"
+            Margin="5,8"
             IsVisible="{Binding HasError}"
             Style="{StaticResource ErrorBannerBorder}">
             <Label
@@ -52,12 +52,7 @@
         </Border>
 
         <!--  Busy / Empty / List  -->
-        <ActivityIndicator
-            Grid.Row="1"
-            HorizontalOptions="Center"
-            IsRunning="{Binding IsBusy}"
-            IsVisible="{Binding IsBusy}"
-            VerticalOptions="Center" />
+        
 
         <!--  Empty State  -->
         <VerticalStackLayout
@@ -95,10 +90,10 @@
                 <DataTemplate x:DataType="models:DriverNotificationItem">
                     <Grid>
                         <Border
-                            Margin="14,6"
+                            Margin="5,2.5"
                             Padding="14,12"
                             BackgroundColor="{Binding BgColor}"
-                            StrokeShape="RoundRectangle 10"
+                            StrokeShape="RoundRectangle 8"
                             StrokeThickness="0">
                             <Border.Shadow>
                                 <Shadow

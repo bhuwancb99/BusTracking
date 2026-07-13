@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Shared.LiveTrackingPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -118,7 +118,7 @@
                         Padding="0"
                         BackgroundColor="#EEF2FF"
                         HeightRequest="46"
-                        StrokeShape="RoundRectangle 12"
+                        StrokeShape="RoundRectangle 8"
                         WidthRequest="46">
                         <Label
                             FontSize="22"
@@ -227,7 +227,7 @@
                                     Grid.Column="0"
                                     BackgroundColor="{Binding StatusColor}"
                                     HeightRequest="28"
-                                    StrokeShape="RoundRectangle 14"
+                                    StrokeShape="RoundRectangle 8"
                                     StrokeThickness="0"
                                     WidthRequest="28">
                                     <Label
@@ -252,7 +252,7 @@
                                     Grid.Column="3"
                                     Padding="8,3"
                                     BackgroundColor="{Binding StatusColor}"
-                                    StrokeShape="RoundRectangle 10"
+                                    StrokeShape="RoundRectangle 8"
                                     StrokeThickness="0"
                                     VerticalOptions="Center">
                                     <Label
@@ -297,7 +297,7 @@
                     Margin="40,10"
                     BackgroundColor="#6366f1"
                     Command="{Binding GoBackCommand}"
-                    CornerRadius="14"
+                    CornerRadius="8"
                     FontAttributes="Bold"
                     Text="OK, Go Back"
                     TextColor="White" />

@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Converters;
+namespace BusTracking.Mobile.Converters;
 
 /// <summary>
 /// Converts a Boolean value to its logical inverse for use in data binding.
@@ -114,9 +114,9 @@ public class PlatformToColorConverter : IValueConverter
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         => value?.ToString() switch
         {
-            "Mobile" => Color.FromArgb("#2563eb"),
-            "Web" => Color.FromArgb("#059669"),
-            _ => Color.FromArgb("#64748b")
+            "Mobile" => Color.FromArgb("#00288e"),
+            "Web" => Color.FromArgb("#10b981"),
+            _ => Color.FromArgb("#505f76")
         };
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
@@ -185,29 +185,47 @@ public class ColorToTranslucentConverter : IValueConverter
          => throw new NotImplementedException();
 }
 
-/// Background: Primary blue when IsActive=true, Transparent when false
+/// Background: Active background when IsActive=true, Transparent when false
 public class DrawerItemBgConverter : IValueConverter
 {
     public object? Convert(object? value, Type t, object? p, CultureInfo c)
-        => (bool)(value ?? false) ? Color.FromArgb("#2563eb") : Colors.Transparent;
+    {
+        if (!(bool)(value ?? false)) return Colors.Transparent;
+        var theme = Application.Current?.RequestedTheme ?? AppTheme.Light;
+        return theme == AppTheme.Light ? Color.FromArgb("#d0e1fb") : Color.FromArgb("#1e40af");
+    }
     public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
          => throw new NotImplementedException();
 }
 
-/// Icon tint: White when active, DrawerIcon (#60a5fa) when inactive
+/// Icon tint: Active blue/light-blue when active, Slate/Charcoal when inactive
 public class DrawerIconColorConverter : IValueConverter
 {
     public object? Convert(object? value, Type t, object? p, CultureInfo c)
-        => (bool)(value ?? false) ? Colors.White : Color.FromArgb("#60a5fa");
+    {
+        var theme = Application.Current?.RequestedTheme ?? AppTheme.Light;
+        if ((bool)(value ?? false))
+        {
+            return theme == AppTheme.Light ? Color.FromArgb("#00288e") : Color.FromArgb("#a8b8ff");
+        }
+        return theme == AppTheme.Light ? Color.FromArgb("#505f76") : Color.FromArgb("#c4c5d5");
+    }
     public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
         => throw new NotImplementedException();
 }
 
-/// Label text colour: White when active, DrawerText (#cbd5e1) when inactive
+/// Label text colour: Active blue/light-blue when active, Slate/Charcoal when inactive
 public class DrawerTextColorConverter : IValueConverter
 {
     public object? Convert(object? value, Type t, object? p, CultureInfo c)
-        => (bool)(value ?? false) ? Colors.White : Color.FromArgb("#cbd5e1");
+    {
+        var theme = Application.Current?.RequestedTheme ?? AppTheme.Light;
+        if ((bool)(value ?? false))
+        {
+            return theme == AppTheme.Light ? Color.FromArgb("#00288e") : Color.FromArgb("#a8b8ff");
+        }
+        return theme == AppTheme.Light ? Color.FromArgb("#505f76") : Color.FromArgb("#c4c5d5");
+    }
     public object ConvertBack(object? value, Type targetType, object? parameter, System.Globalization.CultureInfo culture)
         => throw new NotImplementedException();
 }
@@ -221,21 +239,22 @@ public class DrawerFontAttribConverter : IValueConverter
         => throw new NotImplementedException();
 }
 
-/// Single-binding tint converter — bind to the FlyoutMenuItem itself (.) 
-/// Active   → White
-/// Inactive + IconColor set → parse hex
-/// Inactive + no IconColor  → default #60a5fa
+/// Single-binding tint converter — bind to the FlyoutMenuItem itself (.)
 public class DrawerIconTintConverter : IValueConverter
 {
     public object Convert(object? value, Type t, object? p, CultureInfo c)
     {
+        var theme = Application.Current?.RequestedTheme ?? AppTheme.Light;
         if (value is FlyoutMenuItem item)
         {
-            if (item.IsActive) return Colors.White;
+            if (item.IsActive)
+            {
+                return theme == AppTheme.Light ? Color.FromArgb("#00288e") : Color.FromArgb("#a8b8ff");
+            }
             if (!string.IsNullOrWhiteSpace(item.IconColor))
                 try { return Color.FromArgb(item.IconColor); } catch { }
         }
-        return Colors.White;
+        return theme == AppTheme.Light ? Color.FromArgb("#505f76") : Color.FromArgb("#c4c5d5");
     }
     public object ConvertBack(object? v, Type t, object? p, CultureInfo c)
         => throw new NotImplementedException();

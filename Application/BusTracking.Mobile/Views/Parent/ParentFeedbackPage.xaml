@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Parent.ParentFeedbackPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -13,7 +13,7 @@
                                       Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
@@ -21,21 +21,21 @@
             FontAttributes="Bold"
             FontSize="17"
             Text="Help &amp; Support"
-            TextColor="White"
+            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
             VerticalOptions="Center" />
     </Shell.TitleView>
 
     <ScrollView>
         <VerticalStackLayout Padding="16,20,16,40" Spacing="12">
 
-            <!--  ══ Hero banner  -->
+            <!-- - Hero banner  -->
             <Border Margin="0,0,0,4" Style="{StaticResource HeroCard}">
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
                     <Border
                         Grid.Column="0"
                         BackgroundColor="{StaticResource Purple}"
                         HeightRequest="48"
-                        StrokeShape="RoundRectangle 14"
+                        StrokeShape="RoundRectangle 8"
                         StrokeThickness="0"
                         VerticalOptions="Center"
                         WidthRequest="48">
@@ -67,7 +67,7 @@
                 </Grid>
             </Border>
 
-            <!--  ══ Category  -->
+            <!-- - Category  -->
             <Border Style="{StaticResource FormFieldCard}">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label Style="{StaticResource FieldLabel}" Text="CATEGORY" />
@@ -78,7 +78,7 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!--  ══ Subject  -->
+            <!-- - Subject  -->
             <Border Style="{StaticResource FormFieldCard}">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label Style="{StaticResource FieldLabel}" Text="SUBJECT" />
@@ -86,7 +86,7 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!--  ══ Message  -->
+            <!-- - Message  -->
             <Border Style="{StaticResource FormFieldCard}">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label Style="{StaticResource FieldLabel}" Text="MESSAGE" />
@@ -98,7 +98,7 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!--  ══ Error banner  -->
+            <!-- - Error banner  -->
             <Border IsVisible="{Binding HasError}" Style="{StaticResource ErrorBannerBorder}">
                 <Label
                     FontSize="13"
@@ -107,7 +107,7 @@
                                                 Dark={StaticResource ErrorTextDark}}" />
             </Border>
 
-            <!--  ══ Submit button  -->
+            <!-- - Submit button  -->
             <Button
                 Command="{Binding SubmitCommand}"
                 Style="{StaticResource PrimaryButton}"
@@ -123,10 +123,7 @@
                 </Button.Triggers>
             </Button>
 
-            <ActivityIndicator
-                HorizontalOptions="Center"
-                IsRunning="{Binding IsBusy}"
-                IsVisible="{Binding IsBusy}" />
+            
 
         </VerticalStackLayout>
     </ScrollView>

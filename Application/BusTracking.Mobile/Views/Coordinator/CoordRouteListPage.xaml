@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Coordinator.CoordRouteListPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -13,7 +13,7 @@
                                       Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
@@ -23,7 +23,7 @@
                 FontAttributes="Bold"
                 FontSize="18"
                 Text="Routes"
-                TextColor="White"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
                 VerticalOptions="Center" />
             <Border
                 Grid.Column="1"
@@ -50,12 +50,17 @@
 
     <Grid RowDefinitions="Auto,Auto,*">
 
-        <!--  Status filter + Search (one row)  -->
-        <Grid
+                <!--  Search Section Card (Separated from list)  -->
+        <Border
             Grid.Row="0"
-            Margin="14,12,14,4"
-            ColumnDefinitions="Auto,*"
-            ColumnSpacing="8">
+            Margin="5,14,5,8"
+            Padding="14,12"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+            StrokeShape="RoundRectangle 12"
+            StrokeThickness="1"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+
 
             <!--  Status filter, bordered  -->
             <Border
@@ -104,7 +109,7 @@
                         Padding="8"
                         BackgroundColor="{StaticResource Primary}"
                         Command="{Binding SearchCommand}"
-                        CornerRadius="10"
+                        CornerRadius="8"
                         HeightRequest="36"
                         HorizontalOptions="End"
                         Source="search.png"
@@ -116,11 +121,12 @@
                 </Grid>
             </Border>
         </Grid>
+    </Border>
 
         <!--  Error  -->
         <Border
             Grid.Row="1"
-            Margin="14,0"
+            Margin="5,0"
             IsVisible="{Binding HasError}"
             Style="{StaticResource ErrorBannerBorder}">
             <Label
@@ -129,13 +135,7 @@
                 TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
                                             Dark={StaticResource ErrorTextDark}}" />
         </Border>
-        <!--  Busy  -->
-        <ActivityIndicator
-            Grid.Row="2"
-            HorizontalOptions="Center"
-            IsRunning="{Binding IsBusy}"
-            IsVisible="{Binding IsBusy}"
-            VerticalOptions="Center" />
+        
 
         <!--  Empty  -->
         <VerticalStackLayout
@@ -181,7 +181,7 @@
         <!--  List  -->
         <CollectionView
             Grid.Row="2"
-            Margin="14,4,14,0"
+            Margin="5,4,5,0"
             ItemsSource="{Binding Items}"
             RemainingItemsThreshold="3"
             RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
@@ -195,7 +195,7 @@
                     <Label
                         FontSize="48"
                         HorizontalOptions="Center"
-                        Text="🗺️" />
+                        Text="???" />
                     <Label
                         FontSize="15"
                         HorizontalOptions="Center"

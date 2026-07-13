@@ -11,7 +11,7 @@
     BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
@@ -19,7 +19,7 @@
             FontAttributes="Bold"
             FontSize="17"
             Text="Bus Coordinator"
-            TextColor="White"
+            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
             VerticalOptions="Center" />
     </Shell.TitleView>
 
@@ -50,96 +50,196 @@
                     <Border
                         Grid.Row="0"
                         Grid.Column="0"
-                        Padding="16"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
                         IsVisible="{Binding ShowBuses}"
-                        StrokeShape="RoundRectangle 16">
+                        Style="{StaticResource StatCardBorder}">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToBusesCommand}" />
                         </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="4">
-                            <Label FontSize="28" Text="🚌" />
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
+                            <Border
+                                BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg}, Dark={StaticResource StatBusBgDark}}"
+                                HeightRequest="44"
+                                HorizontalOptions="Center"
+                                StrokeShape="RoundRectangle 22"
+                                StrokeThickness="0"
+                                WidthRequest="44">
+                                <Image
+                                    HeightRequest="22"
+                                    HorizontalOptions="Center"
+                                    Source="bus.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="22">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Border>
                             <Label
                                 FontAttributes="Bold"
-                                FontSize="26"
+                                FontSize="22"
+                                HorizontalOptions="Center"
                                 Text="{Binding Summary.TotalBuses}"
                                 TextColor="{StaticResource Primary}" />
                             <Label
-                                FontSize="12"
-                                Text="Buses"
-                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                                HorizontalOptions="Center"
+                                Style="{StaticResource CaptionLabel}"
+                                Text="Buses" />
+                            <Border
+                                Padding="6,2"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryLight}, Dark={StaticResource StatBusBgDark}}"
+                                Stroke="Transparent"
+                                StrokeShape="RoundRectangle 8">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="10"
+                                    HorizontalOptions="Center"
+                                    Text="View"
+                                    TextColor="{StaticResource Primary}" />
+                            </Border>
                         </VerticalStackLayout>
                     </Border>
 
                     <Border
                         Grid.Row="0"
                         Grid.Column="1"
-                        Padding="16"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
                         IsVisible="{Binding ShowStudents}"
-                        StrokeShape="RoundRectangle 16">
+                        Style="{StaticResource StatCardBorder}">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToStudentsCommand}" />
                         </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="4">
-                            <Label FontSize="28" Text="🎒" />
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
+                            <Border
+                                BackgroundColor="{AppThemeBinding Light={StaticResource StatStudentBg}, Dark={StaticResource StatStudentBgDark}}"
+                                HeightRequest="44"
+                                HorizontalOptions="Center"
+                                StrokeShape="RoundRectangle 22"
+                                StrokeThickness="0"
+                                WidthRequest="44">
+                                <Image
+                                    HeightRequest="22"
+                                    HorizontalOptions="Center"
+                                    Source="student.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="22">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{StaticResource Purple}" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Border>
                             <Label
                                 FontAttributes="Bold"
-                                FontSize="26"
+                                FontSize="22"
+                                HorizontalOptions="Center"
                                 Text="{Binding Summary.TotalStudents}"
                                 TextColor="{StaticResource Purple}" />
                             <Label
-                                FontSize="12"
-                                Text="Students"
-                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                                HorizontalOptions="Center"
+                                Style="{StaticResource CaptionLabel}"
+                                Text="Students" />
+                            <Border
+                                Padding="6,2"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource PurpleLight}, Dark={StaticResource StatStudentBgDark}}"
+                                Stroke="Transparent"
+                                StrokeShape="RoundRectangle 8">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="10"
+                                    HorizontalOptions="Center"
+                                    Text="View"
+                                    TextColor="{StaticResource Purple}" />
+                            </Border>
                         </VerticalStackLayout>
                     </Border>
 
                     <Border
                         Grid.Row="1"
                         Grid.Column="0"
-                        Padding="16"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
                         IsVisible="{Binding ShowTrips}"
-                        StrokeShape="RoundRectangle 16">
+                        Style="{StaticResource StatCardBorder}">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToTripsCommand}" />
                         </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="4">
-                            <Label FontSize="28" Text="📍" />
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
+                            <Border
+                                BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg}, Dark={StaticResource StatTripBgDark}}"
+                                HeightRequest="44"
+                                HorizontalOptions="Center"
+                                StrokeShape="RoundRectangle 22"
+                                StrokeThickness="0"
+                                WidthRequest="44">
+                                <Image
+                                    HeightRequest="22"
+                                    HorizontalOptions="Center"
+                                    Source="trip.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="22">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Border>
                             <Label
                                 FontAttributes="Bold"
-                                FontSize="26"
+                                FontSize="22"
+                                HorizontalOptions="Center"
                                 Text="{Binding Summary.ActiveTrips}"
-                                TextColor="{StaticResource DangerDark}" />
+                                TextColor="{StaticResource Danger}" />
                             <Label
-                                FontSize="12"
-                                Text="Active Trips"
-                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                                HorizontalOptions="Center"
+                                Style="{StaticResource CaptionLabel}"
+                                Text="Active Trips" />
                         </VerticalStackLayout>
                     </Border>
 
                     <Border
                         Grid.Row="1"
                         Grid.Column="1"
-                        Padding="16"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
                         IsVisible="{Binding ShowParents}"
-                        StrokeShape="RoundRectangle 16">
+                        Style="{StaticResource StatCardBorder}">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToParentsCommand}" />
                         </Border.GestureRecognizers>
-                        <VerticalStackLayout Spacing="4">
-                            <Label FontSize="28" Text="👨‍👩‍👧" />
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
+                            <Border
+                                BackgroundColor="{AppThemeBinding Light={StaticResource StatParentBg}, Dark={StaticResource StatParentBgDark}}"
+                                HeightRequest="44"
+                                HorizontalOptions="Center"
+                                StrokeShape="RoundRectangle 22"
+                                StrokeThickness="0"
+                                WidthRequest="44">
+                                <Image
+                                    HeightRequest="22"
+                                    HorizontalOptions="Center"
+                                    Source="parent.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="22">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{StaticResource Success}" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Border>
                             <Label
                                 FontAttributes="Bold"
-                                FontSize="26"
+                                FontSize="22"
+                                HorizontalOptions="Center"
                                 Text="{Binding Summary.TotalParents}"
                                 TextColor="{StaticResource Success}" />
                             <Label
-                                FontSize="12"
-                                Text="Parents"
-                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                                HorizontalOptions="Center"
+                                Style="{StaticResource CaptionLabel}"
+                                Text="Parents" />
+                            <Border
+                                Padding="6,2"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource SuccessLight}, Dark={StaticResource StatParentBgDark}}"
+                                Stroke="Transparent"
+                                StrokeShape="RoundRectangle 8">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="10"
+                                    HorizontalOptions="Center"
+                                    Text="View"
+                                    TextColor="{StaticResource Success}" />
+                            </Border>
                         </VerticalStackLayout>
                     </Border>
 
@@ -163,7 +263,7 @@
                         Padding="14,10"
                         BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
                         IsVisible="{Binding ShowRoutes}"
-                        StrokeShape="RoundRectangle 12">
+                        StrokeShape="RoundRectangle 8">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToRoutesCommand}" />
                         </Border.GestureRecognizers>
@@ -182,7 +282,7 @@
                         Padding="14,10"
                         BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
                         IsVisible="{Binding ShowDrivers}"
-                        StrokeShape="RoundRectangle 12">
+                        StrokeShape="RoundRectangle 8">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToDriversCommand}" />
                         </Border.GestureRecognizers>
@@ -201,7 +301,7 @@
                         Padding="14,10"
                         BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
                         IsVisible="{Binding ShowStudents}"
-                        StrokeShape="RoundRectangle 12">
+                        StrokeShape="RoundRectangle 8">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToStudentsCommand}" />
                         </Border.GestureRecognizers>
@@ -220,7 +320,7 @@
                         Padding="14,10"
                         BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
                         IsVisible="{Binding ShowParents}"
-                        StrokeShape="RoundRectangle 12">
+                        StrokeShape="RoundRectangle 8">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToParentsCommand}" />
                         </Border.GestureRecognizers>
@@ -239,7 +339,7 @@
                         Padding="14,10"
                         BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
                         IsVisible="{Binding ShowTrips}"
-                        StrokeShape="RoundRectangle 12">
+                        StrokeShape="RoundRectangle 8">
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Command="{Binding GoToTripsCommand}" />
                         </Border.GestureRecognizers>
@@ -267,7 +367,7 @@
                     <Button
                         BackgroundColor="{StaticResource Primary}"
                         Command="{Binding GoToTripsCommand}"
-                        CornerRadius="12"
+                        CornerRadius="8"
                         FontAttributes="Bold"
                         HeightRequest="48"
                         IsVisible="{Binding CanCreateTrip}"
@@ -276,7 +376,7 @@
                     <Button
                         BackgroundColor="{StaticResource Purple}"
                         Command="{Binding GoToStudentsCommand}"
-                        CornerRadius="12"
+                        CornerRadius="8"
                         FontAttributes="Bold"
                         HeightRequest="48"
                         IsVisible="{Binding CanAddStudent}"
@@ -285,7 +385,7 @@
                     <Button
                         BackgroundColor="{StaticResource Success}"
                         Command="{Binding GoToBusesCommand}"
-                        CornerRadius="12"
+                        CornerRadius="8"
                         FontAttributes="Bold"
                         HeightRequest="48"
                         IsVisible="{Binding CanAddBus}"

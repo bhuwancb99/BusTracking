@@ -13,7 +13,7 @@
                                       Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
@@ -23,7 +23,7 @@
                 FontAttributes="Bold"
                 FontSize="17"
                 Text="Driver Portal"
-                TextColor="White"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
                 VerticalOptions="Center" />
             <ImageButton
                 Grid.Column="1"
@@ -62,7 +62,7 @@
                             FontAttributes="Bold"
                             FontSize="20"
                             Text="{Binding BusDisplay}"
-                            TextColor="White" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}" />
                         <Label
                             FontSize="14"
                             Text="{Binding RouteDisplay}"
@@ -78,7 +78,7 @@
                                     <Span
                                         FontAttributes="Bold"
                                         Text="{Binding TotalStudents}"
-                                        TextColor="White" />
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}" />
                                     <Span Text=" students on route" TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                                 </FormattedString>
                             </Label.FormattedText>
@@ -146,7 +146,7 @@
                         <Button
                             BackgroundColor="{StaticResource Primary}"
                             Command="{Binding StartActiveTripCommand}"
-                            CornerRadius="12"
+                            CornerRadius="8"
                             FontAttributes="Bold"
                             HeightRequest="48"
                             IsVisible="{Binding ActiveTrip.CanStart}"
@@ -157,7 +157,7 @@
                         <Button
                             BackgroundColor="{StaticResource Success}"
                             Command="{Binding GoToActiveTrackingCommand}"
-                            CornerRadius="12"
+                            CornerRadius="8"
                             FontAttributes="Bold"
                             HeightRequest="48"
                             IsVisible="{Binding HasActiveTrip}"
@@ -188,7 +188,7 @@
                     BorderColor="{StaticResource Primary}"
                     BorderWidth="1.5"
                     Command="{Binding ViewTripsCommand}"
-                    CornerRadius="14"
+                    CornerRadius="8"
                     FontAttributes="Bold"
                     HeightRequest="50"
                     Text="📋 View All Trips"

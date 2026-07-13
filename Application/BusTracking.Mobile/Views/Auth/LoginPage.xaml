@@ -12,7 +12,7 @@
     BackgroundColor="{AppThemeBinding Light={StaticResource LoginCardBgLight}, Dark={StaticResource LoginCardBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <ScrollView>
@@ -73,11 +73,11 @@
                         VerticalOptions="Center"
                         WidthRequest="68" />
                     <Border
-                        BackgroundColor="{StaticResource PrimaryDark}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
                         HeightRequest="56"
                         HorizontalOptions="Center"
-                        Stroke="White"
-                        StrokeShape="RoundRectangle 18"
+                        Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark=White}"
+                        StrokeShape="RoundRectangle 8"
                         StrokeThickness="1.5"
                         VerticalOptions="Center"
                         WidthRequest="56">
@@ -88,7 +88,7 @@
                             VerticalOptions="Center"
                             WidthRequest="28">
                             <Image.Behaviors>
-                                <mct:IconTintColorBehavior TintColor="White" />
+                                <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource PrimaryButtonTextLight}, Dark={StaticResource PrimaryButtonTextDark}}" />
                             </Image.Behaviors>
                         </Image>
                     </Border>
@@ -101,7 +101,7 @@
                     FontSize="28"
                     HorizontalOptions="Center"
                     Text="BUSTRACK"
-                    TextColor="White" />
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}" />
 
                 <!--  Tagline  -->
                 <Label
@@ -109,7 +109,7 @@
                     FontSize="13"
                     HorizontalOptions="Center"
                     Text="Safe journeys, every day"
-                    TextColor="{StaticResource HeroCardSubText}" />
+                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
 
             </VerticalStackLayout>
 
@@ -155,7 +155,7 @@
                             Padding="12,10"
                             BackgroundColor="{AppThemeBinding Light={StaticResource RoleBadgeBgLight}, Dark={StaticResource RoleBadgeBgDark}}"
                             Stroke="{AppThemeBinding Light={StaticResource RoleBadgeBorderLight}, Dark={StaticResource RoleBadgeBorderDark}}"
-                            StrokeShape="RoundRectangle 14"
+                            StrokeShape="RoundRectangle 8"
                             StrokeThickness="1.5"
                             VerticalOptions="Center">
                             <Image
@@ -213,7 +213,7 @@
                             BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
                             IsVisible="{Binding HasError}"
                             Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}"
-                            StrokeShape="RoundRectangle 12"
+                            StrokeShape="RoundRectangle 8"
                             StrokeThickness="1">
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
                                 <Image
@@ -251,7 +251,7 @@
                             BackgroundColor="{AppThemeBinding Light={StaticResource LoginInputBgLight}, Dark={StaticResource LoginInputBgDark}}"
                             HeightRequest="52"
                             Stroke="{AppThemeBinding Light={StaticResource LoginInputBorderLight}, Dark={StaticResource LoginInputBorderDark}}"
-                            StrokeShape="RoundRectangle 14"
+                            StrokeShape="RoundRectangle 8"
                             StrokeThickness="1.5">
                             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
                                 <Image
@@ -294,7 +294,7 @@
                             BackgroundColor="{AppThemeBinding Light={StaticResource LoginInputBgLight}, Dark={StaticResource LoginInputBgDark}}"
                             HeightRequest="52"
                             Stroke="{AppThemeBinding Light={StaticResource LoginInputBorderLight}, Dark={StaticResource LoginInputBorderDark}}"
-                            StrokeShape="RoundRectangle 14"
+                            StrokeShape="RoundRectangle 8"
                             StrokeThickness="1.5">
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
                                 <Image
@@ -311,13 +311,41 @@
                                     Grid.Column="1"
                                     BackgroundColor="Transparent"
                                     HeightRequest="52"
-                                    IsPassword="True"
+                                    IsPassword="{Binding IsPasswordHidden}"
                                     Placeholder="••••••••"
                                     PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
                                     ReturnType="Done"
                                     Text="{Binding Password}"
                                     TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
                                     VerticalOptions="Center" />
+                                <!--  Eye toggle  -->
+                                <ImageButton
+                                    Grid.Column="2"
+                                    BackgroundColor="Transparent"
+                                    Command="{Binding TogglePasswordVisibilityCommand}"
+                                    HeightRequest="16"
+                                    VerticalOptions="Center"
+                                    WidthRequest="16">
+                                    <ImageButton.Source>
+                                        <FontImageSource
+                                            FontFamily="OpenSansRegular"
+                                            Glyph=" " />
+                                    </ImageButton.Source>
+                                    <ImageButton.Triggers>
+                                        <DataTrigger
+                                            Binding="{Binding IsPasswordVisible}"
+                                            TargetType="ImageButton"
+                                            Value="False">
+                                            <Setter Property="Source" Value="eye.svg" />
+                                        </DataTrigger>
+                                        <DataTrigger
+                                            Binding="{Binding IsPasswordVisible}"
+                                            TargetType="ImageButton"
+                                            Value="True">
+                                            <Setter Property="Source" Value="eye_slash.svg" />
+                                        </DataTrigger>
+                                    </ImageButton.Triggers>
+                                </ImageButton>
                             </Grid>
                         </Border>
 
@@ -339,16 +367,10 @@
 
                         <!--  Sign In button  -->
                         <Button
+                            Style="{StaticResource LoginSignInButton}"
                             Margin="0,0,0,12"
-                            BackgroundColor="{StaticResource Primary}"
-                            BorderWidth="0"
                             Command="{Binding LoginCommand}"
-                            CornerRadius="14"
-                            FontAttributes="Bold"
-                            FontSize="16"
-                            HeightRequest="54"
-                            Text="Sign In  →"
-                            TextColor="White">
+                            Text="Sign In  →">
                             <Button.Triggers>
                                 <DataTrigger
                                     Binding="{Binding IsBusy}"
@@ -366,7 +388,7 @@
                             HeightRequest="3"
                             IsIndeterminate="True"
                             IsVisible="{Binding IsBusy}"
-                            ProgressFill="{StaticResource Primary}"
+                            ProgressFill="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
                             TrackCornerRadius="2"
                             TrackFill="{AppThemeBinding Light={StaticResource LoginInputBorderLight}, Dark={StaticResource LoginInputBorderDark}}" />
 

@@ -12,7 +12,7 @@
     BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
 
@@ -28,7 +28,7 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="18"
-                        Text="📅 Set Availability"
+                        Text="?? Set Availability"
                         TextColor="White" />
                     <Label
                         FontSize="13"
@@ -40,7 +40,7 @@
             <!--  Date picker  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="10">
                     <Label
@@ -60,13 +60,13 @@
             <!--  Morning toggle  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <Grid Padding="16" ColumnDefinitions="Auto,*,Auto">
                     <Label
                         Grid.Column="0"
                         FontSize="24"
-                        Text="🌅"
+                        Text="??"
                         VerticalOptions="Center" />
                     <VerticalStackLayout
                         Grid.Column="1"
@@ -94,13 +94,13 @@
             <!--  Evening toggle  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <Grid Padding="16" ColumnDefinitions="Auto,*,Auto">
                     <Label
                         Grid.Column="0"
                         FontSize="24"
-                        Text="🌆"
+                        Text="??"
                         VerticalOptions="Center" />
                     <VerticalStackLayout
                         Grid.Column="1"
@@ -128,7 +128,7 @@
             <!--  Reason  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
@@ -140,7 +140,7 @@
                         AutoSize="TextChanges"
                         BackgroundColor="Transparent"
                         MinimumHeightRequest="80"
-                        Placeholder="e.g. School holiday, sick leave…"
+                        Placeholder="e.g. School holiday, sick leave�"
                         PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                         Text="{Binding Reason}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
@@ -152,7 +152,7 @@
                 BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
                 IsVisible="{Binding HasError}"
                 Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight}, Dark={StaticResource ErrorBannerBorderDark}}"
-                StrokeShape="RoundRectangle 10"
+                StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <Label
                     Padding="12,8"
@@ -165,7 +165,7 @@
             <Button
                 BackgroundColor="{StaticResource Primary}"
                 Command="{Binding SaveCommand}"
-                CornerRadius="14"
+                CornerRadius="8"
                 FontAttributes="Bold"
                 FontSize="16"
                 HeightRequest="52"
@@ -176,17 +176,13 @@
                         Binding="{Binding IsBusy}"
                         TargetType="Button"
                         Value="True">
-                        <Setter Property="Text" Value="Saving…" />
+                        <Setter Property="Text" Value="Saving�" />
                         <Setter Property="IsEnabled" Value="False" />
                     </DataTrigger>
                 </Button.Triggers>
             </Button>
 
-            <ActivityIndicator
-                HorizontalOptions="Center"
-                IsRunning="{Binding IsBusy}"
-                IsVisible="{Binding IsBusy}"
-                Color="{StaticResource Primary}" />
+            
 
         </VerticalStackLayout>
     </ScrollView>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Parent.ParentDashboardPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -14,7 +14,7 @@
                                       Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
@@ -24,7 +24,7 @@
                 FontAttributes="Bold"
                 FontSize="17"
                 Text="Parent Portal"
-                TextColor="White"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
                 VerticalOptions="Center" />
             <ImageButton
                 Grid.Column="1"
@@ -61,7 +61,7 @@
                             BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg},
                                                               Dark={StaticResource StatTripBgDark}}"
                             HeightRequest="52"
-                            StrokeShape="RoundRectangle 14"
+                            StrokeShape="RoundRectangle 8"
                             StrokeThickness="0"
                             VerticalOptions="Center"
                             WidthRequest="52">
@@ -115,7 +115,7 @@
                             BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
                                                               Dark={StaticResource StatBusBgDark}}"
                             HeightRequest="52"
-                            StrokeShape="RoundRectangle 14"
+                            StrokeShape="RoundRectangle 8"
                             StrokeThickness="0"
                             VerticalOptions="Center"
                             WidthRequest="52">
@@ -168,7 +168,7 @@
                             BackgroundColor="{AppThemeBinding Light={StaticResource StatStudentBg},
                                                               Dark={StaticResource StatStudentBgDark}}"
                             HeightRequest="52"
-                            StrokeShape="RoundRectangle 14"
+                            StrokeShape="RoundRectangle 8"
                             StrokeThickness="0"
                             VerticalOptions="Center"
                             WidthRequest="52">
@@ -235,7 +235,7 @@
                                 BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
                                                                   Dark={StaticResource StatBusBgDark}}"
                                 Stroke="Transparent"
-                                StrokeShape="RoundRectangle 12">
+                                StrokeShape="RoundRectangle 8">
                                 <Label
                                     FontAttributes="Bold"
                                     FontSize="12"
@@ -278,7 +278,7 @@
                                                                           Dark={StaticResource PageBgDark}}"
                                         Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                                                  Dark={StaticResource BorderColorDark}}"
-                                        StrokeShape="RoundRectangle 14"
+                                        StrokeShape="RoundRectangle 8"
                                         StrokeThickness="1">
                                         <VerticalStackLayout Padding="14" Spacing="12">
 
@@ -321,7 +321,7 @@
                                                             BackgroundColor="{AppThemeBinding Light={StaticResource StatusActiveBg},
                                                                                               Dark={StaticResource StatusActiveBgDark}}"
                                                             Stroke="Transparent"
-                                                            StrokeShape="RoundRectangle 10"
+                                                            StrokeShape="RoundRectangle 8"
                                                             VerticalOptions="Center">
                                                             <Label
                                                                 FontAttributes="Bold"
@@ -359,7 +359,7 @@
                                                     BorderWidth="1.5"
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ParentDashboardViewModel}}, Path=TrackChildCommand}"
                                                     CommandParameter="{Binding .}"
-                                                    CornerRadius="10"
+                                                    CornerRadius="8"
                                                     FontAttributes="Bold"
                                                     FontSize="13"
                                                     HeightRequest="40"
@@ -373,7 +373,7 @@
                                                     BorderWidth="1.5"
                                                     Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ParentDashboardViewModel}}, Path=LeaveChildCommand}"
                                                     CommandParameter="{Binding .}"
-                                                    CornerRadius="10"
+                                                    CornerRadius="8"
                                                     FontAttributes="Bold"
                                                     FontSize="13"
                                                     HeightRequest="40"
