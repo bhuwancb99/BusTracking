@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:parentModels="clr-namespace:BusTracking.Mobile.Models.Parent"
     xmlns:studentModels="clr-namespace:BusTracking.Mobile.Models.Student"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
     x:DataType="vm:CoordParentFormViewModel"
@@ -13,14 +14,17 @@
                                       Dark={StaticResource PageBgDark}}">
 
     <Shell.TitleView>
-        <Label
-            FontAttributes="Bold"
-            FontSize="18"
-            HorizontalOptions="Center"
-            Text="{Binding Title}"
-            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                        Dark={StaticResource TextPrimaryDark}}"
-            VerticalOptions="Center" />
+        <Grid HorizontalOptions="Center" VerticalOptions="Center">
+            <Label
+                FontAttributes="Bold"
+                FontSize="17"
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
+                Text="{Binding Title}"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark={StaticResource TextPrimaryDark}}"
+                VerticalOptions="Center" />
+        </Grid>
     </Shell.TitleView>
 
     <ScrollView>
@@ -50,9 +54,15 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        Text="Full Name *"
                         TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                    Dark={StaticResource TextSecondaryDark}}" />
+                                                    Dark={StaticResource TextSecondaryDark}}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Full Name" />
+                                <Span Text="*" TextColor="{StaticResource Danger}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
                     <Entry
                         BackgroundColor="Transparent"
                         Placeholder="Enter full name"
@@ -74,9 +84,15 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        Text="Username *"
                         TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                    Dark={StaticResource TextSecondaryDark}}" />
+                                                    Dark={StaticResource TextSecondaryDark}}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Username" />
+                                <Span Text="*" TextColor="{StaticResource Danger}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
                     <Entry
                         BackgroundColor="Transparent"
                         Placeholder="Enter username"
@@ -116,10 +132,11 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!--  Password  -->
+            <!--  NEW PASSWORD  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                                   Dark={StaticResource CardBgDark}}"
+                IsVisible="{Binding IsEditMode}"
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                          Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 8"
@@ -128,14 +145,53 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        Text="{Binding IsEditMode, Converter={StaticResource NullToBool}, ConverterParameter='New Password (leave blank to keep current)|Password *'}"
+                        Text="NEW PASSWORD"
                         TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                     Dark={StaticResource TextSecondaryDark}}" />
                     <Entry
                         BackgroundColor="Transparent"
                         IsPassword="True"
-                        Placeholder="Enter password"
-                        Text="{Binding IsEditMode, Converter={StaticResource NullToBool}}"
+                        Keyboard="Default"
+                        Placeholder="Leave blank to keep current password"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                           Dark={StaticResource TextMutedDark}}"
+                        Text="{Binding NewPassword}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
+                    <Label
+                        FontAttributes="Italic"
+                        FontSize="11"
+                        Text="Leave blank to keep current password"
+                        TextColor="{StaticResource Danger}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Password (Add only)  -->
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                IsVisible="{Binding IsEditMode, Converter={StaticResource InvertBool}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 8"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Password " />
+                                <Span Text="*" TextColor="{StaticResource Danger}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Entry
+                        BackgroundColor="Transparent"
+                        IsPassword="True"
+                        Text="{Binding Password}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
@@ -205,17 +261,23 @@
                             <Entry
                                 Grid.Column="0"
                                 BackgroundColor="Transparent"
-                                Placeholder="Search student name or code…"
+                                Placeholder="Search student name or code..."
                                 PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
                                                                    Dark={StaticResource TextMutedDark}}"
                                 Text="{Binding StudentSearchText}"
                                 TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                             Dark={StaticResource TextPrimaryDark}}" />
-                            <Label
+                                                        <Image
                                 Grid.Column="1"
-                                FontSize="16"
-                                Text="🔍"
-                                VerticalOptions="Center" />
+                                HeightRequest="18"
+                                HorizontalOptions="Center"
+                                Source="search.png"
+                                VerticalOptions="Center"
+                                WidthRequest="18">
+                                <Image.Behaviors>
+                                    <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                                </Image.Behaviors>
+                            </Image>
                         </Grid>
                     </Border>
 
@@ -269,25 +331,28 @@
                                                 <Label.FormattedText>
                                                     <FormattedString>
                                                         <Span FontAttributes="Bold" Text="{Binding StudentCode}" />
-                                                        <Span Text=" · " />
+                                                        <Span Text=" | " />
                                                         <Span Text="{Binding Standard}" />
                                                     </FormattedString>
                                                 </Label.FormattedText>
                                             </Label>
                                         </VerticalStackLayout>
-                                        <Button
+                                                                                <Image
                                             Grid.Column="1"
-                                            Padding="8,4"
-                                            BackgroundColor="Transparent"
-                                            BorderColor="{StaticResource Danger}"
-                                            BorderWidth="1"
-                                            Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordParentFormViewModel}}, Path=RemoveStudentCommand}"
-                                            CommandParameter="{Binding .}"
-                                            CornerRadius="8"
-                                            FontSize="11"
-                                            Text="✕ Remove"
-                                            TextColor="{StaticResource Danger}"
-                                            VerticalOptions="Center" />
+                                            Source="delete.png"
+                                            HeightRequest="24"
+                                            WidthRequest="24"
+                                            VerticalOptions="Center"
+                                            HorizontalOptions="Center">
+                                            <Image.Behaviors>
+                                                <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                            </Image.Behaviors>
+                                            <Image.GestureRecognizers>
+                                                <TapGestureRecognizer
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordParentFormViewModel}}, Path=RemoveStudentCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                            </Image.GestureRecognizers>
+                                        </Image>
                                     </Grid>
                                 </Border>
                             </DataTemplate>

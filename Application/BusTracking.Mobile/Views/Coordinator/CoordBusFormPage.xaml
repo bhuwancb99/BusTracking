@@ -21,7 +21,8 @@
             FontAttributes="Bold"
             FontSize="17"
             Text="{Binding Title}"
-            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
+            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                        Dark=White}"
             VerticalOptions="Center" />
     </Shell.TitleView>
 
@@ -54,9 +55,15 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        Text="Bus Name *"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
+                                                    Dark={StaticResource TextPrimaryDark}}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Bus Name" />
+                                <Span Text="*" TextColor="{StaticResource Danger}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
                     <Entry
                         BackgroundColor="Transparent"
                         Placeholder="e.g. Red Falcon"
@@ -79,9 +86,15 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        Text="Bus Number *"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
+                                                    Dark={StaticResource TextPrimaryDark}}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Bus Number" />
+                                <Span Text="*" TextColor="{StaticResource Danger}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
                     <Entry
                         BackgroundColor="Transparent"
                         Placeholder="e.g. MH-01-1234"
@@ -130,9 +143,15 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        Text="Bus Type *"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
+                                                    Dark={StaticResource TextPrimaryDark}}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Bus Type" />
+                                <Span Text="*" TextColor="{StaticResource Danger}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
                     <Picker
                         Title="Select bus type…"
                         BackgroundColor="Transparent"

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Coordinator.CoordDriverListPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -23,106 +23,113 @@
                 FontAttributes="Bold"
                 FontSize="18"
                 Text="Drivers"
-                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}"
                 VerticalOptions="Center" />
             <Border
                 Grid.Column="1"
+                Padding="8"
+                BackgroundColor="White"
                 IsVisible="{Binding CanAdd}"
-                Style="{StaticResource NavAddBorder}">
+                StrokeShape="RoundRectangle 24"
+                StrokeThickness="0"
+                VerticalOptions="Center">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding AddCommand}" />
                 </Border.GestureRecognizers>
-                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="13"
-                        Text="+ Add"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
-                        VerticalOptions="Center" />
-                </HorizontalStackLayout>
+                <Image
+                    HeightRequest="20"
+                    Source="add.png"
+                    WidthRequest="20">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                    </Image.Behaviors>
+                </Image>
             </Border>
         </Grid>
     </Shell.TitleView>
 
     <Grid RowDefinitions="Auto,Auto,*">
 
-                <!--  Search Section Card (Separated from list)  -->
+        <!--  Search Section Card (Separated from list)  -->
         <Border
             Grid.Row="0"
             Margin="5,14,5,8"
             Padding="14,12"
-            Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                              Dark={StaticResource CardBgDark}}"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                     Dark={StaticResource BorderColorDark}}"
             StrokeShape="RoundRectangle 12"
-            StrokeThickness="1"
-            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}">
+            StrokeThickness="1">
             <VerticalStackLayout Spacing="10">
                 <Border Style="{StaticResource SearchBarBorder}">
 
-            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                <Image
-                    Grid.Column="0"
-                    HeightRequest="18"
-                    Source="search.png"
-                    VerticalOptions="Center"
-                    WidthRequest="18">
-                    <Image.Behaviors>
-                        <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
-                    </Image.Behaviors>
-                </Image>
-                <Entry
-                    Grid.Column="1"
-                    Placeholder="{Binding SearchPlaceholder}"
-                    ReturnCommand="{Binding SearchCommand}"
-                    Text="{Binding SearchText}" />
-                <Button
-                    Grid.Column="2"
-                    Command="{Binding SearchCommand}"
-                    Style="{StaticResource SearchGoButton}"
-                    Text="Go" />
-            </Grid>
-                    </Border>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                        <Image
+                            Grid.Column="0"
+                            HeightRequest="18"
+                            Source="search.png"
+                            VerticalOptions="Center"
+                            WidthRequest="18">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                            </Image.Behaviors>
+                        </Image>
+                        <Entry
+                            Grid.Column="1"
+                            Placeholder="{Binding SearchPlaceholder}"
+                            ReturnCommand="{Binding SearchCommand}"
+                            Text="{Binding SearchText}" />
+                        <Button
+                            Grid.Column="2"
+                            Command="{Binding SearchCommand}"
+                            Style="{StaticResource SearchGoButton}"
+                            Text="Go" />
+                    </Grid>
+                </Border>
                 <HorizontalStackLayout Spacing="8">
 
-            <Border
-                Padding="14,6"
-                BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Active'}"
-                StrokeShape="RoundRectangle 16"
-                StrokeThickness="0">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Active" />
-                </Border.GestureRecognizers>
-                <Label
-                    FontSize="12"
-                    Text="Active"
-                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Active'}" />
-            </Border>
-            <Border
-                Padding="14,6"
-                BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Inactive'}"
-                StrokeShape="RoundRectangle 16"
-                StrokeThickness="0">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Inactive" />
-                </Border.GestureRecognizers>
-                <Label
-                    FontSize="12"
-                    Text="Inactive"
-                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Inactive'}" />
-            </Border>
-            <Border
-                Padding="14,6"
-                BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Both'}"
-                StrokeShape="RoundRectangle 16"
-                StrokeThickness="0">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Both" />
-                </Border.GestureRecognizers>
-                <Label
-                    FontSize="12"
-                    Text="Both"
-                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Both'}" />
-            </Border>
-                    </HorizontalStackLayout>
+                    <Border
+                        Padding="14,6"
+                        BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Active'}"
+                        StrokeShape="RoundRectangle 16"
+                        StrokeThickness="0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Active" />
+                        </Border.GestureRecognizers>
+                        <Label
+                            FontSize="12"
+                            Text="Active"
+                            TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Active'}" />
+                    </Border>
+                    <Border
+                        Padding="14,6"
+                        BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Inactive'}"
+                        StrokeShape="RoundRectangle 16"
+                        StrokeThickness="0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Inactive" />
+                        </Border.GestureRecognizers>
+                        <Label
+                            FontSize="12"
+                            Text="Inactive"
+                            TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Inactive'}" />
+                    </Border>
+                    <Border
+                        Padding="14,6"
+                        BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Both'}"
+                        StrokeShape="RoundRectangle 16"
+                        StrokeThickness="0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Both" />
+                        </Border.GestureRecognizers>
+                        <Label
+                            FontSize="12"
+                            Text="Both"
+                            TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Both'}" />
+                    </Border>
+                </HorizontalStackLayout>
             </VerticalStackLayout>
         </Border>
 
@@ -138,7 +145,7 @@
                 TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
                                             Dark={StaticResource ErrorTextDark}}" />
         </Border>
-        
+
 
         <!--  Empty  -->
         <VerticalStackLayout

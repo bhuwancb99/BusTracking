@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+ï»¿<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Coordinator.CoordSubAdminFormPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -21,7 +21,8 @@
             FontAttributes="Bold"
             FontSize="17"
             Text="{Binding Title}"
-            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
+            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                        Dark=White}"
             VerticalOptions="Center" />
     </Shell.TitleView>
 
@@ -56,9 +57,15 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        Text="Full Name *"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
+                                                    Dark={StaticResource TextPrimaryDark}}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Full Name" />
+                                <Span Text="*" TextColor="{StaticResource Danger}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
                     <Entry
                         BackgroundColor="Transparent"
                         Placeholder="Enter full name"
@@ -73,7 +80,6 @@
             <!--  Email (create only)  -->
             <Border
                 BackgroundColor="White"
-                
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                          Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 8"
@@ -82,9 +88,15 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        Text="Username *"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
+                                                    Dark={StaticResource TextPrimaryDark}}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Username" />
+                                <Span Text="*" TextColor="{StaticResource Danger}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
                     <Entry
                         BackgroundColor="Transparent"
                         Keyboard="Default"
@@ -105,8 +117,10 @@
 
             <!--  EMAIL (Optional)  -->
             <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
-                Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
@@ -114,22 +128,27 @@
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="EMAIL (Optional)"
-                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
                     <Entry
                         BackgroundColor="Transparent"
                         Keyboard="Email"
                         Placeholder="Enter email address"
-                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                           Dark={StaticResource TextMutedDark}}"
                         Text="{Binding Email}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
             <!--  NEW PASSWORD  -->
             <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
                 IsVisible="{Binding IsEditMode}"
-                Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
                 <VerticalStackLayout Padding="16" Spacing="8">
@@ -137,15 +156,18 @@
                         FontAttributes="Bold"
                         FontSize="12"
                         Text="NEW PASSWORD"
-                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
                     <Entry
                         BackgroundColor="Transparent"
+                        IsPassword="True"
                         Keyboard="Default"
                         Placeholder="Leave blank to keep current password"
-                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
-                        IsPassword="True"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                           Dark={StaticResource TextMutedDark}}"
                         Text="{Binding NewPassword}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
                     <Label
                         FontAttributes="Italic"
                         FontSize="11"
@@ -166,9 +188,15 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        Text="Password *"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
+                                                    Dark={StaticResource TextPrimaryDark}}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Password" />
+                                <Span Text="*" TextColor="{StaticResource Danger}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
                     <Entry
                         BackgroundColor="Transparent"
                         IsPassword="True"
@@ -346,7 +374,7 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="13"
-                        Text="New Password — copy now"
+                        Text="New Password â€” copy now"
                         TextColor="#92400e" />
                     <Label
                         FontAttributes="Bold"
@@ -392,7 +420,7 @@
                             Binding="{Binding IsBusy}"
                             TargetType="Button"
                             Value="True">
-                            <Setter Property="Text" Value="Saving…" />
+                            <Setter Property="Text" Value="Savingâ€¦" />
                             <Setter Property="IsEnabled" Value="False" />
                         </DataTrigger>
                         <DataTrigger
@@ -424,7 +452,7 @@
                 Text="Reset Password"
                 TextColor="{StaticResource Danger}" />
 
-            
+
 
         </VerticalStackLayout>
     </ScrollView>

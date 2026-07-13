@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminTripFormViewModel : BaseViewModel
     {
@@ -10,7 +10,7 @@
         [ObservableProperty] private List<RouteItem> _routeOptions = [];
         [ObservableProperty] private BusItem? _selectedBus;
         [ObservableProperty] private RouteItem? _selectedRoute;
-        [ObservableProperty] private string _tripType = "Morning";
+        [ObservableProperty] private string? _tripType;
         [ObservableProperty] private DateTime _tripDate = DateTime.Today;
 
         public List<string> TripTypes => ["Morning", "Evening"];
@@ -32,8 +32,12 @@
         [RelayCommand]
         private async Task SaveAsync()
         {
-            if (SelectedBus is null || SelectedRoute is null)
-            { SetError("Please select a bus and route."); return; }
+            if (SelectedBus is null)
+            { SetError("Please select a bus."); return; }
+            if (SelectedRoute is null)
+            { SetError("Please select a route."); return; }
+            if (string.IsNullOrEmpty(TripType))
+            { SetError("Please select a trip type."); return; }
 
             await RunAsync(async () =>
             {

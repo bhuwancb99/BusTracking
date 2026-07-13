@@ -1,21 +1,17 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
-    x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminCoordinatorFormPage"
+    x:Class="BusTracking.Mobile.Views.Coordinator.CoordDriverFormPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
-    xmlns:models="clr-namespace:BusTracking.Mobile.Models"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
-    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
-    x:DataType="vm:AdminCoordinatorFormViewModel"
-    x:TypeArguments="vm:AdminCoordinatorFormViewModel"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
+    x:DataType="vm:CoordDriverFormViewModel"
+    x:TypeArguments="vm:CoordDriverFormViewModel"
     BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
                                       Dark={StaticResource PageBgDark}}">
 
-    <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
-    </views:ViewBase.Behaviors>
-
+    <!--  TitleView  -->
     <Shell.TitleView>
         <Label
             FontAttributes="Bold"
@@ -25,6 +21,10 @@
                                         Dark=White}"
             VerticalOptions="Center" />
     </Shell.TitleView>
+
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
+    </views:ViewBase.Behaviors>
 
     <ScrollView>
         <VerticalStackLayout Padding="16,16,16,32" Spacing="14">
@@ -42,7 +42,8 @@
                     Padding="12,10"
                     FontSize="13"
                     Text="{Binding ErrorMessage}"
-                    TextColor="{StaticResource Danger}" />
+                    TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
+                                                Dark={StaticResource ErrorTextDark}}" />
             </Border>
 
             <!--  Full Name  -->
@@ -57,65 +58,27 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}">
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}">
                         <Label.FormattedText>
                             <FormattedString>
-                                <Span Text="Full Name" />
+                                <Span Text="Full Name " />
                                 <Span Text="*" TextColor="{StaticResource Danger}" />
                             </FormattedString>
                         </Label.FormattedText>
                     </Label>
                     <Entry
                         BackgroundColor="Transparent"
-                        Placeholder="Enter coordinator's full name"
+                        Placeholder="e.g. Ramesh Kumar"
                         PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                           Dark={StaticResource TextSecondaryDark}}"
+                                                           Dark={StaticResource TextMutedDark}}"
                         Text="{Binding FullName}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
-            <!--  Email (create only)  -->
-            <Border
-                BackgroundColor="White"
-                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                         Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <VerticalStackLayout Padding="16" Spacing="8">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="12"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}">
-                        <Label.FormattedText>
-                            <FormattedString>
-                                <Span Text="Username" />
-                                <Span Text="*" TextColor="{StaticResource Danger}" />
-                            </FormattedString>
-                        </Label.FormattedText>
-                    </Label>
-                    <Entry
-                        BackgroundColor="Transparent"
-                        Keyboard="Default"
-                        Placeholder="Enter unique username"
-                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                           Dark={StaticResource TextSecondaryDark}}"
-                        Text="{Binding UserName}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
-                    <Label
-                        FontAttributes="Italic"
-                        FontSize="12"
-                        IsVisible="{Binding UsernameMessage, Converter={StaticResource StringToBool}}"
-                        Text="{Binding UsernameMessage}"
-                        TextColor="{Binding UsernameMessageColor}" />
-                </VerticalStackLayout>
-            </Border>
-
-            <!--  Phone  -->
+            <!--  Username (required, used for login)  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                                   Dark={StaticResource CardBgDark}}"
@@ -127,18 +90,30 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        Text="Phone Number"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Username " />
+                                <Span Text="*" TextColor="{StaticResource Danger}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
                     <Entry
                         BackgroundColor="Transparent"
-                        Keyboard="Telephone"
-                        Placeholder="+91 XXXXX XXXXX"
+                        Keyboard="Default"
+                        Placeholder="Enter unique username"
                         PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                           Dark={StaticResource TextSecondaryDark}}"
-                        Text="{Binding PhoneNumber}"
+                                                           Dark={StaticResource TextMutedDark}}"
+                        Text="{Binding UserName}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
+                    <Label
+                        FontAttributes="Italic"
+                        FontSize="12"
+                        IsVisible="{Binding UsernameMessage, Converter={StaticResource StringToBool}}"
+                        Text="{Binding UsernameMessage}"
+                        TextColor="{Binding UsernameMessageColor}" />
                 </VerticalStackLayout>
             </Border>
 
@@ -203,9 +178,10 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!--  Password (create only)  -->
+            <!--  Password (Add only)  -->
             <Border
-                BackgroundColor="White"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
                 IsVisible="{Binding IsEditMode, Converter={StaticResource InvertBool}}"
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                          Dark={StaticResource BorderColorDark}}"
@@ -215,11 +191,11 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}">
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}">
                         <Label.FormattedText>
                             <FormattedString>
-                                <Span Text="Password" />
+                                <Span Text="Password " />
                                 <Span Text="*" TextColor="{StaticResource Danger}" />
                             </FormattedString>
                         </Label.FormattedText>
@@ -227,16 +203,121 @@
                     <Entry
                         BackgroundColor="Transparent"
                         IsPassword="True"
-                        Placeholder="Min. 6 characters"
+                        Placeholder="Min 6 characters"
                         PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                           Dark={StaticResource TextSecondaryDark}}"
+                                                           Dark={StaticResource TextMutedDark}}"
                         Text="{Binding Password}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
-            <!--  Is Active  -->
+            <!--  Phone  -->
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 8"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Phone Number"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                    <Entry
+                        BackgroundColor="Transparent"
+                        Keyboard="Telephone"
+                        Placeholder="e.g. 9876543210"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                           Dark={StaticResource TextMutedDark}}"
+                        Text="{Binding PhoneNumber}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  License Number  -->
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 8"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="License Number"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                    <Entry
+                        BackgroundColor="Transparent"
+                        Placeholder="e.g. DL-123456789"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                           Dark={StaticResource TextMutedDark}}"
+                        Text="{Binding LicenseNumber}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  License Expiry  -->
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 8"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="License Expiry (YYYY-MM-DD)"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                    <Entry
+                        BackgroundColor="Transparent"
+                        Placeholder="e.g. 2026-12-31"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                           Dark={StaticResource TextMutedDark}}"
+                        Text="{Binding LicenseExpiry}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Assign Bus  -->
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 8"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Assign Bus"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                    <Picker
+                        Title="Select a bus"
+                        BackgroundColor="Transparent"
+                        ItemDisplayBinding="{Binding BusName}"
+                        ItemsSource="{Binding BusOptions}"
+                        SelectedItem="{Binding SelectedBus}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Active  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                                   Dark={StaticResource CardBgDark}}"
@@ -249,12 +330,12 @@
                         <Label
                             FontAttributes="Bold"
                             FontSize="14"
-                            Text="Active Account"
+                            Text="Active"
                             TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                         Dark={StaticResource TextPrimaryDark}}" />
                         <Label
                             FontSize="12"
-                            Text="Inactive coordinators cannot login"
+                            Text="Inactive drivers cannot log in"
                             TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                         Dark={StaticResource TextSecondaryDark}}" />
                     </VerticalStackLayout>
@@ -267,112 +348,15 @@
                 </Grid>
             </Border>
 
-            <!--  Permissions section  -->
-            <Label
-                Margin="0,8,0,0"
-                FontAttributes="Bold"
-                FontSize="16"
-                Text="Assign Permissions"
-                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                            Dark={StaticResource TextPrimaryDark}}" />
-            <Label
-                Margin="0,0,0,4"
-                FontSize="13"
-                Text="Select what this coordinator can access and manage."
-                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                            Dark={StaticResource TextSecondaryDark}}" />
-
-            <!--  Permission groups  -->
-            <CollectionView ItemsSource="{Binding PermissionGroups}" SelectionMode="None">
-                <CollectionView.ItemTemplate>
-                    <DataTemplate x:DataType="models:Permission.PermissionGroup">
-                        <Border
-                            Margin="0,0,0,10"
-                            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
-                                                              Dark={StaticResource CardBgDark}}"
-                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                                     Dark={StaticResource BorderColorDark}}"
-                            StrokeShape="RoundRectangle 8"
-                            StrokeThickness="1">
-                            <VerticalStackLayout Padding="16" Spacing="0">
-
-                                <!--  Module header  -->
-                                <Grid Margin="0,0,0,10" ColumnDefinitions="*,Auto">
-                                    <Label
-                                        Grid.Column="0"
-                                        FontAttributes="Bold"
-                                        FontSize="14"
-                                        Text="{Binding ModuleName}"
-                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                                    Dark={StaticResource TextPrimaryDark}}"
-                                        VerticalOptions="Center" />
-                                    <Button
-                                        Grid.Column="1"
-                                        Padding="12,4"
-                                        BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
-                                                                          Dark={StaticResource StatBusBgDark}}"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminCoordinatorFormViewModel}}, Path=ToggleAllInGroupCommand}"
-                                        CommandParameter="{Binding .}"
-                                        CornerRadius="8"
-                                        FontSize="12"
-                                        HeightRequest="32"
-                                        Text="All"
-                                        TextColor="{StaticResource Primary}" />
-                                </Grid>
-
-                                <BoxView
-                                    Margin="0,0,0,10"
-                                    BackgroundColor="{AppThemeBinding Light={StaticResource StatusInactiveBg},
-                                                                      Dark={StaticResource StatusInactiveBgDark}}"
-                                    HeightRequest="1" />
-
-                                <!--  Permissions in this module  -->
-                                <CollectionView ItemsSource="{Binding Permissions}" SelectionMode="None">
-                                    <CollectionView.ItemTemplate>
-                                        <DataTemplate x:DataType="models:Coordinator.PermissionItem">
-                                            <Grid
-                                                Padding="0,6"
-                                                ColumnDefinitions="Auto,*"
-                                                ColumnSpacing="12">
-                                                <CheckBox
-                                                    Grid.Column="0"
-                                                    IsChecked="{Binding IsSelected}"
-                                                    Color="{StaticResource Primary}" />
-                                                <VerticalStackLayout
-                                                    Grid.Column="1"
-                                                    Spacing="2"
-                                                    VerticalOptions="Center">
-                                                    <Label
-                                                        FontSize="13"
-                                                        Text="{Binding Description}"
-                                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                                                    Dark={StaticResource TextPrimaryDark}}" />
-                                                    <Label
-                                                        FontFamily="Monospace"
-                                                        FontSize="10"
-                                                        Text="{Binding Key}"
-                                                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                                                    Dark={StaticResource TextSecondaryDark}}" />
-                                                </VerticalStackLayout>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </CollectionView.ItemTemplate>
-                                </CollectionView>
-
-                            </VerticalStackLayout>
-                        </Border>
-                    </DataTemplate>
-                </CollectionView.ItemTemplate>
-            </CollectionView>
-
-            <!--  Action Buttons  -->
+            <!--  Buttons  -->
             <Grid
                 Margin="0,8,0,0"
                 ColumnDefinitions="*,*"
                 ColumnSpacing="12">
                 <Button
                     Grid.Column="0"
-                    BackgroundColor="White"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
                     BorderColor="{AppThemeBinding Light={StaticResource BorderColor},
                                                   Dark={StaticResource BorderColorDark}}"
                     BorderWidth="1.5"
@@ -396,28 +380,25 @@
                             Binding="{Binding IsBusy}"
                             TargetType="Button"
                             Value="True">
-                            <Setter Property="Text" Value="Saving…" />
+                            <Setter Property="Text" Value="Saving" />
                             <Setter Property="IsEnabled" Value="False" />
                         </DataTrigger>
                         <DataTrigger
                             Binding="{Binding IsEditMode}"
                             TargetType="Button"
                             Value="True">
-                            <Setter Property="Text" Value="Update" />
+                            <Setter Property="Text" Value="Update Driver" />
                         </DataTrigger>
                         <DataTrigger
                             Binding="{Binding IsEditMode}"
                             TargetType="Button"
                             Value="False">
-                            <Setter Property="Text" Value="Create" />
+                            <Setter Property="Text" Value="Add Driver" />
                         </DataTrigger>
                     </Button.Triggers>
                 </Button>
             </Grid>
 
-
-
         </VerticalStackLayout>
     </ScrollView>
-
 </views:ViewBase>

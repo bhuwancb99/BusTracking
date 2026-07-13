@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
+namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordinatorDashboardViewModel : BaseViewModel
     {
@@ -6,6 +6,7 @@
 
         [ObservableProperty] private DashboardSummary? _summary;
         [ObservableProperty] private string _welcomeText = "";
+        [ObservableProperty] private string _todayDate = "";
 
         // ── Permission-based visibility ───────────────────────────────────────
         // These are computed from Auth.HasPermission() which reads _currentUser.
@@ -32,6 +33,7 @@
         {
             var user = await Auth.GetCurrentUserAsync();
             WelcomeText = $"Hi, {user?.FullName?.Split(' ')[0] ?? "Coordinator"}";
+            TodayDate = DateTime.Now.ToString("dddd, dd MMMM yyyy");
 
             // Fire OnPropertyChanged for every computed permission property now
             // that _currentUser is fully loaded — this makes the stat cards and
@@ -76,6 +78,11 @@
         [RelayCommand] private Task GoToParentsAsync() => Nav.GoToAsync("//CoordParentList");
         [RelayCommand] private Task GoToStudentsAsync() => Nav.GoToAsync("//CoordStudentList");
         [RelayCommand] private Task GoToTripsAsync() => Nav.GoToAsync("//CoordTripList");
+
+        [RelayCommand] private Task QuickAddDriverAsync() => Nav.GoToAsync("CoordDriverForm");
+        [RelayCommand] private Task QuickAddStudentAsync() => Nav.GoToAsync("CoordStudentForm");
+        [RelayCommand] private Task QuickAddParentAsync() => Nav.GoToAsync("CoordParentForm");
+        [RelayCommand] private Task QuickAddBusAsync() => Nav.GoToAsync("CoordBusForm");
 
         [RelayCommand]
         private async Task LogoutAsync()
