@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Student.StudentTrackingPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -16,40 +16,72 @@
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
+    <Shell.TitleView>
+        <Grid HorizontalOptions="Center" VerticalOptions="Center">
+            <Label
+                FontAttributes="Bold"
+                FontSize="17"
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
+                Text="Track My Bus"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
+                VerticalOptions="Center" />
+        </Grid>
+    </Shell.TitleView>
+
     <Grid RowDefinitions="Auto,Auto,*,Auto">
 
         <!--  Live status bar  -->
         <Border
             Grid.Row="0"
             Margin="12,12,12,4"
-            BackgroundColor="{AppThemeBinding Light={StaticResource NavBarBg}, Dark={StaticResource DrawerBgDark}}"
-            StrokeShape="RoundRectangle 8"
-            StrokeThickness="0">
-            <Grid Padding="14,12" ColumnDefinitions="Auto,*,Auto">
-                <Label
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                              Dark={StaticResource CardBgDark}}"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                     Dark={StaticResource BorderColorDark}}"
+            StrokeShape="RoundRectangle 16"
+            StrokeThickness="1">
+            <Grid Padding="14,12" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                <Border
                     Grid.Column="0"
-                    FontSize="24"
-                    Text="🚌"
-                    VerticalOptions="Center" />
+                    BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg}, Dark={StaticResource StatTripBgDark}}"
+                    HeightRequest="42"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="0"
+                    VerticalOptions="Center"
+                    WidthRequest="42">
+                    <Image
+                        HeightRequest="22"
+                        HorizontalOptions="Center"
+                        Source="bus.png"
+                        VerticalOptions="Center"
+                        WidthRequest="22">
+                        <Image.Behaviors>
+                            <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                        </Image.Behaviors>
+                    </Image>
+                </Border>
                 <VerticalStackLayout
                     Grid.Column="1"
-                    Margin="10,0"
-                    Spacing="2">
+                    Margin="0"
+                    Spacing="3"
+                    VerticalOptions="Center">
                     <Label
                         FontAttributes="Bold"
-                        FontSize="14"
+                        FontSize="15"
                         Text="{Binding StatusText}"
-                        TextColor="White" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Label
                         FontSize="12"
                         Text="{Binding SpeedText}"
-                        TextColor="{StaticResource HeroCardSubText}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>
                 <Border
                     Grid.Column="2"
-                    Padding="8,4"
+                    Padding="10,5"
                     StrokeShape="RoundRectangle 20"
-                    StrokeThickness="0">
+                    StrokeThickness="0"
+                    VerticalOptions="Center">
                     <Border.Triggers>
                         <DataTrigger
                             Binding="{Binding IsLive}"
@@ -61,24 +93,24 @@
                             Binding="{Binding IsLive}"
                             TargetType="Border"
                             Value="False">
-                            <Setter Property="BackgroundColor" Value="#1e2a3a" />
+                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource StatTripBgDark}}" />
                         </DataTrigger>
                     </Border.Triggers>
-                    <Label FontAttributes="Bold" FontSize="11">
+                    <Label FontAttributes="Bold" FontSize="12">
                         <Label.Triggers>
                             <DataTrigger
                                 Binding="{Binding IsLive}"
                                 TargetType="Label"
                                 Value="True">
-                                <Setter Property="Text" Value="● LIVE" />
+                                <Setter Property="Text" Value="&#x25CF; LIVE" />
                                 <Setter Property="TextColor" Value="#4ade80" />
                             </DataTrigger>
                             <DataTrigger
                                 Binding="{Binding IsLive}"
                                 TargetType="Label"
                                 Value="False">
-                                <Setter Property="Text" Value="○ Offline" />
-                                <Setter Property="TextColor" Value="#94a3b8" />
+                                <Setter Property="Text" Value="Offline" />
+                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                             </DataTrigger>
                         </Label.Triggers>
                     </Label>
@@ -97,35 +129,62 @@
             <Grid>
                 <VerticalStackLayout
                     HorizontalOptions="Center"
-                    Spacing="6"
+                    Spacing="8"
                     VerticalOptions="Center">
-                    <Label
-                        FontSize="64"
+                    <Border
+                        BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg}, Dark={StaticResource StatTripBgDark}}"
+                        HeightRequest="72"
                         HorizontalOptions="Center"
-                        Text="🗺️"
-                        TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                        StrokeShape="RoundRectangle 36"
+                        StrokeThickness="0"
+                        WidthRequest="72">
+                        <Image
+                            HeightRequest="36"
+                            HorizontalOptions="Center"
+                            Source="map_pin.png"
+                            VerticalOptions="Center"
+                            WidthRequest="36">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                            </Image.Behaviors>
+                        </Image>
+                    </Border>
                     <Label
-                        FontSize="13"
+                        FontAttributes="Bold"
+                        FontSize="14"
                         HorizontalOptions="Center"
-                        Text="Live map appears here"
-                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                        Text="Live Map"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
                     <Label
-                        FontSize="10"
+                        FontSize="11"
                         HorizontalOptions="Center"
-                        Text="Integrate Microsoft.Maui.Maps or Mapsui here"
-                        TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                        Text="Bus location updates every 10 seconds"
+                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>
                 <!--  Bus marker overlay  -->
                 <Border
-                    Padding="8,6"
+                    Padding="10"
                     BackgroundColor="{StaticResource Primary}"
                     HorizontalOptions="Center"
                     IsVisible="{Binding IsLive}"
                     Stroke="White"
                     StrokeShape="RoundRectangle 24"
                     StrokeThickness="2"
-                    VerticalOptions="Center">
-                    <Label FontSize="18" Text="🚌" />
+                    VerticalOptions="Center"
+                    HeightRequest="48"
+                    WidthRequest="48">
+                    <Image
+                        HeightRequest="20"
+                        Source="bus.png"
+                        WidthRequest="20"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center">
+                        <Image.Behaviors>
+                            <mct:IconTintColorBehavior TintColor="White" />
+                        </Image.Behaviors>
+                    </Image>
                 </Border>
             </Grid>
         </Border>
@@ -134,7 +193,8 @@
         <Border
             Grid.Row="2"
             Margin="12,4"
-            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" StrokeShape="RoundRectangle 16"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
+            StrokeShape="RoundRectangle 16"
             StrokeThickness="0">
             <ScrollView>
                 <VerticalStackLayout Padding="16" Spacing="0">
@@ -219,7 +279,8 @@
         <Border
             Grid.Row="3"
             Margin="12,4,12,12"
-            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
             StrokeShape="RoundRectangle 8"
             StrokeThickness="1">
             <Grid Padding="16,12" ColumnDefinitions="*,*,*">

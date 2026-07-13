@@ -17,18 +17,22 @@
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
-        <Label
-            FontAttributes="Bold"
-            FontSize="17"
-            Text="Availability"
-            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
-            VerticalOptions="Center" />
+        <Grid HorizontalOptions="Center" VerticalOptions="Center">
+            <Label
+                FontAttributes="Bold"
+                FontSize="17"
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
+                Text="Availability"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
+                VerticalOptions="Center" />
+        </Grid>
     </Shell.TitleView>
 
     <ScrollView>
         <VerticalStackLayout Padding="16,20,16,40" Spacing="12">
 
-            <!-- - Hero banner  -->
+            <!-- Hero banner  -->
             <Border Margin="0,0,0,4" Style="{StaticResource HeroCard}">
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
                     <Border
@@ -58,36 +62,53 @@
                             FontAttributes="Bold"
                             FontSize="17"
                             Text="Set Availability"
-                            TextColor="White" />
+                            TextColor="{AppThemeBinding Light=Black, Dark=White}" />
                         <Label
                             FontSize="13"
                             Text="Let your coordinator know when your child won't be travelling."
-                            TextColor="{StaticResource HeroCardSubText}" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                     </VerticalStackLayout>
                 </Grid>
             </Border>
 
-            <!-- - Select Child  -->
+            <!-- Select Child  -->
             <Border Style="{StaticResource FormFieldCard}">
                 <VerticalStackLayout Padding="16" Spacing="8">
-                    <Label Style="{StaticResource FieldLabel}" Text="SELECT CHILD" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="SELECT CHILD " />
+                                <Span Text="*" TextColor="{StaticResource Danger}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
                     <Picker
-                        Title="Choose a child…"
+                        Title="Choose a child."
+                        BackgroundColor="Transparent"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                        TitleColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                         ItemDisplayBinding="{Binding FullName}"
                         ItemsSource="{Binding Children}"
                         SelectedItem="{Binding SelectedChild}" />
                 </VerticalStackLayout>
             </Border>
 
-            <!-- - Date  -->
+            <!-- Date  -->
             <Border Style="{StaticResource FormFieldCard}">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label Style="{StaticResource FieldLabel}" Text="DATE" />
-                    <DatePicker Date="{Binding SelectedDate}" MinimumDate="{Binding MinimumDate}" />
+                    <DatePicker 
+                        BackgroundColor="Transparent"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                        Date="{Binding SelectedDate}" 
+                        MinimumDate="{Binding MinimumDate}" />
                 </VerticalStackLayout>
             </Border>
 
-            <!-- - Morning toggle  -->
+            <!-- Morning toggle  -->
             <Border Style="{StaticResource CardBorder}">
                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
                     <Border
@@ -124,7 +145,7 @@
                 </Grid>
             </Border>
 
-            <!-- - Evening toggle  -->
+            <!-- Evening toggle  -->
             <Border Style="{StaticResource CardBorder}">
                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
                     <Border
@@ -161,19 +182,22 @@
                 </Grid>
             </Border>
 
-            <!-- - Reason  -->
+            <!-- Reason  -->
             <Border Style="{StaticResource FormFieldCard}">
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label Style="{StaticResource FieldLabel}" Text="REASON (OPTIONAL)" />
                     <Editor
                         AutoSize="TextChanges"
                         MinimumHeightRequest="80"
-                        Placeholder="e.g. School holiday, sick leave, parent pickup…"
+                        BackgroundColor="Transparent"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                        Placeholder="e.g. School holiday, sick leave, parent pickup."
                         Text="{Binding Reason}" />
                 </VerticalStackLayout>
             </Border>
 
-            <!-- - Error banner  -->
+            <!-- Error banner  -->
             <Border IsVisible="{Binding HasError}" Style="{StaticResource ErrorBannerBorder}">
                 <Label
                     FontSize="13"
@@ -182,7 +206,7 @@
                                                 Dark={StaticResource ErrorTextDark}}" />
             </Border>
 
-            <!-- - Save button  -->
+            <!-- Save button  -->
             <Button
                 Command="{Binding SaveCommand}"
                 Style="{StaticResource PrimaryButton}"
@@ -192,13 +216,11 @@
                         Binding="{Binding IsBusy}"
                         TargetType="Button"
                         Value="True">
-                        <Setter Property="Text" Value="Saving…" />
+                        <Setter Property="Text" Value="Saving." />
                         <Setter Property="IsEnabled" Value="False" />
                     </DataTrigger>
                 </Button.Triggers>
             </Button>
-
-            
 
         </VerticalStackLayout>
     </ScrollView>

@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.Driver
+namespace BusTracking.Mobile.Viewmodels.Driver
 {
     public partial class DriverDashboardViewModel : BaseViewModel
     {
@@ -10,6 +10,7 @@
         [ObservableProperty] private int _totalStudents;
         [ObservableProperty] private bool _hasActiveTrip;
         [ObservableProperty] private DriverTripItem? _activeTrip;
+        [ObservableProperty] private string _todayDate = "";
 
         public DriverDashboardViewModel(IAuthService auth, INavigationService nav,
             IDriverTripService driverTrip) : base(auth, nav)
@@ -22,6 +23,7 @@
         {
             var user = await Auth.GetCurrentUserAsync();
             WelcomeText = $"Hi, {user?.FullName?.Split(' ')[0] ?? "Driver"}";
+            TodayDate = DateTime.Now.ToString("dddd, dd MMMM yyyy");
             await RefreshCommand.ExecuteAsync(null);
         }
 

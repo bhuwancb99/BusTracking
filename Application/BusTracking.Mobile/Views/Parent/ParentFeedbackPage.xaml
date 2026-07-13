@@ -17,18 +17,22 @@
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
-        <Label
-            FontAttributes="Bold"
-            FontSize="17"
-            Text="Help &amp; Support"
-            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
-            VerticalOptions="Center" />
+        <Grid HorizontalOptions="Center" VerticalOptions="Center">
+            <Label
+                FontAttributes="Bold"
+                FontSize="17"
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
+                Text="Help &amp; Support"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
+                VerticalOptions="Center" />
+        </Grid>
     </Shell.TitleView>
 
     <ScrollView>
         <VerticalStackLayout Padding="16,20,16,40" Spacing="12">
 
-            <!-- - Hero banner  -->
+            <!-- Hero banner  -->
             <Border Margin="0,0,0,4" Style="{StaticResource HeroCard}">
                 <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
                     <Border
@@ -58,47 +62,88 @@
                             FontAttributes="Bold"
                             FontSize="17"
                             Text="Help &amp; Support"
-                            TextColor="White" />
+                            TextColor="{AppThemeBinding Light=Black, Dark=White}" />
                         <Label
                             FontSize="13"
                             Text="Have a question or concern? Send us a message and we'll respond soon."
-                            TextColor="{StaticResource HeroCardSubText}" />
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                     </VerticalStackLayout>
                 </Grid>
             </Border>
 
-            <!-- - Category  -->
+            <!-- Category  -->
             <Border Style="{StaticResource FormFieldCard}">
                 <VerticalStackLayout Padding="16" Spacing="8">
-                    <Label Style="{StaticResource FieldLabel}" Text="CATEGORY" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="CATEGORY " />
+                                <Span Text="*" TextColor="{StaticResource Danger}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
                     <Picker
-                        Title="Select a topic…"
+                        Title="Select a topic."
+                        BackgroundColor="Transparent"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                        TitleColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                         ItemsSource="{Binding Categories}"
                         SelectedItem="{Binding SelectedCategory}" />
                 </VerticalStackLayout>
             </Border>
 
-            <!-- - Subject  -->
+            <!-- Subject  -->
             <Border Style="{StaticResource FormFieldCard}">
                 <VerticalStackLayout Padding="16" Spacing="8">
-                    <Label Style="{StaticResource FieldLabel}" Text="SUBJECT" />
-                    <Entry Placeholder="Brief description of your issue…" Text="{Binding Subject}" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="SUBJECT " />
+                                <Span Text="*" TextColor="{StaticResource Danger}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Entry 
+                        BackgroundColor="Transparent"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                        Placeholder="Brief description of your issue." 
+                        Text="{Binding Subject}" />
                 </VerticalStackLayout>
             </Border>
 
-            <!-- - Message  -->
+            <!-- Message  -->
             <Border Style="{StaticResource FormFieldCard}">
                 <VerticalStackLayout Padding="16" Spacing="8">
-                    <Label Style="{StaticResource FieldLabel}" Text="MESSAGE" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="MESSAGE " />
+                                <Span Text="*" TextColor="{StaticResource Danger}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
                     <Editor
                         AutoSize="TextChanges"
                         MinimumHeightRequest="120"
-                        Placeholder="Describe your question or concern in detail…"
+                        BackgroundColor="Transparent"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                        Placeholder="Describe your question or concern in detail."
                         Text="{Binding Message}" />
                 </VerticalStackLayout>
             </Border>
 
-            <!-- - Error banner  -->
+            <!-- Error banner  -->
             <Border IsVisible="{Binding HasError}" Style="{StaticResource ErrorBannerBorder}">
                 <Label
                     FontSize="13"
@@ -107,7 +152,7 @@
                                                 Dark={StaticResource ErrorTextDark}}" />
             </Border>
 
-            <!-- - Submit button  -->
+            <!-- Submit button  -->
             <Button
                 Command="{Binding SubmitCommand}"
                 Style="{StaticResource PrimaryButton}"
@@ -117,13 +162,11 @@
                         Binding="{Binding IsBusy}"
                         TargetType="Button"
                         Value="True">
-                        <Setter Property="Text" Value="Submitting…" />
+                        <Setter Property="Text" Value="Submitting." />
                         <Setter Property="IsEnabled" Value="False" />
                     </DataTrigger>
                 </Button.Triggers>
             </Button>
-
-            
 
         </VerticalStackLayout>
     </ScrollView>

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Parent.ParentTrackingPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -16,7 +16,7 @@
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
-    <!--  ══ Shell header: title left + student picker pill right ══════════  -->
+    <!--  Shell header: title left + student picker pill right  -->
     <Shell.TitleView>
         <Grid
             Padding="0,0,12,0"
@@ -34,11 +34,12 @@
             <!--  Student selector pill  -->
             <Border
                 Grid.Column="1"
-                BackgroundColor="#1e2a3a"
+                BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+                StrokeThickness="1"
                 HorizontalOptions="End"
                 MinimumWidthRequest="140"
                 StrokeShape="RoundRectangle 20"
-                StrokeThickness="0"
                 VerticalOptions="Center">
                 <Grid
                     Padding="8,0"
@@ -50,7 +51,7 @@
                         Grid.Column="0"
                         BackgroundColor="{StaticResource Primary}"
                         HeightRequest="28"
-                        StrokeShape="RoundRectangle 8"
+                        StrokeShape="RoundRectangle 14"
                         StrokeThickness="0"
                         VerticalOptions="Center"
                         WidthRequest="28">
@@ -59,7 +60,7 @@
                             FontSize="11"
                             HorizontalOptions="Center"
                             Text="{Binding SelectedStudent.Initials, FallbackValue='?'}"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
+                            TextColor="White"
                             VerticalOptions="Center" />
                     </Border>
 
@@ -74,15 +75,15 @@
                         ItemDisplayBinding="{Binding FullName}"
                         ItemsSource="{Binding Students}"
                         SelectedItem="{Binding SelectedStudent}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
-                        TitleColor="#94a3b8"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                        TitleColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
                         VerticalOptions="Center" />
 
                     <Label
                         Grid.Column="2"
-                        FontSize="11"
-                        Text="▾"
-                        TextColor="#94a3b8"
+                        FontSize="10"
+                        Text="&#x25BC;"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}"
                         VerticalOptions="Center" />
 
                 </Grid>
@@ -90,17 +91,19 @@
         </Grid>
     </Shell.TitleView>
 
-    <!--  ══ Page body ═════════════════════════════════════════════════════  -->
+    <!--  Page body  -->
     <Grid RowDefinitions="Auto,Auto,*,Auto">
 
-        <!--  Row 0 — Status banner  -->
+        <!--  Row 0 - Status banner  -->
         <Border
             Grid.Row="0"
             Margin="12,12,12,0"
-            BackgroundColor="{AppThemeBinding Light={StaticResource NavBarBg},
-                                              Dark={StaticResource DrawerBgDark}}"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                              Dark={StaticResource CardBgDark}}"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                     Dark={StaticResource BorderColorDark}}"
             StrokeShape="RoundRectangle 16"
-            StrokeThickness="0">
+            StrokeThickness="1">
             <Grid
                 Padding="16,14"
                 ColumnDefinitions="Auto,*,Auto"
@@ -108,7 +111,7 @@
 
                 <Border
                     Grid.Column="0"
-                    BackgroundColor="#1e2a3a"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg}, Dark={StaticResource StatTripBgDark}}"
                     HeightRequest="42"
                     StrokeShape="RoundRectangle 8"
                     StrokeThickness="0"
@@ -135,11 +138,11 @@
                         FontAttributes="Bold"
                         FontSize="15"
                         Text="{Binding StatusLabel}"
-                        TextColor="White" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                     <Label
                         FontSize="12"
-                        Text="{Binding Tracking.BoardingStatus, StringFormat='Boarding: {0}', FallbackValue='Boarding: —'}"
-                        TextColor="{StaticResource HeroCardSubText}" />
+                        Text="{Binding Tracking.BoardingStatus, StringFormat='Boarding: {0}', FallbackValue='Boarding: -'}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>
 
                 <!--  Live / No Trip pill  -->
@@ -160,7 +163,7 @@
                             Binding="{Binding IsLive}"
                             TargetType="Border"
                             Value="False">
-                            <Setter Property="BackgroundColor" Value="#1e2a3a" />
+                            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource StatTripBgDark}}" />
                         </DataTrigger>
                     </Border.Triggers>
                     <Label FontAttributes="Bold" FontSize="12">
@@ -169,15 +172,15 @@
                                 Binding="{Binding IsLive}"
                                 TargetType="Label"
                                 Value="True">
-                                <Setter Property="Text" Value="● LIVE" />
+                                <Setter Property="Text" Value="&#x25CF; LIVE" />
                                 <Setter Property="TextColor" Value="#4ade80" />
                             </DataTrigger>
                             <DataTrigger
                                 Binding="{Binding IsLive}"
                                 TargetType="Label"
                                 Value="False">
-                                <Setter Property="Text" Value="○ No Trip" />
-                                <Setter Property="TextColor" Value="#64748b" />
+                                <Setter Property="Text" Value="No Trip" />
+                                <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
                             </DataTrigger>
                         </Label.Triggers>
                     </Label>
@@ -186,7 +189,7 @@
             </Grid>
         </Border>
 
-        <!--  Row 1 — Selected student info strip  -->
+        <!--  Row 1 - Selected student info strip  -->
         <Border
             Grid.Row="1"
             Margin="12,8,12,0"
@@ -233,7 +236,7 @@
                                                     Dark={StaticResource TextPrimaryDark}}" />
                     <Label
                         FontSize="11"
-                        Text="{Binding SelectedStudent.Standard, StringFormat='Class: {0}', FallbackValue='—'}"
+                        Text="{Binding SelectedStudent.Standard, StringFormat='Class: {0}', FallbackValue='-'}"
                         TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                     Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>
@@ -266,7 +269,7 @@
             </Grid>
         </Border>
 
-        <!--  Row 2 — Map area  -->
+        <!--  Row 2 - Map area  -->
         <Border
             Grid.Row="2"
             Margin="12,8"
@@ -279,10 +282,24 @@
                     HorizontalOptions="Center"
                     Spacing="8"
                     VerticalOptions="Center">
-                    <Label
-                        FontSize="72"
+                    <Border
+                        BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg}, Dark={StaticResource StatTripBgDark}}"
+                        HeightRequest="72"
                         HorizontalOptions="Center"
-                        Text="🗺️" />
+                        StrokeShape="RoundRectangle 36"
+                        StrokeThickness="0"
+                        WidthRequest="72">
+                        <Image
+                            HeightRequest="36"
+                            HorizontalOptions="Center"
+                            Source="map_pin.png"
+                            VerticalOptions="Center"
+                            WidthRequest="36">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                            </Image.Behaviors>
+                        </Image>
+                    </Border>
                     <Label
                         FontAttributes="Bold"
                         FontSize="14"
@@ -300,20 +317,31 @@
 
                 <!--  Live bus marker  -->
                 <Border
-                    Padding="10,8"
+                    Padding="10"
                     BackgroundColor="{StaticResource Primary}"
                     HorizontalOptions="Center"
                     IsVisible="{Binding IsLive}"
                     Stroke="White"
-                    StrokeShape="RoundRectangle 28"
+                    StrokeShape="RoundRectangle 24"
                     StrokeThickness="2"
-                    VerticalOptions="Center">
-                    <Label FontSize="22" Text="🚌" />
+                    VerticalOptions="Center"
+                    HeightRequest="48"
+                    WidthRequest="48">
+                    <Image
+                        HeightRequest="20"
+                        Source="bus.png"
+                        WidthRequest="20"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center">
+                        <Image.Behaviors>
+                            <mct:IconTintColorBehavior TintColor="White" />
+                        </Image.Behaviors>
+                    </Image>
                 </Border>
             </Grid>
         </Border>
 
-        <!--  Row 3 — Coordinates card  -->
+        <!--  Row 3 - Coordinates card  -->
         <Border
             Grid.Row="3"
             Margin="12,0,12,16"
@@ -328,7 +356,7 @@
                         FontAttributes="Bold"
                         FontSize="14"
                         HorizontalOptions="Center"
-                        Text="{Binding BusLatitude, StringFormat='{0:F4}', FallbackValue='—'}"
+                        Text="{Binding BusLatitude, StringFormat='{0:F4}', FallbackValue='-'}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
                     <Label
@@ -352,7 +380,7 @@
                         FontAttributes="Bold"
                         FontSize="14"
                         HorizontalOptions="Center"
-                        Text="{Binding BusLongitude, StringFormat='{0:F4}', FallbackValue='—'}"
+                        Text="{Binding BusLongitude, StringFormat='{0:F4}', FallbackValue='-'}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
                     <Label
@@ -376,7 +404,7 @@
                         FontAttributes="Bold"
                         FontSize="14"
                         HorizontalOptions="Center"
-                        Text="{Binding Tracking.Location.SpeedDisplay, FallbackValue='— km/h'}"
+                        Text="{Binding Tracking.Location.SpeedDisplay, FallbackValue='- km/h'}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
                     <Label

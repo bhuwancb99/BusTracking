@@ -16,91 +16,209 @@
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
-
     <Shell.TitleView>
-        <Grid Padding="0,0,12,0" ColumnDefinitions="*,Auto">
+        <Grid HorizontalOptions="Center" VerticalOptions="Center">
             <Label
-                Grid.Column="0"
                 FontAttributes="Bold"
-                FontSize="17"
+                FontSize="18"
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
                 Text="Student Portal"
                 TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
                 VerticalOptions="Center" />
-            <ImageButton
-                Grid.Column="1"
-                BackgroundColor="Transparent"
-                Command="{Binding LogoutCommand}"
-                Source="logout.png"
-                WidthRequest="22" />
         </Grid>
     </Shell.TitleView>
 
     <RefreshView Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsBusy}">
         <ScrollView>
-            <VerticalStackLayout Padding="16,16,16,32" Spacing="16">
+            <VerticalStackLayout Padding="16,20,16,40" Spacing="20">
 
-                <Label
-                    FontAttributes="Bold"
-                    FontSize="22"
-                    Text="{Binding WelcomeText}"
-                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                Dark={StaticResource TextPrimaryDark}}" />
+                <!-- Welcome Header -->
+                <VerticalStackLayout Spacing="4">
+                    <Label Style="{StaticResource HeadingLabel}" Text="{Binding WelcomeText}" />
+                    <Label Style="{StaticResource SubLabel}" Text="Welcome back to your school bus portal" />
+                </VerticalStackLayout>
 
                 <!--  Bus info card  -->
-                <Border
-                    Padding="20"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource HeroCardBgLight},
-                                                      Dark={StaticResource HeroCardBgDark}}"
-                    StrokeShape="RoundRectangle 20">
-                    <VerticalStackLayout Spacing="8">
-                        <Label
-                            FontAttributes="Bold"
-                            FontSize="13"
-                            Text="My Bus"
-                            TextColor="{StaticResource HeroCardSubText}" />
-                        <Label
-                            FontAttributes="Bold"
-                            FontSize="20"
-                            Text="{Binding BusDisplay}"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}" />
-                        <Label
-                            FontSize="13"
-                            Text="{Binding StopDisplay}"
-                            TextColor="{StaticResource HeroCardSubText}" />
-                        <BoxView
-                            Margin="0,4"
-                            BackgroundColor="#ffffff22"
-                            HeightRequest="1" />
-                        <Label
-                            FontSize="14"
-                            Text="{Binding TripStatus}"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}" />
-                    </VerticalStackLayout>
+                <Border Style="{StaticResource StatCardBorder}">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="{AppThemeBinding Light={StaticResource DrawerItemActiveLight}, Dark=#0c1f4e}" Offset="0.0" />
+                            <GradientStop Color="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Offset="1.0" />
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <Grid ColumnDefinitions="*,Auto" Padding="4,2">
+                        <VerticalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
+                            <Border
+                                Padding="6,3"
+                                BackgroundColor="{StaticResource Primary}"
+                                StrokeThickness="0"
+                                StrokeShape="RoundRectangle 8"
+                                HorizontalOptions="Start">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="9"
+                                    Text="MY BUS"
+                                    TextColor="White" />
+                            </Border>
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="20"
+                                Text="{Binding BusDisplay}"
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}" />
+                            <Label
+                                FontSize="13"
+                                Text="{Binding StopDisplay}"
+                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                            <BoxView
+                                Margin="0,4"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource BorderColor}, Dark=#ffffff22}"
+                                HeightRequest="1" />
+                            <Label
+                                FontAttributes="Italic"
+                                FontSize="13"
+                                Text="{Binding TripStatus}"
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}" />
+                        </VerticalStackLayout>
+                        <Border
+                            Grid.Column="1"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg}, Dark={StaticResource StatBusBgDark}}"
+                            HeightRequest="56"
+                            StrokeShape="RoundRectangle 28"
+                            StrokeThickness="0"
+                            WidthRequest="56"
+                            VerticalOptions="Center">
+                            <Image
+                                HeightRequest="26"
+                                HorizontalOptions="Center"
+                                Source="bus.png"
+                                VerticalOptions="Center"
+                                WidthRequest="26">
+                                <Image.Behaviors>
+                                    <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                </Image.Behaviors>
+                            </Image>
+                        </Border>
+                    </Grid>
                 </Border>
 
-                <!--  Action buttons  -->
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-                    <Button
+                <!-- Bento Grid Action Cards -->
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+
+                    <!-- Track Bus Card -->
+                    <Border
                         Grid.Column="0"
-                        BackgroundColor="{StaticResource Primary}"
-                        Command="{Binding TrackBusCommand}"
-                        CornerRadius="8"
-                        FontAttributes="Bold"
-                        HeightRequest="54"
-                        Text="🚌 Track Bus"
-                        TextColor="White" />
-                    <Button
+                        Style="{StaticResource StatCardBorder}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding TrackBusCommand}" />
+                        </Border.GestureRecognizers>
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="{AppThemeBinding Light={StaticResource DangerLight}, Dark=#4a070a}" Offset="0.0" />
+                                <GradientStop Color="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
+                            <Border
+                                BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg}, Dark={StaticResource StatTripBgDark}}"
+                                HeightRequest="44"
+                                HorizontalOptions="Center"
+                                StrokeShape="RoundRectangle 22"
+                                StrokeThickness="0"
+                                WidthRequest="44">
+                                <Image
+                                    HeightRequest="22"
+                                    HorizontalOptions="Center"
+                                    Source="map_pin.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="22">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Border>
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="14"
+                                HorizontalOptions="Center"
+                                Text="Track Bus"
+                                TextColor="{StaticResource Danger}" />
+                            <Label
+                                HorizontalOptions="Center"
+                                Style="{StaticResource CaptionLabel}"
+                                Text="Live Location" />
+                            <Border
+                                Padding="6,2"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource DangerLight}, Dark={StaticResource StatTripBgDark}}"
+                                Stroke="Transparent"
+                                StrokeShape="RoundRectangle 8">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="10"
+                                    HorizontalOptions="Center"
+                                    Text="Track"
+                                    TextColor="{StaticResource Danger}" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- My Availability Card -->
+                    <Border
                         Grid.Column="1"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
-                                                          Dark={StaticResource CardBgDark}}"
-                        BorderColor="{StaticResource Primary}"
-                        BorderWidth="1.5"
-                        Command="{Binding ViewAvailabilityCommand}"
-                        CornerRadius="8"
-                        FontAttributes="Bold"
-                        HeightRequest="54"
-                        Text="📅 Availability"
-                        TextColor="{StaticResource Primary}" />
+                        Style="{StaticResource StatCardBorder}">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ViewAvailabilityCommand}" />
+                        </Border.GestureRecognizers>
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="{AppThemeBinding Light={StaticResource DrawerItemActiveLight}, Dark=#0c1f4e}" Offset="0.0" />
+                                <GradientStop Color="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Offset="1.0" />
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
+                            <Border
+                                BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg}, Dark={StaticResource StatBusBgDark}}"
+                                HeightRequest="44"
+                                HorizontalOptions="Center"
+                                StrokeShape="RoundRectangle 22"
+                                StrokeThickness="0"
+                                WidthRequest="44">
+                                <Image
+                                    HeightRequest="22"
+                                    HorizontalOptions="Center"
+                                    Source="calendar_check.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="22">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Border>
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="14"
+                                HorizontalOptions="Center"
+                                Text="Availability"
+                                TextColor="{StaticResource Primary}" />
+                            <Label
+                                HorizontalOptions="Center"
+                                Style="{StaticResource CaptionLabel}"
+                                Text="Leaves &amp; Trips" />
+                            <Border
+                                Padding="6,2"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryLight}, Dark={StaticResource StatBusBgDark}}"
+                                Stroke="Transparent"
+                                StrokeShape="RoundRectangle 8">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="10"
+                                    HorizontalOptions="Center"
+                                    Text="Manage"
+                                    TextColor="{StaticResource Primary}" />
+                            </Border>
+                        </VerticalStackLayout>
+                    </Border>
+
                 </Grid>
 
             </VerticalStackLayout>

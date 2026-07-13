@@ -15,139 +15,163 @@
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
+    <Shell.TitleView>
+        <Grid HorizontalOptions="Center" VerticalOptions="Center">
+            <Label
+                FontAttributes="Bold"
+                FontSize="17"
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
+                Text="Availability"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
+                VerticalOptions="Center" />
+        </Grid>
+    </Shell.TitleView>
 
     <ScrollView>
-        <VerticalStackLayout Padding="16,16,16,32" Spacing="16">
+        <VerticalStackLayout Padding="16,20,16,40" Spacing="12">
 
-            <!--  Header card  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource NavBarBg}, Dark={StaticResource DrawerBgDark}}"
-                StrokeShape="RoundRectangle 20"
-                StrokeThickness="0">
-                <VerticalStackLayout Padding="20" Spacing="6">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="18"
-                        Text="?? Set Availability"
-                        TextColor="White" />
-                    <Label
-                        FontSize="13"
-                        Text="Let your coordinator know when you'll be travelling."
-                        TextColor="{StaticResource HeroCardSubText}" />
-                </VerticalStackLayout>
+            <!-- Hero banner  -->
+            <Border Margin="0,0,0,4" Style="{StaticResource HeroCard}">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                    <Border
+                        Grid.Column="0"
+                        BackgroundColor="{StaticResource Primary}"
+                        HeightRequest="48"
+                        StrokeShape="RoundRectangle 8"
+                        StrokeThickness="0"
+                        VerticalOptions="Center"
+                        WidthRequest="48">
+                        <Image
+                            HeightRequest="26"
+                            HorizontalOptions="Center"
+                            Source="calendar_check.png"
+                            VerticalOptions="Center"
+                            WidthRequest="26">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="White" />
+                            </Image.Behaviors>
+                        </Image>
+                    </Border>
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Spacing="4"
+                        VerticalOptions="Center">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="17"
+                            Text="Set Availability"
+                            TextColor="{AppThemeBinding Light=Black, Dark=White}" />
+                        <Label
+                            FontSize="13"
+                            Text="Let your coordinator know when you won't be travelling."
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                    </VerticalStackLayout>
+                </Grid>
             </Border>
 
-            <!--  Date picker  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <VerticalStackLayout Padding="16" Spacing="10">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="13"
-                        Text="Date"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+            <!-- Date picker  -->
+            <Border Style="{StaticResource FormFieldCard}">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label Style="{StaticResource FieldLabel}" Text="DATE" />
                     <DatePicker
                         BackgroundColor="Transparent"
                         Date="{Binding SelectedDate}"
-                        FontSize="15"
                         MinimumDate="{Binding MinimumDate}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
-            <!--  Morning toggle  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <Grid Padding="16" ColumnDefinitions="Auto,*,Auto">
-                    <Label
+            <!-- Morning toggle  -->
+            <Border Style="{StaticResource CardBorder}">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border
                         Grid.Column="0"
-                        FontSize="24"
-                        Text="??"
-                        VerticalOptions="Center" />
+                        BackgroundColor="{AppThemeBinding Light={StaticResource AccentLight},
+                                                          Dark={StaticResource StatCoordBgDark}}"
+                        HeightRequest="44"
+                        StrokeShape="RoundRectangle 8"
+                        StrokeThickness="0"
+                        VerticalOptions="Center"
+                        WidthRequest="44">
+                        <Image
+                            HeightRequest="22"
+                            HorizontalOptions="Center"
+                            Source="notification.png"
+                            VerticalOptions="Center"
+                            WidthRequest="22">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{StaticResource Accent}" />
+                            </Image.Behaviors>
+                        </Image>
+                    </Border>
                     <VerticalStackLayout
                         Grid.Column="1"
-                        Margin="12,0"
-                        Spacing="2">
-                        <Label
-                            FontAttributes="Bold"
-                            FontSize="15"
-                            Text="Morning Trip"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
-                        <Label
-                            FontSize="12"
-                            Text="Available for pickup"
-                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                        Spacing="2"
+                        VerticalOptions="Center">
+                        <Label Style="{StaticResource CardTitleLabel}" Text="Morning Trip" />
+                        <Label Style="{StaticResource SubLabel}" Text="Available for pickup" />
                     </VerticalStackLayout>
                     <Switch
                         Grid.Column="2"
                         IsToggled="{Binding MorningAvailable}"
-                        OnColor="{StaticResource Primary}"
-                        ThumbColor="White"
                         VerticalOptions="Center" />
                 </Grid>
             </Border>
 
-            <!--  Evening toggle  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <Grid Padding="16" ColumnDefinitions="Auto,*,Auto">
-                    <Label
+            <!-- Evening toggle  -->
+            <Border Style="{StaticResource CardBorder}">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border
                         Grid.Column="0"
-                        FontSize="24"
-                        Text="??"
-                        VerticalOptions="Center" />
+                        BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
+                                                          Dark={StaticResource StatBusBgDark}}"
+                        HeightRequest="44"
+                        StrokeShape="RoundRectangle 8"
+                        StrokeThickness="0"
+                        VerticalOptions="Center"
+                        WidthRequest="44">
+                        <Image
+                            HeightRequest="22"
+                            HorizontalOptions="Center"
+                            Source="bus.png"
+                            VerticalOptions="Center"
+                            WidthRequest="22">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                            </Image.Behaviors>
+                        </Image>
+                    </Border>
                     <VerticalStackLayout
                         Grid.Column="1"
-                        Margin="12,0"
-                        Spacing="2">
-                        <Label
-                            FontAttributes="Bold"
-                            FontSize="15"
-                            Text="Evening Trip"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
-                        <Label
-                            FontSize="12"
-                            Text="Available for drop-off"
-                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                        Spacing="2"
+                        VerticalOptions="Center">
+                        <Label Style="{StaticResource CardTitleLabel}" Text="Evening Trip" />
+                        <Label Style="{StaticResource SubLabel}" Text="Available for drop-off" />
                     </VerticalStackLayout>
                     <Switch
                         Grid.Column="2"
                         IsToggled="{Binding EveningAvailable}"
-                        OnColor="{StaticResource Primary}"
-                        ThumbColor="White"
                         VerticalOptions="Center" />
                 </Grid>
             </Border>
 
-            <!--  Reason  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
+            <!-- Reason  -->
+            <Border Style="{StaticResource FormFieldCard}">
                 <VerticalStackLayout Padding="16" Spacing="8">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="13"
-                        Text="Reason (optional)"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                    <Label Style="{StaticResource FieldLabel}" Text="REASON (OPTIONAL)" />
                     <Editor
                         AutoSize="TextChanges"
-                        BackgroundColor="Transparent"
                         MinimumHeightRequest="80"
-                        Placeholder="e.g. School holiday, sick leave…"
-                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
-                        Text="{Binding Reason}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                        BackgroundColor="Transparent"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}"
+                        Placeholder="e.g. School holiday, sick leave."
+                        Text="{Binding Reason}" />
                 </VerticalStackLayout>
             </Border>
 
-            <!--  Error  -->
+            <!-- Error -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight}, Dark={StaticResource ErrorBannerBgDark}}"
                 IsVisible="{Binding HasError}"
@@ -161,28 +185,21 @@
                     TextColor="{StaticResource Danger}" />
             </Border>
 
-            <!--  Save button  -->
+            <!-- Save button  -->
             <Button
-                BackgroundColor="{StaticResource Primary}"
                 Command="{Binding SaveCommand}"
-                CornerRadius="8"
-                FontAttributes="Bold"
-                FontSize="16"
-                HeightRequest="52"
-                Text="Save Availability"
-                TextColor="White">
+                Style="{StaticResource PrimaryButton}"
+                Text="Save Availability">
                 <Button.Triggers>
                     <DataTrigger
                         Binding="{Binding IsBusy}"
                         TargetType="Button"
                         Value="True">
-                        <Setter Property="Text" Value="Saving…" />
+                        <Setter Property="Text" Value="Saving." />
                         <Setter Property="IsEnabled" Value="False" />
                     </DataTrigger>
                 </Button.Triggers>
             </Button>
-
-            
 
         </VerticalStackLayout>
     </ScrollView>
