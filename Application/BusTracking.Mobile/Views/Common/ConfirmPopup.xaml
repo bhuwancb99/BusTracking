@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup
+    x:Class="BusTracking.Mobile.Views.Common.ConfirmPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
+
+    <Border
+        Margin="24"
+        Padding="24"
+        BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                          Dark={StaticResource CardBgDark}}"
+        HorizontalOptions="Center"
+        Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                 Dark={StaticResource BorderColorDark}}"
+        StrokeShape="RoundRectangle 24"
+        StrokeThickness="1.5"
+        VerticalOptions="Center"
+        WidthRequest="320">
+        <Border.Shadow>
+            <Shadow
+                Brush="Black"
+                Opacity="0.25"
+                Radius="16"
+                Offset="0,8" />
+        </Border.Shadow>
+
+        <VerticalStackLayout Spacing="20">
+            <!--  Icon badge with colored background  -->
+            <Border
+                x:Name="IconBadgeBorder"
+                BackgroundColor="{AppThemeBinding Light=#FFF0F0,
+                                                  Dark=#401A1A}"
+                HeightRequest="60"
+                HorizontalOptions="Center"
+                StrokeShape="Ellipse"
+                StrokeThickness="0"
+                WidthRequest="60">
+                <Image
+                    x:Name="IconImage"
+                    HeightRequest="26"
+                    HorizontalOptions="Center"
+                    Source="logout.png"
+                    VerticalOptions="Center"
+                    WidthRequest="26">
+                    <Image.Behaviors>
+                        <toolkit:IconTintColorBehavior x:Name="IconTintColor" TintColor="{StaticResource Danger}" />
+                    </Image.Behaviors>
+                </Image>
+            </Border>
+
+            <!--  Title & Message  -->
+            <VerticalStackLayout HorizontalOptions="Fill" Spacing="8">
+                <Label
+                    x:Name="TitleLabel"
+                    FontAttributes="Bold"
+                    FontSize="18"
+                    HorizontalTextAlignment="Center"
+                    Text="Logout"
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                Dark={StaticResource TextPrimaryDark}}" />
+                <Label
+                    x:Name="MessageLabel"
+                    FontSize="14"
+                    HorizontalTextAlignment="Center"
+                    LineBreakMode="WordWrap"
+                    Text="Are you sure you want to logout?"
+                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                Dark={StaticResource TextSecondaryDark}}" />
+            </VerticalStackLayout>
+
+            <!--  Actions grid  -->
+            <Grid
+                Margin="0,4,0,0"
+                ColumnDefinitions="*,*"
+                ColumnSpacing="12">
+                <Button
+                    x:Name="CancelButton"
+                    Grid.Column="0"
+                    BackgroundColor="Transparent"
+                    BorderColor="{AppThemeBinding Light={StaticResource BorderColor},
+                                                  Dark={StaticResource BorderColorDark}}"
+                    BorderWidth="1.5"
+                    Clicked="OnCancelClicked"
+                    CornerRadius="12"
+                    FontAttributes="Bold"
+                    HeightRequest="48"
+                    Text="Cancel"
+                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                Dark={StaticResource TextSecondaryDark}}" />
+                <Button
+                    x:Name="AcceptButton"
+                    Grid.Column="1"
+                    BackgroundColor="{StaticResource Danger}"
+                    Clicked="OnConfirmClicked"
+                    CornerRadius="12"
+                    FontAttributes="Bold"
+                    HeightRequest="48"
+                    Text="Yes, Logout"
+                    TextColor="White" />
+            </Grid>
+        </VerticalStackLayout>
+    </Border>
+
+</toolkit:Popup>

@@ -299,6 +299,13 @@
                 StrokeShape="RoundRectangle 24"
                 StrokeThickness="1"
                 VerticalOptions="Center">
+                <Border.Shadow>
+                    <Shadow
+                        Brush="Black"
+                        Opacity="0.2"
+                        Radius="16"
+                        Offset="0,8" />
+                </Border.Shadow>
                 <VerticalStackLayout Spacing="20">
 
                     <!--  Header Row: Icon Badge + Title  -->

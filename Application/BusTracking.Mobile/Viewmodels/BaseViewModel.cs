@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.ViewModels;
+namespace BusTracking.Mobile.ViewModels;
 
 /// <summary>
 /// Base ViewModel — all ViewModels inherit from this.
@@ -56,7 +56,31 @@ public abstract partial class BaseViewModel : ObservableObject
         string accept = "Yes", string cancel = "No")
     {
         if (Application.Current?.Windows[0].Page is Page p)
-            return await p.DisplayAlertAsync(title, message, accept, cancel);
+        {
+            string iconSource = "info.png";
+            Color? acceptColor = null;
+
+            if (title.Contains("Logout", StringComparison.OrdinalIgnoreCase))
+            {
+                iconSource = "logout.png";
+                acceptColor = Color.FromArgb("#ba1a1a");
+                if (accept == "Yes") accept = "Yes, Logout";
+                if (cancel == "No") cancel = "Cancel";
+            }
+            else if (title.Contains("Delete", StringComparison.OrdinalIgnoreCase) || title.Contains("Remove", StringComparison.OrdinalIgnoreCase))
+            {
+                iconSource = "delete.svg";
+                acceptColor = Color.FromArgb("#ba1a1a");
+            }
+            else
+            {
+                acceptColor = Color.FromArgb("#512BD4"); // Primary
+            }
+
+            var popup = new Views.Common.ConfirmPopup(title, message, accept, cancel, iconSource, acceptColor);
+            var result = await p.ShowPopupAsync<bool>(popup);
+            return result is not null && result.Result;
+        }
         return false;
     }
 

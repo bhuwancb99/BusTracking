@@ -27,7 +27,8 @@
                 FontAttributes="Bold"
                 FontSize="17"
                 Text="Route Details"
-                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}"
                 VerticalOptions="Center" />
             <Border
                 Grid.Column="1"
@@ -79,7 +80,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="12">
 
-            
+
 
             <Border
                 Padding="12,10"
@@ -112,7 +113,16 @@
                         HeightRequest="60"
                         StrokeShape="RoundRectangle 16"
                         WidthRequest="60">
-                        <Image HeightRequest="28" HorizontalOptions="Center" Source="route.svg" VerticalOptions="Center" WidthRequest="28"><Image.Behaviors><mct:IconTintColorBehavior TintColor="{StaticResource Primary}" /></Image.Behaviors></Image>
+                        <Image
+                            HeightRequest="28"
+                            HorizontalOptions="Center"
+                            Source="route.png"
+                            VerticalOptions="Center"
+                            WidthRequest="28">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                            </Image.Behaviors>
+                        </Image>
                     </Border>
                     <VerticalStackLayout
                         Grid.Column="1"
@@ -323,7 +333,16 @@
                                         <Border.GestureRecognizers>
                                             <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordRouteDetailViewModel}}, Path=DeleteStopCommand}" CommandParameter="{Binding .}" />
                                         </Border.GestureRecognizers>
-                                        <Image HeightRequest="18" HorizontalOptions="Center" Source="delete.svg" VerticalOptions="Center" WidthRequest="18"><Image.Behaviors><mct:IconTintColorBehavior TintColor="{StaticResource Danger}" /></Image.Behaviors></Image>
+                                        <Image
+                                            HeightRequest="18"
+                                            HorizontalOptions="Center"
+                                            Source="delete.png"
+                                            VerticalOptions="Center"
+                                            WidthRequest="18">
+                                            <Image.Behaviors>
+                                                <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                            </Image.Behaviors>
+                                        </Image>
                                     </Border>
                                 </Grid>
                             </DataTemplate>

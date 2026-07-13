@@ -1,5 +1,3 @@
-using BusTracking.Mobile.Helpers;
-
 namespace BusTracking.Mobile;
 
 public partial class AppShell : Shell
@@ -258,8 +256,18 @@ public partial class AppShell : Shell
 
         bool confirmed = false;
         if (Application.Current?.Windows[0].Page is Page page)
-            confirmed = await page.DisplayAlertAsync(
-                "Logout", "Are you sure you want to logout?", "Yes", "No");
+        {
+            var popup = new Views.Common.ConfirmPopup(
+                "Logout",
+                "Are you sure you want to logout?",
+                "Yes, Logout",
+                "Cancel",
+                "logout.png",
+                Color.FromArgb("#ba1a1a")
+            );
+            var result = await page.ShowPopupAsync<bool>(popup);
+            confirmed = result is not null && result.Result;
+        }
 
         if (!confirmed) return;
 

@@ -47,3 +47,5 @@ global using BusTracking.Mobile.Viewmodels.Common;
 global using Microsoft.AspNetCore.SignalR.Client;
 global using BusTracking.Mobile.Viewmodels.Shared;
 global using BusTracking.Mobile.Views.Shared;
+global using CommunityToolkit.Maui.Views;
+global using CommunityToolkit.Maui.Extensions;
