@@ -183,8 +183,8 @@ CREATE TABLE Users (
 GO
 
 SET IDENTITY_INSERT Users ON;
-INSERT INTO Users (UserId, RoleId, FullName, UserName, Email, PhoneNumber, PasswordHash, PasswordSalt, ProfileImageUrl, IsActive, IsEmailVerified, LastLoginAt, CreatedAt, UpdatedAt, CreatedBy)
-VALUES (1, 1, 'SuperAdmin', 'Admin', 'admin@bustracking.com', NULL, '$2a$12$gRiCpH9Cj4ztBpZsTgntH.BM2d/G9mO6VmcbIKD7gRdkk4vT3PpoW', '$2a$12$gRiCpH9Cj4ztBpZsTgntH.', NULL, 1, 1, GETDATE(), GETDATE(), GETDATE(), 1);
+INSERT INTO Users (SchoolId,UserId, RoleId, FullName, UserName, Email, PhoneNumber, PasswordHash, PasswordSalt, ProfileImageUrl, IsActive, IsEmailVerified, LastLoginAt, CreatedAt, UpdatedAt, CreatedBy)
+VALUES (1,1, 1, 'SuperAdmin', 'Admin', 'admin@bustracking.com', NULL, '$2a$12$gRiCpH9Cj4ztBpZsTgntH.BM2d/G9mO6VmcbIKD7gRdkk4vT3PpoW', '$2a$12$gRiCpH9Cj4ztBpZsTgntH.', NULL, 1, 1, GETDATE(), GETDATE(), GETDATE(), 1);
 SET IDENTITY_INSERT Users OFF;
 GO
 
