@@ -76,6 +76,21 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        (function () {
+            function applyTdTooltips() {
+                document.querySelectorAll('table td').forEach(function (td) {
+                    if (td.classList.contains('no-truncate')) return;
+                    var text = td.innerText.trim();
+                    if (!text) return;
+                    if (td.scrollWidth > td.clientWidth) {
+                        if (!td.hasAttribute('title')) td.setAttribute('title', text);
+                    }
+                });
+            }
+            document.addEventListener('DOMContentLoaded', applyTdTooltips);
+        })();
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

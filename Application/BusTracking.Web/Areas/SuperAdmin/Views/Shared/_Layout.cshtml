@@ -163,6 +163,23 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        /* Global table-cell truncation tooltip — fires on every page */
+        (function () {
+            function applyTdTooltips() {
+                document.querySelectorAll('table td').forEach(function (td) {
+                    // Skip action/icon cells that already have title
+                    if (td.classList.contains('no-truncate')) return;
+                    var text = td.innerText.trim();
+                    if (!text) return;
+                    if (td.scrollWidth > td.clientWidth) {
+                        if (!td.hasAttribute('title')) td.setAttribute('title', text);
+                    }
+                });
+            }
+            document.addEventListener('DOMContentLoaded', applyTdTooltips);
+        })();
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

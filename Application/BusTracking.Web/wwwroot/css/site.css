@@ -447,3 +447,35 @@ body {
 .validation-summary-errors:not(:has(li)) {
     display: none !important;
 }
+
+/* ── Table cell truncation (listing pages) ────────────────────
+   Cells in data tables get a sensible max-width; text that
+   overflows is clipped with an ellipsis. The native `title`
+   attribute (added by JS) shows the full text on hover.       */
+
+.table td {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+    /* Cells that should NOT truncate (badge/action columns) */
+    .table td.no-truncate,
+    .table th.no-truncate {
+        max-width: none;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+    }
+
+/* Explicit utility for any element outside a table */
+.cell-truncate {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+    cursor: default;
+}
