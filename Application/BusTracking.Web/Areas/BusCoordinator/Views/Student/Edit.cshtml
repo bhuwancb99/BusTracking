@@ -53,8 +53,10 @@
                         </div>
 
                         <div class="col-md-6">
-                            <label asp-for="Standard" class="form-label fw-semibold">Class / Standard</label>
-                            <input asp-for="Standard" class="form-control" />
+                            <label asp-for="StandardId" class="form-label fw-semibold">Class / Standard</label>
+                            <select asp-for="StandardId" class="form-select" asp-items="ViewBag.Standards">
+                                <option value="">-- Select Class --</option>
+                            </select>
                         </div>
 
                         <!-- ── Bus autocomplete ── -->

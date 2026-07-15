@@ -14,8 +14,10 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [ObservableProperty] private string _password = "";
         [ObservableProperty] private string _newPassword = "";
         [ObservableProperty] private string _phoneNumber = "";
-        [ObservableProperty] private string _standard = "";
+        [ObservableProperty] private List<StandardItem> _standardOptions = [];
+        [ObservableProperty] private StandardItem? _selectedStandard;
         [ObservableProperty] private bool _isActive = true;
+        [ObservableProperty] private string _studentCode = "";
         [ObservableProperty] private List<BusItem> _busOptions = [];
         [ObservableProperty] private List<StopItem> _stopOptions = [];
         [ObservableProperty] private BusItem? _selectedBus;
@@ -94,6 +96,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             await RunAsync(async () =>
             {
                 BusOptions = await _buses.GetAllForFormAsync();
+                StandardOptions = await _students.GetStandardsAsync();
 
                 if (IsEditMode && StudentId.HasValue)
                 {
@@ -103,7 +106,8 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                     Email = s.Email ?? "";
                     NewPassword = "";
                     PhoneNumber = s.PhoneNumber ?? "";
-                    Standard = s.Standard ?? "";
+                    StudentCode = s.StudentCode ?? "";
+                    SelectedStandard = StandardOptions.FirstOrDefault(st => st.StandardId == s.StandardId);
                     IsActive = s.IsActive;
                     SelectedBus = BusOptions.FirstOrDefault(b => b.BusId == s.BusId);
                     if (s.BusId.HasValue)
@@ -117,6 +121,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                         }
                     }
                 }
+                _isLoadingData = false;
             });
         }
 
@@ -154,7 +159,8 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                         Email = Email.Length > 0 ? Email : null,
                         NewPassword = NewPassword.Length > 0 ? NewPassword : null,
                         PhoneNumber = PhoneNumber.Length > 0 ? PhoneNumber : null,
-                        Standard = Standard.Length > 0 ? Standard : null,
+                        StudentCode = StudentCode, // keep student code unchanged on edit or pass if required
+                        StandardId = SelectedStandard?.StandardId,
                         BusId = SelectedBus?.BusId,
                         StopId = SelectedStop?.StopId,
                         IsActive = IsActive
@@ -167,7 +173,8 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                         Email = Email.Length > 0 ? Email : null,
                         Password = Password,
                         PhoneNumber = PhoneNumber.Length > 0 ? PhoneNumber : null,
-                        Standard = Standard.Length > 0 ? Standard : null,
+                        StudentCode = string.Empty, // generated or empty, let's keep it empty or if it needs to match StudentCode property
+                        StandardId = SelectedStandard?.StandardId,
                         BusId = SelectedBus?.BusId,
                         StopId = SelectedStop?.StopId,
                         IsActive = IsActive

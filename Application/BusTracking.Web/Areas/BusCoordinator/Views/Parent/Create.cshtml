@@ -101,7 +101,7 @@
             data.forEach(s=>{
                 const a=document.createElement('a');
                 a.className='dropdown-item d-flex align-items-center gap-2';a.href='#';
-                a.innerHTML=`<code class="small">${s.studentCode}</code><span>${s.fullName}</span>${s.standard?`<span class="badge bg-secondary-subtle text-secondary ms-auto">${s.standard}</span>`:''}`;
+                a.innerHTML=`<code class="small">${s.studentCode}</code><span>${s.fullName}</span>${s.standardName?`<span class="badge bg-secondary-subtle text-secondary ms-auto">${s.standardName}</span>`:''}`;
                 a.addEventListener('click',e=>{e.preventDefault();addStudent(s);document.getElementById('studentSearch').value='';hideSug();});
                 box.appendChild(a);
             });

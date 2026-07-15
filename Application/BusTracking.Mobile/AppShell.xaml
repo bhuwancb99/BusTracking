@@ -309,6 +309,11 @@
         FlyoutItemIsVisible="False"
         Route="AdminConfigList" />
     <ShellContent
+        Title="Standard Master"
+        ContentTemplate="{DataTemplate admin:AdminStandardListPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminStandardList" />
+    <ShellContent
         Title="Bus Types"
         ContentTemplate="{DataTemplate admin:AdminBusTypeListPage}"
         FlyoutItemIsVisible="False"
@@ -370,6 +375,11 @@
         ContentTemplate="{DataTemplate coord:CoordConfigListPage}"
         FlyoutItemIsVisible="False"
         Route="CoordConfigList" />
+    <ShellContent
+        Title="Standard Master"
+        ContentTemplate="{DataTemplate coord:CoordStandardListPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordStandardList" />
     <ShellContent
         Title="Bus Types"
         ContentTemplate="{DataTemplate coord:CoordBusTypeListPage}"

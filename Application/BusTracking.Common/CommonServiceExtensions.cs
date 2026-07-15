@@ -40,6 +40,7 @@ public static class CommonServiceExtensions
         services.AddScoped<IParentExtService, ParentExtService>();
         services.AddScoped<ISubAdminExtService, SubAdminExtService>();
         services.AddScoped<IAppConfigService, AppConfigService>();
+        services.AddScoped<IStandardService, StandardService>();
         services.AddScoped<IDriverTripWebService, DriverTripWebService>();
 
         return services;

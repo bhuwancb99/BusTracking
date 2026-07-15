@@ -14,7 +14,7 @@ namespace BusTracking.Common.Services
 
         public async Task<ApiResponse<PagedResult<ParentListDto>>> GetAllAsync(int page, string? search, string? status)
         {
-            var q = _db.Parents.Include(p => p.User).Include(p => p.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.User).Include(p => p.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.Bus).AsQueryable();
+            var q = _db.Parents.Include(p => p.User).Include(p => p.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.User).Include(p => p.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.Standard).Include(p => p.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.Bus).AsQueryable();
             if (!string.IsNullOrWhiteSpace(search)) q = q.Where(p => p.User.FullName.Contains(search) || p.User.UserName.Contains(search) || (p.User.Email != null && p.User.Email.Contains(search)));
             if (status == "Active") q = q.Where(p => p.User.IsActive);
             else if (status == "Inactive") q = q.Where(p => !p.User.IsActive);
@@ -36,7 +36,8 @@ namespace BusTracking.Common.Services
                         StudentId = ps.Student.StudentId,
                         StudentCode = ps.Student.StudentCode,
                         FullName = ps.Student.User.FullName,
-                        Standard = ps.Student.Standard,
+                        StandardId = ps.Student.StandardId,
+                        StandardName = ps.Student.Standard != null ? ps.Student.Standard.StandardName : null,
                         BusNumber = ps.Student.Bus != null ? ps.Student.Bus.BusNumber : null,
                         BusName = ps.Student.Bus != null ? ps.Student.Bus.BusName : null
                     }).ToList()
@@ -63,7 +64,7 @@ namespace BusTracking.Common.Services
         }
         public async Task<ApiResponse<ParentListDto>> GetByIdAsync(int userId)
         {
-            var p = await _db.Parents.Include(x => x.User).Include(x => x.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.User).Include(x => x.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.Bus).FirstOrDefaultAsync(x => x.UserId == userId);
+            var p = await _db.Parents.Include(x => x.User).Include(x => x.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.User).Include(x => x.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.Standard).Include(x => x.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.Bus).FirstOrDefaultAsync(x => x.UserId == userId);
             if (p is null)
                 return ApiResponse<ParentListDto>.Fail("Not found.");
             return ApiResponse<ParentListDto>.Ok(new ParentListDto
@@ -80,7 +81,8 @@ namespace BusTracking.Common.Services
                     StudentId = ps.Student.StudentId,
                     StudentCode = ps.Student.StudentCode,
                     FullName = ps.Student.User.FullName,
-                    Standard = ps.Student.Standard,
+                    StandardId = ps.Student.StandardId,
+                    StandardName = ps.Student.Standard?.StandardName,
                     BusNumber = ps.Student.Bus?.BusNumber,
                     BusName = ps.Student.Bus?.BusName
                 }).ToList()

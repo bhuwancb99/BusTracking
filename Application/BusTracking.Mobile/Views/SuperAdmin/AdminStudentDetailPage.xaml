@@ -25,7 +25,8 @@
                 FontAttributes="Bold"
                 FontSize="17"
                 Text="Student Details"
-                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}"
                 VerticalOptions="Center" />
             <Border
                 Grid.Column="1"
@@ -75,7 +76,7 @@
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="12">
 
-            
+
 
             <Border
                 Padding="12,10"
@@ -210,7 +211,7 @@
                             <Label
                                 FontAttributes="Bold"
                                 FontSize="14"
-                                Text="{Binding Student.Standard}"
+                                Text="{Binding Student.StandardName}"
                                 TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                             Dark={StaticResource TextPrimaryDark}}" />
                         </VerticalStackLayout>

@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Interfaces
+namespace BusTracking.Mobile.Interfaces
 {
     public interface IStudentService
     {
@@ -12,5 +12,6 @@
         Task<List<StudentItem>> SearchAsync(string query);
         Task<TrackingData?> GetTrackingAsync();
         Task<ApiResponse<bool>> SetAvailabilityAsync(object req);
+        Task<List<StandardItem>> GetStandardsAsync();
     }
 }

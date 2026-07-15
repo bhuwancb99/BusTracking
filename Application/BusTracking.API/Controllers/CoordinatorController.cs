@@ -20,14 +20,16 @@ namespace BusTracking.API.Controllers
         private readonly IDriverService _driver;
         private readonly IParentService _parent;
         private readonly IStudentService _student;
+        private readonly IStandardService _standard;
 
         public CoordinatorController(AppDbContext db, IDashboardService dash, ITripService trip,
             ISubAdminService subAdmin, IAppConfigService appConfig, IFeedbackService feedback,
-            INotificationService notif, IImageService img, IRouteService route, IBusService bus, IDriverService driver, IParentService parent, IStudentService student)
+            INotificationService notif, IImageService img, IRouteService route, IBusService bus, IDriverService driver, IParentService parent, IStudentService student, IStandardService standard)
         {
             _db = db; _dash = dash; _trip = trip;
             _subAdmin = subAdmin; _appConfig = appConfig;
             _feedback = feedback; _notif = notif; _img = img; _route = route; _bus = bus; _driver = driver; _parent = parent; _student = student;
+            _standard = standard;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -537,6 +539,58 @@ namespace BusTracking.API.Controllers
         {
             RequirePermission("appconfig.edit");
             var r = await _appConfig.ToggleActiveAsync(id);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // CLASS / STANDARD MASTER
+        // ════════════════════════════════════════════════════════════
+
+        [HttpGet("standards")]
+        public async Task<IActionResult> GetStandards([FromQuery] string? search, [FromQuery] bool? isActive, [FromQuery] int page = 1)
+        {
+            RequirePermission("standard.view");
+            var r = await _standard.GetAllAsync(search, isActive, page);
+            return Ok(r);
+        }
+
+        [HttpGet("standards/{id:int}")]
+        public async Task<IActionResult> GetStandardById(int id)
+        {
+            RequirePermission("standard.view");
+            var r = await _standard.GetByIdAsync(id);
+            return r.Success ? Ok(r) : NotFound(r);
+        }
+
+        [HttpPost("standards")]
+        public async Task<IActionResult> CreateStandard([FromBody] BusTracking.Common.DTOs.Standard.CreateStandardDto dto)
+        {
+            RequirePermission("standard.add");
+            var r = await _standard.CreateAsync(dto);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        [HttpPut("standards/{id:int}")]
+        public async Task<IActionResult> UpdateStandard(int id, [FromBody] BusTracking.Common.DTOs.Standard.UpdateStandardDto dto)
+        {
+            RequirePermission("standard.edit");
+            var r = await _standard.UpdateAsync(id, dto);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        [HttpDelete("standards/{id:int}")]
+        public async Task<IActionResult> DeleteStandard(int id)
+        {
+            RequirePermission("standard.delete");
+            var r = await _standard.DeleteAsync(id);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        [HttpPost("standards/{id:int}/toggle")]
+        public async Task<IActionResult> ToggleStandard(int id)
+        {
+            RequirePermission("standard.edit");
+            var r = await _standard.ToggleActiveAsync(id);
             return r.Success ? Ok(r) : BadRequest(r);
         }
 

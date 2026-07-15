@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminStudentFormPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -237,10 +237,12 @@
                         Text="Class / Standard"
                         TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                     Dark={StaticResource TextSecondaryDark}}" />
-                    <Entry
+                    <Picker
+                        Title="Select Class / Standard"
                         BackgroundColor="Transparent"
-                        Placeholder="e.g. Grade 8"
-                        Text="{Binding Standard}"
+                        ItemDisplayBinding="{Binding StandardName}"
+                        ItemsSource="{Binding StandardOptions}"
+                        SelectedItem="{Binding SelectedStandard}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>

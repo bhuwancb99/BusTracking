@@ -14,7 +14,9 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [ObservableProperty] private string _password = "";
         [ObservableProperty] private string _newPassword = "";
         [ObservableProperty] private string _phoneNumber = "";
-        [ObservableProperty] private string _standard = "";
+        [ObservableProperty] private List<StandardItem> _standardOptions = [];
+        [ObservableProperty] private StandardItem? _selectedStandard;
+        [ObservableProperty] private string _studentCode = "";
         [ObservableProperty] private bool _isActive = true;
         [ObservableProperty] private List<BusItem> _busOptions = [];
         [ObservableProperty] private List<StopItem> _stopOptions = [];
@@ -94,6 +96,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             await RunAsync(async () =>
             {
                 BusOptions = await _buses.GetAllForFormAsync();
+                StandardOptions = await _students.GetStandardsAsync();
                 if (IsEditMode && StudentId.HasValue)
                 {
                     var s = await _students.GetByIdAsync(StudentId.Value);
@@ -101,7 +104,9 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                     FullName = s.FullName; UserName = s.UserName ?? "";
                     Email = s.Email ?? "";
                     NewPassword = "";
-                    PhoneNumber = s.PhoneNumber ?? ""; Standard = s.Standard ?? "";
+                    PhoneNumber = s.PhoneNumber ?? "";
+                    StudentCode = s.StudentCode;
+                    SelectedStandard = StandardOptions.FirstOrDefault(st => st.StandardId == s.StandardId);
                     IsActive = s.IsActive;
                     SelectedBus = BusOptions.FirstOrDefault(b => b.BusId == s.BusId);
                     if (SelectedBus?.RouteId.HasValue == true)
@@ -110,6 +115,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                         SelectedStop = StopOptions.FirstOrDefault(st => st.StopId == s.StopId);
                     }
                 }
+                _isLoadingData = false;
             });
         }
 
@@ -143,7 +149,8 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                         Email = Email.Length > 0 ? Email : null,
                         NewPassword = NewPassword.Length > 0 ? NewPassword : null,
                         PhoneNumber = PhoneNumber.Length > 0 ? PhoneNumber : null,
-                        Standard = Standard.Length > 0 ? Standard : null,
+                        StudentCode = StudentCode,
+                        StandardId = SelectedStandard?.StandardId,
                         BusId = SelectedBus?.BusId,
                         StopId = SelectedStop?.StopId,
                         IsActive = IsActive
@@ -155,7 +162,8 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                         Email = Email.Length > 0 ? Email : null,
                         Password = Password,
                         PhoneNumber = PhoneNumber.Length > 0 ? PhoneNumber : null,
-                        Standard = Standard.Length > 0 ? Standard : null,
+                        StudentCode = string.Empty,
+                        StandardId = SelectedStandard?.StandardId,
                         BusId = SelectedBus?.BusId,
                         StopId = SelectedStop?.StopId,
                         IsActive = IsActive

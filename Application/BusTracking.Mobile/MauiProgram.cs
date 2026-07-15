@@ -62,6 +62,8 @@ namespace BusTracking.Mobile
 
             // ── Super Admin — Form pages ──────────────────────────────────────
             Routing.RegisterRoute("AdminConfigForm", typeof(AdminConfigFormPage));
+            Routing.RegisterRoute("AdminStandardList", typeof(AdminStandardListPage));
+            Routing.RegisterRoute("AdminStandardForm", typeof(AdminStandardFormPage));
             Routing.RegisterRoute("AdminCoordinatorForm", typeof(AdminCoordinatorFormPage));
             Routing.RegisterRoute("AdminRouteForm", typeof(AdminRouteFormPage));
             Routing.RegisterRoute("AdminBusForm", typeof(AdminBusFormPage));
@@ -90,6 +92,8 @@ namespace BusTracking.Mobile
             Routing.RegisterRoute("CoordTripForm", typeof(CoordTripFormPage));
             Routing.RegisterRoute("CoordSubAdminForm", typeof(CoordSubAdminFormPage));
             Routing.RegisterRoute("CoordConfigForm", typeof(CoordConfigFormPage));
+            Routing.RegisterRoute("CoordStandardList", typeof(CoordStandardListPage));
+            Routing.RegisterRoute("CoordStandardForm", typeof(CoordStandardFormPage));
             Routing.RegisterRoute("CoordFeedbackDetail", typeof(CoordFeedbackDetailPage));
             Routing.RegisterRoute("CoordNotificationDetail", typeof(CoordNotificationDetailPage));
 
@@ -138,8 +142,10 @@ namespace BusTracking.Mobile
             s.AddTransient<ITripService, TripService>();
             s.AddTransient<IRouteService, RouteService>();
             s.AddTransient<IAdminConfigService, AdminConfigService>();
+            s.AddTransient<IAdminStandardService, AdminStandardService>();
             s.AddTransient<ICoordSubAdminService, CoordSubAdminService>();
             s.AddTransient<ICoordAppConfigService, CoordAppConfigService>();
+            s.AddTransient<ICoordStandardService, CoordStandardService>();
             s.AddTransient<IDriverTripService, DriverTripService>();
             s.AddTransient<IBusTypeService, BusTypeService>();
         }
@@ -174,6 +180,8 @@ namespace BusTracking.Mobile
             s.AddTransient<AdminTripDetailViewModel>();
             s.AddTransient<AdminConfigListViewModel>();
             s.AddTransient<AdminConfigFormViewModel>();
+            s.AddTransient<AdminStandardListViewModel>();
+            s.AddTransient<AdminStandardFormViewModel>();
             s.AddTransient<AdminRouteListViewModel>();
             s.AddTransient<AdminRouteFormViewModel>();
             s.AddTransient<AdminRouteDetailViewModel>();
@@ -207,6 +215,8 @@ namespace BusTracking.Mobile
             s.AddTransient<CoordSubAdminDetailViewModel>();
             s.AddTransient<CoordConfigListViewModel>();
             s.AddTransient<CoordConfigFormViewModel>();
+            s.AddTransient<CoordStandardListViewModel>();
+            s.AddTransient<CoordStandardFormViewModel>();
             s.AddTransient<CoordFeedbackListViewModel>();
             s.AddTransient<CoordFeedbackDetailViewModel>();
             s.AddTransient<CoordNotificationListViewModel>();
@@ -269,6 +279,8 @@ namespace BusTracking.Mobile
             s.AddTransient<AdminTripDetailPage>();
             s.AddTransient<AdminConfigListPage>();
             s.AddTransient<AdminConfigFormPage>();
+            s.AddTransient<AdminStandardListPage>();
+            s.AddTransient<AdminStandardFormPage>();
             s.AddTransient<AdminRouteListPage>();
             s.AddTransient<AdminRouteFormPage>();
             s.AddTransient<AdminRouteDetailPage>();
@@ -302,6 +314,8 @@ namespace BusTracking.Mobile
             s.AddTransient<CoordSubAdminDetailPage>();
             s.AddTransient<CoordConfigListPage>();
             s.AddTransient<CoordConfigFormPage>();
+            s.AddTransient<CoordStandardListPage>();
+            s.AddTransient<CoordStandardFormPage>();
             s.AddTransient<CoordFeedbackListPage>();
             s.AddTransient<CoordFeedbackDetailPage>();
             s.AddTransient<CoordNotificationListPage>();

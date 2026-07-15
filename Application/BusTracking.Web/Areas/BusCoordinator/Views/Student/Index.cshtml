@@ -86,7 +86,7 @@
                             <td><code class="bg-light px-2 py-1 rounded">@s.StudentCode</code></td>
                             <td class="fw-semibold">@s.FullName</td>
                             @* <td class="text-muted small">@s.Email</td> *@
-                            <td class="small">@(s.Standard ?? "–")</td>
+                            <td class="small">@(s.StandardName ?? "–")</td>
                             <td>
                                 @if (s.BusNumber is not null)
                                 {

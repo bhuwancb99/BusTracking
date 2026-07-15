@@ -16,6 +16,7 @@ public class AppDbContext : DbContext
     public DbSet<BusTypeMaster> BusTypeMasters { get; set; }
     public DbSet<DriverDetail> DriverDetails { get; set; }
     public DbSet<StudentDetail> Students { get; set; }
+    public DbSet<StandardMaster> StandardMasters { get; set; }
     public DbSet<ParentDetail> Parents { get; set; }
     public DbSet<ParentStudent> ParentStudents { get; set; }
     public DbSet<StudentAvailability> StudentAvailabilities { get; set; }
@@ -48,6 +49,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<BusTypeMaster>().ToTable("BusTypeMasters");
         modelBuilder.Entity<DriverDetail>().ToTable("DriverDetails");
         modelBuilder.Entity<StudentDetail>().ToTable("Students");
+        modelBuilder.Entity<StandardMaster>().ToTable("StandardMasters");
         modelBuilder.Entity<ParentDetail>().ToTable("Parents");
         modelBuilder.Entity<ParentStudent>().ToTable("ParentStudents");
         modelBuilder.Entity<StudentAvailability>().ToTable("StudentAvailabilities");
@@ -68,6 +70,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<BusRoute>().HasIndex(r => r.RouteCode).IsUnique();
         modelBuilder.Entity<Bus>().HasIndex(b => b.BusNumber).IsUnique();
         modelBuilder.Entity<StudentDetail>().HasIndex(s => s.StudentCode).IsUnique();
+        modelBuilder.Entity<StandardMaster>().HasIndex(s => s.StandardName).IsUnique();
         modelBuilder.Entity<Permission>().HasIndex(p => p.PermissionKey).IsUnique();
         modelBuilder.Entity<PasswordResetToken>().HasIndex(t => t.Token).IsUnique();
         modelBuilder.Entity<BusTypeMaster>().HasIndex(b => b.Name).IsUnique();
@@ -116,6 +119,11 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Bus>()
             .HasOne(b => b.BusType).WithMany(t => t.Buses)
             .HasForeignKey(b => b.BusTypeId).OnDelete(DeleteBehavior.Restrict);
+
+        // StudentDetail → StandardMaster (restrict delete)
+        modelBuilder.Entity<StudentDetail>()
+            .HasOne(s => s.Standard).WithMany()
+            .HasForeignKey(s => s.StandardId).OnDelete(DeleteBehavior.Restrict);
 
         // ── Performance indexes ───────────────────────────────────────
         modelBuilder.Entity<BusLiveLocation>()

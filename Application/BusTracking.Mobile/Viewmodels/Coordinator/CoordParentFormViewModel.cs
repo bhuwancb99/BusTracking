@@ -58,7 +58,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                 StudentId = item.StudentId,
                 StudentCode = item.StudentCode,
                 FullName = item.FullName,
-                Standard = item.Standard
+                StandardName = item.StandardName
             });
             StudentSearchText = "";
             SearchResults = [];

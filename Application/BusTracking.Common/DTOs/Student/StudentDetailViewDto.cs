@@ -8,7 +8,8 @@ namespace BusTracking.Common.DTOs.Student
         public string UserName { get; set; } = "";
         public string? Email { get; set; } = "";
         public string? PhoneNumber { get; set; }
-        public string? Standard { get; set; }
+        public int? StandardId { get; set; }
+        public string? StandardName { get; set; }
         public int? BusId { get; set; }
         public string? BusName { get; set; }
         public string? BusNumber { get; set; }

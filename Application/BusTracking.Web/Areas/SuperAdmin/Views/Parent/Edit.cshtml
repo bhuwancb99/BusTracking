@@ -150,7 +150,7 @@
                 const a=document.createElement('a');
                 a.className='dropdown-item d-flex align-items-center gap-2'+(already?' text-muted':'');
                 a.href='#';
-                a.innerHTML=`<span>${s.fullName} <code class="small">${s.studentCode}</code>${s.standard?` &nbsp;<span class="badge bg-secondary-subtle text-secondary">${s.standard}</span>`:''}</span>${already?' <span class="badge bg-success-subtle text-success ms-auto">Added</span>':''}`;
+                a.innerHTML=`<span>${s.fullName} <code class="small">${s.studentCode}</code>${s.standardName?` &nbsp;<span class="badge bg-secondary-subtle text-secondary">${s.standardName}</span>`:''}</span>${already?' <span class="badge bg-success-subtle text-success ms-auto">Added</span>':''}`;
                 if(!already) a.addEventListener('click',e=>{e.preventDefault();addStudent(s);document.getElementById('studentSearch').value='';hideSug();});
                 box.appendChild(a);
             });

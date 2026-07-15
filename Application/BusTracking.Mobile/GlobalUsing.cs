@@ -49,3 +49,4 @@ global using BusTracking.Mobile.Viewmodels.Shared;
 global using BusTracking.Mobile.Views.Shared;
 global using CommunityToolkit.Maui.Views;
 global using CommunityToolkit.Maui.Extensions;
+global using BusTracking.Mobile.Models.Standard;

@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Services
+namespace BusTracking.Mobile.Services
 {
     public class StudentService : IStudentService
     {
@@ -61,5 +61,11 @@
 
         public Task<ApiResponse<bool>> SetAvailabilityAsync(object req)
             => _api.PostAsync<bool>(Constants.Student.Availability, req);
+
+        public async Task<List<BusTracking.Mobile.Models.Standard.StandardItem>> GetStandardsAsync()
+        {
+            var r = await _api.GetAsync<List<BusTracking.Mobile.Models.Standard.StandardItem>>(Constants.Lookups.Standards);
+            return r.Data ?? new List<BusTracking.Mobile.Models.Standard.StandardItem>();
+        }
     }
 }

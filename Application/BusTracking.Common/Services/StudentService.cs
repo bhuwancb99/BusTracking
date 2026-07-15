@@ -7,7 +7,7 @@ namespace BusTracking.Common.Services
 
         public async Task<ApiResponse<PagedResult<StudentListDto>>> GetAllAsync(int page, string? search, string? status)
         {
-            var q = _db.Students.Include(s => s.User).Include(s => s.Bus).Include(s => s.Stop).AsQueryable();
+            var q = _db.Students.Include(s => s.User).Include(s => s.Standard).Include(s => s.Bus).Include(s => s.Stop).AsQueryable();
             if (!string.IsNullOrWhiteSpace(search)) q = q.Where(s => s.User.FullName.Contains(search) || s.User.UserName.Contains(search) || s.StudentCode.Contains(search));
             if (status == "Active") q = q.Where(s => s.User.IsActive);
             else if (status == "Inactive") q = q.Where(s => !s.User.IsActive);
@@ -25,7 +25,8 @@ namespace BusTracking.Common.Services
                     FullName = s.User.FullName,
                     Email = s.User.Email,
                     PhoneNumber = s.User.PhoneNumber,
-                    Standard = s.Standard,
+                    StandardId = s.StandardId,
+                    StandardName = s.Standard != null ? s.Standard.StandardName : null,
                     BusId = s.BusId,
                     BusName = s.Bus != null ? s.Bus.BusName : null,
                     BusNumber = s.Bus != null ? s.Bus.BusNumber : null,
@@ -55,7 +56,7 @@ namespace BusTracking.Common.Services
         }
         public async Task<ApiResponse<StudentListDto>> GetByIdAsync(int studentId)
         {
-            var s = await _db.Students.Include(x => x.User).Include(x => x.Bus).Include(x => x.Stop).FirstOrDefaultAsync(x => x.StudentId == studentId);
+            var s = await _db.Students.Include(x => x.User).Include(x => x.Standard).Include(x => x.Bus).Include(x => x.Stop).FirstOrDefaultAsync(x => x.StudentId == studentId);
             if (s is null) return ApiResponse<StudentListDto>.Fail("Not found.");
             return ApiResponse<StudentListDto>.Ok(new StudentListDto
             {
@@ -66,7 +67,8 @@ namespace BusTracking.Common.Services
                 UserName = s.User.UserName,
                 Email = s.User.Email,
                 PhoneNumber = s.User.PhoneNumber,
-                Standard = s.Standard,
+                StandardId = s.StandardId,
+                StandardName = s.Standard?.StandardName,
                 BusId = s.BusId,
                 BusName = s.Bus?.BusName,
                 BusNumber = s.Bus?.BusNumber,
@@ -101,7 +103,7 @@ namespace BusTracking.Common.Services
             {
                 UserId = user.UserId,
                 StudentCode = dto.StudentCode,
-                Standard = dto.Standard,
+                StandardId = dto.StandardId,
                 BusId = dto.BusId,
                 StopId = dto.StopId
             });
@@ -138,7 +140,7 @@ namespace BusTracking.Common.Services
                 s.User.PasswordSalt = salt;
             }
             s.StudentCode = dto.StudentCode;
-            s.Standard = dto.Standard;
+            s.StandardId = dto.StandardId;
             s.BusId = dto.BusId;
             s.StopId = dto.StopId;
             s.UpdatedAt = DateTime.UtcNow;
@@ -180,14 +182,15 @@ namespace BusTracking.Common.Services
         }
         public async Task<ApiResponse<List<StudentSearchDto>>> SearchAsync(string? query)
         {
-            var q = _db.Students.Include(s => s.User).Include(s => s.Bus).Where(s => s.User.IsActive);
+            var q = _db.Students.Include(s => s.User).Include(s => s.Standard).Include(s => s.Bus).Where(s => s.User.IsActive);
             if (!string.IsNullOrWhiteSpace(query)) q = q.Where(s => s.User.FullName.Contains(query) || s.StudentCode.Contains(query));
             var list = await q.OrderBy(s => s.User.FullName).Take(10).Select(s => new StudentSearchDto
             {
                 StudentId = s.StudentId,
                 StudentCode = s.StudentCode,
                 FullName = s.User.FullName,
-                Standard = s.Standard,
+                StandardId = s.StandardId,
+                StandardName = s.Standard != null ? s.Standard.StandardName : null,
                 BusNumber = s.Bus != null ? s.Bus.BusNumber : null
             }).ToListAsync();
             return ApiResponse<List<StudentSearchDto>>.Ok(list);
@@ -211,6 +214,11 @@ namespace BusTracking.Common.Services
                 PlainPassword = newPassword,
                 Role = "Student"
             }, "Password reset successfully.");
+        }
+        public async Task<ApiResponse<List<StandardMaster>>> GetStandardsAsync()
+        {
+            var list = await _db.StandardMasters.Where(x => x.IsActive).OrderBy(x => x.StandardId).ToListAsync();
+            return ApiResponse<List<StandardMaster>>.Ok(list);
         }
     }
 }

@@ -19,6 +19,7 @@ namespace BusTracking.API.Controllers
         private readonly INotificationService _notif;
         private readonly IDashboardService _dash;
         private readonly IAppConfigService _config;
+        private readonly IStandardService _standard;
         private readonly AppDbContext _db;
         private readonly IImageService _img;         // ← NEW
 
@@ -28,12 +29,12 @@ namespace BusTracking.API.Controllers
             IBusService bus, IRouteService route, IDriverService driver,
             IStudentService student, IParentService parent, ISubAdminService subAdmin,
             ITripService trip, IFeedbackService feedback, INotificationService notif,
-            IDashboardService dash, IAppConfigService config, AppDbContext db,
+            IDashboardService dash, IAppConfigService config, IStandardService standard, AppDbContext db,
             IImageService img)                               // ← NEW
         {
             _bus = bus; _route = route; _driver = driver; _student = student;
             _parent = parent; _subAdmin = subAdmin; _trip = trip; _feedback = feedback;
-            _notif = notif; _dash = dash; _config = config; _db = db; _img = img;
+            _notif = notif; _dash = dash; _config = config; _standard = standard; _db = db; _img = img;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -787,6 +788,52 @@ namespace BusTracking.API.Controllers
         public async Task<IActionResult> ToggleConfig(int id)
         {
             var r = await _config.ToggleActiveAsync(id);
+            return Ok(r);
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // CLASS / STANDARD MASTER
+        // ════════════════════════════════════════════════════════════
+
+        [HttpGet("standards")]
+        public async Task<IActionResult> GetStandards([FromQuery] string? search, [FromQuery] bool? isActive, [FromQuery] int page = 1)
+        {
+            var r = await _standard.GetAllAsync(search, isActive, page);
+            return Ok(r);
+        }
+
+        [HttpGet("standards/{id}")]
+        public async Task<IActionResult> GetStandard(int id)
+        {
+            var r = await _standard.GetByIdAsync(id);
+            return r.Success ? Ok(r) : NotFound(r);
+        }
+
+        [HttpPost("standards")]
+        public async Task<IActionResult> CreateStandard([FromBody] BusTracking.Common.DTOs.Standard.CreateStandardDto dto)
+        {
+            var r = await _standard.CreateAsync(dto);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        [HttpPut("standards/{id}")]
+        public async Task<IActionResult> UpdateStandard(int id, [FromBody] BusTracking.Common.DTOs.Standard.UpdateStandardDto dto)
+        {
+            var r = await _standard.UpdateAsync(id, dto);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        [HttpDelete("standards/{id}")]
+        public async Task<IActionResult> DeleteStandard(int id)
+        {
+            var r = await _standard.DeleteAsync(id);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        [HttpPost("standards/{id}/toggle")]
+        public async Task<IActionResult> ToggleStandard(int id)
+        {
+            var r = await _standard.ToggleActiveAsync(id);
             return Ok(r);
         }
 

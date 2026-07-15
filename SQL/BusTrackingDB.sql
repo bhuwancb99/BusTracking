@@ -64,6 +64,10 @@ INSERT INTO Permissions (ModuleName, PermissionKey, Description) VALUES
 ('AppConfig',           'appconfig.add',            'Add app configuration'),
 ('AppConfig',           'appconfig.edit',           'Edit app configuration'),
 ('AppConfig',           'appconfig.delete',         'Delete app configuration'),
+('ManageStandards',     'standard.view',            'View standards'),
+('ManageStandards',     'standard.add',             'Add standard'),
+('ManageStandards',     'standard.edit',            'Edit standard'),
+('ManageStandards',     'standard.delete',          'Delete standard'),
 ('ManageSubAdmins',     'subadmin.view',            'View sub-admins'),
 ('ManageSubAdmins',     'subadmin.add',             'Add sub-admin'),
 ('ManageSubAdmins',     'subadmin.edit',            'Edit sub-admin'),
@@ -263,19 +267,33 @@ CREATE TABLE DriverDetails (
 GO
 
 -- ============================================================
+-- 9b. STANDARD MASTERS (Class 1, Class 2, ...)
+-- ============================================================
+CREATE TABLE StandardMasters (
+    StandardId    INT           NOT NULL IDENTITY(1,1),
+    StandardName  NVARCHAR(100) NOT NULL,
+    IsActive      BIT           NOT NULL CONSTRAINT DF_StandardMasters_IsActive DEFAULT 1,
+    CreatedAt     DATETIME2     NOT NULL CONSTRAINT DF_StandardMasters_CreatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_StandardMasters PRIMARY KEY (StandardId),
+    CONSTRAINT UQ_StandardMasters_StandardName UNIQUE (StandardName)
+);
+GO
+
+-- ============================================================
 -- 10. STUDENTS
 -- ============================================================
 CREATE TABLE Students (
     StudentId     INT           NOT NULL IDENTITY(1,1),
     UserId        INT           NOT NULL,
     StudentCode   NVARCHAR(50)  NOT NULL,                            -- Student ID / Roll number
-    Standard      NVARCHAR(50)  NULL,                                -- Class / Grade
+    StandardId    INT           NULL,                                -- Class / Grade
     BusId         INT           NULL,
     StopId        INT           NULL,                                -- assigned pick-up/drop stop
     CreatedAt     DATETIME2     NOT NULL CONSTRAINT DF_Students_CreatedAt DEFAULT GETUTCDATE(),
     UpdatedAt     DATETIME2     NOT NULL CONSTRAINT DF_Students_UpdatedAt DEFAULT GETUTCDATE(),
     CONSTRAINT PK_Students PRIMARY KEY (StudentId),
     CONSTRAINT FK_Students_Users FOREIGN KEY (UserId) REFERENCES Users(UserId),
+    CONSTRAINT FK_Students_StandardMasters FOREIGN KEY (StandardId) REFERENCES StandardMasters(StandardId),
     CONSTRAINT FK_Students_Buses FOREIGN KEY (BusId) REFERENCES Buses(BusId),
     CONSTRAINT FK_Students_Stops FOREIGN KEY (StopId) REFERENCES Stops(StopId),
     CONSTRAINT UQ_Students_UserId UNIQUE (UserId),
@@ -629,7 +647,7 @@ SELECT
     s.StudentCode,
     u.FullName          AS StudentName,
     u.Email             AS StudentEmail,
-    s.Standard,
+    sm.StandardName     AS Standard,
     b.BusId,
     b.BusName,
     b.BusNumber,
@@ -643,6 +661,7 @@ SELECT
     st.EveningTime      AS StopEveningTime
 FROM Students s
 JOIN Users   u  ON u.UserId  = s.UserId
+LEFT JOIN StandardMasters sm ON sm.StandardId = s.StandardId
 LEFT JOIN Buses  b  ON b.BusId   = s.BusId
 LEFT JOIN Routes r  ON r.RouteId = b.RouteId
 LEFT JOIN Stops  st ON st.StopId = s.StopId

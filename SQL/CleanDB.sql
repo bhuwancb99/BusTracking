@@ -37,6 +37,7 @@ BEGIN TRY
     IF OBJECT_ID('ParentStudents', 'U') IS NOT NULL DELETE FROM ParentStudents;
     IF OBJECT_ID('Parents', 'U') IS NOT NULL DELETE FROM Parents;
     IF OBJECT_ID('Students', 'U') IS NOT NULL DELETE FROM Students;
+    IF OBJECT_ID('StandardMasters', 'U') IS NOT NULL DELETE FROM StandardMasters;
     IF OBJECT_ID('DriverDetails', 'U') IS NOT NULL DELETE FROM DriverDetails;
     IF OBJECT_ID('BusImages', 'U') IS NOT NULL DELETE FROM BusImages;
     IF OBJECT_ID('Buses', 'U') IS NOT NULL DELETE FROM Buses;
@@ -120,6 +121,7 @@ IF OBJECT_ID('StudentAvailabilities', 'U') IS NOT NULL DROP TABLE StudentAvailab
 IF OBJECT_ID('ParentStudents', 'U') IS NOT NULL DROP TABLE ParentStudents;
 IF OBJECT_ID('Parents', 'U') IS NOT NULL DROP TABLE Parents;
 IF OBJECT_ID('Students', 'U') IS NOT NULL DROP TABLE Students;
+IF OBJECT_ID('StandardMasters', 'U') IS NOT NULL DROP TABLE StandardMasters;
 IF OBJECT_ID('DriverDetails', 'U') IS NOT NULL DROP TABLE DriverDetails;
 IF OBJECT_ID('BusImages', 'U') IS NOT NULL DROP TABLE BusImages;
 IF OBJECT_ID('Buses', 'U') IS NOT NULL DROP TABLE Buses;

@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Services
+namespace BusTracking.Common.Services
 {
     public class StudentSearchService : IStudentSearchService
     {
@@ -12,6 +12,7 @@
 
             return await _db.Students
                 .Include(s => s.User)
+                .Include(s => s.Standard)
                 .Include(s => s.Bus)
                 .Where(s => s.User.IsActive
                     && (s.StudentCode.ToLower().Contains(query)
@@ -23,7 +24,8 @@
                     StudentId = s.StudentId,
                     StudentCode = s.StudentCode,
                     FullName = s.User.FullName,
-                    Standard = s.Standard,
+                    StandardId = s.StandardId,
+                    StandardName = s.Standard != null ? s.Standard.StandardName : null,
                     BusNumber = s.Bus != null ? s.Bus.BusNumber : null
                 })
                 .ToListAsync();

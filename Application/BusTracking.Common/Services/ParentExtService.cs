@@ -17,6 +17,9 @@ namespace BusTracking.Common.Services
                         .ThenInclude(s => s.User)
                 .Include(x => x.ParentStudents)
                     .ThenInclude(ps => ps.Student)
+                        .ThenInclude(s => s.Standard)
+                .Include(x => x.ParentStudents)
+                    .ThenInclude(ps => ps.Student)
                         .ThenInclude(s => s.Bus)
                 .FirstOrDefaultAsync(x => x.UserId == userId);
             if (p is null) return ApiResponse<ParentDetailViewDto>.Fail("Parent not found.");
@@ -35,7 +38,8 @@ namespace BusTracking.Common.Services
                     StudentId = ps.Student.StudentId,
                     StudentCode = ps.Student.StudentCode,
                     FullName = ps.Student.User.FullName,
-                    Standard = ps.Student.Standard,
+                    StandardId = ps.Student.StandardId,
+                    StandardName = ps.Student.Standard?.StandardName,
                     BusNumber = ps.Student.Bus?.BusNumber
                 }).ToList()
             });

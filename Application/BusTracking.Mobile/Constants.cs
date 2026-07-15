@@ -8,6 +8,7 @@ public static class Constants
 {
     // ── API Base ──────────────────────────────────────────────────────────
 
+
 #if DEBUG
     // Switch comment depending on what you are testing on
     public const string ApiBaseUrl = "https://10.0.2.2:7001";       // Android emulator
@@ -32,6 +33,11 @@ public static class Constants
     {
         public const string Mobile = "/api/app-config/mobile";
         public const string MobileKey = "/api/app-config/mobile/{0}";
+    }
+
+    public static class Lookups
+    {
+        public const string Standards = "/api/standards";
     }
 
     // ── SuperAdmin  →  SuperAdminController  [Route("api/admin")] ────────
@@ -98,6 +104,11 @@ public static class Constants
         public const string ConfigById = "/api/admin/config/{0}";
         public const string ConfigToggle = "/api/admin/config/{0}/toggle";
 
+        // Standards (admin CRUD)
+        public const string Standards = "/api/admin/standards";
+        public const string StandardById = "/api/admin/standards/{0}";
+        public const string StandardToggle = "/api/admin/standards/{0}/toggle";
+
         // Feedback & Notifications
         public const string Feedback = "/api/admin/feedback";
         public const string FeedbackStatus = "/api/admin/feedback/{0}/status";
@@ -148,6 +159,11 @@ public static class Constants
         public const string Config = "/api/coordinator/config";
         public const string ConfigById = "/api/coordinator/config/{0}";
         public const string ConfigToggle = "/api/coordinator/config/{0}/toggle";
+
+        // Standards (coordinator CRUD)
+        public const string Standards = "/api/coordinator/standards";
+        public const string StandardById = "/api/coordinator/standards/{0}";
+        public const string StandardToggle = "/api/coordinator/standards/{0}/toggle";
 
         public const string Feedback = "/api/coordinator/feedback";
         public const string FeedbackById = "/api/coordinator/feedback/{0}";

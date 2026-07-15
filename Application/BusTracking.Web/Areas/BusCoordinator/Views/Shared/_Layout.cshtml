@@ -29,6 +29,7 @@
 
                 // Dashboard always visible
                 bool showAppConfig = Has("appconfig.view");
+                bool showStandard = Has("standard.view");
                 bool showBusType = Has("bustype.view");
                 bool showSubAdmins = Has("subadmin.view");
                 bool showRoutes = Has("route.view");
@@ -55,6 +56,16 @@
                 <li class="sidebar-item @(ctrl == "AppConfig" ? "active" : "")">
                     <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="AppConfig" asp-action="Index">
                         <i class="bi bi-sliders"></i><span>App Config</span>
+                    </a>
+                </li>
+            }
+
+            @* Classes / Standards *@
+            @if (showStandard)
+            {
+                <li class="sidebar-item @(ctrl == "Standard" ? "active" : "")">
+                    <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="Standard" asp-action="Index">
+                        <i class="bi bi-bookmark-star"></i><span>Classes/Standards</span>
                     </a>
                 </li>
             }

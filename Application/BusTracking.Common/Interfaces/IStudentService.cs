@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Interfaces
+namespace BusTracking.Common.Interfaces
 {
     public interface IStudentService
     {
@@ -14,5 +14,6 @@
         Task<ApiResponse<List<AvailabilityDto>>> GetAvailabilitiesAsync(int studentId);
         Task<ApiResponse<List<StudentSearchDto>>> SearchAsync(string? query);
         Task<ApiResponse<CreatedUserResultDto>> ResetPasswordAsync(int studentId);
+        Task<ApiResponse<List<StandardMaster>>> GetStandardsAsync();
     }
 }

@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
-
 namespace BusTracking.Web.Areas.SuperAdmin.Controllers
 {
     [Area("SuperAdmin"), Authorize(Roles = "SuperAdmin")]
@@ -30,16 +28,33 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             return r.Success ? View(r.Data) : NotFound();
         }
 
-        [HttpGet] public IActionResult Create() => View(new CreateStudentDto());
+        private async Task PopulateStandardsAsync()
+        {
+            var standardsRes = await _student.GetStandardsAsync();
+            var standards = standardsRes.Success ? standardsRes.Data : new List<StandardMaster>();
+            ViewBag.Standards = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(standards, "StandardId", "StandardName");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Create()
+        {
+            await PopulateStandardsAsync();
+            return View(new CreateStudentDto());
+        }
+
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateStudentDto m)
         {
             if (!ModelState.IsValid)
+            {
+                await PopulateStandardsAsync();
                 return View(m);
+            }
             var r = await _student.CreateAsync(m, UserId);
             if (!r.Success)
             {
                 ModelState.AddModelError("", r.Message);
+                await PopulateStandardsAsync();
                 return View(m);
             }
             TempData["CreatedUser"] = System.Text.Json.JsonSerializer.Serialize(r.Data);
@@ -55,14 +70,15 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             ViewBag.StudentId = id;
             if (r.Data!.BusId.HasValue && r.Data.BusName != null)
                 ViewBag.BusDisplay = $"{r.Data.BusName} ({r.Data.BusNumber})";
+            await PopulateStandardsAsync();
             return View(new UpdateStudentDto
             {
                 FullName = r.Data!.FullName,
-                UserName    = r.Data!.UserName,
-                Email       = r.Data.Email,
+                UserName = r.Data!.UserName,
+                Email = r.Data.Email,
                 PhoneNumber = r.Data.PhoneNumber,
                 StudentCode = r.Data.StudentCode,
-                Standard = r.Data.Standard,
+                StandardId = r.Data.StandardId,
                 BusId = r.Data.BusId,
                 StopId = r.Data.StopId,
                 IsActive = r.Data.IsActive
@@ -75,6 +91,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.StudentId = id;
+                await PopulateStandardsAsync();
                 return View(m);
             }
             var r = await _student.UpdateAsync(id, m);
@@ -82,6 +99,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             {
                 ModelState.AddModelError("", r.Message);
                 ViewBag.StudentId = id;
+                await PopulateStandardsAsync();
                 return View(m);
             }
             TempData["SuccessMessage"] = r.Message;

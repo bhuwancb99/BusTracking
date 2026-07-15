@@ -7,7 +7,8 @@ namespace BusTracking.Mobile.Models.Student
         public string? NewPassword { get; set; }
         public string FullName { get; set; } = "";
         public string? PhoneNumber { get; set; }
-        public string? Standard { get; set; }
+        public string StudentCode { get; set; } = "";
+        public int? StandardId { get; set; }
         public int? BusId { get; set; }
         public int? StopId { get; set; }
         public List<string> StudentCodes { get; set; } = [];

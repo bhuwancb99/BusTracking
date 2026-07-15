@@ -1,17 +1,21 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Coordinator.CoordParentFormPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     xmlns:parentModels="clr-namespace:BusTracking.Mobile.Models.Parent"
     xmlns:studentModels="clr-namespace:BusTracking.Mobile.Models.Student"
-    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
     x:DataType="vm:CoordParentFormViewModel"
     x:TypeArguments="vm:CoordParentFormViewModel"
     BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
                                       Dark={StaticResource PageBgDark}}">
+
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
+    </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
         <Grid HorizontalOptions="Center" VerticalOptions="Center">
@@ -26,22 +30,23 @@
                 VerticalOptions="Center" />
         </Grid>
     </Shell.TitleView>
-
     <ScrollView>
-        <VerticalStackLayout Padding="16" Spacing="12">
-
-            <!--  Error  -->
+        <VerticalStackLayout Padding="16,16,16,32" Spacing="14">
             <Border
-                Padding="14,10"
-                BackgroundColor="#fee2e2"
-                IsVisible="{Binding ErrorMessage, Converter={StaticResource StringToBool}}"
-                StrokeShape="RoundRectangle 8">
+                BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight},
+                                                  Dark={StaticResource ErrorBannerBgDark}}"
+                IsVisible="{Binding HasError}"
+                Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
+                                         Dark={StaticResource ErrorBannerBorderDark}}"
+                StrokeShape="RoundRectangle 8"
+                StrokeThickness="1">
                 <Label
+                    Padding="12,10"
                     FontSize="13"
                     Text="{Binding ErrorMessage}"
-                    TextColor="#dc2626" />
+                    TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
+                                                Dark={StaticResource ErrorTextDark}}" />
             </Border>
-
             <!--  Full Name  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
@@ -65,14 +70,13 @@
                     </Label>
                     <Entry
                         BackgroundColor="Transparent"
-                        Placeholder="Enter full name"
+                        Placeholder="Parent full name"
                         Text="{Binding FullName}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
-
-            <!--  Username  -->
+            <!--  Username (required, used for login)  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                                   Dark={StaticResource CardBgDark}}"
@@ -95,19 +99,21 @@
                     </Label>
                     <Entry
                         BackgroundColor="Transparent"
-                        Placeholder="Enter username"
+                        Keyboard="Default"
+                        Placeholder="Enter unique username"
                         Text="{Binding UserName}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
                     <Label
-                        FontSize="11"
+                        FontAttributes="Italic"
+                        FontSize="12"
                         IsVisible="{Binding UsernameMessage, Converter={StaticResource StringToBool}}"
                         Text="{Binding UsernameMessage}"
                         TextColor="{Binding UsernameMessageColor}" />
                 </VerticalStackLayout>
             </Border>
 
-            <!--  Phone  -->
+            <!--  EMAIL (Optional)  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                                   Dark={StaticResource CardBgDark}}"
@@ -119,14 +125,16 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        Text="Phone Number"
+                        Text="EMAIL (Optional)"
                         TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                     Dark={StaticResource TextSecondaryDark}}" />
                     <Entry
                         BackgroundColor="Transparent"
-                        Keyboard="Telephone"
-                        Placeholder="Optional"
-                        Text="{Binding PhoneNumber}"
+                        Keyboard="Email"
+                        Placeholder="Enter email address"
+                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                           Dark={StaticResource TextMutedDark}}"
+                        Text="{Binding Email}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
@@ -165,7 +173,6 @@
                         TextColor="{StaticResource Danger}" />
                 </VerticalStackLayout>
             </Border>
-
             <!--  Password (Add only)  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
@@ -183,7 +190,7 @@
                                                     Dark={StaticResource TextSecondaryDark}}">
                         <Label.FormattedText>
                             <FormattedString>
-                                <Span Text="Password " />
+                                <Span Text="Password" />
                                 <Span Text="*" TextColor="{StaticResource Danger}" />
                             </FormattedString>
                         </Label.FormattedText>
@@ -196,8 +203,7 @@
                                                     Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
-
-            <!--  Status  -->
+            <!--  Phone  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                                   Dark={StaticResource CardBgDark}}"
@@ -209,24 +215,17 @@
                     <Label
                         FontAttributes="Bold"
                         FontSize="12"
-                        Text="Status"
+                        Text="Phone"
                         TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                     Dark={StaticResource TextSecondaryDark}}" />
-                    <HorizontalStackLayout Spacing="20">
-                        <RadioButton
-                            Content="Active"
-                            GroupName="Status"
-                            IsChecked="{Binding IsActive}"
-                            Value="True" />
-                        <RadioButton
-                            Content="Inactive"
-                            GroupName="Status"
-                            IsChecked="{Binding IsActive, Converter={StaticResource InvertBool}}"
-                            Value="False" />
-                    </HorizontalStackLayout>
+                    <Entry
+                        BackgroundColor="Transparent"
+                        Keyboard="Telephone"
+                        Text="{Binding PhoneNumber}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
-
             <!--  Linked Students  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
@@ -267,7 +266,7 @@
                                 Text="{Binding StudentSearchText}"
                                 TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                             Dark={StaticResource TextPrimaryDark}}" />
-                                                        <Image
+                            <Image
                                 Grid.Column="1"
                                 HeightRequest="18"
                                 HorizontalOptions="Center"
@@ -332,25 +331,23 @@
                                                     <FormattedString>
                                                         <Span FontAttributes="Bold" Text="{Binding StudentCode}" />
                                                         <Span Text=" | " />
-                                                        <Span Text="{Binding Standard}" />
+                                                        <Span Text="{Binding StandardName}" />
                                                     </FormattedString>
                                                 </Label.FormattedText>
                                             </Label>
                                         </VerticalStackLayout>
-                                                                                <Image
+                                        <Image
                                             Grid.Column="1"
-                                            Source="delete.png"
                                             HeightRequest="24"
-                                            WidthRequest="24"
+                                            HorizontalOptions="Center"
+                                            Source="delete.png"
                                             VerticalOptions="Center"
-                                            HorizontalOptions="Center">
+                                            WidthRequest="24">
                                             <Image.Behaviors>
                                                 <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
                                             </Image.Behaviors>
                                             <Image.GestureRecognizers>
-                                                <TapGestureRecognizer
-                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordParentFormViewModel}}, Path=RemoveStudentCommand}"
-                                                    CommandParameter="{Binding .}" />
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordParentFormViewModel}}, Path=RemoveStudentCommand}" CommandParameter="{Binding .}" />
                                             </Image.GestureRecognizers>
                                         </Image>
                                     </Grid>
@@ -367,28 +364,81 @@
                                                     Dark={StaticResource TextMutedDark}}" />
                 </VerticalStackLayout>
             </Border>
-
-            <!--  Save / Cancel  -->
-            <Button
-                BackgroundColor="{StaticResource Primary}"
-                Command="{Binding SaveCommand}"
-                CornerRadius="8"
-                FontAttributes="Bold"
-                HeightRequest="52"
-                IsEnabled="{Binding IsBusy, Converter={StaticResource InvertBool}}"
-                Text="Save"
-                TextColor="White" />
-            <Button
-                BackgroundColor="Transparent"
-                BorderColor="{AppThemeBinding Light={StaticResource BorderColor},
-                                              Dark={StaticResource BorderColorDark}}"
-                BorderWidth="1"
-                Command="{Binding CancelCommand}"
-                CornerRadius="8"
-                HeightRequest="52"
-                Text="Cancel"
-                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                            Dark={StaticResource TextPrimaryDark}}" />
+            <!--  Active  -->
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 8"
+                StrokeThickness="1">
+                <Grid Padding="16" ColumnDefinitions="*,Auto">
+                    <Label
+                        Grid.Column="0"
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        Text="Active"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}"
+                        VerticalOptions="Center" />
+                    <Switch
+                        Grid.Column="1"
+                        IsToggled="{Binding IsActive}"
+                        OnColor="{StaticResource Primary}"
+                        ThumbColor="White"
+                        VerticalOptions="Center" />
+                </Grid>
+            </Border>
+            <!--  Buttons  -->
+            <Grid
+                Margin="0,8,0,0"
+                ColumnDefinitions="*,*"
+                ColumnSpacing="12">
+                <Button
+                    Grid.Column="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    BorderColor="{AppThemeBinding Light={StaticResource BorderColor},
+                                                  Dark={StaticResource BorderColorDark}}"
+                    BorderWidth="1.5"
+                    Command="{Binding CancelCommand}"
+                    CornerRadius="8"
+                    FontAttributes="Bold"
+                    HeightRequest="50"
+                    Text="Cancel"
+                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                Dark={StaticResource TextSecondaryDark}}" />
+                <Button
+                    Grid.Column="1"
+                    BackgroundColor="{StaticResource Primary}"
+                    Command="{Binding SaveCommand}"
+                    CornerRadius="8"
+                    FontAttributes="Bold"
+                    HeightRequest="50"
+                    TextColor="White">
+                    <Button.Triggers>
+                        <DataTrigger
+                            Binding="{Binding IsBusy}"
+                            TargetType="Button"
+                            Value="True">
+                            <Setter Property="Text" Value="Saving..." />
+                            <Setter Property="IsEnabled" Value="False" />
+                        </DataTrigger>
+                        <DataTrigger
+                            Binding="{Binding IsEditMode}"
+                            TargetType="Button"
+                            Value="True">
+                            <Setter Property="Text" Value="Update Parent" />
+                        </DataTrigger>
+                        <DataTrigger
+                            Binding="{Binding IsEditMode}"
+                            TargetType="Button"
+                            Value="False">
+                            <Setter Property="Text" Value="Add Parent" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
+            </Grid>
 
         </VerticalStackLayout>
     </ScrollView>

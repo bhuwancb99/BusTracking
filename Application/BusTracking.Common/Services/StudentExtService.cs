@@ -12,6 +12,7 @@ namespace BusTracking.Common.Services
         {
             var s = await _db.Students
                 .Include(x => x.User)
+                .Include(x => x.Standard)
                 .Include(x => x.Bus)
                 .Include(x => x.Stop)
                 .Include(x => x.ParentStudents)
@@ -28,7 +29,8 @@ namespace BusTracking.Common.Services
                 UserName = s.User.UserName,
                 Email = s.User.Email,
                 PhoneNumber = s.User.PhoneNumber,
-                Standard = s.Standard,
+                StandardId = s.StandardId,
+                StandardName = s.Standard?.StandardName,
                 BusId = s.BusId,
                 BusName = s.Bus?.BusName,
                 BusNumber = s.Bus?.BusNumber,
@@ -70,7 +72,7 @@ namespace BusTracking.Common.Services
             {
                 UserId = user.UserId,
                 StudentCode = dto.StudentCode,
-                Standard = dto.Standard,
+                StandardId = dto.StandardId,
                 BusId = dto.BusId,
                 StopId = dto.StopId
             });
@@ -123,7 +125,7 @@ namespace BusTracking.Common.Services
                 s.User.PasswordHash = hash; s.User.PasswordSalt = salt;
             }
 
-            s.Standard = dto.Standard;
+            s.StandardId = dto.StandardId;
             s.BusId = dto.BusId;
             s.StopId = dto.StopId;
             s.UpdatedAt = DateTime.UtcNow;

@@ -12,6 +12,7 @@ global using BusTracking.Common.DTOs.Feedback;
 global using BusTracking.Common.DTOs.Notification;
 global using BusTracking.Common.DTOs.Parent;
 global using BusTracking.Common.DTOs.Route;
+global using BusTracking.Common.DTOs.Standard;
 global using BusTracking.Common.DTOs.Stop;
 global using BusTracking.Common.DTOs.Student;
 global using BusTracking.Common.DTOs.SubAdmin;

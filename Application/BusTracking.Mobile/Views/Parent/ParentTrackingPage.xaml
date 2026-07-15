@@ -245,7 +245,7 @@
                                                     Dark={StaticResource TextPrimaryDark}}" />
                     <Label
                         FontSize="11"
-                        Text="{Binding SelectedStudent.Standard, StringFormat='Class: {0}', FallbackValue='-'}"
+                        Text="{Binding SelectedStudent.StandardName, StringFormat='Class: {0}', FallbackValue='-'}"
                         TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                     Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>

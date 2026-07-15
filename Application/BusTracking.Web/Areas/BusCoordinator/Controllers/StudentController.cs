@@ -1,4 +1,3 @@
-using BusTracking.Web.Helpers;
 namespace BusTracking.Web.Areas.BusCoordinator.Controllers
 {
     [Area("BusCoordinator"), Authorize(Roles = "BusCoordinator")]
@@ -29,10 +28,18 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             return r.Success ? View(r.Data) : NotFound();
         }
 
+        private async Task PopulateStandardsAsync()
+        {
+            var standardsRes = await _s.GetStandardsAsync();
+            var standards = standardsRes.Success ? standardsRes.Data : new List<StandardMaster>();
+            ViewBag.Standards = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(standards, "StandardId", "StandardName");
+        }
+
         [HttpGet]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
             if (!PermissionHelper.Can(User, "student.add")) return Forbid();
+            await PopulateStandardsAsync();
             return View();
         }
 
@@ -40,9 +47,18 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
         public async Task<IActionResult> Create(CreateStudentDto m)
         {
             if (!PermissionHelper.Can(User, "student.add")) return Forbid();
-            if (!ModelState.IsValid) return View(m);
+            if (!ModelState.IsValid)
+            {
+                await PopulateStandardsAsync();
+                return View(m);
+            }
             var r = await _s.CreateAsync(m, UserId);
-            if (!r.Success) { ModelState.AddModelError("", r.Message); return View(m); }
+            if (!r.Success)
+            {
+                ModelState.AddModelError("", r.Message);
+                await PopulateStandardsAsync();
+                return View(m);
+            }
             TempData["SuccessMessage"] = r.Message;
             return RedirectToAction(nameof(Index));
         }
@@ -56,17 +72,18 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             ViewBag.StudentId = id;
             if (r.Data!.BusId.HasValue && r.Data.BusName != null)
                 ViewBag.BusDisplay = $"{r.Data.BusName} ({r.Data.BusNumber})";
+            await PopulateStandardsAsync();
             return View(new UpdateStudentDto
             {
-                FullName      = r.Data!.FullName,
-                UserName    = r.Data!.UserName,
-                Email       = r.Data.Email,
-                PhoneNumber   = r.Data.PhoneNumber,
-                StudentCode   = r.Data.StudentCode,
-                Standard      = r.Data.Standard,
-                BusId         = r.Data.BusId,
-                StopId        = r.Data.StopId,
-                IsActive      = r.Data.IsActive
+                FullName = r.Data!.FullName,
+                UserName = r.Data!.UserName,
+                Email = r.Data.Email,
+                PhoneNumber = r.Data.PhoneNumber,
+                StudentCode = r.Data.StudentCode,
+                StandardId = r.Data.StandardId,
+                BusId = r.Data.BusId,
+                StopId = r.Data.StopId,
+                IsActive = r.Data.IsActive
             });
         }
 
@@ -74,9 +91,20 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
         public async Task<IActionResult> Edit(int id, UpdateStudentDto m)
         {
             if (!PermissionHelper.Can(User, "student.edit")) return Forbid();
-            if (!ModelState.IsValid) { ViewBag.StudentId = id; return View(m); }
+            if (!ModelState.IsValid)
+            {
+                ViewBag.StudentId = id;
+                await PopulateStandardsAsync();
+                return View(m);
+            }
             var r = await _s.UpdateAsync(id, m);
-            if (!r.Success) { ModelState.AddModelError("", r.Message); ViewBag.StudentId = id; return View(m); }
+            if (!r.Success)
+            {
+                ModelState.AddModelError("", r.Message);
+                ViewBag.StudentId = id;
+                await PopulateStandardsAsync();
+                return View(m);
+            }
             TempData["SuccessMessage"] = r.Message;
             return RedirectToAction(nameof(Index));
         }
@@ -118,8 +146,11 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             if (!r.Success) return Json(Array.Empty<object>());
             return Json((r.Data ?? []).OrderBy(s => s.StopOrder).Select(s => new
             {
-                stopId = s.StopId, stopName = s.StopName, stopOrder = s.StopOrder,
-                morningTime = s.MorningTime, eveningTime = s.EveningTime
+                stopId = s.StopId,
+                stopName = s.StopName,
+                stopOrder = s.StopOrder,
+                morningTime = s.MorningTime,
+                eveningTime = s.EveningTime
             }));
         }
 
