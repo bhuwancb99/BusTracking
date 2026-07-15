@@ -28,18 +28,21 @@
                 FontAttributes="Bold"
                 FontSize="17"
                 Text="Track Bus"
-                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}"
                 VerticalOptions="Center" />
 
             <!--  Student selector pill  -->
             <Border
                 Grid.Column="1"
-                BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource CardBgDark}}"
-                Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                StrokeThickness="1"
+                BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                                  Dark={StaticResource CardBgDark}}"
                 HorizontalOptions="End"
                 MinimumWidthRequest="140"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 20"
+                StrokeThickness="1"
                 VerticalOptions="Center">
                 <Grid
                     Padding="8,0"
@@ -75,15 +78,18 @@
                         ItemDisplayBinding="{Binding FullName}"
                         ItemsSource="{Binding Students}"
                         SelectedItem="{Binding SelectedStudent}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}"
-                        TitleColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}"
+                        TitleColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                     Dark={StaticResource TextSecondaryDark}}"
                         VerticalOptions="Center" />
 
                     <Label
                         Grid.Column="2"
                         FontSize="10"
                         Text="&#x25BC;"
-                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}"
                         VerticalOptions="Center" />
 
                 </Grid>
@@ -111,7 +117,8 @@
 
                 <Border
                     Grid.Column="0"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg}, Dark={StaticResource StatTripBgDark}}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg},
+                                                      Dark={StaticResource StatTripBgDark}}"
                     HeightRequest="42"
                     StrokeShape="RoundRectangle 8"
                     StrokeThickness="0"
@@ -138,11 +145,13 @@
                         FontAttributes="Bold"
                         FontSize="15"
                         Text="{Binding StatusLabel}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
                     <Label
                         FontSize="12"
                         Text="{Binding Tracking.BoardingStatus, StringFormat='Boarding: {0}', FallbackValue='Boarding: -'}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>
 
                 <!--  Live / No Trip pill  -->
@@ -277,13 +286,17 @@
                                               Dark={StaticResource BorderColorDark}}"
             StrokeShape="RoundRectangle 20"
             StrokeThickness="0">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding OpenLiveMapCommand}" />
+            </Border.GestureRecognizers>
             <Grid>
                 <VerticalStackLayout
                     HorizontalOptions="Center"
                     Spacing="8"
                     VerticalOptions="Center">
                     <Border
-                        BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg}, Dark={StaticResource StatTripBgDark}}"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg},
+                                                          Dark={StaticResource StatTripBgDark}}"
                         HeightRequest="72"
                         HorizontalOptions="Center"
                         StrokeShape="RoundRectangle 36"
@@ -319,20 +332,20 @@
                 <Border
                     Padding="10"
                     BackgroundColor="{StaticResource Primary}"
+                    HeightRequest="48"
                     HorizontalOptions="Center"
                     IsVisible="{Binding IsLive}"
                     Stroke="White"
                     StrokeShape="RoundRectangle 24"
                     StrokeThickness="2"
                     VerticalOptions="Center"
-                    HeightRequest="48"
                     WidthRequest="48">
                     <Image
                         HeightRequest="20"
-                        Source="bus.png"
-                        WidthRequest="20"
                         HorizontalOptions="Center"
-                        VerticalOptions="Center">
+                        Source="bus.png"
+                        VerticalOptions="Center"
+                        WidthRequest="20">
                         <Image.Behaviors>
                             <mct:IconTintColorBehavior TintColor="White" />
                         </Image.Behaviors>

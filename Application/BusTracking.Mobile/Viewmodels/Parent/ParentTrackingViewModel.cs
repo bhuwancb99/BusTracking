@@ -122,5 +122,21 @@ namespace BusTracking.Mobile.Viewmodels.Parent
             _pollTimer?.Dispose();
             _pollTimer = null;
         }
+
+        [RelayCommand]
+        private Task OpenLiveMapAsync()
+        {
+            if (SelectedStudent is null) return Task.CompletedTask;
+
+            var tripId = Tracking?.Trip?.TripId ?? 0;
+            if (tripId > 0)
+            {
+                return Nav.GoToAsync("LiveTracking", new Dictionary<string, object> { ["TripId"] = tripId });
+            }
+            else
+            {
+                return Nav.GoToAsync("LiveTracking", new Dictionary<string, object> { ["StudentId"] = SelectedStudent.StudentId });
+            }
+        }
     }
 }

@@ -1,6 +1,6 @@
 namespace BusTracking.API.Controllers
 {
-    [Authorize(Roles = "Driver"), Route("api/[controller]")]
+    [Authorize, Route("api/[controller]")]
     public class LocationController : ApiBaseController
     {
         private readonly AppDbContext _db;
@@ -17,7 +17,7 @@ namespace BusTracking.API.Controllers
         /// Driver GPS ping → saves to DB + broadcasts to SignalR group instantly.
         /// Called by DriverTrackingViewModel every 5 seconds during an active trip.
         /// </summary>
-        [HttpPost("ping")]
+        [Authorize(Roles = "Driver"), HttpPost("ping")]
         public async Task<IActionResult> Ping([FromBody] GpsPingRequest req)
         {
             // 1. Persist

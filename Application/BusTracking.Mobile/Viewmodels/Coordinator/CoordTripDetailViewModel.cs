@@ -27,6 +27,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                 Trip = await _trips.GetByIdAsync(TripId);
                 OnPropertyChanged(nameof(CanEdit));
                 OnPropertyChanged(nameof(CanDelete));
+                OnPropertyChanged(nameof(IsInProgress));
             });
         }
 
@@ -59,5 +60,10 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             else SetError(r.Message);
         }
 
+        public bool IsInProgress => Trip?.Status == "InProgress";
+
+        [RelayCommand]
+        private Task TrackLiveAsync() =>
+            Nav.GoToAsync("LiveTracking", new Dictionary<string, object> { ["TripId"] = TripId });
     }
 }

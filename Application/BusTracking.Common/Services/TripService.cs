@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Services
+namespace BusTracking.Common.Services
 {
     public class TripService : ITripService
     {
@@ -162,10 +162,21 @@
                 t.Status != TripStatus.Cancelled))
                 return ApiResponse<TripListDto>.Fail($"A {dto.TripType} trip for this bus on {dto.TripDate} already exists.");
 
+            var driverId = dto.DriverId;
+            if (driverId <= 0)
+            {
+                var assignedDriver = await _db.DriverDetails
+                    .Include(d => d.User)
+                    .FirstOrDefaultAsync(d => d.BusId == dto.BusId && d.User.IsActive);
+                if (assignedDriver == null)
+                    return ApiResponse<TripListDto>.Fail("No active driver is assigned to this bus.");
+                driverId = assignedDriver.UserId;
+            }
+
             var trip = new BusTrip
             {
                 BusId = dto.BusId,
-                DriverId = dto.DriverId,
+                DriverId = driverId,
                 RouteId = dto.RouteId,
                 TripType = tt,
                 TripDate = td,

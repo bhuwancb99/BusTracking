@@ -43,7 +43,7 @@
 
 		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
 		<!--<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">15.0</SupportedOSPlatformVersion>-->
-		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">21.0</SupportedOSPlatformVersion>
+		<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">26.0</SupportedOSPlatformVersion>
 		<!--<SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
 		<TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>-->
 	</PropertyGroup>
@@ -74,30 +74,30 @@
 	</PropertyGroup>
 
 	<!-- ===================== RELEASE ===================== -->
-	<PropertyGroup Condition="'$(Configuration)'=='Release'">
+	<!--<PropertyGroup Condition="'$(Configuration)'=='Release'">
 		<Optimize>true</Optimize>
 		<DebugType>none</DebugType>
 		<PublishTrimmed>true</PublishTrimmed>
 		<TrimMode>full</TrimMode>
 		<TrimmerSingleWarn>false</TrimmerSingleWarn>
-		<!-- see full warning list, not summarized -->
+		--><!-- see full warning list, not summarized --><!--
 	</PropertyGroup>
 
-	<!-- Android Release -->
+	--><!-- Android Release --><!--
 	<PropertyGroup Condition="'$(Configuration)'=='Release' AND $(TargetFramework.Contains('-android'))">
 		<PublishAot>true</PublishAot>
-		<!-- .NET 10 Native AOT for Android -->
+		--><!-- .NET 10 Native AOT for Android --><!--
 		<RunAOTCompilation>true</RunAOTCompilation>
-		<!-- fallback / used if PublishAot unsupported by a dep -->
+		--><!-- fallback / used if PublishAot unsupported by a dep --><!--
 		<AndroidEnableProfiledAot>true</AndroidEnableProfiledAot>
 		<AndroidLinkMode>Full</AndroidLinkMode>
 		<AndroidLinkTool>r8</AndroidLinkTool>
 		<AndroidEnableMultiDex>false</AndroidEnableMultiDex>
-		<!-- shouldn't be needed once trimmed -->
+		--><!-- shouldn't be needed once trimmed --><!--
 		<AndroidPackageFormat>aab</AndroidPackageFormat>
 		<EnableLLVM>true</EnableLLVM>
 		<AndroidStripILAfterAOT>true</AndroidStripILAfterAOT>
-	</PropertyGroup>
+	</PropertyGroup>-->
 
 	<!-- iOS / Mac Catalyst Release -->
 	<!--<PropertyGroup Condition="'$(Configuration)'=='Release' AND ($(TargetFramework.Contains('-ios')) OR $(TargetFramework.Contains('-maccatalyst')))">
@@ -146,7 +146,7 @@
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.80" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.9" />
 		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="10.0.80" />
-		<PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
+		<PackageReference Include="sqlite-net-pcl" Version="1.11.285" />
 		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />
 		<PackageReference Include="SQLitePCLRaw.provider.dynamic_cdecl" Version="3.0.3" />
 		<PackageReference Include="Syncfusion.Maui.Toolkit" Version="1.0.10" />

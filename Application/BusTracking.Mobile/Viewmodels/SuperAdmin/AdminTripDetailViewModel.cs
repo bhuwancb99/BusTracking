@@ -7,7 +7,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [ObservableProperty] private int _tripId;
         [ObservableProperty] private TripItem? _trip;
 
-        public bool CanEdit   => Can("trip.manage");
+        public bool CanEdit => Can("trip.manage");
         public bool CanDelete => Can("trip.manage");
 
         public AdminTripDetailViewModel(IAuthService auth, INavigationService nav, ITripService trips)
@@ -26,6 +26,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             await RunAsync(async () =>
             {
                 Trip = await _trips.GetByIdAsync(TripId);
+                OnPropertyChanged(nameof(IsInProgress));
             });
         }
 
@@ -57,5 +58,11 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             if (r.Success) { await ShowToastAsync("Trip deleted."); await Nav.GoBackAsync(); }
             else SetError(r.Message);
         }
+
+        public bool IsInProgress => Trip?.Status == "InProgress";
+
+        [RelayCommand]
+        private Task TrackLiveAsync() =>
+            Nav.GoToAsync("LiveTracking", new Dictionary<string, object> { ["TripId"] = TripId });
     }
 }

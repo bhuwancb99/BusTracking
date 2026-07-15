@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.Student
+namespace BusTracking.Mobile.Viewmodels.Student
 {
     public partial class StudentTrackingViewModel : BaseViewModel
     {
@@ -46,5 +46,20 @@
         }
 
         public void StopPolling() => _pollTimer?.Stop();
+
+        [RelayCommand]
+        private Task OpenLiveMapAsync()
+        {
+            var tripId = Tracking?.Trip?.TripId ?? 0;
+            if (tripId > 0)
+            {
+                return Nav.GoToAsync("LiveTracking", new Dictionary<string, object> { ["TripId"] = tripId });
+            }
+            else
+            {
+                // Passing a dummy StudentId = 1 to trigger Student tracking route in LiveTrackingViewModel
+                return Nav.GoToAsync("LiveTracking", new Dictionary<string, object> { ["StudentId"] = 1 });
+            }
+        }
     }
 }

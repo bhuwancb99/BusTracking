@@ -30,6 +30,16 @@ namespace BusTracking.Mobile.Services
                 {
                     // JWT sent via query string — WebSocket cannot set headers
                     options.AccessTokenProvider = () => Task.FromResult<string?>(jwtToken);
+#if DEBUG
+                    options.HttpMessageHandlerFactory = handler =>
+                    {
+                        if (handler is HttpClientHandler clientHandler)
+                        {
+                            clientHandler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
+                        }
+                        return handler;
+                    };
+#endif
                 })
                 .WithAutomaticReconnect([
                     TimeSpan.FromSeconds(1),
@@ -48,12 +58,20 @@ namespace BusTracking.Mobile.Services
             _hub.On<int>("TripEnded",
                 tripId => OnTripEnded?.Invoke(tripId));
 
-            _hub.Reconnecting += ex => { OnConnectionStateChanged?.Invoke("Reconnecting…"); return Task.CompletedTask; };
+            _hub.Reconnecting += ex => { OnConnectionStateChanged?.Invoke("Reconnecting\u2026"); return Task.CompletedTask; };
             _hub.Reconnected += _ => { OnConnectionStateChanged?.Invoke(null); return Task.CompletedTask; };
             _hub.Closed += ex => { OnConnectionStateChanged?.Invoke("Disconnected"); return Task.CompletedTask; };
 
-            await _hub.StartAsync();
-            OnConnectionStateChanged?.Invoke(null);
+            try
+            {
+                await _hub.StartAsync();
+                OnConnectionStateChanged?.Invoke(null);
+            }
+            catch (Exception ex)
+            {
+                OnConnectionStateChanged?.Invoke("Connection Failed");
+                System.Diagnostics.Debug.WriteLine($"SignalR Hub StartAsync failed: {ex.Message}");
+            }
         }
 
         public async Task DisconnectAsync()

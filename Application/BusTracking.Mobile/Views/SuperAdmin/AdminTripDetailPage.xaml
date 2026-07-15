@@ -252,26 +252,38 @@
             </Border>
 
             <!--  Actions  -->
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+            <VerticalStackLayout Spacing="10">
                 <Button
-                    Grid.Column="0"
-                    BackgroundColor="{StaticResource Success}"
-                    Command="{Binding StartCommand}"
+                    BackgroundColor="{StaticResource Primary}"
+                    Command="{Binding TrackLiveCommand}"
                     CornerRadius="8"
                     FontAttributes="Bold"
                     HeightRequest="50"
-                    Text="Start Trip"
+                    IsVisible="{Binding IsInProgress}"
+                    Text="Track Live Location"
                     TextColor="White" />
-                <Button
-                    Grid.Column="1"
-                    BackgroundColor="{StaticResource Danger}"
-                    Command="{Binding CancelTripCommand}"
-                    CornerRadius="8"
-                    FontAttributes="Bold"
-                    HeightRequest="50"
-                    Text="Cancel Trip"
-                    TextColor="White" />
-            </Grid>
+                
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                    <Button
+                        Grid.Column="0"
+                        BackgroundColor="{StaticResource Success}"
+                        Command="{Binding StartCommand}"
+                        CornerRadius="8"
+                        FontAttributes="Bold"
+                        HeightRequest="50"
+                        Text="Start Trip"
+                        TextColor="White" />
+                    <Button
+                        Grid.Column="1"
+                        BackgroundColor="{StaticResource Danger}"
+                        Command="{Binding CancelTripCommand}"
+                        CornerRadius="8"
+                        FontAttributes="Bold"
+                        HeightRequest="50"
+                        Text="Cancel Trip"
+                        TextColor="White" />
+                </Grid>
+            </VerticalStackLayout>
 
         </VerticalStackLayout>
     </ScrollView>

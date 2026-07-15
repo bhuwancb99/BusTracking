@@ -126,6 +126,9 @@
             HeightRequest="220"
             StrokeShape="RoundRectangle 16"
             StrokeThickness="0">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding OpenLiveMapCommand}" />
+            </Border.GestureRecognizers>
             <Grid>
                 <VerticalStackLayout
                     HorizontalOptions="Center"

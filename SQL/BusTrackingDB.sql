@@ -27,11 +27,12 @@ GO
 -- 1. ROLES
 -- ============================================================
 CREATE TABLE Roles (
-    RoleId      INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    RoleId      INT           NOT NULL IDENTITY(1,1),
     RoleName    NVARCHAR(50)  NOT NULL,                  -- SuperAdmin, BusCoordinator, Driver, Parent, Student
     Description NVARCHAR(255) NULL,
-    IsActive    BIT           NOT NULL DEFAULT 1,
-    CreatedAt   DATETIME2     NOT NULL DEFAULT GETUTCDATE()
+    IsActive    BIT           NOT NULL CONSTRAINT DF_Roles_IsActive DEFAULT 1,
+    CreatedAt   DATETIME2     NOT NULL CONSTRAINT DF_Roles_CreatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_Roles PRIMARY KEY (RoleId)
 );
 GO
 
@@ -47,11 +48,13 @@ GO
 -- 2. PERMISSIONS  (module-level permission catalogue)
 -- ============================================================
 CREATE TABLE Permissions (
-    PermissionId   INT          NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    PermissionId   INT           NOT NULL IDENTITY(1,1),
     ModuleName     NVARCHAR(100) NOT NULL,   -- e.g. ManageBuses, ManageDrivers
-    PermissionKey  NVARCHAR(100) NOT NULL UNIQUE,
+    PermissionKey  NVARCHAR(100) NOT NULL,
     Description    NVARCHAR(255) NULL,
-    CreatedAt      DATETIME2    NOT NULL DEFAULT GETUTCDATE()
+    CreatedAt      DATETIME2     NOT NULL CONSTRAINT DF_Permissions_CreatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_Permissions PRIMARY KEY (PermissionId),
+    CONSTRAINT UQ_Permissions_PermissionKey UNIQUE (PermissionKey)
 );
 GO
 
@@ -103,38 +106,48 @@ GO
 -- 3. USERS  (unified users table for all roles)
 -- ============================================================
 CREATE TABLE Users (
-    UserId          INT            NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    RoleId          INT            NOT NULL REFERENCES Roles(RoleId),
+    UserId          INT            NOT NULL IDENTITY(1,1),
+    RoleId          INT            NOT NULL,
     FullName        NVARCHAR(150)  NOT NULL,
-    UserName        NVARCHAR(100)  NOT NULL UNIQUE,          -- used for login (required)
-    Email           NVARCHAR(255)  NULL UNIQUE,              -- optional, for notifications/reset
+    UserName        NVARCHAR(100)  NOT NULL,                  -- used for login (required)
+    Email           NVARCHAR(255)  NULL,                      -- optional, for notifications/reset
     PhoneNumber     NVARCHAR(20)   NULL,
     PasswordHash    NVARCHAR(512)  NOT NULL,
     PasswordSalt    NVARCHAR(256)  NOT NULL,
     ProfileImageUrl NVARCHAR(500)  NULL,
-    IsActive        BIT            NOT NULL DEFAULT 1,
-    IsEmailVerified BIT            NOT NULL DEFAULT 0,
+    IsActive        BIT            NOT NULL CONSTRAINT DF_Users_IsActive DEFAULT 1,
+    IsEmailVerified BIT            NOT NULL CONSTRAINT DF_Users_IsEmailVerified DEFAULT 0,
     LastLoginAt     DATETIME2      NULL,
-    CreatedAt       DATETIME2      NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt       DATETIME2      NOT NULL DEFAULT GETUTCDATE(),
-    CreatedBy       INT            NULL REFERENCES Users(UserId)
+    CreatedAt       DATETIME2      NOT NULL CONSTRAINT DF_Users_CreatedAt DEFAULT GETUTCDATE(),
+    UpdatedAt       DATETIME2      NOT NULL CONSTRAINT DF_Users_UpdatedAt DEFAULT GETUTCDATE(),
+    CreatedBy       INT            NULL,
+    CONSTRAINT PK_Users PRIMARY KEY (UserId),
+    CONSTRAINT FK_Users_Roles FOREIGN KEY (RoleId) REFERENCES Roles(RoleId),
+    CONSTRAINT FK_Users_CreatedBy FOREIGN KEY (CreatedBy) REFERENCES Users(UserId),
+    CONSTRAINT UQ_Users_UserName UNIQUE (UserName),
+    CONSTRAINT UQ_Users_Email UNIQUE (Email)
 );
 GO
 
-INSERT INTO Users VALUES(1,'SuperAdmin','SuperAdmin','admin@bustracking.com',NULL,'$2a$12$gRiCpH9Cj4ztBpZsTgntH.BM2d/G9mO6VmcbIKD7gRdkk4vT3PpoW',
-'$2a$12$gRiCpH9Cj4ztBpZsTgntH.',NULL,1,1,GETDATE(),GETDATE(),GETDATE(),1)
+SET IDENTITY_INSERT Users ON;
+INSERT INTO Users (UserId, RoleId, FullName, UserName, Email, PhoneNumber, PasswordHash, PasswordSalt, ProfileImageUrl, IsActive, IsEmailVerified, LastLoginAt, CreatedAt, UpdatedAt, CreatedBy)
+VALUES (1, 1, 'SuperAdmin', 'Admin', 'admin@bustracking.com', NULL, '$2a$12$gRiCpH9Cj4ztBpZsTgntH.BM2d/G9mO6VmcbIKD7gRdkk4vT3PpoW', '$2a$12$gRiCpH9Cj4ztBpZsTgntH.', NULL, 1, 1, GETDATE(), GETDATE(), GETDATE(), 1);
+SET IDENTITY_INSERT Users OFF;
 GO
 
 -- ============================================================
 -- 4. PASSWORD RESET TOKENS
 -- ============================================================
 CREATE TABLE PasswordResetTokens (
-    TokenId    INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    UserId     INT           NOT NULL REFERENCES Users(UserId),
-    Token      NVARCHAR(512) NOT NULL UNIQUE,
+    TokenId    INT           NOT NULL IDENTITY(1,1),
+    UserId     INT           NOT NULL,
+    Token      NVARCHAR(512) NOT NULL,
     ExpiresAt  DATETIME2     NOT NULL,
-    IsUsed     BIT           NOT NULL DEFAULT 0,
-    CreatedAt  DATETIME2     NOT NULL DEFAULT GETUTCDATE()
+    IsUsed     BIT           NOT NULL CONSTRAINT DF_PasswordResetTokens_IsUsed DEFAULT 0,
+    CreatedAt  DATETIME2     NOT NULL CONSTRAINT DF_PasswordResetTokens_CreatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_PasswordResetTokens PRIMARY KEY (TokenId),
+    CONSTRAINT FK_PasswordResetTokens_Users FOREIGN KEY (UserId) REFERENCES Users(UserId),
+    CONSTRAINT UQ_PasswordResetTokens_Token UNIQUE (Token)
 );
 GO
 
@@ -142,11 +155,15 @@ GO
 -- 5. SUB-ADMIN PERMISSIONS  (BusCoordinator role assignments)
 -- ============================================================
 CREATE TABLE SubAdminPermissions (
-    SubAdminPermissionId INT       NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    UserId               INT       NOT NULL REFERENCES Users(UserId),   -- must be BusCoordinator
-    PermissionId         INT       NOT NULL REFERENCES Permissions(PermissionId),
-    AssignedBy           INT       NOT NULL REFERENCES Users(UserId),   -- SuperAdmin
-    AssignedAt           DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    SubAdminPermissionId INT       NOT NULL IDENTITY(1,1),
+    UserId               INT       NOT NULL,                            -- must be BusCoordinator
+    PermissionId         INT       NOT NULL,
+    AssignedBy           INT       NOT NULL,                            -- SuperAdmin
+    AssignedAt           DATETIME2 NOT NULL CONSTRAINT DF_SubAdminPermissions_AssignedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_SubAdminPermissions PRIMARY KEY (SubAdminPermissionId),
+    CONSTRAINT FK_SubAdminPermissions_Users FOREIGN KEY (UserId) REFERENCES Users(UserId),
+    CONSTRAINT FK_SubAdminPermissions_Permissions FOREIGN KEY (PermissionId) REFERENCES Permissions(PermissionId),
+    CONSTRAINT FK_SubAdminPermissions_AssignedBy FOREIGN KEY (AssignedBy) REFERENCES Users(UserId),
     CONSTRAINT UQ_SubAdmin_Permission UNIQUE (UserId, PermissionId)
 );
 GO
@@ -155,16 +172,19 @@ GO
 -- 6. ROUTES
 -- ============================================================
 CREATE TABLE Routes (
-    RouteId       INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    RouteId       INT           NOT NULL IDENTITY(1,1),
     RouteName     NVARCHAR(150) NOT NULL,
-    RouteCode     NVARCHAR(50)  NOT NULL UNIQUE,
+    RouteCode     NVARCHAR(50)  NOT NULL,
     MorningTime   TIME          NULL,
     EveningTime   TIME          NULL,
     Description   NVARCHAR(500) NULL,
-    IsActive      BIT           NOT NULL DEFAULT 1,
-    CreatedAt     DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt     DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
-    CreatedBy     INT           NULL REFERENCES Users(UserId)
+    IsActive      BIT           NOT NULL CONSTRAINT DF_Routes_IsActive DEFAULT 1,
+    CreatedAt     DATETIME2     NOT NULL CONSTRAINT DF_Routes_CreatedAt DEFAULT GETUTCDATE(),
+    UpdatedAt     DATETIME2     NOT NULL CONSTRAINT DF_Routes_UpdatedAt DEFAULT GETUTCDATE(),
+    CreatedBy     INT           NULL,
+    CONSTRAINT PK_Routes PRIMARY KEY (RouteId),
+    CONSTRAINT FK_Routes_Users FOREIGN KEY (CreatedBy) REFERENCES Users(UserId),
+    CONSTRAINT UQ_Routes_RouteCode UNIQUE (RouteCode)
 );
 GO
 
@@ -172,16 +192,18 @@ GO
 -- 7. STOPS  (drop/pick-up points on a route)
 -- ============================================================
 CREATE TABLE Stops (
-    StopId      INT            NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    RouteId     INT            NOT NULL REFERENCES Routes(RouteId),
+    StopId      INT            NOT NULL IDENTITY(1,1),
+    RouteId     INT            NOT NULL,
     StopName    NVARCHAR(150)  NOT NULL,
-    StopOrder   INT            NOT NULL,               -- sequence on the route
+    StopOrder   INT            NOT NULL,                            -- sequence on the route
     Latitude    DECIMAL(10,7)  NULL,
     Longitude   DECIMAL(10,7)  NULL,
-    MorningTime TIME           NULL,                   -- expected arrival at stop (morning)
-    EveningTime TIME           NULL,                   -- expected arrival at stop (evening)
-    IsActive    BIT            NOT NULL DEFAULT 1,
-    CreatedAt   DATETIME2      NOT NULL DEFAULT GETUTCDATE(),
+    MorningTime TIME           NULL,                                -- expected arrival at stop (morning)
+    EveningTime TIME           NULL,                                -- expected arrival at stop (evening)
+    IsActive    BIT            NOT NULL CONSTRAINT DF_Stops_IsActive DEFAULT 1,
+    CreatedAt   DATETIME2      NOT NULL CONSTRAINT DF_Stops_CreatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_Stops PRIMARY KEY (StopId),
+    CONSTRAINT FK_Stops_Routes FOREIGN KEY (RouteId) REFERENCES Routes(RouteId),
     CONSTRAINT UQ_Route_StopOrder UNIQUE (RouteId, StopOrder)
 );
 GO
@@ -190,11 +212,11 @@ GO
 -- 7a. BUS TYPE MASTERS  (Mini Bus, Standard Bus, Luxury Bus, ...)
 -- ============================================================
 CREATE TABLE BusTypeMasters (
-    Id        INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    Id        INT           NOT NULL IDENTITY(1,1),
     Name      NVARCHAR(100) NOT NULL,
-    CreatedAt DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
-
+    CreatedAt DATETIME2     NOT NULL CONSTRAINT DF_BusTypeMasters_CreatedAt DEFAULT GETUTCDATE(),
+    UpdatedAt DATETIME2     NOT NULL CONSTRAINT DF_BusTypeMasters_UpdatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_BusTypeMasters PRIMARY KEY (Id),
     CONSTRAINT UQ_BusTypeMasters_Name UNIQUE (Name)
 );
 GO
@@ -203,16 +225,21 @@ GO
 -- 8. BUSES
 -- ============================================================
 CREATE TABLE Buses (
-    BusId         INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
+    BusId         INT           NOT NULL IDENTITY(1,1),
     BusName       NVARCHAR(100) NOT NULL,
-    BusNumber     NVARCHAR(50)  NOT NULL UNIQUE,
-    RouteId       INT           NULL REFERENCES Routes(RouteId),
-    BusTypeId     INT           NOT NULL REFERENCES BusTypeMasters(Id),
+    BusNumber     NVARCHAR(50)  NOT NULL,
+    RouteId       INT           NULL,
+    BusTypeId     INT           NOT NULL,
     Capacity      INT           NULL,
-    IsActive      BIT           NOT NULL DEFAULT 1,
-    CreatedAt     DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt     DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
-    CreatedBy     INT           NULL REFERENCES Users(UserId)
+    IsActive      BIT           NOT NULL CONSTRAINT DF_Buses_IsActive DEFAULT 1,
+    CreatedAt     DATETIME2     NOT NULL CONSTRAINT DF_Buses_CreatedAt DEFAULT GETUTCDATE(),
+    UpdatedAt     DATETIME2     NOT NULL CONSTRAINT DF_Buses_UpdatedAt DEFAULT GETUTCDATE(),
+    CreatedBy     INT           NULL,
+    CONSTRAINT PK_Buses PRIMARY KEY (BusId),
+    CONSTRAINT FK_Buses_Routes FOREIGN KEY (RouteId) REFERENCES Routes(RouteId),
+    CONSTRAINT FK_Buses_BusTypeMasters FOREIGN KEY (BusTypeId) REFERENCES BusTypeMasters(Id),
+    CONSTRAINT FK_Buses_Users FOREIGN KEY (CreatedBy) REFERENCES Users(UserId),
+    CONSTRAINT UQ_Buses_BusNumber UNIQUE (BusNumber)
 );
 GO
 
@@ -220,13 +247,17 @@ GO
 -- 9. DRIVER DETAILS  (extra fields for Driver role users)
 -- ============================================================
 CREATE TABLE DriverDetails (
-    DriverDetailId  INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    UserId          INT           NOT NULL UNIQUE REFERENCES Users(UserId),
+    DriverDetailId  INT           NOT NULL IDENTITY(1,1),
+    UserId          INT           NOT NULL,
     LicenseNumber   NVARCHAR(100) NULL,
     LicenseExpiry   DATE          NULL,
-    BusId           INT           NULL REFERENCES Buses(BusId),      -- currently assigned bus
-    CreatedAt       DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt       DATETIME2     NOT NULL DEFAULT GETUTCDATE()
+    BusId           INT           NULL,                              -- currently assigned bus
+    CreatedAt       DATETIME2     NOT NULL CONSTRAINT DF_DriverDetails_CreatedAt DEFAULT GETUTCDATE(),
+    UpdatedAt       DATETIME2     NOT NULL CONSTRAINT DF_DriverDetails_UpdatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_DriverDetails PRIMARY KEY (DriverDetailId),
+    CONSTRAINT FK_DriverDetails_Users FOREIGN KEY (UserId) REFERENCES Users(UserId),
+    CONSTRAINT FK_DriverDetails_Buses FOREIGN KEY (BusId) REFERENCES Buses(BusId),
+    CONSTRAINT UQ_DriverDetails_UserId UNIQUE (UserId)
 );
 GO
 
@@ -234,14 +265,20 @@ GO
 -- 10. STUDENTS
 -- ============================================================
 CREATE TABLE Students (
-    StudentId     INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    UserId        INT           NOT NULL UNIQUE REFERENCES Users(UserId),
-    StudentCode   NVARCHAR(50)  NOT NULL UNIQUE,       -- Student ID / Roll number
-    Standard      NVARCHAR(50)  NULL,                  -- Class / Grade
-    BusId         INT           NULL REFERENCES Buses(BusId),
-    StopId        INT           NULL REFERENCES Stops(StopId),       -- assigned pick-up/drop stop
-    CreatedAt     DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt     DATETIME2     NOT NULL DEFAULT GETUTCDATE()
+    StudentId     INT           NOT NULL IDENTITY(1,1),
+    UserId        INT           NOT NULL,
+    StudentCode   NVARCHAR(50)  NOT NULL,                            -- Student ID / Roll number
+    Standard      NVARCHAR(50)  NULL,                                -- Class / Grade
+    BusId         INT           NULL,
+    StopId        INT           NULL,                                -- assigned pick-up/drop stop
+    CreatedAt     DATETIME2     NOT NULL CONSTRAINT DF_Students_CreatedAt DEFAULT GETUTCDATE(),
+    UpdatedAt     DATETIME2     NOT NULL CONSTRAINT DF_Students_UpdatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_Students PRIMARY KEY (StudentId),
+    CONSTRAINT FK_Students_Users FOREIGN KEY (UserId) REFERENCES Users(UserId),
+    CONSTRAINT FK_Students_Buses FOREIGN KEY (BusId) REFERENCES Buses(BusId),
+    CONSTRAINT FK_Students_Stops FOREIGN KEY (StopId) REFERENCES Stops(StopId),
+    CONSTRAINT UQ_Students_UserId UNIQUE (UserId),
+    CONSTRAINT UQ_Students_StudentCode UNIQUE (StudentCode)
 );
 GO
 
@@ -249,10 +286,13 @@ GO
 -- 11. PARENTS
 -- ============================================================
 CREATE TABLE Parents (
-    ParentId   INT       NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    UserId     INT       NOT NULL UNIQUE REFERENCES Users(UserId),
-    CreatedAt  DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt  DATETIME2 NOT NULL DEFAULT GETUTCDATE()
+    ParentId   INT       NOT NULL IDENTITY(1,1),
+    UserId     INT       NOT NULL,
+    CreatedAt  DATETIME2 NOT NULL CONSTRAINT DF_Parents_CreatedAt DEFAULT GETUTCDATE(),
+    UpdatedAt  DATETIME2 NOT NULL CONSTRAINT DF_Parents_UpdatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_Parents PRIMARY KEY (ParentId),
+    CONSTRAINT FK_Parents_Users FOREIGN KEY (UserId) REFERENCES Users(UserId),
+    CONSTRAINT UQ_Parents_UserId UNIQUE (UserId)
 );
 GO
 
@@ -260,10 +300,13 @@ GO
 -- 12. PARENT-STUDENT  (a parent can have multiple kids)
 -- ============================================================
 CREATE TABLE ParentStudents (
-    ParentStudentId INT       NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    ParentId        INT       NOT NULL REFERENCES Parents(ParentId),
-    StudentId       INT       NOT NULL REFERENCES Students(StudentId),
-    CreatedAt       DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+    ParentStudentId INT       NOT NULL IDENTITY(1,1),
+    ParentId        INT       NOT NULL,
+    StudentId       INT       NOT NULL,
+    CreatedAt       DATETIME2 NOT NULL CONSTRAINT DF_ParentStudents_CreatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_ParentStudents PRIMARY KEY (ParentStudentId),
+    CONSTRAINT FK_ParentStudents_Parents FOREIGN KEY (ParentId) REFERENCES Parents(ParentId),
+    CONSTRAINT FK_ParentStudents_Students FOREIGN KEY (StudentId) REFERENCES Students(StudentId),
     CONSTRAINT UQ_Parent_Student UNIQUE (ParentId, StudentId)
 );
 GO
@@ -273,14 +316,17 @@ GO
 --     (Student or Parent marks leave / not going / parent-pick)
 -- ============================================================
 CREATE TABLE StudentAvailabilities (
-    AvailabilityId   INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    StudentId        INT           NOT NULL REFERENCES Students(StudentId),
-    AvailabilityType NVARCHAR(50)  NOT NULL,   -- OnLeave | NotGoingToSchool | ParentPickup
+    AvailabilityId   INT           NOT NULL IDENTITY(1,1),
+    StudentId        INT           NOT NULL,
+    AvailabilityType NVARCHAR(50)  NOT NULL,                        -- OnLeave | NotGoingToSchool | ParentPickup
     FromDate         DATE          NOT NULL,
     ToDate           DATE          NOT NULL,
     Remarks          NVARCHAR(500) NULL,
-    MarkedBy         INT           NOT NULL REFERENCES Users(UserId), -- Student or Parent userId
-    CreatedAt        DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
+    MarkedBy         INT           NOT NULL,                        -- Student or Parent userId
+    CreatedAt        DATETIME2     NOT NULL CONSTRAINT DF_StudentAvailabilities_CreatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_StudentAvailabilities PRIMARY KEY (AvailabilityId),
+    CONSTRAINT FK_StudentAvailabilities_Students FOREIGN KEY (StudentId) REFERENCES Students(StudentId),
+    CONSTRAINT FK_StudentAvailabilities_Users FOREIGN KEY (MarkedBy) REFERENCES Users(UserId),
     CONSTRAINT CK_AvailabilityType CHECK (AvailabilityType IN ('OnLeave','NotGoingToSchool','ParentPickup')),
     CONSTRAINT CK_DateRange CHECK (ToDate >= FromDate)
 );
@@ -290,16 +336,20 @@ GO
 -- 14. BUS TRIPS  (each tracking session started by a driver)
 -- ============================================================
 CREATE TABLE BusTrips (
-    TripId      INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    BusId       INT           NOT NULL REFERENCES Buses(BusId),
-    DriverId    INT           NOT NULL REFERENCES Users(UserId),
-    RouteId     INT           NOT NULL REFERENCES Routes(RouteId),
-    TripType    NVARCHAR(20)  NOT NULL,              -- Morning | Evening
+    TripId      INT           NOT NULL IDENTITY(1,1),
+    BusId       INT           NOT NULL,
+    DriverId    INT           NOT NULL,
+    RouteId     INT           NOT NULL,
+    TripType    NVARCHAR(20)  NOT NULL,                              -- Morning | Evening
     TripDate    DATE          NOT NULL,
     StartedAt   DATETIME2     NULL,
     EndedAt     DATETIME2     NULL,
-    Status      NVARCHAR(20)  NOT NULL DEFAULT 'Scheduled',  -- Scheduled | InProgress | Completed | Cancelled
-    CreatedAt   DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
+    Status      NVARCHAR(20)  NOT NULL CONSTRAINT DF_BusTrips_Status DEFAULT 'Scheduled',  -- Scheduled | InProgress | Completed | Cancelled
+    CreatedAt   DATETIME2     NOT NULL CONSTRAINT DF_BusTrips_CreatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_BusTrips PRIMARY KEY (TripId),
+    CONSTRAINT FK_BusTrips_Buses FOREIGN KEY (BusId) REFERENCES Buses(BusId),
+    CONSTRAINT FK_BusTrips_Users FOREIGN KEY (DriverId) REFERENCES Users(UserId),
+    CONSTRAINT FK_BusTrips_Routes FOREIGN KEY (RouteId) REFERENCES Routes(RouteId),
     CONSTRAINT CK_TripType   CHECK (TripType IN ('Morning','Evening')),
     CONSTRAINT CK_TripStatus CHECK (Status   IN ('Scheduled','InProgress','Completed','Cancelled'))
 );
@@ -309,13 +359,16 @@ GO
 -- 15. TRIP STOP EVENTS  (driver marks reached/departed per stop)
 -- ============================================================
 CREATE TABLE TripStopEvents (
-    TripStopEventId INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    TripId          INT           NOT NULL REFERENCES BusTrips(TripId),
-    StopId          INT           NOT NULL REFERENCES Stops(StopId),
+    TripStopEventId INT           NOT NULL IDENTITY(1,1),
+    TripId          INT           NOT NULL,
+    StopId          INT           NOT NULL,
     ReachedAt       DATETIME2     NULL,
     DepartedAt      DATETIME2     NULL,
-    Status          NVARCHAR(20)  NOT NULL DEFAULT 'Pending',  -- Pending | Reached | Departed
-    CreatedAt       DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
+    Status          NVARCHAR(20)  NOT NULL CONSTRAINT DF_TripStopEvents_Status DEFAULT 'Pending',  -- Pending | Reached | Departed
+    CreatedAt       DATETIME2     NOT NULL CONSTRAINT DF_TripStopEvents_CreatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_TripStopEvents PRIMARY KEY (TripStopEventId),
+    CONSTRAINT FK_TripStopEvents_BusTrips FOREIGN KEY (TripId) REFERENCES BusTrips(TripId),
+    CONSTRAINT FK_TripStopEvents_Stops FOREIGN KEY (StopId) REFERENCES Stops(StopId),
     CONSTRAINT CK_TripStopStatus CHECK (Status IN ('Pending','Reached','Departed'))
 );
 GO
@@ -324,13 +377,18 @@ GO
 -- 16. STUDENT TRIP STATUS  (per-student boarding status per trip)
 -- ============================================================
 CREATE TABLE StudentTripStatus (
-    StudentTripStatusId INT          NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    TripId              INT          NOT NULL REFERENCES BusTrips(TripId),
-    StudentId           INT          NOT NULL REFERENCES Students(StudentId),
-    StopId              INT          NOT NULL REFERENCES Stops(StopId),
-    BoardingStatus      NVARCHAR(20) NOT NULL DEFAULT 'Pending', -- Pending | PickedUp | NoShow | OnLeave
-    UpdatedAt           DATETIME2    NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedBy           INT          NULL REFERENCES Users(UserId),  -- Driver userId
+    StudentTripStatusId INT          NOT NULL IDENTITY(1,1),
+    TripId              INT          NOT NULL,
+    StudentId           INT          NOT NULL,
+    StopId              INT          NOT NULL,
+    BoardingStatus      NVARCHAR(20) NOT NULL CONSTRAINT DF_StudentTripStatus_BoardingStatus DEFAULT 'Pending', -- Pending | PickedUp | NoShow | OnLeave
+    UpdatedAt           DATETIME2    NOT NULL CONSTRAINT DF_StudentTripStatus_UpdatedAt DEFAULT GETUTCDATE(),
+    UpdatedBy           INT          NULL,                                                  -- Driver userId
+    CONSTRAINT PK_StudentTripStatus PRIMARY KEY (StudentTripStatusId),
+    CONSTRAINT FK_StudentTripStatus_BusTrips FOREIGN KEY (TripId) REFERENCES BusTrips(TripId),
+    CONSTRAINT FK_StudentTripStatus_Students FOREIGN KEY (StudentId) REFERENCES Students(StudentId),
+    CONSTRAINT FK_StudentTripStatus_Stops FOREIGN KEY (StopId) REFERENCES Stops(StopId),
+    CONSTRAINT FK_StudentTripStatus_Users FOREIGN KEY (UpdatedBy) REFERENCES Users(UserId),
     CONSTRAINT UQ_Trip_Student UNIQUE (TripId, StudentId),
     CONSTRAINT CK_BoardingStatus CHECK (BoardingStatus IN ('Pending','PickedUp','NoShow','OnLeave'))
 );
@@ -340,14 +398,17 @@ GO
 -- 17. BUS LIVE LOCATION  (GPS pings from driver mobile app)
 -- ============================================================
 CREATE TABLE BusLiveLocation (
-    LocationId  BIGINT         NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    TripId      INT            NOT NULL REFERENCES BusTrips(TripId),
-    BusId       INT            NOT NULL REFERENCES Buses(BusId),
+    LocationId  BIGINT         NOT NULL IDENTITY(1,1),
+    TripId      INT            NOT NULL,
+    BusId       INT            NOT NULL,
     Latitude    DECIMAL(10,7)  NOT NULL,
     Longitude   DECIMAL(10,7)  NOT NULL,
-    Speed       DECIMAL(6,2)   NULL,          -- km/h
-    Heading     DECIMAL(6,2)   NULL,          -- degrees
-    RecordedAt  DATETIME2      NOT NULL DEFAULT GETUTCDATE()
+    Speed       DECIMAL(6,2)   NULL,                                  -- km/h
+    Heading     DECIMAL(6,2)   NULL,                                  -- degrees
+    RecordedAt  DATETIME2      NOT NULL CONSTRAINT DF_BusLiveLocation_RecordedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_BusLiveLocation PRIMARY KEY (LocationId),
+    CONSTRAINT FK_BusLiveLocation_BusTrips FOREIGN KEY (TripId) REFERENCES BusTrips(TripId),
+    CONSTRAINT FK_BusLiveLocation_Buses FOREIGN KEY (BusId) REFERENCES Buses(BusId)
 );
 GO
 
@@ -360,16 +421,18 @@ GO
 -- 18. NOTIFICATIONS
 -- ============================================================
 CREATE TABLE Notifications (
-    NotificationId   INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    RecipientUserId  INT           NOT NULL REFERENCES Users(UserId),
-    Title            NVARCHAR(200) NOT NULL,
+    NotificationId   INT            NOT NULL IDENTITY(1,1),
+    RecipientUserId  INT            NOT NULL,
+    Title            NVARCHAR(200)  NOT NULL,
     Body             NVARCHAR(1000) NOT NULL,
-    NotificationType NVARCHAR(50)  NOT NULL,   -- BusApproaching | StudentPickedUp | NoShow | BusAssigned | RouteChanged | Broadcast
-    ReferenceId      INT           NULL,        -- e.g. TripId or BusId
-    ReferenceType    NVARCHAR(50)  NULL,        -- Trip | Bus | Route
-    IsRead           BIT           NOT NULL DEFAULT 0,
-    SentAt           DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
-    ReadAt           DATETIME2     NULL
+    NotificationType NVARCHAR(50)   NOT NULL,                        -- BusApproaching | StudentPickedUp | NoShow | BusAssigned | RouteChanged | Broadcast
+    ReferenceId      INT            NULL,                             -- e.g. TripId or BusId
+    ReferenceType    NVARCHAR(50)   NULL,                             -- Trip | Bus | Route
+    IsRead           BIT            NOT NULL CONSTRAINT DF_Notifications_IsRead DEFAULT 0,
+    SentAt           DATETIME2      NOT NULL CONSTRAINT DF_Notifications_SentAt DEFAULT GETUTCDATE(),
+    ReadAt           DATETIME2      NULL,
+    CONSTRAINT PK_Notifications PRIMARY KEY (NotificationId),
+    CONSTRAINT FK_Notifications_Users FOREIGN KEY (RecipientUserId) REFERENCES Users(UserId)
 );
 GO
 
@@ -381,11 +444,14 @@ GO
 -- 19. NOTIFICATION SETTINGS  (enable/disable notification types)
 -- ============================================================
 CREATE TABLE NotificationSettings (
-    NotificationSettingId INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    NotificationType      NVARCHAR(50)  NOT NULL UNIQUE,
-    IsEnabled             BIT           NOT NULL DEFAULT 1,
-    UpdatedAt             DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedBy             INT           NULL REFERENCES Users(UserId)
+    NotificationSettingId INT           NOT NULL IDENTITY(1,1),
+    NotificationType      NVARCHAR(50)  NOT NULL,
+    IsEnabled             BIT           NOT NULL CONSTRAINT DF_NotificationSettings_IsEnabled DEFAULT 1,
+    UpdatedAt             DATETIME2     NOT NULL CONSTRAINT DF_NotificationSettings_UpdatedAt DEFAULT GETUTCDATE(),
+    UpdatedBy             INT           NULL,
+    CONSTRAINT PK_NotificationSettings PRIMARY KEY (NotificationSettingId),
+    CONSTRAINT FK_NotificationSettings_Users FOREIGN KEY (UpdatedBy) REFERENCES Users(UserId),
+    CONSTRAINT UQ_NotificationSettings_NotificationType UNIQUE (NotificationType)
 );
 GO
 
@@ -404,12 +470,14 @@ GO
 -- 20. DEVICE TOKENS  (FCM / APNs push tokens per user device)
 -- ============================================================
 CREATE TABLE DeviceTokens (
-    DeviceTokenId INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    UserId        INT           NOT NULL REFERENCES Users(UserId),
+    DeviceTokenId INT           NOT NULL IDENTITY(1,1),
+    UserId        INT           NOT NULL,
     Token         NVARCHAR(512) NOT NULL,
-    Platform      NVARCHAR(20)  NOT NULL,   -- Android | iOS | Web
-    IsActive      BIT           NOT NULL DEFAULT 1,
-    RegisteredAt  DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
+    Platform      NVARCHAR(20)  NOT NULL,                            -- Android | iOS | Web
+    IsActive      BIT           NOT NULL CONSTRAINT DF_DeviceTokens_IsActive DEFAULT 1,
+    RegisteredAt  DATETIME2     NOT NULL CONSTRAINT DF_DeviceTokens_RegisteredAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_DeviceTokens PRIMARY KEY (DeviceTokenId),
+    CONSTRAINT FK_DeviceTokens_Users FOREIGN KEY (UserId) REFERENCES Users(UserId),
     CONSTRAINT CK_DevicePlatform CHECK (Platform IN ('Android','iOS','Web'))
 );
 GO
@@ -418,17 +486,20 @@ GO
 -- 21. FEEDBACK / HELP & SUPPORT
 -- ============================================================
 CREATE TABLE Feedbacks (
-    FeedbackId   INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    UserId       INT           NOT NULL REFERENCES Users(UserId),
-    Category     NVARCHAR(50)  NOT NULL,    -- Inquiry | Complaint
-    Email        NVARCHAR(255) NOT NULL,
-    PhoneNumber  NVARCHAR(20)  NULL,
+    FeedbackId   INT            NOT NULL IDENTITY(1,1),
+    UserId       INT            NOT NULL,
+    Category     NVARCHAR(50)   NOT NULL,                            -- Inquiry | Complaint
+    Email        NVARCHAR(255)  NOT NULL,
+    PhoneNumber  NVARCHAR(20)   NULL,
     Description  NVARCHAR(2000) NOT NULL,
-    Status       NVARCHAR(50)  NOT NULL DEFAULT 'Open',  -- Open | InProgress | Resolved | Closed
-    ResolvedBy   INT           NULL REFERENCES Users(UserId),
-    ResolvedAt   DATETIME2     NULL,
-    CreatedAt    DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
-    UpdatedAt    DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
+    Status       NVARCHAR(50)   NOT NULL CONSTRAINT DF_Feedbacks_Status DEFAULT 'Open',  -- Open | InProgress | Resolved | Closed
+    ResolvedBy   INT            NULL,
+    ResolvedAt   DATETIME2      NULL,
+    CreatedAt    DATETIME2      NOT NULL CONSTRAINT DF_Feedbacks_CreatedAt DEFAULT GETUTCDATE(),
+    UpdatedAt    DATETIME2      NOT NULL CONSTRAINT DF_Feedbacks_UpdatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_Feedbacks PRIMARY KEY (FeedbackId),
+    CONSTRAINT FK_Feedbacks_Users_User FOREIGN KEY (UserId) REFERENCES Users(UserId),
+    CONSTRAINT FK_Feedbacks_Users_ResolvedBy FOREIGN KEY (ResolvedBy) REFERENCES Users(UserId),
     CONSTRAINT CK_FeedbackCategory CHECK (Category IN ('Inquiry','Complaint')),
     CONSTRAINT CK_FeedbackStatus   CHECK (Status   IN ('Open','InProgress','Resolved','Closed'))
 );
@@ -438,15 +509,17 @@ GO
 -- 22. AUDIT LOG  (optional – track key entity changes)
 -- ============================================================
 CREATE TABLE AuditLogs (
-    AuditLogId  BIGINT        NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    UserId      INT           NULL REFERENCES Users(UserId),
-    Action      NVARCHAR(100) NOT NULL,    -- e.g. UserCreated, BusAssigned
+    AuditLogId  BIGINT        NOT NULL IDENTITY(1,1),
+    UserId      INT           NULL,
+    Action      NVARCHAR(100) NOT NULL,                              -- e.g. UserCreated, BusAssigned
     EntityName  NVARCHAR(100) NULL,
     EntityId    NVARCHAR(50)  NULL,
-    OldValues   NVARCHAR(MAX) NULL,        -- JSON
-    NewValues   NVARCHAR(MAX) NULL,        -- JSON
+    OldValues   NVARCHAR(MAX) NULL,                                  -- JSON
+    NewValues   NVARCHAR(MAX) NULL,                                  -- JSON
     IpAddress   NVARCHAR(50)  NULL,
-    CreatedAt   DATETIME2     NOT NULL DEFAULT GETUTCDATE()
+    CreatedAt   DATETIME2     NOT NULL CONSTRAINT DF_AuditLogs_CreatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_AuditLogs PRIMARY KEY (AuditLogId),
+    CONSTRAINT FK_AuditLogs_Users FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
 GO
 
@@ -457,16 +530,17 @@ GO
 IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'AppConfigurations')
 BEGIN
     CREATE TABLE AppConfigurations (
-        ConfigId     INT IDENTITY(1,1) PRIMARY KEY,
-        ConfigKey    NVARCHAR(100)  NOT NULL,
+        ConfigId     INT IDENTITY(1,1),
+        ConfigKey    NVARCHAR(100) NOT NULL,
         ConfigValue  NVARCHAR(500) NOT NULL,
-        Description  NVARCHAR(200)  NULL,
-        Platform     NVARCHAR(20)   NOT NULL DEFAULT 'Both',  -- Web | Mobile | Both
-        IsActive     BIT            NOT NULL DEFAULT 1,
-        CreatedBy    INT            NOT NULL,
-        CreatedAt    DATETIME2      NOT NULL DEFAULT GETUTCDATE(),
-        UpdatedAt    DATETIME2      NOT NULL DEFAULT GETUTCDATE(),
+        Description  NVARCHAR(200) NULL,
+        Platform     NVARCHAR(20)  NOT NULL CONSTRAINT DF_AppConfigurations_Platform DEFAULT 'Both',  -- Web | Mobile | Both
+        IsActive     BIT           NOT NULL CONSTRAINT DF_AppConfigurations_IsActive DEFAULT 1,
+        CreatedBy    INT           NOT NULL,
+        CreatedAt    DATETIME2     NOT NULL CONSTRAINT DF_AppConfigurations_CreatedAt DEFAULT GETUTCDATE(),
+        UpdatedAt    DATETIME2     NOT NULL CONSTRAINT DF_AppConfigurations_UpdatedAt DEFAULT GETUTCDATE(),
 
+        CONSTRAINT PK_AppConfigurations PRIMARY KEY (ConfigId),
         CONSTRAINT FK_AppConfigurations_Users FOREIGN KEY (CreatedBy) REFERENCES Users(UserId),
         CONSTRAINT UQ_AppConfigurations_Key_Platform UNIQUE (ConfigKey, Platform)
     );
@@ -481,13 +555,16 @@ GO
 -- ============================================================
 
 CREATE TABLE BusImages (
-    BusImageId   INT           NOT NULL IDENTITY(1,1) PRIMARY KEY,
-    BusId        INT           NOT NULL REFERENCES Buses(BusId) ON DELETE CASCADE,
+    BusImageId   INT           NOT NULL IDENTITY(1,1),
+    BusId        INT           NOT NULL,
     ImageUrl     NVARCHAR(500) NOT NULL,
-    DisplayOrder INT           NOT NULL DEFAULT 0,
-    IsPrimary    BIT           NOT NULL DEFAULT 0,
-    UploadedAt   DATETIME2     NOT NULL DEFAULT GETUTCDATE(),
-    UploadedBy   INT           NULL REFERENCES Users(UserId)
+    DisplayOrder INT           NOT NULL CONSTRAINT DF_BusImages_DisplayOrder DEFAULT 0,
+    IsPrimary    BIT           NOT NULL CONSTRAINT DF_BusImages_IsPrimary DEFAULT 0,
+    UploadedAt   DATETIME2     NOT NULL CONSTRAINT DF_BusImages_UploadedAt DEFAULT GETUTCDATE(),
+    UploadedBy   INT           NULL,
+    CONSTRAINT PK_BusImages PRIMARY KEY (BusImageId),
+    CONSTRAINT FK_BusImages_Buses FOREIGN KEY (BusId) REFERENCES Buses(BusId) ON DELETE CASCADE,
+    CONSTRAINT FK_BusImages_Users FOREIGN KEY (UploadedBy) REFERENCES Users(UserId)
 );
 GO
 
