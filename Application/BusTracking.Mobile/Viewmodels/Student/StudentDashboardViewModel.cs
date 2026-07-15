@@ -48,8 +48,8 @@ namespace BusTracking.Mobile.Viewmodels.Student
 
         [ObservableProperty] private bool _isLive;
 
-        [RelayCommand] private Task TrackBusAsync() => Nav.GoToAsync("StudentTracking");
-        [RelayCommand] private Task ViewAvailabilityAsync() => Nav.GoToAsync("StudentAvailability");
+        [RelayCommand] private Task TrackBusAsync() => Nav.GoToAsync("//StudentTracking");
+        [RelayCommand] private Task ViewAvailabilityAsync() => Nav.GoToAsync("//StudentAvailability");
 
         [RelayCommand]
         private async Task LogoutAsync()
