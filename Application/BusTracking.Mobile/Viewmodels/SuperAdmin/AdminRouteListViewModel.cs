@@ -1,4 +1,4 @@
-namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminRouteListViewModel : BaseViewModel
     {
@@ -74,6 +74,19 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             var result = await _routes.DeleteAsync(r.RouteId);
             if (result.Success) { Items.Remove(r); await ShowToastAsync("Route deleted."); }
             else SetError(result.Message);
+        }
+        [RelayCommand]
+        private async Task RefreshAsync()
+        {
+            IsRefreshing = true;
+            try
+            {
+                await LoadAsync();
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
         }
     }
 }

@@ -32,6 +32,7 @@ public static class SidebarHelper
         new() { Label = "Trips",            Icon = "bi-signpost-split",  Controller = "Trip",           Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Notifications",    Icon = "bi-bell",            Controller = "Notification",   Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Help & Support",   Icon = "bi-headset",         Controller = "Feedback",       Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "System Logs",      Icon = "bi-journal-text",    Controller = "Logger",         Action = "Index",   Area = "SuperAdmin" },
     ];
 
     private static List<SidebarMenuItem> CoordinatorMenu(ClaimsPrincipal user)
@@ -85,6 +86,9 @@ public static class SidebarHelper
 
         if (Has("helpsupport.view") || Has("helpsupport.manage"))
             menu.Add(new() { Label = "Help & Support", Icon = "bi-headset", Controller = "Feedback", Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("logs.view"))
+            menu.Add(new() { Label = "System Logs", Icon = "bi-journal-text", Controller = "Logger", Action = "Index", Area = "BusCoordinator" });
 
         return menu;
     }

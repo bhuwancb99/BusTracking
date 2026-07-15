@@ -1,4 +1,4 @@
-namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminBusTypeListViewModel : BaseViewModel
     {
@@ -140,6 +140,19 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             });
 
             if (success) await LoadAsync();
+        }
+        [RelayCommand]
+        private async Task RefreshAsync()
+        {
+            IsRefreshing = true;
+            try
+            {
+                await LoadAsync();
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
         }
     }
 }

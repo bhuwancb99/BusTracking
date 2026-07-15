@@ -28,17 +28,18 @@
                 bool Has(string key) => perms.Contains(key);
 
                 // Dashboard always visible
-                bool showAppConfig  = Has("appconfig.view");
-                bool showBusType    = Has("bustype.view");
-                bool showSubAdmins  = Has("subadmin.view");
-                bool showRoutes     = Has("route.view");
-                bool showBuses      = Has("bus.view");
-                bool showDrivers    = Has("driver.view");
-                bool showParents    = Has("parent.view");
-                bool showStudents   = Has("student.view");
-                bool showTrips      = Has("trip.view") || Has("trip.manage");
-                bool showNotif      = Has("notification.manage");
-                bool showSupport    = Has("helpsupport.view") || Has("helpsupport.manage");
+                bool showAppConfig = Has("appconfig.view");
+                bool showBusType = Has("bustype.view");
+                bool showSubAdmins = Has("subadmin.view");
+                bool showRoutes = Has("route.view");
+                bool showBuses = Has("bus.view");
+                bool showDrivers = Has("driver.view");
+                bool showParents = Has("parent.view");
+                bool showStudents = Has("student.view");
+                bool showTrips = Has("trip.view") || Has("trip.manage");
+                bool showNotif = Has("notification.manage");
+                bool showSupport = Has("helpsupport.view") || Has("helpsupport.manage");
+                bool showlogs = Has("logs.view");
             }
 
             @* Dashboard — always visible *@
@@ -154,6 +155,16 @@
                 <li class="sidebar-item @(ctrl == "Feedback" ? "active" : "")">
                     <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="Feedback" asp-action="Index">
                         <i class="bi bi-headset"></i><span>Help & Support</span>
+                    </a>
+                </li>
+            }
+
+            @* Logger *@
+            @if (showlogs)
+            {
+                <li class="sidebar-item @(ctrl == "Logger" ? "active" : "")">
+                    <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="Logger" asp-action="Index">
+                        <i class="bi-journal-text"></i><span>System Logs</span>
                     </a>
                 </li>
             }

@@ -35,7 +35,8 @@
                     FontSize="17"
                     HorizontalOptions="Center"
                     Text="Live Tracking"
-                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}" />
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                Dark=White}" />
                 <!--  GPS live status pill — hidden when location is not granted  -->
                 <Label
                     FontSize="10"
@@ -53,7 +54,8 @@
                 FontSize="12"
                 HeightRequest="34"
                 Text="End Trip"
-                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}"
                 WidthRequest="80" />
         </Grid>
     </Shell.TitleView>
@@ -82,7 +84,7 @@
         <RefreshView
             Grid.Row="1"
             Command="{Binding LoadStopsCommand}"
-            IsRefreshing="{Binding IsBusy}">
+            IsRefreshing="{Binding IsRefreshing}">
             <CollectionView
                 Margin="16,12,16,32"
                 ItemsSource="{Binding Stops}"

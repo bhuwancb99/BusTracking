@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.Parent
+namespace BusTracking.Mobile.Viewmodels.Parent
 {
     public partial class ParentDashboardViewModel : BaseViewModel
     {
@@ -15,7 +15,7 @@
         public override async Task InitializeAsync()
         {
             var user = await Auth.GetCurrentUserAsync();
-            WelcomeText = $"Welcome back, {user?.FullName?.Split(' ')[0] ?? ""} 👋";
+            WelcomeText = $"Welcome back, {user?.FullName?.Split(' ')?.FirstOrDefault() ?? ""} 👋";
             TodayLabel = DateTime.Today.ToString("dddd, dd MMMM yyyy");
             await RefreshCommand.ExecuteAsync(null);
         }
@@ -23,28 +23,36 @@
         [RelayCommand]
         private async Task RefreshAsync()
         {
-            await RunAsync(async () =>
+            IsRefreshing = true;
+            try
             {
-                // Load children linked to this parent via dashboard API
-                var raw = await _parents.GetDashboardAsync();
-
-                // Deserialize from JSON if the API returns children inside dashboard
-                // Fallback: try to extract LinkedStudent list from the raw object
-                if (raw is System.Text.Json.JsonElement je && je.ValueKind == System.Text.Json.JsonValueKind.Object)
+                await RunAsync(async () =>
                 {
-                    if (je.TryGetProperty("children", out var childrenEl) ||
-                        je.TryGetProperty("Students", out childrenEl) ||
-                        je.TryGetProperty("students", out childrenEl))
-                    {
-                        var list = System.Text.Json.JsonSerializer.Deserialize<List<LinkedStudent>>(
-                            childrenEl.GetRawText(),
-                            new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                        Children = new ObservableCollection<LinkedStudent>(list ?? []);
-                    }
-                }
+                    // Load children linked to this parent via dashboard API
+                    var raw = await _parents.GetDashboardAsync();
 
-                ChildrenCountLabel = Children.Count == 1 ? "1 child" : $"{Children.Count} children";
-            });
+                    // Deserialize from JSON if the API returns children inside dashboard
+                    // Fallback: try to extract LinkedStudent list from the raw object
+                    if (raw is System.Text.Json.JsonElement je && je.ValueKind == System.Text.Json.JsonValueKind.Object)
+                    {
+                        if (je.TryGetProperty("children", out var childrenEl) ||
+                            je.TryGetProperty("Students", out childrenEl) ||
+                            je.TryGetProperty("students", out childrenEl))
+                        {
+                            var list = System.Text.Json.JsonSerializer.Deserialize<List<LinkedStudent>>(
+                                childrenEl.GetRawText(),
+                                new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                            Children = new ObservableCollection<LinkedStudent>(list ?? []);
+                        }
+                    }
+
+                    ChildrenCountLabel = Children.Count == 1 ? "1 child" : $"{Children.Count} children";
+                });
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
         }
 
         // Navigate to tracking — if multiple children, go to dashboard's tracking tab;

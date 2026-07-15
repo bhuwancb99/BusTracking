@@ -1,0 +1,319 @@
+@model IEnumerable<BusTracking.Common.Entities.Logger>
+@using System.Text.Json
+@{
+    ViewData["Title"] = "System Logs";
+    ViewData["Breadcrumb"] = "System Logs";
+
+    var platform = ViewBag.Platform as string;
+    var search = ViewBag.Search as string;
+    var fromDate = ViewBag.FromDate as string;
+    var toDate = ViewBag.ToDate as string;
+    var sortBy = ViewBag.SortBy as string;
+    var sortOrder = ViewBag.SortOrder as string;
+
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
+    int totalItems = ViewBag.TotalItems;
+    int pageSize = ViewBag.PageSize;
+
+    var startItem = (currentPage - 1) * pageSize + 1;
+    var endItem = Math.Min(currentPage * pageSize, totalItems);
+
+    string GetSortUrl(string field)
+    {
+        var order = sortBy == field && sortOrder == "asc" ? "desc" : "asc";
+        return $"?platform={platform}&search={search}&fromDate={fromDate}&toDate={toDate}&sortBy={field}&sortOrder={order}&page=1";
+    }
+
+    string GetPageUrl(int p)
+    {
+        return $"?platform={platform}&search={search}&fromDate={fromDate}&toDate={toDate}&sortBy={sortBy}&sortOrder={sortOrder}&page={p}";
+    }
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-0"><i class="bi bi-journal-text me-2 text-primary"></i>System Logs</h4>
+        <small class="text-muted">Monitor unhandled exceptions and system diagnostics across platforms</small>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body py-3 px-4">
+        <form method="get" class="row g-3 align-items-end">
+            <input type="hidden" name="sortBy" value="@sortBy" />
+            <input type="hidden" name="sortOrder" value="@sortOrder" />
+            <input type="hidden" name="page" value="1" />
+
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small mb-1">Platform</label>
+                <select name="platform" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="All" selected="@(platform == "All")">All Platforms</option>
+                    <option value="WEB" selected="@(platform == "WEB")">Web App</option>
+                    <option value="API" selected="@(platform == "API")">Web API</option>
+                    <option value="Android" selected="@(platform == "Android")">Android</option>
+                    <option value="iOS" selected="@(platform == "iOS")">iOS</option>
+                    <option value="Windows" selected="@(platform == "Windows")">Windows</option>
+                    <option value="macOS" selected="@(platform == "macOS")">macOS</option>
+                </select>
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small mb-1">From Date</label>
+                <input type="date" name="fromDate" value="@fromDate" class="form-control form-control-sm" />
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label fw-semibold small mb-1">To Date</label>
+                <input type="date" name="toDate" value="@toDate" class="form-control form-control-sm" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-semibold small mb-1">Search</label>
+                <input type="text" name="search" value="@search" class="form-control form-control-sm" placeholder="Search exceptions, traces, users..." />
+            </div>
+
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-sm btn-primary flex-grow-1"><i class="bi bi-filter me-1"></i>Filter</button>
+                <a href="?page=1" class="btn btn-sm btn-outline-secondary" title="Reset Filters"><i class="bi bi-arrow-counterclockwise"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="px-4"><a href="@GetSortUrl("logid")" class="text-decoration-none text-dark">ID @(sortBy == "logid" ? (sortOrder == "asc" ? "▲" : "▼") : "")</a></th>
+                        <th><a href="@GetSortUrl("platform")" class="text-decoration-none text-dark">Platform @(sortBy == "platform" ? (sortOrder == "asc" ? "▲" : "▼") : "")</a></th>
+                        <th><a href="@GetSortUrl("timestamp")" class="text-decoration-none text-dark">Logged At @(sortBy == "timestamp" ? (sortOrder == "asc" ? "▲" : "▼") : "")</a></th>
+                        <th>Message</th>
+                        <th><a href="@GetSortUrl("module")" class="text-decoration-none text-dark">Module / Action @(sortBy == "module" ? (sortOrder == "asc" ? "▲" : "▼") : "")</a></th>
+                        <th><a href="@GetSortUrl("username")" class="text-decoration-none text-dark">User @(sortBy == "username" ? (sortOrder == "asc" ? "▲" : "▼") : "")</a></th>
+                        <th class="text-end px-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <i class="bi bi-journal-text fs-2 d-block mb-2"></i>
+                                No logs found matching the filters.
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var log in Model)
+                        {
+                            var badgeClass = log.Platform switch
+                            {
+                                "WEB" => "bg-success bg-opacity-10 text-success border border-success border-opacity-25",
+                                "API" => "bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25",
+                                "Android" => "bg-warning bg-opacity-10 text-warning-emphasis border border-warning border-opacity-25",
+                                "iOS" => "bg-info bg-opacity-10 text-info border border-info border-opacity-25",
+                                "Windows" => "bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25",
+                                "macOS" => "bg-dark bg-opacity-10 text-dark border border-dark border-opacity-25",
+                                _ => "bg-light text-dark border"
+                            };
+
+                            <tr style="cursor: pointer;" onclick="showLogDetails(@JsonSerializer.Serialize(log))">
+                                <td class="px-4 fw-semibold text-muted">#@log.LogId</td>
+                                <td>
+                                    <span class="badge @badgeClass" style="font-size: .75rem;">@log.Platform</span>
+                                </td>
+                                <td>
+                                    <span class="text-muted small">@log.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</span>
+                                </td>
+                                <td style="max-width: 320px;">
+                                    <div class="text-truncate fw-semibold text-danger" title="@log.ExceptionMessage">
+                                        @log.ExceptionMessage
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(log.ModuleName))
+                                    {
+                                        <span class="badge bg-light text-dark border small">@log.ModuleName / @log.ActionName</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(log.Username))
+                                    {
+                                        <div class="small fw-semibold">@log.Username</div>
+                                        <div class="small text-muted" style="font-size: 0.72rem;">@log.Role (ID: @log.UserId)</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">—</span>
+                                    }
+                                </td>
+                                <td class="text-end px-4" onclick="event.stopPropagation();">
+                                    <button class="btn btn-sm btn-outline-primary" onclick="showLogDetails(@JsonSerializer.Serialize(log))" title="View Details">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@if (totalPages > 1)
+{
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body py-2 px-4 d-flex justify-content-between align-items-center">
+            <span class="text-muted small">Showing @startItem to @endItem of @totalItems logs</span>
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                        <a class="page-link" href="@GetPageUrl(currentPage - 1)"><i class="bi bi-chevron-left"></i></a>
+                    </li>
+                    @for (int i = 1; i <= totalPages; i++)
+                    {
+                        if (i == 1 || i == totalPages || Math.Abs(i - currentPage) <= 2)
+                        {
+                            <li class="page-item @(i == currentPage ? "active" : "")">
+                                <a class="page-link" href="@GetPageUrl(i)">@i</a>
+                            </li>
+                        }
+                        else if (i == 2 || i == totalPages - 1)
+                        {
+                            <li class="page-item disabled"><span class="page-link">...</span></li>
+                        }
+                    }
+                    <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                        <a class="page-link" href="@GetPageUrl(currentPage + 1)"><i class="bi bi-chevron-right"></i></a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+}
+
+<!-- Log Details Modal -->
+<div class="modal fade" id="logDetailsModal" tabindex="-1" aria-labelledby="logDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-dark text-white border-0 py-3">
+                <h5 class="modal-title fw-bold" id="logDetailsModalLabel"><i class="bi bi-journal-text me-2"></i>Log Details</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">Log ID</small>
+                        <span class="fw-bold" id="modalLogId"></span>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted d-block">Platform</small>
+                        <span class="badge" id="modalPlatform"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Logged At (Local)</small>
+                        <span class="fw-semibold" id="modalTimestamp"></span>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">Module / Action</small>
+                        <span id="modalModuleAction"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <small class="text-muted d-block">User Context</small>
+                        <span id="modalUserContext"></span>
+                    </div>
+                </div>
+
+                <div class="mb-4" id="modalUrlSection">
+                    <small class="text-muted d-block">Request URL</small>
+                    <code class="text-primary fw-semibold" id="modalRequestUrl" style="word-break: break-all;"></code>
+                </div>
+
+                <div class="mb-4">
+                    <small class="text-muted d-block mb-1">Exception Message</small>
+                    <div class="alert alert-danger border-0 p-3 mb-0 fw-semibold" id="modalExceptionMessage"></div>
+                </div>
+
+                <div class="mb-4" id="modalStackSection">
+                    <small class="text-muted d-block mb-1">Stack Trace</small>
+                    <pre class="bg-light p-3 border rounded text-danger mb-0" id="modalStackTrace" style="max-height: 280px; overflow: auto; font-size: .78rem; font-family: monospace;"></pre>
+                </div>
+
+                <div class="mb-0" id="modalDetailsSection">
+                    <small class="text-muted d-block mb-1">Additional Details</small>
+                    <div class="bg-light p-3 border rounded text-dark" id="modalAdditionalDetails" style="font-size: .85rem; max-height: 120px; overflow: auto;"></div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showLogDetails(log) {
+            document.getElementById('modalLogId').innerText = '#' + log.LogId;
+
+            const platformBadge = document.getElementById('modalPlatform');
+            platformBadge.innerText = log.Platform;
+            platformBadge.className = 'badge';
+
+            if (log.Platform === 'WEB') platformBadge.classList.add('bg-success');
+            else if (log.Platform === 'API') platformBadge.classList.add('bg-primary');
+            else if (log.Platform === 'Android') platformBadge.classList.add('bg-warning', 'text-dark');
+            else if (log.Platform === 'iOS') platformBadge.classList.add('bg-info', 'text-dark');
+            else platformBadge.classList.add('bg-secondary');
+
+            const date = new Date(log.Timestamp);
+            document.getElementById('modalTimestamp').innerText = date.toLocaleString();
+
+            document.getElementById('modalModuleAction').innerText = log.ModuleName
+                ? (log.ModuleName + ' / ' + log.ActionName)
+                : '—';
+
+            document.getElementById('modalUserContext').innerText = log.Username
+                ? (log.Username + ' (' + log.Role + ', ID: ' + log.UserId + ')')
+                : '—';
+
+            if (log.RequestUrl) {
+                document.getElementById('modalUrlSection').style.display = 'block';
+                document.getElementById('modalRequestUrl').innerText = log.RequestUrl;
+            } else {
+                document.getElementById('modalUrlSection').style.display = 'none';
+            }
+
+            document.getElementById('modalExceptionMessage').innerText = log.ExceptionMessage || '—';
+
+            if (log.StackTrace) {
+                document.getElementById('modalStackSection').style.display = 'block';
+                document.getElementById('modalStackTrace').innerText = log.StackTrace;
+            } else {
+                document.getElementById('modalStackSection').style.display = 'none';
+            }
+
+            if (log.AdditionalDetails) {
+                document.getElementById('modalDetailsSection').style.display = 'block';
+                document.getElementById('modalAdditionalDetails').innerText = log.AdditionalDetails;
+            } else {
+                document.getElementById('modalDetailsSection').style.display = 'none';
+            }
+
+            const modal = new bootstrap.Modal(document.getElementById('logDetailsModal'));
+            modal.show();
+        }
+    </script>
+}

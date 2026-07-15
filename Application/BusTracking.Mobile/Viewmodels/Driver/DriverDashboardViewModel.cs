@@ -22,7 +22,7 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         public override async Task InitializeAsync()
         {
             var user = await Auth.GetCurrentUserAsync();
-            WelcomeText = $"Hi, {user?.FullName?.Split(' ')[0] ?? "Driver"}";
+            WelcomeText = $"Hi, {user?.FullName?.Split(' ')?.FirstOrDefault() ?? "Driver"}";
             TodayDate = DateTime.Now.ToString("dddd, dd MMMM yyyy");
             await RefreshCommand.ExecuteAsync(null);
         }
@@ -30,19 +30,27 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         [RelayCommand]
         private async Task RefreshAsync()
         {
-            await RunAsync(async () =>
+            IsRefreshing = true;
+            try
             {
-                var data = await _driverTrip.GetDashboardAsync();
-                if (data is null) return;
+                await RunAsync(async () =>
+                {
+                    var data = await _driverTrip.GetDashboardAsync();
+                    if (data is null) return;
 
-                BusDisplay = string.IsNullOrWhiteSpace(data.BusNumber)
-                    ? "No bus assigned"
-                    : $"{data.BusName} ({data.BusNumber})";
-                RouteDisplay = string.IsNullOrWhiteSpace(data.RouteName) ? "No route" : data.RouteName;
-                TotalStudents = data.TotalStudents;
-                ActiveTrip = data.ActiveTrip;
-                HasActiveTrip = data.ActiveTrip?.Status == "InProgress";
-            });
+                    BusDisplay = string.IsNullOrWhiteSpace(data.BusNumber)
+                        ? "No bus assigned"
+                        : $"{data.BusName} ({data.BusNumber})";
+                    RouteDisplay = string.IsNullOrWhiteSpace(data.RouteName) ? "No route" : data.RouteName;
+                    TotalStudents = data.TotalStudents;
+                    ActiveTrip = data.ActiveTrip;
+                    HasActiveTrip = data.ActiveTrip?.Status == "InProgress";
+                });
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
         }
 
         [RelayCommand]

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Coordinator.CoordConfigListPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -23,7 +23,8 @@
                 FontAttributes="Bold"
                 FontSize="18"
                 Text="App Config"
-                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}"
                 VerticalOptions="Center" />
             <Border
                 Grid.Column="1"
@@ -55,10 +56,12 @@
             Grid.Row="0"
             Margin="5,14,5,8"
             Padding="14,12"
-            Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                              Dark={StaticResource CardBgDark}}"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                     Dark={StaticResource BorderColorDark}}"
             StrokeShape="RoundRectangle 12"
-            StrokeThickness="1"
-            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}">
+            StrokeThickness="1">
             <VerticalStackLayout Spacing="10">
                 <Border Style="{StaticResource SearchBarBorder}">
                     <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
@@ -152,7 +155,7 @@
                                             Dark={StaticResource ErrorTextDark}}" />
         </Border>
 
-        
+
 
         <!--  Empty State (Row 2)  -->
         <VerticalStackLayout
@@ -162,7 +165,8 @@
             Spacing="14"
             VerticalOptions="Center">
             <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryLight}, Dark={StaticResource StatBusBgDark}}"
+                BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryLight},
+                                                  Dark={StaticResource StatBusBgDark}}"
                 HeightRequest="72"
                 HorizontalOptions="Center"
                 StrokeShape="RoundRectangle 36"
@@ -183,7 +187,8 @@
                 FontSize="16"
                 HorizontalOptions="Center"
                 Text="No configs found"
-                TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                            Dark={StaticResource TextSecondaryDark}}" />
             <Button
                 Padding="24,0"
                 Command="{Binding AddCommand}"
@@ -194,92 +199,98 @@
         </VerticalStackLayout>
 
         <!--  Collection List (Row 2)  -->
-        <CollectionView
+        <RefreshView
             Grid.Row="2"
             Margin="5,4,5,0"
-            ItemsSource="{Binding Items}"
-            RemainingItemsThreshold="3"
-            RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
-            SelectionMode="None">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:AppConfig.AppConfigItem">
-                    <Border Style="{StaticResource ListItemBorder}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordConfigListViewModel}}, Path=DetailCommand}" CommandParameter="{Binding .}" />
-                        </Border.GestureRecognizers>
-                        <Grid
-                            Padding="14"
-                            ColumnDefinitions="Auto,*,Auto"
-                            ColumnSpacing="14">
-                            
-                            <!--  Platform-colored Squircle Badge  -->
-                            <Border
-                                Grid.Column="0"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource DrawerBgDark}}"
-                                HeightRequest="44"
-                                Stroke="{Binding Platform, Converter={StaticResource PlatformToColorConverter}}"
-                                StrokeShape="RoundRectangle 22"
-                                StrokeThickness="1.5"
-                                VerticalOptions="Center"
-                                WidthRequest="44">
-                                <Image
-                                    HeightRequest="20"
-                                    HorizontalOptions="Center"
-                                    Source="config.png"
+            Command="{Binding RefreshCommand}"
+            IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView
+                ItemsSource="{Binding Items}"
+                RemainingItemsThreshold="3"
+                RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
+                SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:AppConfig.AppConfigItem">
+                        <Border Style="{StaticResource ListItemBorder}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordConfigListViewModel}}, Path=DetailCommand}" CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid
+                                Padding="14"
+                                ColumnDefinitions="Auto,*,Auto"
+                                ColumnSpacing="14">
+
+                                <!--  Platform-colored Squircle Badge  -->
+                                <Border
+                                    Grid.Column="0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                                                      Dark={StaticResource DrawerBgDark}}"
+                                    HeightRequest="44"
+                                    Stroke="{Binding Platform, Converter={StaticResource PlatformToColorConverter}}"
+                                    StrokeShape="RoundRectangle 22"
+                                    StrokeThickness="1.5"
                                     VerticalOptions="Center"
-                                    WidthRequest="20">
-                                    <Image.Behaviors>
-                                        <mct:IconTintColorBehavior TintColor="{Binding Platform, Converter={StaticResource PlatformToColorConverter}}" />
-                                    </Image.Behaviors>
-                                </Image>
-                            </Border>
-                            
-                            <!--  Config Details  -->
-                            <VerticalStackLayout
-                                Grid.Column="1"
-                                Spacing="3"
-                                VerticalOptions="Center">
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontSize="14"
-                                    Text="{Binding ConfigKey}"
-                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
-                                <Label
-                                    LineBreakMode="TailTruncation"
-                                    MaxLines="1"
-                                    Style="{StaticResource SubLabel}"
-                                    Text="{Binding ConfigValue}" />
-                                <Label
-                                    FontSize="10"
-                                    FontAttributes="Bold"
-                                    Text="{Binding Platform, StringFormat='Platform: {0}'}"
-                                    TextColor="{Binding Platform, Converter={StaticResource PlatformToColorConverter}}" />
-                            </VerticalStackLayout>
-                            
-                            <!--  Status Badge  -->
-                            <Border
-                                Grid.Column="2"
-                                Padding="8,3"
-                                BackgroundColor="{Binding StatusBgColor}"
-                                Stroke="Transparent"
-                                StrokeShape="RoundRectangle 20"
-                                VerticalOptions="Center">
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontSize="10"
-                                    Text="{Binding StatusLabel}"
-                                    TextColor="{Binding StatusTextColor}" />
-                            </Border>
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-            <CollectionView.Footer>
-                <ActivityIndicator
-                    Margin="0,8"
-                    IsRunning="{Binding CanLoadMore}"
-                    IsVisible="{Binding CanLoadMore}" />
-            </CollectionView.Footer>
-        </CollectionView>
+                                    WidthRequest="44">
+                                    <Image
+                                        HeightRequest="20"
+                                        HorizontalOptions="Center"
+                                        Source="config.png"
+                                        VerticalOptions="Center"
+                                        WidthRequest="20">
+                                        <Image.Behaviors>
+                                            <mct:IconTintColorBehavior TintColor="{Binding Platform, Converter={StaticResource PlatformToColorConverter}}" />
+                                        </Image.Behaviors>
+                                    </Image>
+                                </Border>
+
+                                <!--  Config Details  -->
+                                <VerticalStackLayout
+                                    Grid.Column="1"
+                                    Spacing="3"
+                                    VerticalOptions="Center">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="14"
+                                        Text="{Binding ConfigKey}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                    Dark={StaticResource TextPrimaryDark}}" />
+                                    <Label
+                                        LineBreakMode="TailTruncation"
+                                        MaxLines="1"
+                                        Style="{StaticResource SubLabel}"
+                                        Text="{Binding ConfigValue}" />
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="10"
+                                        Text="{Binding Platform, StringFormat='Platform: {0}'}"
+                                        TextColor="{Binding Platform, Converter={StaticResource PlatformToColorConverter}}" />
+                                </VerticalStackLayout>
+
+                                <!--  Status Badge  -->
+                                <Border
+                                    Grid.Column="2"
+                                    Padding="8,3"
+                                    BackgroundColor="{Binding StatusBgColor}"
+                                    Stroke="Transparent"
+                                    StrokeShape="RoundRectangle 20"
+                                    VerticalOptions="Center">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="10"
+                                        Text="{Binding StatusLabel}"
+                                        TextColor="{Binding StatusTextColor}" />
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.Footer>
+                    <ActivityIndicator
+                        Margin="0,8"
+                        IsRunning="{Binding CanLoadMore}"
+                        IsVisible="{Binding CanLoadMore}" />
+                </CollectionView.Footer>
+            </CollectionView>
+        </RefreshView>
     </Grid>
 </views:ViewBase>

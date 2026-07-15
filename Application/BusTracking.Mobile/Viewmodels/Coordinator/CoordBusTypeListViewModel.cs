@@ -1,4 +1,4 @@
-namespace BusTracking.Mobile.Viewmodels.Coordinator
+﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordBusTypeListViewModel : BaseViewModel
     {
@@ -133,6 +133,19 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             });
 
             if (success) await LoadAsync();
+        }
+        [RelayCommand]
+        private async Task RefreshAsync()
+        {
+            IsRefreshing = true;
+            try
+            {
+                await LoadAsync();
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
         }
     }
 }

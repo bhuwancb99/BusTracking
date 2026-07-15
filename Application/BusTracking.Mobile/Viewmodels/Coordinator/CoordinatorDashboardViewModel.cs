@@ -32,7 +32,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         public override async Task InitializeAsync()
         {
             var user = await Auth.GetCurrentUserAsync();
-            WelcomeText = $"Hi, {user?.FullName?.Split(' ')[0] ?? "Coordinator"}";
+            WelcomeText = $"Hi, {user?.FullName?.Split(' ')?.FirstOrDefault() ?? "Coordinator"}";
             TodayDate = DateTime.Now.ToString("dddd, dd MMMM yyyy");
 
             // Fire OnPropertyChanged for every computed permission property now
@@ -46,10 +46,18 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [RelayCommand]
         private async Task RefreshAsync()
         {
-            await RunAsync(async () =>
+            IsRefreshing = true;
+            try
             {
-                Summary = await _dash.GetAdminSummaryAsync(forceRefresh: true);
-            });
+                await RunAsync(async () =>
+                {
+                    Summary = await _dash.GetAdminSummaryAsync(forceRefresh: true);
+                });
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
         }
 
         /// <summary>

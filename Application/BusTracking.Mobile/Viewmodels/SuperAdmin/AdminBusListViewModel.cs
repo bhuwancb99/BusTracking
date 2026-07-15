@@ -1,4 +1,4 @@
-namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminBusListViewModel : BaseViewModel
     {
@@ -87,5 +87,18 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 
         [RelayCommand]
         private void Filter(string filter) => SelectedFilter = filter;
+        [RelayCommand]
+        private async Task RefreshAsync()
+        {
+            IsRefreshing = true;
+            try
+            {
+                await LoadAsync();
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.Student
+namespace BusTracking.Mobile.Viewmodels.Student
 {
     public partial class StudentDashboardViewModel : BaseViewModel
     {
@@ -17,25 +17,33 @@
         public override async Task InitializeAsync()
         {
             var user = await Auth.GetCurrentUserAsync();
-            WelcomeText = $"Hi, {user?.FullName?.Split(' ')[0] ?? ""}";
+            WelcomeText = $"Hi, {user?.FullName?.Split(' ')?.FirstOrDefault() ?? ""}";
             await RefreshCommand.ExecuteAsync(null);
         }
 
         [RelayCommand]
         private async Task RefreshAsync()
         {
-            await RunAsync(async () =>
+            IsRefreshing = true;
+            try
             {
-                var data = await _students.GetTrackingAsync();
-                if (data is null) return;
-                IsLive = data.IsLive;
-                BusDisplay = data.Bus is not null ? $"{data.Bus.BusName} ({data.Bus.BusNumber})" : "No bus assigned";
-                HasActiveTrip = data.IsLive;
-                ActiveTripId = data.Trip?.TripId;
-                TripStatus = data.IsLive
-                    ? $"🚌 Bus is on the way — {data.BoardingStatus}"
-                    : data.Message ?? "No active trip right now";
-            });
+                await RunAsync(async () =>
+                {
+                    var data = await _students.GetTrackingAsync();
+                    if (data is null) return;
+                    IsLive = data.IsLive;
+                    BusDisplay = data.Bus is not null ? $"{data.Bus.BusName} ({data.Bus.BusNumber})" : "No bus assigned";
+                    HasActiveTrip = data.IsLive;
+                    ActiveTripId = data.Trip?.TripId;
+                    TripStatus = data.IsLive
+                        ? $"🚌 Bus is on the way — {data.BoardingStatus}"
+                        : data.Message ?? "No active trip right now";
+                });
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
         }
 
         [ObservableProperty] private bool _isLive;

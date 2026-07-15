@@ -1,4 +1,4 @@
-namespace BusTracking.Mobile.Viewmodels.Coordinator
+﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordConfigListViewModel : BaseViewModel
     {
@@ -85,6 +85,19 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             var r = await _config.DeleteAsync(c.ConfigId);
             if (r.Success) { Items.Remove(c); await ShowToastAsync("Config deleted."); }
             else SetError(r.Message);
+        }
+        [RelayCommand]
+        private async Task RefreshAsync()
+        {
+            IsRefreshing = true;
+            try
+            {
+                await LoadAsync();
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
         }
     }
 }

@@ -27,6 +27,7 @@ PRINT 'Deleting all records from all tables...';
 BEGIN TRANSACTION;
 BEGIN TRY
     -- Order designed to minimize constraint checks (even though disabled)
+    IF OBJECT_ID('Logger', 'U') IS NOT NULL DELETE FROM Logger;
     IF OBJECT_ID('AuditLogs', 'U') IS NOT NULL DELETE FROM AuditLogs;
     IF OBJECT_ID('BusLiveLocation', 'U') IS NOT NULL DELETE FROM BusLiveLocation;
     IF OBJECT_ID('StudentTripStatus', 'U') IS NOT NULL DELETE FROM StudentTripStatus;
@@ -109,6 +110,7 @@ GO
 -- ────────────────────────────────────────────────────────────
 PRINT 'Dropping all tables...';
 -- Drop tables in reverse dependency order to ensure clean execution
+IF OBJECT_ID('Logger', 'U') IS NOT NULL DROP TABLE Logger;
 IF OBJECT_ID('AuditLogs', 'U') IS NOT NULL DROP TABLE AuditLogs;
 IF OBJECT_ID('BusLiveLocation', 'U') IS NOT NULL DROP TABLE BusLiveLocation;
 IF OBJECT_ID('StudentTripStatus', 'U') IS NOT NULL DROP TABLE StudentTripStatus;

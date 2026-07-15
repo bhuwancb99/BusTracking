@@ -1,6 +1,5 @@
-﻿namespace BusTracking.API.Middleware
+namespace BusTracking.API.Middleware
 {
-
     // ─── Global exception handler ─────────────────────────────────────────
     public class ExceptionMiddleware
     {
@@ -18,6 +17,7 @@
             }
             catch (UnauthorizedAccessException ex)
             {
+                await LogToDbAsync(ctx, ex, "Permission check failure");
                 _logger.LogWarning("Permission denied: {Message}", ex.Message);
                 ctx.Response.StatusCode = (int)HttpStatusCode.Forbidden;
                 ctx.Response.ContentType = "application/json";
@@ -27,12 +27,49 @@
             }
             catch (Exception ex)
             {
+                await LogToDbAsync(ctx, ex, "API unhandled exception");
                 _logger.LogError(ex, "Unhandled exception: {Message}", ex.Message);
                 ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 ctx.Response.ContentType = "application/json";
                 var response = ApiResponse<object>.Fail("An unexpected error occurred. Please try again.");
                 await ctx.Response.WriteAsync(JsonSerializer.Serialize(response,
                     new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
+            }
+        }
+
+        private async Task LogToDbAsync(HttpContext ctx, Exception ex, string details)
+        {
+            try
+            {
+                var logService = ctx.RequestServices.GetRequiredService<ILogService>();
+                var routeData = ctx.GetRouteData();
+                string? controller = routeData?.Values["controller"]?.ToString();
+                string? action = routeData?.Values["action"]?.ToString();
+
+                int? userId = null;
+                var userIdClaim = ctx.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (int.TryParse(userIdClaim, out var parsedId))
+                    userId = parsedId;
+
+                string? username = ctx.User.FindFirst(ClaimTypes.Email)?.Value ?? ctx.User.Identity?.Name;
+                string? role = ctx.User.FindFirst(ClaimTypes.Role)?.Value;
+
+                await logService.LogAsync(
+                    platform: "API",
+                    exceptionMessage: ex.Message,
+                    stackTrace: ex.StackTrace,
+                    requestUrl: $"{ctx.Request.Path}{ctx.Request.QueryString}",
+                    userId: userId,
+                    username: username,
+                    role: role,
+                    moduleName: controller,
+                    actionName: action,
+                    additionalDetails: details
+                );
+            }
+            catch
+            {
+                // Prevent issues inside DB logging from hiding original exception
             }
         }
     }

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminNotificationListPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:models="clr-namespace:BusTracking.Mobile.Models"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
+    x:DataType="vm:AdminNotificationListViewModel"
+    x:TypeArguments="vm:AdminNotificationListViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
+
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
+    </views:ViewBase.Behaviors>
+
+    <Shell.TitleView>
+        <Grid Padding="0,0,8,0" ColumnDefinitions="*,Auto">
+            <Label
+                Grid.Column="0"
+                FontAttributes="Bold"
+                FontSize="18"
+                Text="Notifications"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}"
+                VerticalOptions="Center" />
+            <Border
+                Grid.Column="1"
+                Padding="8"
+                BackgroundColor="White"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0"
+                VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding MarkAllReadCommand}" />
+                </Border.GestureRecognizers>
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="11"
+                    Text="Mark all read"
+                    TextColor="{StaticResource Primary}"
+                    VerticalOptions="Center" />
+            </Border>
+        </Grid>
+    </Shell.TitleView>
+
+    <RefreshView Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsRefreshing}">
+        <Grid RowDefinitions="Auto,*">
+
+            <!--  Error  -->
+            <Border
+                Grid.Row="0"
+                Margin="5,8,5,0"
+                IsVisible="{Binding HasError}"
+                Style="{StaticResource ErrorBannerBorder}">
+                <Label
+                    FontSize="13"
+                    Text="{Binding ErrorMessage}"
+                    TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
+                                                Dark={StaticResource ErrorTextDark}}" />
+            </Border>
+
+            <!--  Empty state  -->
+            <VerticalStackLayout
+                Grid.Row="1"
+                HorizontalOptions="Center"
+                IsVisible="{Binding IsEmpty}"
+                Spacing="14"
+                VerticalOptions="Center">
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryLight},
+                                                      Dark={StaticResource StatBusBgDark}}"
+                    HeightRequest="72"
+                    HorizontalOptions="Center"
+                    StrokeShape="RoundRectangle 36"
+                    StrokeThickness="0"
+                    WidthRequest="72">
+                    <Image
+                        HeightRequest="36"
+                        HorizontalOptions="Center"
+                        Source="notification.png"
+                        VerticalOptions="Center"
+                        WidthRequest="36">
+                        <Image.Behaviors>
+                            <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                        </Image.Behaviors>
+                    </Image>
+                </Border>
+                <Label
+                    FontSize="16"
+                    HorizontalOptions="Center"
+                    Text="No notifications"
+                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                Dark={StaticResource TextSecondaryDark}}" />
+            </VerticalStackLayout>
+
+            <!--  List  -->
+            <CollectionView
+                Grid.Row="1"
+                Margin="5,8,5,0"
+                ItemsSource="{Binding Items}"
+                SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Notification.NotificationItem">
+                        <Border
+                            Margin="0,0,0,5"
+                            Padding="0"
+                            BackgroundColor="{Binding BgColor}"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                     Dark={StaticResource BorderColorDark}}"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="1">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminNotificationListViewModel}}, Path=DetailCommand}" CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid
+                                Padding="14"
+                                ColumnDefinitions="Auto,*"
+                                ColumnSpacing="12">
+                                <!--  Dot indicator  -->
+                                <Border
+                                    Grid.Column="0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource SecretCodeBg},
+                                                                      Dark={StaticResource StatBusBgDark}}"
+                                    HeightRequest="44"
+                                    StrokeShape="RoundRectangle 22"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center"
+                                    WidthRequest="44">
+                                    <Image
+                                        HeightRequest="22"
+                                        HorizontalOptions="Center"
+                                        Source="notification.png"
+                                        VerticalOptions="Center"
+                                        WidthRequest="22">
+                                        <Image.Behaviors>
+                                            <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                        </Image.Behaviors>
+                                    </Image>
+                                </Border>
+                                <VerticalStackLayout
+                                    Grid.Column="1"
+                                    Spacing="4"
+                                    VerticalOptions="Center">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="14"
+                                        Text="{Binding Title}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                    Dark={StaticResource TextPrimaryDark}}" />
+                                    <Label
+                                        FontSize="12"
+                                        LineBreakMode="TailTruncation"
+                                        MaxLines="2"
+                                        Text="{Binding Body}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                                    Dark={StaticResource TextSecondaryDark}}" />
+                                    <Label
+                                        FontSize="11"
+                                        Text="{Binding TimeDisplay}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                    Dark={StaticResource TextSecondaryDark}}" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </RefreshView>
+</views:ViewBase>

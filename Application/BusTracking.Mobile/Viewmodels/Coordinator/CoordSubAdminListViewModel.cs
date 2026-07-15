@@ -1,4 +1,4 @@
-namespace BusTracking.Mobile.Viewmodels.Coordinator
+﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordSubAdminListViewModel : BaseViewModel
     {
@@ -84,6 +84,19 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             var r = await _service.DeleteAsync(c.UserId);
             if (r.Success) { Items.Remove(c); await ShowToastAsync("Marked inactive."); }
             else SetError(r.Message);
+        }
+        [RelayCommand]
+        private async Task RefreshAsync()
+        {
+            IsRefreshing = true;
+            try
+            {
+                await LoadAsync();
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
         }
     }
 }

@@ -173,8 +173,8 @@ public partial class AppShell : Shell
         new() { IconSvg = "parent.png",       IconColor = _svgImageColor, Title = "Parents",          Route = "AdminParentList"      },
         new() { IconSvg = "student.png",      IconColor = _svgImageColor, Title = "Students",         Route = "AdminStudentList"     },
         new() { IconSvg = "trip.png",         IconColor = _svgImageColor, Title = "Trips",            Route = "AdminTripList"        },
-        new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications",    Route = ""                     },
-        new() { IconSvg = "help.png",         IconColor = _svgImageColor, Title = "Help & Support",   Route = ""                     },
+        new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications",    Route = "AdminNotificationList" },
+        new() { IconSvg = "help.png",         IconColor = _svgImageColor, Title = "Help & Support",   Route = "AdminFeedbackList"     },
 
     ];
 

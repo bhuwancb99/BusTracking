@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Parent.ParentDashboardPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -23,12 +23,13 @@
                 FontAttributes="Bold"
                 FontSize="18"
                 Text="Parent Portal"
-                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}"
                 VerticalOptions="Center" />
         </Grid>
     </Shell.TitleView>
 
-    <RefreshView Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsBusy}">
+    <RefreshView Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsRefreshing}">
         <ScrollView>
             <VerticalStackLayout Padding="16,20,16,40" Spacing="20">
 
@@ -56,18 +57,21 @@
                         </Border.GestureRecognizers>
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="{AppThemeBinding Light={StaticResource DangerLight}, Dark=#4a070a}" Offset="0.0" />
-                                <GradientStop Color="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Offset="1.0" />
+                                <GradientStop Offset="0.0" Color="{AppThemeBinding Light={StaticResource DangerLight}, Dark=#4a070a}" />
+                                <GradientStop Offset="1.0" Color="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" />
                             </LinearGradientBrush>
                         </Border.Background>
-                        <Grid ColumnDefinitions="*,Auto" Padding="4,2">
-                            <VerticalStackLayout Grid.Column="0" Spacing="6" VerticalOptions="Center">
+                        <Grid Padding="4,2" ColumnDefinitions="*,Auto">
+                            <VerticalStackLayout
+                                Grid.Column="0"
+                                Spacing="6"
+                                VerticalOptions="Center">
                                 <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
                                     <Border
                                         Padding="6,3"
                                         BackgroundColor="{StaticResource Danger}"
-                                        StrokeThickness="0"
-                                        StrokeShape="RoundRectangle 8">
+                                        StrokeShape="RoundRectangle 8"
+                                        StrokeThickness="0">
                                         <Label
                                             FontAttributes="Bold"
                                             FontSize="9"
@@ -83,20 +87,23 @@
                                     FontAttributes="Bold"
                                     FontSize="20"
                                     Text="Track Child's Bus"
-                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}" />
+                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                Dark=White}" />
                                 <Label
                                     FontSize="11"
                                     Text="See where your child's bus is right now."
-                                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                                Dark={StaticResource TextSecondaryDark}}" />
                             </VerticalStackLayout>
                             <Border
                                 Grid.Column="1"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg}, Dark={StaticResource StatTripBgDark}}"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg},
+                                                                  Dark={StaticResource StatTripBgDark}}"
                                 HeightRequest="56"
                                 StrokeShape="RoundRectangle 28"
                                 StrokeThickness="0"
-                                WidthRequest="56"
-                                VerticalOptions="Center">
+                                VerticalOptions="Center"
+                                WidthRequest="56">
                                 <Image
                                     HeightRequest="26"
                                     HorizontalOptions="Center"
@@ -121,13 +128,14 @@
                         </Border.GestureRecognizers>
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                <GradientStop Color="{AppThemeBinding Light={StaticResource DrawerItemActiveLight}, Dark=#0c1f4e}" Offset="0.0" />
-                                <GradientStop Color="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Offset="1.0" />
+                                <GradientStop Offset="0.0" Color="{AppThemeBinding Light={StaticResource DrawerItemActiveLight}, Dark=#0c1f4e}" />
+                                <GradientStop Offset="1.0" Color="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" />
                             </LinearGradientBrush>
                         </Border.Background>
                         <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
                             <Border
-                                BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg}, Dark={StaticResource StatBusBgDark}}"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
+                                                                  Dark={StaticResource StatBusBgDark}}"
                                 HeightRequest="44"
                                 HorizontalOptions="Center"
                                 StrokeShape="RoundRectangle 22"
@@ -156,7 +164,8 @@
                                 Text="Leaves &amp; Pickups" />
                             <Border
                                 Padding="6,2"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryLight}, Dark={StaticResource StatBusBgDark}}"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryLight},
+                                                                  Dark={StaticResource StatBusBgDark}}"
                                 Stroke="Transparent"
                                 StrokeShape="RoundRectangle 8">
                                 <Label
@@ -179,13 +188,14 @@
                         </Border.GestureRecognizers>
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                                <GradientStop Color="{AppThemeBinding Light={StaticResource StatStudentBg}, Dark=#0c1c3f}" Offset="0.0" />
-                                <GradientStop Color="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" Offset="1.0" />
+                                <GradientStop Offset="0.0" Color="{AppThemeBinding Light={StaticResource StatStudentBg}, Dark=#0c1c3f}" />
+                                <GradientStop Offset="1.0" Color="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}" />
                             </LinearGradientBrush>
                         </Border.Background>
                         <VerticalStackLayout HorizontalOptions="Center" Spacing="6">
                             <Border
-                                BackgroundColor="{AppThemeBinding Light={StaticResource StatStudentBg}, Dark={StaticResource StatStudentBgDark}}"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource StatStudentBg},
+                                                                  Dark={StaticResource StatStudentBgDark}}"
                                 HeightRequest="44"
                                 HorizontalOptions="Center"
                                 StrokeShape="RoundRectangle 22"
@@ -214,7 +224,8 @@
                                 Text="Get Help" />
                             <Border
                                 Padding="6,2"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource PurpleLight}, Dark={StaticResource StatStudentBgDark}}"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource PurpleLight},
+                                                                  Dark={StaticResource StatStudentBgDark}}"
                                 Stroke="Transparent"
                                 StrokeShape="RoundRectangle 8">
                                 <Label

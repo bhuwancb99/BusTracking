@@ -130,94 +130,98 @@
         </VerticalStackLayout>
 
         <!--  List  -->
-        <CollectionView
+        <RefreshView
             Grid.Row="2"
             Margin="5,4,5,0"
-            ItemsSource="{Binding Items}"
-            RemainingItemsThreshold="3"
-            RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
-            SelectionMode="None">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:Driver.DriverTripItem">
-                    <Border Style="{StaticResource ListItemBorder}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverTripListViewModel}}, Path=ViewCommand}" CommandParameter="{Binding .}" />
-                        </Border.GestureRecognizers>
-                        <Grid
-                            Padding="14"
-                            ColumnDefinitions="Auto,*,Auto"
-                            ColumnSpacing="12">
-                            <Border
-                                Grid.Column="0"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg},
-                                                                  Dark={StaticResource StatTripBgDark}}"
-                                Style="{StaticResource IconTileBorder}"
-                                VerticalOptions="Center">
-                                <Image
-                                    HeightRequest="22"
-                                    HorizontalOptions="Center"
-                                    Source="trip.png"
-                                    VerticalOptions="Center"
-                                    WidthRequest="22">
-                                    <Image.Behaviors>
-                                        <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
-                                    </Image.Behaviors>
-                                </Image>
-                            </Border>
-                            <VerticalStackLayout
-                                Grid.Column="1"
-                                Spacing="4"
-                                VerticalOptions="Center">
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontSize="15"
-                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                                Dark={StaticResource TextPrimaryDark}}">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span Text="{Binding TripTypeIcon}" />
-                                            <Span Text=" " />
-                                            <Span FontAttributes="Bold" Text="{Binding TripType}" />
-                                        </FormattedString>
-                                    </Label.FormattedText>
-                                </Label>
-                                <Label Style="{StaticResource SubLabel}" Text="{Binding TripDate}" />
-                                <Label FontSize="11" TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span
-                                                FontAttributes="Bold"
-                                                Text="{Binding BusName}"
-                                                TextColor="{StaticResource Primary}" />
-                                            <Span Text=" · " />
-                                            <Span Text="{Binding RouteName}" />
-                                        </FormattedString>
-                                    </Label.FormattedText>
-                                </Label>
-                            </VerticalStackLayout>
-                            <Border
-                                Grid.Column="2"
-                                Padding="8,4"
-                                BackgroundColor="{Binding StatusColor, Converter={StaticResource ColorToTranslucentConverter}}"
-                                Stroke="Transparent"
-                                StrokeShape="RoundRectangle 20"
-                                VerticalOptions="Start">
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontSize="10"
-                                    Text="{Binding Status}"
-                                    TextColor="{Binding StatusColor}" />
-                            </Border>
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-            <CollectionView.Footer>
-                <ActivityIndicator
-                    Margin="0,8"
-                    IsRunning="{Binding CanLoadMore}"
-                    IsVisible="{Binding CanLoadMore}" />
-            </CollectionView.Footer>
-        </CollectionView>
+            Command="{Binding RefreshCommand}"
+            IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView
+                ItemsSource="{Binding Items}"
+                RemainingItemsThreshold="3"
+                RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
+                SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Driver.DriverTripItem">
+                        <Border Style="{StaticResource ListItemBorder}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverTripListViewModel}}, Path=ViewCommand}" CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid
+                                Padding="14"
+                                ColumnDefinitions="Auto,*,Auto"
+                                ColumnSpacing="12">
+                                <Border
+                                    Grid.Column="0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg},
+                                                                      Dark={StaticResource StatTripBgDark}}"
+                                    Style="{StaticResource IconTileBorder}"
+                                    VerticalOptions="Center">
+                                    <Image
+                                        HeightRequest="22"
+                                        HorizontalOptions="Center"
+                                        Source="trip.png"
+                                        VerticalOptions="Center"
+                                        WidthRequest="22">
+                                        <Image.Behaviors>
+                                            <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                        </Image.Behaviors>
+                                    </Image>
+                                </Border>
+                                <VerticalStackLayout
+                                    Grid.Column="1"
+                                    Spacing="4"
+                                    VerticalOptions="Center">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="15"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                    Dark={StaticResource TextPrimaryDark}}">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding TripTypeIcon}" />
+                                                <Span Text=" " />
+                                                <Span FontAttributes="Bold" Text="{Binding TripType}" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                    <Label Style="{StaticResource SubLabel}" Text="{Binding TripDate}" />
+                                    <Label FontSize="11" TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span
+                                                    FontAttributes="Bold"
+                                                    Text="{Binding BusName}"
+                                                    TextColor="{StaticResource Primary}" />
+                                                <Span Text=" · " />
+                                                <Span Text="{Binding RouteName}" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                </VerticalStackLayout>
+                                <Border
+                                    Grid.Column="2"
+                                    Padding="8,4"
+                                    BackgroundColor="{Binding StatusColor, Converter={StaticResource ColorToTranslucentConverter}}"
+                                    Stroke="Transparent"
+                                    StrokeShape="RoundRectangle 20"
+                                    VerticalOptions="Start">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="10"
+                                        Text="{Binding Status}"
+                                        TextColor="{Binding StatusColor}" />
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.Footer>
+                    <ActivityIndicator
+                        Margin="0,8"
+                        IsRunning="{Binding CanLoadMore}"
+                        IsVisible="{Binding CanLoadMore}" />
+                </CollectionView.Footer>
+            </CollectionView>
+        </RefreshView>
     </Grid>
 </views:ViewBase>

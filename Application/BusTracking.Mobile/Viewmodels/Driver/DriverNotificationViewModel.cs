@@ -1,4 +1,4 @@
-namespace BusTracking.Mobile.Viewmodels.Driver
+﻿namespace BusTracking.Mobile.Viewmodels.Driver
 {
     public partial class DriverNotificationViewModel : BaseViewModel
     {
@@ -59,6 +59,19 @@ namespace BusTracking.Mobile.Viewmodels.Driver
                 else
                     SetError(r.Message);
             });
+        }
+        [RelayCommand]
+        private async Task RefreshAsync()
+        {
+            IsRefreshing = true;
+            try
+            {
+                await LoadAsync();
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
         }
     }
 }

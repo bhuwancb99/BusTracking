@@ -10,6 +10,7 @@ public abstract partial class BaseViewModel : ObservableObject
     protected readonly INavigationService Nav;
 
     [ObservableProperty] private bool _isBusy;
+    [ObservableProperty] private bool _isRefreshing;
     [ObservableProperty] private string _title = "";
     [ObservableProperty] private string _errorMessage = "";
     [ObservableProperty] private bool _hasError;
@@ -39,7 +40,19 @@ public abstract partial class BaseViewModel : ObservableObject
         HasError = false;
         ErrorMessage = "";
         try { await work(); }
-        catch (Exception ex) { SetError(ex.Message); }
+        catch (Exception ex)
+        {
+            SetError(ex.Message);
+            try
+            {
+                var logService = Microsoft.Maui.IPlatformApplication.Current?.Services.GetService<BusTracking.Mobile.Interfaces.IMobileLogService>();
+                if (logService != null)
+                {
+                    await logService.LogExceptionAsync(ex, Title, "RunAsync");
+                }
+            }
+            catch { }
+        }
         finally { IsBusy = false; }
     }
 

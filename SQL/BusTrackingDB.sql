@@ -99,7 +99,8 @@ INSERT INTO Permissions (ModuleName, PermissionKey, Description) VALUES
 ('ManageStudents',      'student.assignbus',        'Assign bus to student'),
 ('ManageNotifications', 'notification.manage',      'Enable/disable notifications'),
 ('HelpSupport',         'helpsupport.view',         'View help & support requests'),
-('HelpSupport',         'helpsupport.manage',       'Manage help & support status');
+('HelpSupport',         'helpsupport.manage',       'Manage help & support status'),
+('ManageLogs',          'logs.view',                'View system logs');
 GO
 
 -- ============================================================
@@ -521,6 +522,29 @@ CREATE TABLE AuditLogs (
     CONSTRAINT PK_AuditLogs PRIMARY KEY (AuditLogId),
     CONSTRAINT FK_AuditLogs_Users FOREIGN KEY (UserId) REFERENCES Users(UserId)
 );
+GO
+
+-- ============================================================
+-- 22B. LOGGER
+-- ============================================================
+CREATE TABLE Logger (
+    LogId             INT           NOT NULL IDENTITY(1,1),
+    Platform          NVARCHAR(50)  NOT NULL,                  -- WEB, API, Android, iOS, Windows, macOS
+    Timestamp         DATETIME2     NOT NULL CONSTRAINT DF_Logger_Timestamp DEFAULT GETUTCDATE(),
+    ExceptionMessage  NVARCHAR(MAX) NULL,
+    StackTrace        NVARCHAR(MAX) NULL,
+    RequestUrl        NVARCHAR(2083) NULL,
+    UserId            INT           NULL,
+    Username          NVARCHAR(256) NULL,
+    Role              NVARCHAR(50)  NULL,
+    ModuleName        NVARCHAR(100) NULL,
+    ActionName        NVARCHAR(100) NULL,
+    AdditionalDetails NVARCHAR(MAX) NULL,
+    CONSTRAINT PK_Logger PRIMARY KEY (LogId)
+);
+GO
+CREATE NONCLUSTERED INDEX IX_Logger_Timestamp ON Logger (Timestamp DESC);
+CREATE NONCLUSTERED INDEX IX_Logger_Platform  ON Logger (Platform);
 GO
 
 -- ============================================================

@@ -1,4 +1,4 @@
-namespace BusTracking.Mobile.Viewmodels.Coordinator
+﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordNotificationListViewModel : BaseViewModel
     {
@@ -47,5 +47,18 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         }
 
         [RelayCommand] private async Task LoadMoreAsync() { }
+        [RelayCommand]
+        private async Task RefreshAsync()
+        {
+            IsRefreshing = true;
+            try
+            {
+                await LoadAsync();
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
+        }
     }
 }

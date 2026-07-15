@@ -24,7 +24,27 @@ namespace BusTracking.Mobile
             RegisterViewModels(builder.Services);
             RegisterViews(builder.Services);
 
-            return builder.Build();
+            var app = builder.Build();
+
+            // Set up global unhandled exception handling
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) =>
+            {
+                var ex = args.ExceptionObject as Exception;
+                if (ex != null)
+                {
+                    var logService = IPlatformApplication.Current?.Services.GetService<IMobileLogService>();
+                    logService?.LogExceptionAsync(ex, "Global", "UnhandledException").GetAwaiter().GetResult();
+                }
+            };
+
+            TaskScheduler.UnobservedTaskException += (sender, args) =>
+            {
+                var logService = IPlatformApplication.Current?.Services.GetService<IMobileLogService>();
+                logService?.LogExceptionAsync(args.Exception, "Global", "UnobservedTaskException").GetAwaiter().GetResult();
+                args.SetObserved();
+            };
+
+            return app;
         }
 
         // ── Route Registration ────────────────────────────────────────────────
@@ -59,6 +79,9 @@ namespace BusTracking.Mobile
             Routing.RegisterRoute("AdminRouteDetail", typeof(AdminRouteDetailPage));
             Routing.RegisterRoute("AdminTripDetail", typeof(AdminTripDetailPage));
             Routing.RegisterRoute("AdminParentDetail", typeof(AdminParentDetailPage));
+            Routing.RegisterRoute("AdminNotificationDetail", typeof(AdminNotificationDetailPage));
+            Routing.RegisterRoute("AdminFeedbackDetail", typeof(AdminFeedbackDetailPage));
+            Routing.RegisterRoute("LiveTracking", typeof(LiveTrackingPage));
 
             // ── Coordinator — Form pages ──────────────────────────────────────
             Routing.RegisterRoute("CoordBusForm", typeof(CoordBusFormPage));
@@ -85,7 +108,6 @@ namespace BusTracking.Mobile
             Routing.RegisterRoute("DriverTripDetail", typeof(DriverTripDetailPage));
             Routing.RegisterRoute("DriverNotification", typeof(DriverNotificationPage));
 
-            Routing.RegisterRoute("LiveTracking", typeof(LiveTrackingPage));
             Routing.RegisterRoute("DriverTracking", typeof(DriverTrackingPage));
         }
 
@@ -104,6 +126,7 @@ namespace BusTracking.Mobile
             s.AddSingleton<LocalDatabase>();
             s.AddSingleton<ICacheService, CacheService>();
             s.AddSingleton<IApiService, ApiService>();
+            s.AddSingleton<IMobileLogService, MobileLogService>();
             s.AddSingleton<INavigationService, NavigationService>();
             s.AddSingleton<IAuthService, AuthService>();
 
@@ -156,6 +179,10 @@ namespace BusTracking.Mobile
             s.AddTransient<AdminRouteListViewModel>();
             s.AddTransient<AdminRouteFormViewModel>();
             s.AddTransient<AdminRouteDetailViewModel>();
+            s.AddTransient<AdminNotificationListViewModel>();
+            s.AddTransient<AdminNotificationDetailViewModel>();
+            s.AddTransient<AdminFeedbackListViewModel>();
+            s.AddTransient<AdminFeedbackDetailViewModel>();
 
             // Coordinator
             s.AddTransient<CoordinatorDashboardViewModel>();
@@ -247,6 +274,10 @@ namespace BusTracking.Mobile
             s.AddTransient<AdminRouteListPage>();
             s.AddTransient<AdminRouteFormPage>();
             s.AddTransient<AdminRouteDetailPage>();
+            s.AddTransient<AdminNotificationListPage>();
+            s.AddTransient<AdminNotificationDetailPage>();
+            s.AddTransient<AdminFeedbackListPage>();
+            s.AddTransient<AdminFeedbackDetailPage>();
 
             // Coordinator
             s.AddTransient<CoordinatorDashboardPage>();

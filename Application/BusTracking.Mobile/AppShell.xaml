@@ -348,6 +348,16 @@
         ContentTemplate="{DataTemplate admin:AdminTripListPage}"
         FlyoutItemIsVisible="False"
         Route="AdminTripList" />
+    <ShellContent
+        Title="Notifications"
+        ContentTemplate="{DataTemplate admin:AdminNotificationListPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminNotificationList" />
+    <ShellContent
+        Title="Help &amp; Support"
+        ContentTemplate="{DataTemplate admin:AdminFeedbackListPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminFeedbackList" />
 
     <!--  Coordinator  -->
     <ShellContent
@@ -422,16 +432,6 @@
         ContentTemplate="{DataTemplate driver:DriverTripListPage}"
         FlyoutItemIsVisible="False"
         Route="DriverTripList" />
-    <ShellContent
-        Title="Live Tracking"
-        ContentTemplate="{DataTemplate driver:DriverTrackingPage}"
-        FlyoutItemIsVisible="False"
-        Route="DriverTracking" />
-    <ShellContent
-        Title="Notifications"
-        ContentTemplate="{DataTemplate driver:DriverNotificationPage}"
-        FlyoutItemIsVisible="False"
-        Route="DriverNotification" />
 
     <!--  Parent  -->
     <ShellContent
@@ -471,18 +471,5 @@
         ContentTemplate="{DataTemplate student:StudentAvailabilityPage}"
         FlyoutItemIsVisible="False"
         Route="StudentAvailability" />
-
-    <!--  Common (Profile) — reachable from all role menus  -->
-    <ShellContent
-        ContentTemplate="{DataTemplate common:ProfilePage}"
-        FlyoutItemIsVisible="False"
-        Route="Profile"
-        Shell.NavBarIsVisible="True" />
-
-    <ShellContent
-        Title="Live Tracking"
-        ContentTemplate="{DataTemplate shared:LiveTrackingPage}"
-        FlyoutItemIsVisible="False"
-        Route="LiveTracking" />
 
 </Shell>

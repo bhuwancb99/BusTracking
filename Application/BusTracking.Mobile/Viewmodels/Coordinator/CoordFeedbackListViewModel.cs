@@ -1,4 +1,4 @@
-namespace BusTracking.Mobile.Viewmodels.Coordinator
+﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordFeedbackListViewModel : BaseViewModel
     {
@@ -41,5 +41,18 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                 new Dictionary<string, object> { ["FeedbackId"] = item.FeedbackId });
 
         [RelayCommand] private async Task LoadMoreAsync() { }
+        [RelayCommand]
+        private async Task RefreshAsync()
+        {
+            IsRefreshing = true;
+            try
+            {
+                await LoadAsync();
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
+        }
     }
 }

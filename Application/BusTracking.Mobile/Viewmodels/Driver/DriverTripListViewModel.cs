@@ -25,12 +25,20 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         [RelayCommand]
         private async Task RefreshAsync()
         {
-            await RunAsync(async () =>
+            IsRefreshing = true;
+            try
             {
-                var list = await _driverTrip.GetMyTripsAsync(SelectedDate);
-                Items = new ObservableCollection<DriverTripItem>(list);
-                IsEmpty = Items.Count == 0;
-            });
+                await RunAsync(async () =>
+                {
+                    var list = await _driverTrip.GetMyTripsAsync(SelectedDate);
+                    Items = new ObservableCollection<DriverTripItem>(list);
+                    IsEmpty = Items.Count == 0;
+                });
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
         }
 
         [RelayCommand]

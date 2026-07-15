@@ -16,6 +16,7 @@ public static class CommonServiceExtensions
 
         // ImageService uses IWebHostEnvironment + IHttpContextAccessor — both auto-injected
         services.AddScoped<IImageService, ImageService>();
+        services.AddScoped<ILogService, LogService>();
 
         services.AddScoped<IJwtService, JwtService>();
         services.AddScoped<IPasswordService, PasswordService>();

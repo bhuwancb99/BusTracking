@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Driver.DriverNotificationPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -23,7 +23,8 @@
                 FontAttributes="Bold"
                 FontSize="18"
                 Text="Notifications"
-                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}"
                 VerticalOptions="Center" />
             <Button
                 Grid.Column="1"
@@ -32,7 +33,8 @@
                 IsVisible="{Binding HasUnread}"
                 Style="{StaticResource OutlineButtonSmall}"
                 Text="Mark All Read"
-                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}" />
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}" />
         </Grid>
     </Shell.TitleView>
 
@@ -52,7 +54,7 @@
         </Border>
 
         <!--  Busy / Empty / List  -->
-        
+
 
         <!--  Empty State  -->
         <VerticalStackLayout
@@ -79,83 +81,85 @@
         </VerticalStackLayout>
 
         <!--  Notification List  -->
-        <CollectionView
+        <RefreshView
             Grid.Row="1"
-            IsVisible="{Binding IsEmpty, Converter={StaticResource InvertBoolConverter}}"
-            ItemsSource="{Binding Items}">
-            <CollectionView.ItemsLayout>
-                <LinearItemsLayout ItemSpacing="0" Orientation="Vertical" />
-            </CollectionView.ItemsLayout>
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:DriverNotificationItem">
-                    <Grid>
-                        <Border
-                            Margin="5,2.5"
-                            Padding="14,12"
-                            BackgroundColor="{Binding BgColor}"
-                            StrokeShape="RoundRectangle 8"
-                            StrokeThickness="0">
-                            <Border.Shadow>
-                                <Shadow
-                                    Brush="{AppThemeBinding Light=#0F000000,
-                                                            Dark=#3F000000}"
-                                    Radius="4"
-                                    Offset="0,1" />
-                            </Border.Shadow>
+            Command="{Binding RefreshCommand}"
+            IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView IsVisible="{Binding IsEmpty, Converter={StaticResource InvertBoolConverter}}" ItemsSource="{Binding Items}">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout ItemSpacing="0" Orientation="Vertical" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:DriverNotificationItem">
+                        <Grid>
+                            <Border
+                                Margin="5,2.5"
+                                Padding="14,12"
+                                BackgroundColor="{Binding BgColor}"
+                                StrokeShape="RoundRectangle 8"
+                                StrokeThickness="0">
+                                <Border.Shadow>
+                                    <Shadow
+                                        Brush="{AppThemeBinding Light=#0F000000,
+                                                                Dark=#3F000000}"
+                                        Radius="4"
+                                        Offset="0,1" />
+                                </Border.Shadow>
 
-                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
 
-                                <!--  Unread dot  -->
-                                <Ellipse
-                                    Grid.Column="0"
-                                    Fill="{StaticResource Primary}"
-                                    HeightRequest="8"
-                                    HorizontalOptions="Center"
-                                    IsVisible="{Binding IsRead, Converter={StaticResource InvertBoolConverter}}"
-                                    VerticalOptions="Center"
-                                    WidthRequest="8" />
+                                    <!--  Unread dot  -->
+                                    <Ellipse
+                                        Grid.Column="0"
+                                        Fill="{StaticResource Primary}"
+                                        HeightRequest="8"
+                                        HorizontalOptions="Center"
+                                        IsVisible="{Binding IsRead, Converter={StaticResource InvertBoolConverter}}"
+                                        VerticalOptions="Center"
+                                        WidthRequest="8" />
 
-                                <!--  Content  -->
-                                <VerticalStackLayout Grid.Column="1" Spacing="3">
-                                    <Label
-                                        FontAttributes="Bold"
-                                        FontSize="14"
-                                        Text="{Binding Title}"
-                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                                    Dark={StaticResource TextPrimaryDark}}" />
-                                    <Label
-                                        FontSize="13"
-                                        MaxLines="2"
-                                        Text="{Binding Body}"
-                                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                                    Dark={StaticResource TextMutedDark}}" />
-                                    <Label
-                                        FontSize="11"
-                                        Text="{Binding TimeDisplay}"
-                                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                                    Dark={StaticResource TextMutedDark}}" />
-                                </VerticalStackLayout>
+                                    <!--  Content  -->
+                                    <VerticalStackLayout Grid.Column="1" Spacing="3">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="14"
+                                            Text="{Binding Title}"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                        Dark={StaticResource TextPrimaryDark}}" />
+                                        <Label
+                                            FontSize="13"
+                                            MaxLines="2"
+                                            Text="{Binding Body}"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                        Dark={StaticResource TextMutedDark}}" />
+                                        <Label
+                                            FontSize="11"
+                                            Text="{Binding TimeDisplay}"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                        Dark={StaticResource TextMutedDark}}" />
+                                    </VerticalStackLayout>
 
-                                <!--  Mark Read button  -->
-                                <ImageButton
-                                    Grid.Column="2"
-                                    BackgroundColor="Transparent"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverNotificationViewModel}}, Path=MarkReadCommand}"
-                                    CommandParameter="{Binding .}"
-                                    HeightRequest="30"
-                                    IsVisible="{Binding IsRead, Converter={StaticResource InvertBoolConverter}}"
-                                    Source="check.png"
-                                    VerticalOptions="Start"
-                                    WidthRequest="30">
-                                    <ImageButton.Behaviors>
-                                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
-                                    </ImageButton.Behaviors>
-                                </ImageButton>
-                            </Grid>
-                        </Border>
-                    </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                                    <!--  Mark Read button  -->
+                                    <ImageButton
+                                        Grid.Column="2"
+                                        BackgroundColor="Transparent"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverNotificationViewModel}}, Path=MarkReadCommand}"
+                                        CommandParameter="{Binding .}"
+                                        HeightRequest="30"
+                                        IsVisible="{Binding IsRead, Converter={StaticResource InvertBoolConverter}}"
+                                        Source="check.png"
+                                        VerticalOptions="Start"
+                                        WidthRequest="30">
+                                        <ImageButton.Behaviors>
+                                            <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                        </ImageButton.Behaviors>
+                                    </ImageButton>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
     </Grid>
 </views:ViewBase>

@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminDashboardViewModel : BaseViewModel
     {
@@ -22,10 +22,18 @@
         [RelayCommand]
         private async Task RefreshAsync()
         {
-            await RunAsync(async () =>
+            IsRefreshing = true;
+            try
             {
-                Summary = await _dash.GetAdminSummaryAsync(forceRefresh: true);
-            });
+                await RunAsync(async () =>
+                {
+                    Summary = await _dash.GetAdminSummaryAsync(forceRefresh: true);
+                });
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
         }
 
         // ── Navigation ────────────────────────────────────────────────────

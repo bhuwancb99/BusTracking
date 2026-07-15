@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminFeedbackListPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:models="clr-namespace:BusTracking.Mobile.Models"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
+    x:DataType="vm:AdminFeedbackListViewModel"
+    x:TypeArguments="vm:AdminFeedbackListViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
+
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
+    </views:ViewBase.Behaviors>
+
+    <Shell.TitleView>
+        <Label
+            FontAttributes="Bold"
+            FontSize="18"
+            Text="Help &amp; Support"
+            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                        Dark=White}"
+            VerticalOptions="Center" />
+    </Shell.TitleView>
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!--  Status filter  -->
+        <Border
+            Grid.Row="0"
+            Margin="5,12,5,4"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                              Dark={StaticResource CardBgDark}}"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                     Dark={StaticResource BorderColorDark}}"
+            StrokeShape="RoundRectangle 8"
+            StrokeThickness="1">
+            <Grid
+                Padding="12,8"
+                ColumnDefinitions="Auto,*"
+                ColumnSpacing="10">
+                <Label
+                    Grid.Column="0"
+                    FontAttributes="Bold"
+                    FontSize="13"
+                    Text="Status"
+                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                Dark={StaticResource TextSecondaryDark}}"
+                    VerticalOptions="Center" />
+                <Picker
+                    Title="All statuses"
+                    Grid.Column="1"
+                    BackgroundColor="Transparent"
+                    ItemsSource="{Binding StatusOptions}"
+                    SelectedItem="{Binding SelectedStatus}"
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                Dark={StaticResource TextPrimaryDark}}" />
+            </Grid>
+        </Border>
+
+        <!--  Error  -->
+        <Border
+            Grid.Row="1"
+            Margin="5,0"
+            IsVisible="{Binding HasError}"
+            Style="{StaticResource ErrorBannerBorder}">
+            <Label
+                FontSize="13"
+                Text="{Binding ErrorMessage}"
+                TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
+                                            Dark={StaticResource ErrorTextDark}}" />
+        </Border>
+
+        <!--  Empty state  -->
+        <VerticalStackLayout
+            Grid.Row="2"
+            HorizontalOptions="Center"
+            IsVisible="{Binding IsEmpty}"
+            Spacing="14"
+            VerticalOptions="Center">
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryLight},
+                                                  Dark={StaticResource StatBusBgDark}}"
+                HeightRequest="72"
+                HorizontalOptions="Center"
+                StrokeShape="RoundRectangle 36"
+                StrokeThickness="0"
+                WidthRequest="72">
+                <Image
+                    HeightRequest="36"
+                    HorizontalOptions="Center"
+                    Source="feedback.png"
+                    VerticalOptions="Center"
+                    WidthRequest="36">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                    </Image.Behaviors>
+                </Image>
+            </Border>
+            <Label
+                FontSize="16"
+                HorizontalOptions="Center"
+                Text="No feedback requests found"
+                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                            Dark={StaticResource TextSecondaryDark}}" />
+        </VerticalStackLayout>
+
+        <!--  List  -->
+        <RefreshView
+            Grid.Row="2"
+            Command="{Binding RefreshCommand}"
+            IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView
+                Margin="5,4,5,0"
+                ItemsSource="{Binding Items}"
+                SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Feedback.FeedbackItem">
+                        <Border Style="{StaticResource ListItemBorder}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminFeedbackListViewModel}}, Path=DetailCommand}" CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid
+                                Padding="14"
+                                ColumnDefinitions="Auto,*,Auto"
+                                ColumnSpacing="12">
+
+                                <!--  Icon  -->
+                                <Border
+                                    Grid.Column="0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryLight},
+                                                                      Dark={StaticResource StatBusBgDark}}"
+                                    Style="{StaticResource IconTileBorder}"
+                                    VerticalOptions="Start">
+                                    <Image
+                                        HeightRequest="22"
+                                        HorizontalOptions="Center"
+                                        Source="feedback.png"
+                                        VerticalOptions="Center"
+                                        WidthRequest="22">
+                                        <Image.Behaviors>
+                                            <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                        </Image.Behaviors>
+                                    </Image>
+                                </Border>
+
+                                <!--  Info  -->
+                                <VerticalStackLayout
+                                    Grid.Column="1"
+                                    Spacing="4"
+                                    VerticalOptions="Center">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="14"
+                                        Text="{Binding Category}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                    Dark={StaticResource TextPrimaryDark}}" />
+                                    <Label Style="{StaticResource SubLabel}" Text="{Binding UserName}" />
+                                    <Label Style="{StaticResource SubLabel}" Text="{Binding Category}" />
+                                    <Label Style="{StaticResource SubLabel}" Text="{Binding CreatedAt, StringFormat='{0:dd MMM yyyy}'}" />
+                                </VerticalStackLayout>
+
+                                <!--  Status badge  -->
+                                <Border
+                                    Grid.Column="2"
+                                    Padding="8,3"
+                                    BackgroundColor="{Binding StatusBgColor}"
+                                    Stroke="Transparent"
+                                    StrokeShape="RoundRectangle 20"
+                                    VerticalOptions="Start">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="10"
+                                        Text="{Binding Status}"
+                                        TextColor="{Binding StatusTextColor}" />
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</views:ViewBase>

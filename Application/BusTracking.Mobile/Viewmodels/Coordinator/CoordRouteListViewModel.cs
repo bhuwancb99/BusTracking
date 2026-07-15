@@ -1,4 +1,4 @@
-namespace BusTracking.Mobile.Viewmodels.Coordinator
+﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordRouteListViewModel : BaseViewModel
     {
@@ -62,5 +62,18 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [RelayCommand]
         private Task DetailAsync(RouteItem r) =>
             Nav.GoToAsync("CoordRouteDetail", new Dictionary<string, object> { ["RouteId"] = r.RouteId });
+        [RelayCommand]
+        private async Task RefreshAsync()
+        {
+            IsRefreshing = true;
+            try
+            {
+                await LoadAsync();
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
+        }
     }
 }

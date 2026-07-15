@@ -155,132 +155,136 @@
         </VerticalStackLayout>
 
         <!--  List  -->
-        <CollectionView
+        <RefreshView
             Grid.Row="2"
             Margin="5,4,5,0"
-            ItemsSource="{Binding Items}"
-            RemainingItemsThreshold="3"
-            RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
-            SelectionMode="None">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="bus:BusTypeItem">
-                    <Border
-                        Margin="0,0,0,10"
-                        Padding="14"
-                        BackgroundColor="{AppThemeBinding Light=White,
-                                                          Dark={StaticResource CardBgDark}}"
-                        StrokeShape="RoundRectangle 8"
-                        StrokeThickness="0">
-                        <Border.Shadow>
-                            <Shadow
-                                Brush="#12000000"
-                                Radius="6"
-                                Offset="0,2" />
-                        </Border.Shadow>
-                        <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
+            Command="{Binding RefreshCommand}"
+            IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView
+                ItemsSource="{Binding Items}"
+                RemainingItemsThreshold="3"
+                RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
+                SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="bus:BusTypeItem">
+                        <Border
+                            Margin="0,0,0,10"
+                            Padding="14"
+                            BackgroundColor="{AppThemeBinding Light=White,
+                                                              Dark={StaticResource CardBgDark}}"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="0">
+                            <Border.Shadow>
+                                <Shadow
+                                    Brush="#12000000"
+                                    Radius="6"
+                                    Offset="0,2" />
+                            </Border.Shadow>
+                            <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="10">
 
-                            <!--  Icon tile  -->
-                            <Border
-                                Grid.Column="0"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
-                                                                  Dark={StaticResource StatBusBgDark}}"
-                                Style="{StaticResource IconTileBorder}"
-                                VerticalOptions="Center">
-                                <Image
-                                    HeightRequest="22"
-                                    HorizontalOptions="Center"
-                                    Source="bus.png"
-                                    VerticalOptions="Center"
-                                    WidthRequest="22">
-                                    <Image.Behaviors>
-                                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
-                                    </Image.Behaviors>
-                                </Image>
-                            </Border>
+                                <!--  Icon tile  -->
+                                <Border
+                                    Grid.Column="0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
+                                                                      Dark={StaticResource StatBusBgDark}}"
+                                    Style="{StaticResource IconTileBorder}"
+                                    VerticalOptions="Center">
+                                    <Image
+                                        HeightRequest="22"
+                                        HorizontalOptions="Center"
+                                        Source="bus.png"
+                                        VerticalOptions="Center"
+                                        WidthRequest="22">
+                                        <Image.Behaviors>
+                                            <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                        </Image.Behaviors>
+                                    </Image>
+                                </Border>
 
-                            <!--  Name + meta  -->
-                            <VerticalStackLayout
-                                Grid.Column="1"
-                                Spacing="3"
-                                VerticalOptions="Center">
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontSize="15"
-                                    Text="{Binding Name}"
-                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                                Dark={StaticResource TextPrimaryDark}}" />
-                                <Label
-                                    FontSize="12"
-                                    Text="{Binding BusCountLabel}"
-                                    TextColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                                Dark={StaticResource TextMutedDark}}" />
-                                <Label
-                                    FontSize="11"
-                                    Text="{Binding UpdatedLabel, StringFormat='Updated {0}'}"
-                                    TextColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                                Dark={StaticResource TextMutedDark}}" />
-                            </VerticalStackLayout>
+                                <!--  Name + meta  -->
+                                <VerticalStackLayout
+                                    Grid.Column="1"
+                                    Spacing="3"
+                                    VerticalOptions="Center">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="15"
+                                        Text="{Binding Name}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                    Dark={StaticResource TextPrimaryDark}}" />
+                                    <Label
+                                        FontSize="12"
+                                        Text="{Binding BusCountLabel}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                    Dark={StaticResource TextMutedDark}}" />
+                                    <Label
+                                        FontSize="11"
+                                        Text="{Binding UpdatedLabel, StringFormat='Updated {0}'}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                    Dark={StaticResource TextMutedDark}}" />
+                                </VerticalStackLayout>
 
-                            <!--  Edit — Border+Image pattern matching existing pages  -->
-                            <Border
-                                Grid.Column="2"
-                                Padding="7"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
-                                                                  Dark={StaticResource StatBusBgDark}}"
-                                IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordBusTypeListViewModel}}, Path=CanEdit}"
-                                StrokeShape="RoundRectangle 8"
-                                StrokeThickness="0"
-                                VerticalOptions="Center">
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordBusTypeListViewModel}}, Path=OpenEditCommand}" CommandParameter="{Binding .}" />
-                                </Border.GestureRecognizers>
-                                <Image
-                                    HeightRequest="18"
-                                    HorizontalOptions="Center"
-                                    Source="edit.png"
-                                    VerticalOptions="Center"
-                                    WidthRequest="18">
-                                    <Image.Behaviors>
-                                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
-                                    </Image.Behaviors>
-                                </Image>
-                            </Border>
+                                <!--  Edit — Border+Image pattern matching existing pages  -->
+                                <Border
+                                    Grid.Column="2"
+                                    Padding="7"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
+                                                                      Dark={StaticResource StatBusBgDark}}"
+                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordBusTypeListViewModel}}, Path=CanEdit}"
+                                    StrokeShape="RoundRectangle 8"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordBusTypeListViewModel}}, Path=OpenEditCommand}" CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <Image
+                                        HeightRequest="18"
+                                        HorizontalOptions="Center"
+                                        Source="edit.png"
+                                        VerticalOptions="Center"
+                                        WidthRequest="18">
+                                        <Image.Behaviors>
+                                            <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                        </Image.Behaviors>
+                                    </Image>
+                                </Border>
 
-                            <!--  Delete — Border+Image pattern  -->
-                            <Border
-                                Grid.Column="3"
-                                Padding="7"
-                                BackgroundColor="#FFEAEA"
-                                IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordBusTypeListViewModel}}, Path=CanDelete}"
-                                StrokeShape="RoundRectangle 8"
-                                StrokeThickness="0"
-                                VerticalOptions="Center">
-                                <Border.GestureRecognizers>
-                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordBusTypeListViewModel}}, Path=DeleteCommand}" CommandParameter="{Binding .}" />
-                                </Border.GestureRecognizers>
-                                <Image
-                                    HeightRequest="18"
-                                    HorizontalOptions="Center"
-                                    Source="delete.png"
-                                    VerticalOptions="Center"
-                                    WidthRequest="18">
-                                    <Image.Behaviors>
-                                        <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
-                                    </Image.Behaviors>
-                                </Image>
-                            </Border>
+                                <!--  Delete — Border+Image pattern  -->
+                                <Border
+                                    Grid.Column="3"
+                                    Padding="7"
+                                    BackgroundColor="#FFEAEA"
+                                    IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordBusTypeListViewModel}}, Path=CanDelete}"
+                                    StrokeShape="RoundRectangle 8"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordBusTypeListViewModel}}, Path=DeleteCommand}" CommandParameter="{Binding .}" />
+                                    </Border.GestureRecognizers>
+                                    <Image
+                                        HeightRequest="18"
+                                        HorizontalOptions="Center"
+                                        Source="delete.png"
+                                        VerticalOptions="Center"
+                                        WidthRequest="18">
+                                        <Image.Behaviors>
+                                            <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                        </Image.Behaviors>
+                                    </Image>
+                                </Border>
 
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-            <CollectionView.Footer>
-                <ActivityIndicator
-                    Margin="0,8"
-                    IsRunning="{Binding CanLoadMore}"
-                    IsVisible="{Binding CanLoadMore}" />
-            </CollectionView.Footer>
-        </CollectionView>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.Footer>
+                    <ActivityIndicator
+                        Margin="0,8"
+                        IsRunning="{Binding CanLoadMore}"
+                        IsVisible="{Binding CanLoadMore}" />
+                </CollectionView.Footer>
+            </CollectionView>
+        </RefreshView>
 
         <!--  Add / Edit bottom sheet  -->
         <Grid

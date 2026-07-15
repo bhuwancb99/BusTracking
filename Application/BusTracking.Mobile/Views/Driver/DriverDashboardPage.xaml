@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Driver.DriverDashboardPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -28,7 +28,7 @@
         </Grid>
     </Shell.TitleView>
 
-    <RefreshView Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsBusy}">
+    <RefreshView Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsRefreshing}">
         <ScrollView>
             <VerticalStackLayout Padding="16,20,16,40" Spacing="20">
 

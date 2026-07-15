@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <Application
     x:Class="BusTracking.Mobile.App"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -10,6 +10,7 @@
 
             <!--  ── Converters ─────────────────────────────────────────  -->
             <converters:InvertBoolConverter x:Key="InvertBool" />
+            <converters:InvertBoolConverter x:Key="InvertBoolConverter" />
             <converters:NullToBoolConverter x:Key="NullToBool" />
             <converters:NullToVisibleConverter x:Key="NullToVisible" />
             <converters:BoolToEyeIconConverter x:Key="BoolToEyeIcon" />
@@ -17,6 +18,7 @@
             <converters:StatusToEndVisibleConverter x:Key="StatusToEndVisible" />
             <converters:BoolToStatusColorConverter x:Key="BoolToStatusColor" />
             <converters:PlatformToColorConverter x:Key="PlatformToColor" />
+            <converters:PlatformToColorConverter x:Key="PlatformToColorConverter" />
             <converters:StringToBoolConverter x:Key="StringToBool" />
             <converters:FilterChipColorConverter x:Key="FilterChipColorConverter" />
             <converters:FilterChipTextConverter x:Key="FilterChipTextConverter" />

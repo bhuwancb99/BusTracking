@@ -29,6 +29,7 @@ public class AppDbContext : DbContext
     public DbSet<Feedback> Feedbacks { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<AppConfiguration> AppConfigurations { get; set; }
+    public DbSet<Logger> Loggers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -60,6 +61,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Feedback>().ToTable("Feedbacks");
         modelBuilder.Entity<AuditLog>().ToTable("AuditLogs");
         modelBuilder.Entity<AppConfiguration>().ToTable("AppConfigurations");
+        modelBuilder.Entity<Logger>().ToTable("Logger");
 
         // ── Unique indexes ────────────────────────────────────────────
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();

@@ -1,4 +1,4 @@
-namespace BusTracking.Mobile.Viewmodels.Coordinator
+﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordTripListViewModel : BaseViewModel
     {
@@ -68,8 +68,13 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         // ── NEW: open live map for an InProgress trip ─────────────────────
         [RelayCommand]
-        private Task TrackLiveAsync(TripItem t) =>
-            Nav.GoToAsync("LiveTracking", new Dictionary<string, object> { ["TripId"] = t.TripId });
+        private async Task TrackLiveAsync(TripItem t)
+        {
+            await RunAsync(async () =>
+            {
+                await Nav.GoToAsync("LiveTracking", new Dictionary<string, object> { ["TripId"] = t.TripId });
+            });
+        }
 
         [RelayCommand]
         private async Task StartAsync(TripItem t)
@@ -97,5 +102,18 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         [RelayCommand]
         private void Filter(string status) => SelectedStatus = status;
+        [RelayCommand]
+        private async Task RefreshAsync()
+        {
+            IsRefreshing = true;
+            try
+            {
+                await LoadAsync();
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
+        }
     }
 }

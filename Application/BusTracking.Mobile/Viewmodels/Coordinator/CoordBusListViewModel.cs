@@ -1,4 +1,4 @@
-namespace BusTracking.Mobile.Viewmodels.Coordinator
+﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordBusListViewModel : BaseViewModel
     {
@@ -64,5 +64,18 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         [RelayCommand]
         private void Filter(string filter) => SelectedFilter = filter;
+        [RelayCommand]
+        private async Task RefreshAsync()
+        {
+            IsRefreshing = true;
+            try
+            {
+                await LoadAsync();
+            }
+            finally
+            {
+                IsRefreshing = false;
+            }
+        }
     }
 }

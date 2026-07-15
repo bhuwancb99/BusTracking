@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+﻿<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminDriverListPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -23,7 +23,8 @@
                 FontAttributes="Bold"
                 FontSize="18"
                 Text="Drivers"
-                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}"
                 VerticalOptions="Center" />
             <Border
                 Grid.Column="1"
@@ -50,92 +51,94 @@
 
     <Grid RowDefinitions="Auto,Auto,*">
 
-                <!--  Search Section Card (Separated from list)  -->
+        <!--  Search Section Card (Separated from list)  -->
         <Border
             Grid.Row="0"
             Margin="5,14,5,8"
             Padding="14,12"
-            Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                              Dark={StaticResource CardBgDark}}"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                     Dark={StaticResource BorderColorDark}}"
             StrokeShape="RoundRectangle 12"
-            StrokeThickness="1"
-            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}">
+            StrokeThickness="1">
             <VerticalStackLayout Spacing="10">
                 <Border Style="{StaticResource SearchBarBorder}">
 
-            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
-                <Image
-                    Grid.Column="0"
-                    HeightRequest="18"
-                    Source="search.png"
-                    VerticalOptions="Center"
-                    WidthRequest="18">
-                    <Image.Behaviors>
-                        <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
-                    </Image.Behaviors>
-                </Image>
-                <Entry
-                    Grid.Column="1"
-                    Placeholder="{Binding SearchPlaceholder}"
-                    ReturnCommand="{Binding SearchCommand}"
-                    Text="{Binding SearchText}" />
-                <ImageButton
-                    Grid.Column="2"
-                    Padding="8"
-                    BackgroundColor="{StaticResource Primary}"
-                    Command="{Binding SearchCommand}"
-                    CornerRadius="8"
-                    HeightRequest="36"
-                    HorizontalOptions="End"
-                    Source="search.png"
-                    WidthRequest="36">
-                    <ImageButton.Behaviors>
-                        <mct:IconTintColorBehavior TintColor="White" />
-                    </ImageButton.Behaviors>
-                </ImageButton>
-            </Grid>
-                    </Border>
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
+                        <Image
+                            Grid.Column="0"
+                            HeightRequest="18"
+                            Source="search.png"
+                            VerticalOptions="Center"
+                            WidthRequest="18">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                            </Image.Behaviors>
+                        </Image>
+                        <Entry
+                            Grid.Column="1"
+                            Placeholder="{Binding SearchPlaceholder}"
+                            ReturnCommand="{Binding SearchCommand}"
+                            Text="{Binding SearchText}" />
+                        <ImageButton
+                            Grid.Column="2"
+                            Padding="8"
+                            BackgroundColor="{StaticResource Primary}"
+                            Command="{Binding SearchCommand}"
+                            CornerRadius="8"
+                            HeightRequest="36"
+                            HorizontalOptions="End"
+                            Source="search.png"
+                            WidthRequest="36">
+                            <ImageButton.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="White" />
+                            </ImageButton.Behaviors>
+                        </ImageButton>
+                    </Grid>
+                </Border>
                 <HorizontalStackLayout Spacing="8">
 
-            <Border
-                Padding="14,6"
-                BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Active'}"
-                StrokeShape="RoundRectangle 16"
-                StrokeThickness="0">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Active" />
-                </Border.GestureRecognizers>
-                <Label
-                    FontSize="12"
-                    Text="Active"
-                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Active'}" />
-            </Border>
-            <Border
-                Padding="14,6"
-                BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Inactive'}"
-                StrokeShape="RoundRectangle 16"
-                StrokeThickness="0">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Inactive" />
-                </Border.GestureRecognizers>
-                <Label
-                    FontSize="12"
-                    Text="Inactive"
-                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Inactive'}" />
-            </Border>
-            <Border
-                Padding="14,6"
-                BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Both'}"
-                StrokeShape="RoundRectangle 16"
-                StrokeThickness="0">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Both" />
-                </Border.GestureRecognizers>
-                <Label
-                    FontSize="12"
-                    Text="Both"
-                    TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Both'}" />
-            </Border>
-                    </HorizontalStackLayout>
+                    <Border
+                        Padding="14,6"
+                        BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Active'}"
+                        StrokeShape="RoundRectangle 16"
+                        StrokeThickness="0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Active" />
+                        </Border.GestureRecognizers>
+                        <Label
+                            FontSize="12"
+                            Text="Active"
+                            TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Active'}" />
+                    </Border>
+                    <Border
+                        Padding="14,6"
+                        BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Inactive'}"
+                        StrokeShape="RoundRectangle 16"
+                        StrokeThickness="0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Inactive" />
+                        </Border.GestureRecognizers>
+                        <Label
+                            FontSize="12"
+                            Text="Inactive"
+                            TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Inactive'}" />
+                    </Border>
+                    <Border
+                        Padding="14,6"
+                        BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Both'}"
+                        StrokeShape="RoundRectangle 16"
+                        StrokeThickness="0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding FilterCommand}" CommandParameter="Both" />
+                        </Border.GestureRecognizers>
+                        <Label
+                            FontSize="12"
+                            Text="Both"
+                            TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Both'}" />
+                    </Border>
+                </HorizontalStackLayout>
             </VerticalStackLayout>
         </Border>
 
@@ -151,7 +154,7 @@
                 TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
                                             Dark={StaticResource ErrorTextDark}}" />
         </Border>
-        
+
 
         <!--  Empty  -->
         <VerticalStackLayout
@@ -195,91 +198,95 @@
         </VerticalStackLayout>
 
         <!--  List  -->
-        <CollectionView
+        <RefreshView
             Grid.Row="2"
             Margin="5,4,5,0"
-            ItemsSource="{Binding Items}"
-            RemainingItemsThreshold="3"
-            RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
-            SelectionMode="None">
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:Driver.DriverItem">
-                    <Border Style="{StaticResource ListItemBorder}">
-                        <Border.GestureRecognizers>
-                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminDriverListViewModel}}, Path=DetailCommand}" CommandParameter="{Binding .}" />
-                        </Border.GestureRecognizers>
-                        <Grid
-                            Padding="14"
-                            ColumnDefinitions="Auto,*,Auto"
-                            ColumnSpacing="12">
-                            <Border
-                                Grid.Column="0"
-                                BackgroundColor="{AppThemeBinding Light={StaticResource StatDriverBg},
-                                                                  Dark={StaticResource StatDriverBgDark}}"
-                                HeightRequest="44"
-                                StrokeShape="RoundRectangle 22"
-                                StrokeThickness="0"
-                                VerticalOptions="Center"
-                                WidthRequest="44">
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontSize="14"
-                                    HorizontalOptions="Center"
-                                    Text="{Binding InitialsDisplay}"
-                                    TextColor="{StaticResource Info}"
-                                    VerticalOptions="Center" />
-                            </Border>
-                            <VerticalStackLayout
-                                Grid.Column="1"
-                                Spacing="4"
-                                VerticalOptions="Center">
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontSize="15"
-                                    Text="{Binding FullName}"
-                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                                Dark={StaticResource TextPrimaryDark}}" />
-                                <Label Style="{StaticResource SubLabel}" Text="{Binding Email}" />
+            Command="{Binding RefreshCommand}"
+            IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView
+                ItemsSource="{Binding Items}"
+                RemainingItemsThreshold="3"
+                RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
+                SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:Driver.DriverItem">
+                        <Border Style="{StaticResource ListItemBorder}">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminDriverListViewModel}}, Path=DetailCommand}" CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid
+                                Padding="14"
+                                ColumnDefinitions="Auto,*,Auto"
+                                ColumnSpacing="12">
                                 <Border
-                                    Padding="6,2"
-                                    BackgroundColor="{AppThemeBinding Light={StaticResource InfoLight},
+                                    Grid.Column="0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource StatDriverBg},
                                                                       Dark={StaticResource StatDriverBgDark}}"
-                                    HorizontalOptions="Start"
-                                    Stroke="Transparent"
-                                    StrokeShape="RoundRectangle 8">
+                                    HeightRequest="44"
+                                    StrokeShape="RoundRectangle 22"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center"
+                                    WidthRequest="44">
                                     <Label
                                         FontAttributes="Bold"
-                                        FontSize="10"
-                                        Text="{Binding BusDisplay}"
-                                        TextColor="{StaticResource Info}" />
+                                        FontSize="14"
+                                        HorizontalOptions="Center"
+                                        Text="{Binding InitialsDisplay}"
+                                        TextColor="{StaticResource Info}"
+                                        VerticalOptions="Center" />
                                 </Border>
-                            </VerticalStackLayout>
-                            <VerticalStackLayout
-                                Grid.Column="2"
-                                Spacing="8"
-                                VerticalOptions="Center">
-                                <Border
-                                    Padding="8,3"
-                                    BackgroundColor="{Binding StatusBgColor}"
-                                    Stroke="Transparent"
-                                    StrokeShape="RoundRectangle 20">
+                                <VerticalStackLayout
+                                    Grid.Column="1"
+                                    Spacing="4"
+                                    VerticalOptions="Center">
                                     <Label
                                         FontAttributes="Bold"
-                                        FontSize="10"
-                                        Text="{Binding StatusLabel}"
-                                        TextColor="{Binding StatusTextColor}" />
-                                </Border>
-                            </VerticalStackLayout>
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-            <CollectionView.Footer>
-                <ActivityIndicator
-                    Margin="0,8"
-                    IsRunning="{Binding CanLoadMore}"
-                    IsVisible="{Binding CanLoadMore}" />
-            </CollectionView.Footer>
-        </CollectionView>
+                                        FontSize="15"
+                                        Text="{Binding FullName}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                    Dark={StaticResource TextPrimaryDark}}" />
+                                    <Label Style="{StaticResource SubLabel}" Text="{Binding Email}" />
+                                    <Border
+                                        Padding="6,2"
+                                        BackgroundColor="{AppThemeBinding Light={StaticResource InfoLight},
+                                                                          Dark={StaticResource StatDriverBgDark}}"
+                                        HorizontalOptions="Start"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 8">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="10"
+                                            Text="{Binding BusDisplay}"
+                                            TextColor="{StaticResource Info}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                                <VerticalStackLayout
+                                    Grid.Column="2"
+                                    Spacing="8"
+                                    VerticalOptions="Center">
+                                    <Border
+                                        Padding="8,3"
+                                        BackgroundColor="{Binding StatusBgColor}"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 20">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="10"
+                                            Text="{Binding StatusLabel}"
+                                            TextColor="{Binding StatusTextColor}" />
+                                    </Border>
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.Footer>
+                    <ActivityIndicator
+                        Margin="0,8"
+                        IsRunning="{Binding CanLoadMore}"
+                        IsVisible="{Binding CanLoadMore}" />
+                </CollectionView.Footer>
+            </CollectionView>
+        </RefreshView>
     </Grid>
 </views:ViewBase>
