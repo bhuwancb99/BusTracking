@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.Driver.DriverDashboardPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -119,7 +119,7 @@
                 </Border>
 
                 <!--  Active trip card  -->
-                <Border IsVisible="{Binding ActiveTrip, Converter={StaticResource NotNull}}" Style="{StaticResource StatCardBorder}">
+                <Border IsVisible="{Binding ActiveTrip}" Style="{StaticResource StatCardBorder}">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Offset="0.0" Color="{AppThemeBinding Light={StaticResource SuccessLight}, Dark=#032314}" />

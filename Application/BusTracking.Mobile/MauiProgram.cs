@@ -59,7 +59,6 @@ namespace BusTracking.Mobile
             Routing.RegisterRoute("ChangePassword", typeof(ChangePasswordPage));
 
             // ── Common ────────────────────────────────────────────────────────
-            Routing.RegisterRoute("Profile", typeof(ProfilePage));
 
             // ── Super Admin — Form pages ──────────────────────────────────────
             Routing.RegisterRoute("AdminConfigForm", typeof(AdminConfigFormPage));
@@ -106,7 +105,6 @@ namespace BusTracking.Mobile
 
             // ── Driver — Detail page ──────────────────────────────────────────
             Routing.RegisterRoute("DriverTripDetail", typeof(DriverTripDetailPage));
-            Routing.RegisterRoute("DriverNotification", typeof(DriverNotificationPage));
 
             Routing.RegisterRoute("DriverTracking", typeof(DriverTrackingPage));
         }

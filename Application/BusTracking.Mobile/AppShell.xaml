@@ -472,4 +472,18 @@
         FlyoutItemIsVisible="False"
         Route="StudentAvailability" />
 
+    <!--  Common (Profile) — reachable from all role menus  -->
+    <ShellContent
+        ContentTemplate="{DataTemplate common:ProfilePage}"
+        FlyoutItemIsVisible="False"
+        Route="Profile"
+        Shell.NavBarIsVisible="True" />
+
+    <!--  Driver Notifications  -->
+    <ShellContent
+        Title="Notifications"
+        ContentTemplate="{DataTemplate driver:DriverNotificationPage}"
+        FlyoutItemIsVisible="False"
+        Route="DriverNotification" />
+
 </Shell>
