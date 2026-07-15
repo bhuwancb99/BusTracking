@@ -104,19 +104,6 @@
         const vs=document.getElementById('valSummary');
         if(vs&&vs.querySelector('li,span:not(:empty)'))vs.style.display='';
         document.getElementById('createForm').addEventListener('submit',()=>{if(vs)vs.style.display='';});
-            document.getElementById('usernameMsg').innerHTML = '';
-        });
-            const res = await fetch(`/Auth/CheckUsername?userName=${encodeURIComponent(val)}`);
-            const data = await res.json();
-            if (data.success === false && data.message.includes('already')) {
-                showUsernameMsg('<i class="bi bi-x-circle me-1"></i>Username already exists', 'text-danger fw-semibold');
-            } else {
-                showUsernameMsg('<i class="bi bi-check-circle me-1"></i>Username is available', 'text-success fw-semibold');
-            }
-        }
-            const el = document.getElementById('usernameMsg');
-            el.innerHTML = html; el.className = 'small mt-1 ' + cls;
-        }
 
         // Password toggle
         document.getElementById('togglePwd').addEventListener('click', function() {

@@ -80,13 +80,13 @@
                     </div>
 
                     <div class="col-md-6 mb-3">
-                            <label asp-for="Password" class="form-label fw-semibold">Password <span class="text-muted fw-normal">(leave blank to auto-generate)</span></label>
-                            <div class="input-group">
-                                <input asp-for="Password" type="password" class="form-control" placeholder="Set password or leave blank" id="pwdInput" autocomplete="new-password" />
-                                <button type="button" class="btn btn-outline-secondary" onclick="togglePwd()"><i class="bi bi-eye" id="eyeIcon"></i></button>
-                            </div>
+                        <label asp-for="Password" class="form-label fw-semibold">Password <span class="text-muted fw-normal">(leave blank to auto-generate)</span></label>
+                        <div class="input-group">
+                            <input asp-for="Password" type="password" class="form-control" placeholder="Set password or leave blank" id="pwdInput" autocomplete="new-password" />
+                            <button type="button" class="btn btn-outline-secondary" onclick="togglePwd()"><i class="bi bi-eye" id="eyeIcon"></i></button>
                         </div>
-                        <div class="form-check form-switch mt-3">
+                    </div>
+                    <div class="form-check form-switch mt-3">
                         <input asp-for="SendEmail" class="form-check-input" type="checkbox" role="switch" id="sendEmailChk" />
                         <label class="form-check-label" for="sendEmailChk">
                             <i class="bi bi-envelope me-1"></i>Send welcome email with credentials
@@ -111,7 +111,7 @@
     <script>
         // ── Bus autocomplete ──────────────────────────────────────────
         let busTimer;
-        document.getElementById('busSearch').addEventListener('input', function () {
+        document.getElementById('busSearch').addEventListener('input', function() {
             clearTimeout(busTimer);
             const q = this.value.trim();
             if (q.length < 1) { hideBusSug(); return; }
@@ -122,7 +122,7 @@
         });
         async function fetchBuses(q) {
             const data = await (await fetch(`/SuperAdmin/Student/SearchBuses?q=${encodeURIComponent(q)}`)).json();
-            const box  = document.getElementById('busSuggestions');
+            const box = document.getElementById('busSuggestions');
             box.innerHTML = '';
             if (!data.length) { hideBusSug(); return; }
             data.forEach(b => {
@@ -135,39 +135,39 @@
         }
         function selectBus(b) {
             document.getElementById('busIdInput').value = b.busId;
-            document.getElementById('busSearch').value  = b.display;
+            document.getElementById('busSearch').value = b.display;
             document.getElementById('busSelected').innerHTML =
                 `<span class="badge bg-primary-subtle text-primary">
-                     <i class="bi bi-bus-front me-1"></i>${b.display}
-                 </span>
-                 <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-1"
-                         onclick="clearBus()">Remove</button>`;
+                             <i class="bi bi-bus-front me-1"></i>${b.display}
+                         </span>
+                         <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-1"
+                                 onclick="clearBus()">Remove</button>`;
             hideBusSug();
             loadStops(b.busId, null);
         }
         function hideBusSug() { document.getElementById('busSuggestions').classList.remove('show'); }
         function clearBus() {
             document.getElementById('busIdInput').value = '';
-            document.getElementById('busSearch').value  = '';
+            document.getElementById('busSearch').value = '';
             document.getElementById('busSelected').innerHTML = '<span class="text-muted">No bus selected.</span>';
             const sel = document.getElementById('stopSelect');
             sel.innerHTML = '<option value="">-- Select a bus first --</option>';
-            sel.disabled  = true;
+            sel.disabled = true;
             document.getElementById('stopHint').innerHTML =
                 '<i class="bi bi-info-circle me-1"></i>Select a bus to load available stops.';
         }
 
         // ── Stop dropdown loader ──────────────────────────────────────
         async function loadStops(busId, preSelectId) {
-            const sel  = document.getElementById('stopSelect');
+            const sel = document.getElementById('stopSelect');
             const hint = document.getElementById('stopHint');
             sel.innerHTML = '<option value="">Loading stops…</option>';
-            sel.disabled  = false;
+            sel.disabled = false;
             try {
                 const data = await (await fetch(`/SuperAdmin/Student/SearchStops?busId=${busId}`)).json();
                 if (!data.length) {
                     sel.innerHTML = '<option value="">No stops — assign a route to this bus first</option>';
-                    sel.disabled  = true;
+                    sel.disabled = true;
                     hint.innerHTML = '<span class="text-warning"><i class="bi bi-exclamation-triangle me-1"></i>This bus has no route assigned. Edit the bus to add a route.</span>';
                     return;
                 }
@@ -182,23 +182,15 @@
                 hint.innerHTML = `<span class="text-success"><i class="bi bi-check-circle me-1"></i>${data.length} stops available.</span>`;
             } catch {
                 sel.innerHTML = '<option value="">Error loading stops</option>';
-                sel.disabled  = true;
+                sel.disabled = true;
                 hint.innerHTML = '<span class="text-danger"><i class="bi bi-x-circle me-1"></i>Could not load stops.</span>';
-            }
-        }
-            const res = await fetch(`/Auth/CheckUsername?userName=${encodeURIComponent(val)}`);
-            const data = await res.json();
-            if (!data.success) {
-                showUsernameMsg('<i class="bi bi-x-circle me-1"></i>Username already exists', 'text-danger fw-semibold');
-            } else {
-                showUsernameMsg('<i class="bi bi-check-circle me-1"></i>Username is available', 'text-success fw-semibold');
             }
         }
         function togglePwd() { const inp = document.getElementById('pwdInput'); const icon = document.getElementById('eyeIcon'); inp.type = inp.type === 'password' ? 'text' : 'password'; icon.className = inp.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash'; }
         // ── Username live-check (keyup, min 5 chars, no excludeUserId on create) ──
         const _unInput = document.getElementById('usernameInput');
-        const _unMsg   = document.getElementById('usernameMsg');
-        let   _unTimer = null;
+        const _unMsg = document.getElementById('usernameMsg');
+        let _unTimer = null;
 
         _unInput.addEventListener('keyup', () => {
             clearTimeout(_unTimer);
@@ -211,12 +203,12 @@
             _unMsg.className = 'small mt-1';
             if (val.length === 0) return;
             if (val.length < 5) {
-                _unMsg.innerHTML  = '<i class="bi bi-exclamation-circle me-1"></i>Username must have at least 5 characters';
-                _unMsg.className  = 'small mt-1 text-danger';
+                _unMsg.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i>Username must have at least 5 characters';
+                _unMsg.className = 'small mt-1 text-danger';
                 return;
             }
             try {
-                const res  = await fetch(`/Auth/CheckUsername?userName=${encodeURIComponent(val)}`);
+                const res = await fetch(`/Auth/CheckUsername?userName=${encodeURIComponent(val)}`);
                 if (!res.ok) return;
                 const data = await res.json();
                 if (!data.success) {
@@ -229,7 +221,7 @@
             } catch (_) { /* silent */ }
         }
         function escHtml(s) {
-            return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         }
     </script>
 }

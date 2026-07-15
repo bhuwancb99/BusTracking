@@ -135,14 +135,6 @@
             document.getElementById(`chip-${id}`)?.remove();
             document.getElementById(`sinp-${id}`)?.remove();
         }
-            const res = await fetch(`/Auth/CheckUsername?userName=${encodeURIComponent(val)}`);
-            const data = await res.json();
-            if (!data.success) {
-                showUsernameMsg('<i class="bi bi-x-circle me-1"></i>Username already exists', 'text-danger fw-semibold');
-            } else {
-                showUsernameMsg('<i class="bi bi-check-circle me-1"></i>Username is available', 'text-success fw-semibold');
-            }
-        }
         function togglePwd() { const inp = document.getElementById('pwdInput'); const icon = document.getElementById('eyeIcon'); inp.type = inp.type === 'password' ? 'text' : 'password'; icon.className = inp.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash'; }
         // ── Username live-check (keyup, min 5 chars, no excludeUserId on create) ──
         const _unInput = document.getElementById('usernameInput');
