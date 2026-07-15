@@ -10,7 +10,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
 
         // GET /BusCoordinator/AppConfig
         public async Task<IActionResult> Index(
-            string? platform = "Web", string? search = null, bool? isActive = null, int page = 1)
+            string? platform = "Both", string? search = null, bool? isActive = null, int page = 1)
         {
             if (!PermissionHelper.Can(User, "appconfig.view")) return Forbid();
             ViewBag.Platform = platform;

@@ -1,4 +1,30 @@
 @using BusTracking.Common.Helpers
+@inject BusTracking.Common.Data.AppDbContext DbContext
+@inject BusTracking.Common.Interfaces.ICurrentUserService CurrentUser
+@{
+    string? schoolName = null;
+    string? schoolLogo = null;
+    string? userPhoto = null;
+    var sId = CurrentUser.SchoolId;
+    if (sId.HasValue)
+    {
+        var school = DbContext.Schools.IgnoreQueryFilters().FirstOrDefault(s => s.SchoolId == sId.Value);
+        if (school != null)
+        {
+            schoolName = school.SchoolName;
+            schoolLogo = school.SchoolLogo;
+        }
+    }
+    var uId = CurrentUser.UserId;
+    if (uId.HasValue)
+    {
+        var dbUser = DbContext.Users.IgnoreQueryFilters().FirstOrDefault(u => u.UserId == uId.Value);
+        if (dbUser != null)
+        {
+            userPhoto = dbUser.ProfileImageUrl;
+        }
+    }
+}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,8 +40,23 @@
     <!-- ── Sidebar ─────────────────────────────────────────────── -->
     <nav id="sidebar" class="sidebar d-flex flex-column">
         <div class="sidebar-brand">
-            <i class="bi bi-bus-front-fill"></i>
-            <span>BusTrack <small class="opacity-50">Coord</small></span>
+            @if (!string.IsNullOrEmpty(schoolLogo))
+            {
+                <img src="@schoolLogo" alt="School Logo" class="me-2 rounded-circle" style="width: 32px; height: 32px; object-fit: cover;" />
+            }
+            else
+            {
+                <i class="bi bi-bus-front-fill me-2"></i>
+            }
+
+            @if (!string.IsNullOrEmpty(schoolName))
+            {
+                <span>@schoolName</span>
+            }
+            else
+            {
+                <span>BusTrack <small class="opacity-50">Coord</small></span>
+            }
         </div>
         <ul class="sidebar-nav flex-grow-1">
             @{
@@ -183,7 +224,14 @@
 
         <div class="sidebar-footer">
             <a class="sidebar-link" asp-controller="Profile" asp-action="Index" asp-area="">
-                <i class="bi bi-person-circle"></i>
+                @if (!string.IsNullOrEmpty(userPhoto))
+                {
+                    <img src="@userPhoto" alt="Profile" class="me-2 rounded-circle border border-secondary" style="width: 22px; height: 22px; object-fit: cover;" />
+                }
+                else
+                {
+                    <i class="bi bi-person-circle"></i>
+                }
                 <span>@User.GetFullName()</span>
             </a>
             <form asp-controller="Auth" asp-action="Logout" asp-area="" method="post">
@@ -204,8 +252,16 @@
             <span class="badge bg-primary-subtle text-primary ms-1 small">Bus Coordinator</span>
             <div class="ms-auto d-flex align-items-center gap-2">
                 <div class="dropdown">
-                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
-                        <i class="bi bi-person-circle me-1"></i>@User.GetFullName()
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle d-flex align-items-center gap-1" data-bs-toggle="dropdown">
+                        @if (!string.IsNullOrEmpty(userPhoto))
+                        {
+                            <img src="@userPhoto" alt="Profile" class="rounded-circle border border-secondary" style="width: 18px; height: 18px; object-fit: cover;" />
+                        }
+                        else
+                        {
+                            <i class="bi bi-person-circle"></i>
+                        }
+                        <span>@User.GetFullName()</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li>

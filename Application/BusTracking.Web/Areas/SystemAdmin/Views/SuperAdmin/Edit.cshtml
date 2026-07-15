@@ -64,15 +64,22 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label for="profileImage" class="form-label">Profile Image (Optional)</label>
-                        <input type="file" id="profileImage" name="profileImage" class="form-control" accept="image/*" />
-                        @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
-                        {
-                            <div class="mt-2 d-flex align-items-center">
-                                <span class="text-secondary small me-2">Current Photo:</span>
-                                <img src="@Model.ProfileImageUrl" alt="Profile" class="rounded-circle border border-secondary" style="height: 35px; width: 35px; object-fit: cover;" />
+                        <label for="profileImage" class="form-label fw-semibold">Profile Image (Optional)</label>
+                        <div class="premium-file-upload border border-dashed rounded-3 p-3 text-center position-relative bg-light-subtle" style="cursor: pointer; border-style: dashed !important; border-color: #3d5af1 !important; transition: background-color 0.2s;">
+                            <input type="file" id="profileImage" name="profileImage" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer;" accept="image/*" onchange="previewFile(this, 'profilePreview', 'profileFileName')" />
+                            <div class="upload-content">
+                                <i class="bi bi-cloud-arrow-up-fill text-primary fs-3 d-block mb-1"></i>
+                                <span class="fw-semibold text-secondary d-block" id="profileFileName">Choose new profile image...</span>
+                                <span class="text-muted small">PNG, JPG or WebP (max. 5MB)</span>
                             </div>
-                        }
+                            <div id="profilePreview" class="mt-2 @(string.IsNullOrEmpty(Model.ProfileImageUrl) ? "d-none" : "")">
+                                <img src="@Model.ProfileImageUrl" class="rounded-circle border border-secondary" style="height: 50px; width: 50px; object-fit: cover;" />
+                                @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+                                {
+                                    <div class="text-secondary small mt-1">Current Active Photo</div>
+                                }
+                            </div>
+                        </div>
                     </div>
 
                     <div class="col-md-6 mt-3">
@@ -127,5 +134,24 @@
                 }, 400);
             });
         });
+        function previewFile(input, previewId, nameId) {
+            const file = input.files[0];
+            const previewDiv = document.getElementById(previewId);
+            const nameSpan = document.getElementById(nameId);
+            if (file) {
+                nameSpan.textContent = file.name;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewDiv.querySelector('img').src = e.target.result;
+                    previewDiv.classList.remove('d-none');
+                    const helper = previewDiv.querySelector('.text-secondary');
+                    if (helper) helper.textContent = "New Selected Photo";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                nameSpan.textContent = "Choose profile image...";
+                previewDiv.classList.add('d-none');
+            }
+        }
     </script>
 }

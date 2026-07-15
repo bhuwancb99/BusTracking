@@ -44,15 +44,22 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label for="logoFile" class="form-label">Change School Logo</label>
-                        <input type="file" id="logoFile" name="logoFile" class="form-control" accept="image/*" />
-                        @if (!string.IsNullOrEmpty(Model.SchoolLogo))
-                        {
-                            <div class="mt-2 d-flex align-items-center">
-                                <span class="text-secondary small me-2">Current Logo:</span>
-                                <img src="@Model.SchoolLogo" alt="Logo" class="rounded border border-secondary" style="height: 35px; width: 35px; object-fit: cover;" />
+                        <label for="logoFile" class="form-label fw-semibold">School Logo</label>
+                        <div class="premium-file-upload border border-dashed rounded-3 p-3 text-center position-relative bg-light-subtle" style="cursor: pointer; border-style: dashed !important; border-color: #3d5af1 !important; transition: background-color 0.2s;">
+                            <input type="file" id="logoFile" name="logoFile" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer;" accept="image/*" onchange="previewFile(this, 'logoPreview', 'logoFileName')" />
+                            <div class="upload-content">
+                                <i class="bi bi-cloud-arrow-up-fill text-primary fs-3 d-block mb-1"></i>
+                                <span class="fw-semibold text-secondary d-block" id="logoFileName">Choose new logo...</span>
+                                <span class="text-muted small">PNG, JPG or WebP (max. 5MB)</span>
                             </div>
-                        }
+                            <div id="logoPreview" class="mt-2 @(string.IsNullOrEmpty(Model.SchoolLogo) ? "d-none" : "")">
+                                <img src="@Model.SchoolLogo" class="rounded border border-secondary" style="height: 50px; max-width: 100%; object-fit: contain;" />
+                                @if (!string.IsNullOrEmpty(Model.SchoolLogo))
+                                {
+                                    <div class="text-secondary small mt-1">Current Active Logo</div>
+                                }
+                            </div>
+                        </div>
                     </div>
 
                     <div class="col-md-6">
@@ -99,4 +106,26 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function previewFile(input, previewId, nameId) {
+            const file = input.files[0];
+            const previewDiv = document.getElementById(previewId);
+            const nameSpan = document.getElementById(nameId);
+            if (file) {
+                nameSpan.textContent = file.name;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewDiv.querySelector('img').src = e.target.result;
+                    previewDiv.classList.remove('d-none');
+                    // Remove current logo helper text
+                    const helper = previewDiv.querySelector('.text-secondary');
+                    if (helper) helper.textContent = "New Selected Logo";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                nameSpan.textContent = "Choose logo image...";
+                previewDiv.classList.add('d-none');
+            }
+        }
+    </script>
 }

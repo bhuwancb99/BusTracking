@@ -147,6 +147,7 @@ public class AuthController : Controller
     // ── Role → dashboard redirect ─────────────────────────────────────────
     private IActionResult DashboardRedirect(string? role) => role switch
     {
+        "SystemAdmin" => Redirect("/SystemAdmin/Dashboard/Index"),
         "SuperAdmin" => Redirect("/SuperAdmin/Dashboard/Index"),
         "BusCoordinator" => Redirect("/BusCoordinator/Dashboard/Index"),
         "Driver" => Redirect("/Driver/Dashboard/Index"),   // ← ADDED

@@ -10,7 +10,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
 
         // GET /SuperAdmin/AppConfig
         public async Task<IActionResult> Index(
-            [FromQuery] string? platform = "Web", [FromQuery] string? search = null,
+            [FromQuery] string? platform = "Both", [FromQuery] string? search = null,
             [FromQuery] bool? isActive = null, [FromQuery] int page = 1)
         {
             ViewBag.Platform = platform;
