@@ -1,7 +1,9 @@
-﻿namespace BusTracking.Common.Entities
+namespace BusTracking.Common.Entities
 {
-    public class ParentDetail
+    public class ParentDetail : IMultiTenant
     {
+        public int? SchoolId { get; set; }
+
         [Key] public int ParentId { get; set; }
         public int UserId { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

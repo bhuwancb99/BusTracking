@@ -87,6 +87,7 @@ app.UseStaticFiles(new StaticFileOptions
 
 app.UseExceptionMiddleware();
 app.UseAuthentication();
+app.UseTenantActiveValidation();
 app.UseAuthorization();
 app.MapControllers();
 

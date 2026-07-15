@@ -1,9 +1,10 @@
 namespace BusTracking.Common.Entities
 {
-    public class User
+    public class User : IMultiTenant
     {
         [Key] public int UserId { get; set; }
         public int RoleId { get; set; }
+        public int? SchoolId { get; set; }
         [Required, MaxLength(150)] public string FullName { get; set; } = "";
         [Required, MaxLength(100)] public string UserName { get; set; } = "";
         [MaxLength(255)] public string? Email { get; set; }
@@ -20,6 +21,9 @@ namespace BusTracking.Common.Entities
 
         [ForeignKey(nameof(RoleId))]
         public Role Role { get; set; } = null!;
+
+        [ForeignKey(nameof(SchoolId))]
+        public School? School { get; set; }
 
         public StudentDetail? StudentDetail { get; set; }
         public ParentDetail? ParentDetail { get; set; }

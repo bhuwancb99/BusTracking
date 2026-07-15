@@ -1,7 +1,9 @@
 namespace BusTracking.Common.Entities
 {
-    public class Logger
+    public class Logger : IMultiTenant
     {
+        public int? SchoolId { get; set; }
+
         [Key]
         public int LogId { get; set; }
 

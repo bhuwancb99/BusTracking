@@ -11,7 +11,7 @@ public class ImageService : IImageService
         _httpContext = httpContext;
 
         // Create all role subfolders on startup — silent if already exist
-        foreach (var role in new[] { "superadmin", "coordinator", "driver", "student", "parent", "bus" })
+        foreach (var role in new[] { "superadmin", "coordinator", "driver", "student", "parent", "bus", "school" })
             Directory.CreateDirectory(Path.Combine(_mediaPath, role));
     }
 
@@ -108,5 +108,25 @@ public class ImageService : IImageService
         var allowed = new[] { "image/jpeg", "image/jpg", "image/png", "image/webp" };
         if (!allowed.Contains(file.ContentType.ToLower()))
             throw new InvalidOperationException("Only JPG, PNG or WebP images are allowed.");
+    }
+
+    public async Task<string> SaveSchoolLogoAsync(IFormFile file, int schoolId, string? existingUrl)
+    {
+        Validate(file);
+
+        var folder = Path.Combine(_mediaPath, "school");
+        Directory.CreateDirectory(folder);
+
+        // Delete existing logo file if present
+        if (!string.IsNullOrWhiteSpace(existingUrl))
+        {
+            DeleteFile(existingUrl);
+        }
+
+        var ext = GetSafeExtension(file.FileName);
+        var fileName = $"school_{schoolId}{ext}";
+        await SaveFileAsync(file, Path.Combine(folder, fileName));
+
+        return $"{GetBaseUrl()}/media/images/school/{fileName}";
     }
 }

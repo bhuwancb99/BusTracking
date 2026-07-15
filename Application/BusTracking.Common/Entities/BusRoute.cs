@@ -1,7 +1,9 @@
-﻿namespace BusTracking.Common.Entities
+namespace BusTracking.Common.Entities
 {
-    public class BusRoute
+    public class BusRoute : IMultiTenant
     {
+        public int? SchoolId { get; set; }
+
         [Key] public int RouteId { get; set; }
         [Required, MaxLength(150)] public string RouteName { get; set; } = "";
         [Required, MaxLength(50)] public string RouteCode { get; set; } = "";

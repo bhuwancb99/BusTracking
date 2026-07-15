@@ -18,11 +18,32 @@ namespace BusTracking.Common.Services
         public async Task<ApiResponse<LoginResponseDto>> LoginAsync(LoginDto dto)
         {
             var user = await _db.Users
+                .IgnoreQueryFilters()
                 .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.UserName == dto.UserName && u.IsActive);
+                .FirstOrDefaultAsync(u => u.UserName == dto.UserName);
 
             if (user is null || !_pwd.VerifyPassword(dto.Password, user.PasswordHash, user.PasswordSalt))
                 return ApiResponse<LoginResponseDto>.Fail("Invalid username or password.");
+
+            if (!user.IsActive)
+                return ApiResponse<LoginResponseDto>.Fail("Your account has been deactivated. Please contact your System Administrator for assistance.");
+
+            // Cascading Deactivation / School Inactivity Checks
+            if (user.SchoolId.HasValue)
+            {
+                var school = await _db.Schools.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.SchoolId == user.SchoolId.Value);
+                if (school == null || !school.IsActive)
+                    return ApiResponse<LoginResponseDto>.Fail("Your account has been deactivated. Please contact your System Administrator for assistance.");
+
+                if (user.Role.RoleName != AppConstants.RoleSuperAdmin)
+                {
+                    var hasActiveSuperAdmin = await _db.Users
+                        .IgnoreQueryFilters()
+                        .AnyAsync(u => u.SchoolId == user.SchoolId && u.Role.RoleId == 1 && u.IsActive);
+                    if (!hasActiveSuperAdmin)
+                        return ApiResponse<LoginResponseDto>.Fail("Your account has been deactivated. Please contact your System Administrator for assistance.");
+                }
+            }
 
             user.LastLoginAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
@@ -35,7 +56,7 @@ namespace BusTracking.Common.Services
                 ? System.Text.Json.JsonSerializer.Serialize(permissionKeys)
                 : "";
 
-            var token = _jwt.GenerateToken(user.UserId, user.Email ?? user.UserName, user.Role.RoleName, permissionKeys);
+            var token = _jwt.GenerateToken(user.UserId, user.Email ?? user.UserName, user.Role.RoleName, permissionKeys, user.SchoolId);
             return ApiResponse<LoginResponseDto>.Ok(new LoginResponseDto
             {
                 UserId = user.UserId,
@@ -45,7 +66,8 @@ namespace BusTracking.Common.Services
                 Role = user.Role.RoleName,
                 Token = token,
                 Expiry = DateTime.UtcNow.AddHours(8),
-                Permissions = permissions
+                Permissions = permissions,
+                SchoolId = user.SchoolId
             });
         }
 

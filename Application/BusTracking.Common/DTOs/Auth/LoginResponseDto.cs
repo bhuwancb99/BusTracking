@@ -10,5 +10,6 @@ namespace BusTracking.Common.DTOs.Auth
         public string Token { get; set; } = "";
         public DateTime Expiry { get; set; }
         public string Permissions { get; set; } = "";
+        public int? SchoolId { get; set; }
     }
 }

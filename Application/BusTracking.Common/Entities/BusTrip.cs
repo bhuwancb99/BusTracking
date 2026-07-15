@@ -1,7 +1,9 @@
-﻿namespace BusTracking.Common.Entities
+namespace BusTracking.Common.Entities
 {
-    public class BusTrip
+    public class BusTrip : IMultiTenant
     {
+        public int? SchoolId { get; set; }
+
         [Key] public int TripId { get; set; }
         public int BusId { get; set; }
         public int DriverId { get; set; }

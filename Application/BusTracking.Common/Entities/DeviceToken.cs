@@ -1,7 +1,9 @@
-﻿namespace BusTracking.Common.Entities
+namespace BusTracking.Common.Entities
 {
-    public class DeviceToken
+    public class DeviceToken : IMultiTenant
     {
+        public int? SchoolId { get; set; }
+
         [Key] public int DeviceTokenId { get; set; }
         public int UserId { get; set; }
         [Required, MaxLength(512)] public string Token { get; set; } = "";

@@ -17,4 +17,9 @@ public interface IImageService
 
     /// <summary>Delete a file by its public URL. Silent on missing file.</summary>
     void DeleteFile(string? publicUrl);
+
+    /// <summary>
+    /// Save or replace a school logo. Returns full public URL.
+    /// </summary>
+    Task<string> SaveSchoolLogoAsync(IFormFile file, int schoolId, string? existingUrl);
 }

@@ -1,7 +1,9 @@
 namespace BusTracking.Common.Entities
 {
-    public class BusImage
+    public class BusImage : IMultiTenant
     {
+        public int? SchoolId { get; set; }
+
         [Key] public int BusImageId { get; set; }
         public int BusId { get; set; }
         [Required, MaxLength(500)] public string ImageUrl { get; set; } = "";

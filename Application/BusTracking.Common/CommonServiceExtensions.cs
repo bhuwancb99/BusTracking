@@ -13,6 +13,7 @@ public static class CommonServiceExtensions
 
         // Required for ImageService to read the live request URL
         services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         // ImageService uses IWebHostEnvironment + IHttpContextAccessor — both auto-injected
         services.AddScoped<IImageService, ImageService>();

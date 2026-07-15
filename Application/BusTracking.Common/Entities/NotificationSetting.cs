@@ -1,7 +1,9 @@
-﻿namespace BusTracking.Common.Entities
+namespace BusTracking.Common.Entities
 {
-    public class NotificationSetting
+    public class NotificationSetting : IMultiTenant
     {
+        public int? SchoolId { get; set; }
+
         [Key] public int NotificationSettingId { get; set; }
         [Required, MaxLength(50)] public string NotificationType { get; set; } = "";
         public bool IsEnabled { get; set; } = true;

@@ -1,0 +1,132 @@
+@model List<BusTracking.Common.Entities.School>
+@{
+    ViewData["Title"] = "Schools Management";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h2 class="fw-bold m-0"><i class="bi bi-building text-primary me-2"></i>Schools Management</h2>
+    <a href="@Url.Action("Create", "School", new { area = "SystemAdmin" })" class="btn btn-primary rounded-3">
+        <i class="bi bi-plus-circle me-2"></i>Add School
+    </a>
+</div>
+
+<div class="premium-card rounded-4 border-0 p-4 mb-4">
+    <form method="get" class="row g-2 align-items-center">
+        <div class="col-md-6">
+            <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Search by name, code or principal..." />
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100 rounded-3"><i class="bi bi-search me-2"></i>Search</button>
+        </div>
+        <div class="col-md-3">
+            <a href="@Url.Action("Index", "School", new { area = "SystemAdmin" })" class="btn btn-secondary w-100 rounded-3"><i class="bi bi-x-circle me-2"></i>Clear</a>
+        </div>
+    </form>
+</div>
+
+<div class="premium-card rounded-4 border-0 p-0 overflow-hidden">
+    <table class="premium-table m-0">
+        <thead>
+            <tr>
+                <th style="width: 80px;">Logo</th>
+                <th>School Code</th>
+                <th>School Name</th>
+                <th>Principal</th>
+                <th>Contact</th>
+                <th>Email</th>
+                <th style="width: 120px; text-align: center;">Active</th>
+                <th style="width: 100px; text-align: center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Count == 0)
+            {
+                <tr>
+                    <td colspan="8" class="text-center text-secondary py-5">
+                        <i class="bi bi-inbox text-muted" style="font-size: 2.5rem;"></i>
+                        <p class="mt-2">No schools found.</p>
+                    </td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var school in Model)
+                {
+                    <tr>
+                        <td class="text-center">
+                            @if (!string.IsNullOrEmpty(school.SchoolLogo))
+                            {
+                                <img src="@school.SchoolLogo" alt="Logo" class="rounded-3 border border-secondary" style="width: 45px; height: 45px; object-fit: cover;" />
+                            }
+                            else
+                            {
+                                <div class="rounded-3 d-flex align-items-center justify-content-center border border-secondary bg-dark text-secondary" style="width: 45px; height: 45px; font-weight: bold; font-size: 0.75rem;">
+                                    SCH
+                                </div>
+                            }
+                        </td>
+                        <td class="fw-semibold text-primary">@school.SchoolCode</td>
+                        <td class="fw-semibold">@school.SchoolName</td>
+                        <td>@school.PrincipalName</td>
+                        <td>@school.ContactNumber</td>
+                        <td>@school.EmailAddress</td>
+                        <td class="text-center">
+                            <label class="switch">
+                                <input type="checkbox" class="school-toggle" data-id="@school.SchoolId" @(school.IsActive ? "checked" : "") />
+                                <span class="slider"></span>
+                            </label>
+                        </td>
+                        <td class="text-center">
+                            <a href="@Url.Action("Edit", "School", new { area = "SystemAdmin", id = school.SchoolId })" class="btn btn-outline-light btn-sm rounded-3">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+@if (ViewBag.TotalPages > 1)
+{
+    <nav class="d-flex justify-content-center mt-4">
+        <ul class="pagination gap-1">
+            <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link rounded-3 bg-secondary text-light border-0" href="@Url.Action("Index", "School", new { area = "SystemAdmin", search = ViewBag.Search, page = ViewBag.CurrentPage - 1 })"><i class="bi bi-chevron-left"></i></a>
+            </li>
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                    <a class="page-link rounded-3 border-0 @(ViewBag.CurrentPage == i ? "bg-primary text-light" : "bg-secondary text-secondary")" href="@Url.Action("Index", "School", new { area = "SystemAdmin", search = ViewBag.Search, page = i })">@i</a>
+                </li>
+            }
+            <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                <a class="page-link rounded-3 bg-secondary text-light border-0" href="@Url.Action("Index", "School", new { area = "SystemAdmin", search = ViewBag.Search, page = ViewBag.CurrentPage + 1 })"><i class="bi bi-chevron-right"></i></a>
+            </li>
+        </ul>
+    </nav>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.school-toggle').change(function() {
+                var schoolId = $(this).data('id');
+                var token = $('input[name="__RequestVerificationToken"]').val();
+                $.ajax({
+                    url: '@Url.Action("ToggleActive", "School", new { area = "SystemAdmin" })',
+                    type: 'POST',
+                    data: { id: schoolId, __RequestVerificationToken: token },
+                    success: function(res) {
+                        // optional alert/notification logic
+                    },
+                    error: function() {
+                        alert('An error occurred. Please try again.');
+                    }
+                });
+            });
+        });
+    </script>
+}

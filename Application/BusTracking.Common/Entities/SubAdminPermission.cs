@@ -1,7 +1,9 @@
-﻿namespace BusTracking.Common.Entities
+namespace BusTracking.Common.Entities
 {
-    public class SubAdminPermission
+    public class SubAdminPermission : IMultiTenant
     {
+        public int? SchoolId { get; set; }
+
         [Key] public int SubAdminPermissionId { get; set; }
         public int UserId { get; set; }
         public int PermissionId { get; set; }

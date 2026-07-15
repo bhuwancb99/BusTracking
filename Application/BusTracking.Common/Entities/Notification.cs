@@ -1,7 +1,9 @@
-﻿namespace BusTracking.Common.Entities
+namespace BusTracking.Common.Entities
 {
-    public class Notification
+    public class Notification : IMultiTenant
     {
+        public int? SchoolId { get; set; }
+
         [Key] public int NotificationId { get; set; }
         public int RecipientUserId { get; set; }
         [Required, MaxLength(200)] public string Title { get; set; } = "";

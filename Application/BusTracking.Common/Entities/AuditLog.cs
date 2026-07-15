@@ -1,7 +1,9 @@
-﻿namespace BusTracking.Common.Entities
+namespace BusTracking.Common.Entities
 {
-    public class AuditLog
+    public class AuditLog : IMultiTenant
     {
+        public int? SchoolId { get; set; }
+
         [Key] public long AuditLogId { get; set; }
         public int? UserId { get; set; }
         [Required, MaxLength(100)] public string Action { get; set; } = "";

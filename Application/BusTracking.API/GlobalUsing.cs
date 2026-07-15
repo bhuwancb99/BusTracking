@@ -22,6 +22,7 @@ global using BusTracking.Common.DTOs.Trip;
 global using BusTracking.Common.DTOs.User;
 global using BusTracking.Common.Entities;
 global using BusTracking.Common.Enums;
+global using BusTracking.Common.Helpers;
 global using BusTracking.Common.Interfaces;
 global using Microsoft.AspNetCore.Authentication.JwtBearer;
 global using Microsoft.AspNetCore.Authorization;

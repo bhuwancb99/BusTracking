@@ -2,7 +2,15 @@ namespace BusTracking.Common.Data;
 
 public class AppDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+    private readonly ICurrentUserService _currentUserService;
+
+    public AppDbContext(DbContextOptions<AppDbContext> options, ICurrentUserService currentUserService) : base(options)
+    {
+        _currentUserService = currentUserService;
+    }
+
+    public DbSet<School> Schools { get; set; }
+    public DbSet<SystemAdministrator> SystemAdministrators { get; set; }
 
     public DbSet<Role> Roles { get; set; }
     public DbSet<Permission> Permissions { get; set; }
@@ -36,6 +44,8 @@ public class AppDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        modelBuilder.Entity<School>().ToTable("Schools");
+        modelBuilder.Entity<SystemAdministrator>().ToTable("SystemAdministrators");
         // ── Explicit table names — must match SQL script exactly ─────
         modelBuilder.Entity<Role>().ToTable("Roles");
         modelBuilder.Entity<Permission>().ToTable("Permissions");
@@ -66,6 +76,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Logger>().ToTable("Logger");
 
         // ── Unique indexes ────────────────────────────────────────────
+        modelBuilder.Entity<School>().HasIndex(s => s.SchoolCode).IsUnique();
+        modelBuilder.Entity<SystemAdministrator>().HasIndex(s => s.UserName).IsUnique();
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
         modelBuilder.Entity<BusRoute>().HasIndex(r => r.RouteCode).IsUnique();
         modelBuilder.Entity<Bus>().HasIndex(b => b.BusNumber).IsUnique();
@@ -136,5 +148,46 @@ public class AppDbContext : DbContext
             .HasIndex(f => new { f.Status, f.CreatedAt });
         modelBuilder.Entity<BusImage>()
             .HasIndex(i => i.BusId);
+
+        // ── Multi-Tenant Global Query Filters ─────────────────────────
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (typeof(IMultiTenant).IsAssignableFrom(entityType.ClrType))
+            {
+                var parameter = Expression.Parameter(entityType.ClrType, "e");
+                var schoolIdProperty = Expression.Property(parameter, nameof(IMultiTenant.SchoolId));
+                
+                var dbContextExpression = Expression.Constant(this);
+                var currentSchoolIdProperty = Expression.Property(dbContextExpression, nameof(CurrentSchoolId));
+                
+                var equalsExpression = Expression.Equal(schoolIdProperty, currentSchoolIdProperty);
+                var isNullExpression = Expression.Equal(currentSchoolIdProperty, Expression.Constant(null, typeof(int?)));
+                var combinedExpression = Expression.OrElse(equalsExpression, isNullExpression);
+                
+                var lambda = Expression.Lambda(combinedExpression, parameter);
+                modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
+            }
+        }
+    }
+
+    public int? CurrentSchoolId => _currentUserService.SchoolId;
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var schoolId = _currentUserService.SchoolId;
+        if (schoolId.HasValue)
+        {
+            foreach (var entry in ChangeTracker.Entries<IMultiTenant>())
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    if (entry.Entity.SchoolId == null || entry.Entity.SchoolId == 0)
+                    {
+                        entry.Entity.SchoolId = schoolId.Value;
+                    }
+                }
+            }
+        }
+        return base.SaveChangesAsync(cancellationToken);
     }
 }

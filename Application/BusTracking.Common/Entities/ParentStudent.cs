@@ -1,7 +1,9 @@
-﻿namespace BusTracking.Common.Entities
+namespace BusTracking.Common.Entities
 {
-    public class ParentStudent
+    public class ParentStudent : IMultiTenant
     {
+        public int? SchoolId { get; set; }
+
         [Key] public int ParentStudentId { get; set; }
         public int ParentId { get; set; }
         public int StudentId { get; set; }

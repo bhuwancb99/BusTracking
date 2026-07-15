@@ -1,7 +1,9 @@
-﻿namespace BusTracking.Common.Entities
+namespace BusTracking.Common.Entities
 {
-    public class AppConfiguration
+    public class AppConfiguration : IMultiTenant
     {
+        public int? SchoolId { get; set; }
+
         [Key] public int ConfigId { get; set; }
 
         [Required, MaxLength(100)]

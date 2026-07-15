@@ -1,7 +1,9 @@
-﻿namespace BusTracking.Common.Entities
+namespace BusTracking.Common.Entities
 {
-    public class DriverDetail
+    public class DriverDetail : IMultiTenant
     {
+        public int? SchoolId { get; set; }
+
         [Key] public int DriverDetailId { get; set; }
         public int UserId { get; set; }
         [MaxLength(100)] public string? LicenseNumber { get; set; }

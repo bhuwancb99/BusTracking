@@ -39,6 +39,11 @@ public class AuthController : Controller
             new(ClaimTypes.Role,           result.Data.Role),
         };
 
+        if (result.Data.SchoolId.HasValue)
+        {
+            claims.Add(new Claim("school_id", result.Data.SchoolId.Value.ToString()));
+        }
+
         // For BusCoordinators, load their assigned permissions and add as claims
         if (result.Data.Role == "BusCoordinator")
         {

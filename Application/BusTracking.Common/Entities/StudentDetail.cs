@@ -1,7 +1,9 @@
 namespace BusTracking.Common.Entities
 {
-    public class StudentDetail
+    public class StudentDetail : IMultiTenant
     {
+        public int? SchoolId { get; set; }
+
         [Key] public int StudentId { get; set; }
         public int UserId { get; set; }
         [Required, MaxLength(50)] public string StudentCode { get; set; } = "";

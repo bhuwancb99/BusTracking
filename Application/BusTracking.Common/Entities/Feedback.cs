@@ -1,7 +1,9 @@
-﻿namespace BusTracking.Common.Entities
+namespace BusTracking.Common.Entities
 {
-    public class Feedback
+    public class Feedback : IMultiTenant
     {
+        public int? SchoolId { get; set; }
+
         [Key] public int FeedbackId { get; set; }
         public int UserId { get; set; }
         public FeedbackCategory Category { get; set; }

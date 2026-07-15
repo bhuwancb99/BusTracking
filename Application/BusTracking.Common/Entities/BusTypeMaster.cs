@@ -1,7 +1,9 @@
 namespace BusTracking.Common.Entities
 {
-    public class BusTypeMaster
+    public class BusTypeMaster : IMultiTenant
     {
+        public int? SchoolId { get; set; }
+
         [Key] public int Id { get; set; }
 
         [Required, MaxLength(100)]

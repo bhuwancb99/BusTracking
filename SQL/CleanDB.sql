@@ -51,7 +51,9 @@ BEGIN TRY
     IF OBJECT_ID('Feedbacks', 'U') IS NOT NULL DELETE FROM Feedbacks;
     IF OBJECT_ID('Notifications', 'U') IS NOT NULL DELETE FROM Notifications;
     IF OBJECT_ID('NotificationSettings', 'U') IS NOT NULL DELETE FROM NotificationSettings;
+    IF OBJECT_ID('SystemAdministrators', 'U') IS NOT NULL DELETE FROM SystemAdministrators;
     IF OBJECT_ID('Users', 'U') IS NOT NULL DELETE FROM Users;
+    IF OBJECT_ID('Schools', 'U') IS NOT NULL DELETE FROM Schools;
     IF OBJECT_ID('Permissions', 'U') IS NOT NULL DELETE FROM Permissions;
     IF OBJECT_ID('Roles', 'U') IS NOT NULL DELETE FROM Roles;
 
@@ -135,7 +137,9 @@ IF OBJECT_ID('DeviceTokens', 'U') IS NOT NULL DROP TABLE DeviceTokens;
 IF OBJECT_ID('Feedbacks', 'U') IS NOT NULL DROP TABLE Feedbacks;
 IF OBJECT_ID('Notifications', 'U') IS NOT NULL DROP TABLE Notifications;
 IF OBJECT_ID('NotificationSettings', 'U') IS NOT NULL DROP TABLE NotificationSettings;
+IF OBJECT_ID('SystemAdministrators', 'U') IS NOT NULL DROP TABLE SystemAdministrators;
 IF OBJECT_ID('Users', 'U') IS NOT NULL DROP TABLE Users;
+IF OBJECT_ID('Schools', 'U') IS NOT NULL DROP TABLE Schools;
 IF OBJECT_ID('Permissions', 'U') IS NOT NULL DROP TABLE Permissions;
 IF OBJECT_ID('Roles', 'U') IS NOT NULL DROP TABLE Roles;
 PRINT 'All tables dropped.';

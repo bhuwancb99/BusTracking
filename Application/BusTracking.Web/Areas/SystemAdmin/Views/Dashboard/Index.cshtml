@@ -1,0 +1,86 @@
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h2 class="fw-bold m-0"><i class="bi bi-speedometer2 text-primary me-2"></i>Dashboard</h2>
+    <span class="text-secondary small">System Administration Control</span>
+</div>
+
+<div class="row g-4">
+    <!-- Schools Card -->
+    <div class="col-md-4 col-lg-3">
+        <div class="premium-card rounded-4 border-0 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <span class="text-secondary fw-semibold">TOTAL SCHOOLS</span>
+                    <i class="bi bi-building text-primary" style="font-size: 1.5rem;"></i>
+                </div>
+                <h2 class="fw-bold m-0">@ViewBag.TotalSchools</h2>
+            </div>
+            <a href="@Url.Action("Index", "School", new { area = "SystemAdmin" })" class="text-primary text-decoration-none small mt-4 fw-medium">
+                Manage Schools <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Super Admins Card -->
+    <div class="col-md-4 col-lg-3">
+        <div class="premium-card rounded-4 border-0 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <span class="text-secondary fw-semibold">SUPER ADMINS</span>
+                    <i class="bi bi-people text-success" style="font-size: 1.5rem;"></i>
+                </div>
+                <h2 class="fw-bold m-0">@ViewBag.TotalSuperAdmins</h2>
+            </div>
+            <a href="@Url.Action("Index", "SuperAdmin", new { area = "SystemAdmin" })" class="text-success text-decoration-none small mt-4 fw-medium">
+                Manage Admins <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+
+    <!-- Vehicles Card -->
+    <div class="col-md-4 col-lg-3">
+        <div class="premium-card rounded-4 border-0 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <span class="text-secondary fw-semibold">ACTIVE VEHICLES</span>
+                    <i class="bi bi-bus-front text-warning" style="font-size: 1.5rem;"></i>
+                </div>
+                <h2 class="fw-bold m-0">@ViewBag.TotalBuses</h2>
+            </div>
+            <span class="text-secondary small mt-4">System-wide active fleet</span>
+        </div>
+    </div>
+
+    <!-- Tracked Students Card -->
+    <div class="col-md-4 col-lg-3">
+        <div class="premium-card rounded-4 border-0 h-100 d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <span class="text-secondary fw-semibold">STUDENTS</span>
+                    <i class="bi bi-backpack text-info" style="font-size: 1.5rem;"></i>
+                </div>
+                <h2 class="fw-bold m-0">@ViewBag.TotalStudents</h2>
+            </div>
+            <span class="text-secondary small mt-4">Registered student base</span>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="premium-card rounded-4 border-0 p-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Platform Health Status</h5>
+            <div class="d-flex flex-wrap gap-4 text-secondary small mt-2">
+                <div>
+                    <span class="fw-semibold text-light">Logger Database size:</span> @ViewBag.TotalLogs total log records
+                </div>
+                <div>
+                    <span class="fw-semibold text-light">Status:</span> Operational
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
