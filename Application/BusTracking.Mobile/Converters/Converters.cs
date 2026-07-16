@@ -320,4 +320,36 @@ public class NullableTimeSpanConverter : IValueConverter
         => value is TimeSpan t ? t : (TimeSpan?)null;
 }
 
+/// <summary>
+/// Converts a stop's status string to true when it equals "Pending".
+/// Used to enable/disable the "Reached" button on DriverTrackingPage.
+///
+/// Register in App.xaml:
+///   &lt;converters:EqualsToPendingConverter x:Key="EqualsToPending" /&gt;
+/// </summary>
+public class EqualsToPendingConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is string s && s == "Pending";
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+/// <summary>
+/// Converts a stop's status string to true when it equals "Reached".
+/// Used to enable/disable the "Departed" button on DriverTrackingPage.
+///
+/// Register in App.xaml:
+///   &lt;converters:EqualsToReachedConverter x:Key="EqualsToReached" /&gt;
+/// </summary>
+public class EqualsToReachedConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is string s && s == "Reached";
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
 

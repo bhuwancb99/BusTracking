@@ -31,6 +31,8 @@
             <converters:AllTrueMultiConverter x:Key="AllTrueConverter" />
             <converters:StringToInvertBoolConverter x:Key="StringToInvertBool" />
             <converters:NullableTimeSpanConverter x:Key="NullableTimeSpan" />
+            <converters:EqualsToPendingConverter x:Key="EqualsToPending" />
+            <converters:EqualsToReachedConverter x:Key="EqualsToReached" />
 
 
             <ResourceDictionary.MergedDictionaries>
