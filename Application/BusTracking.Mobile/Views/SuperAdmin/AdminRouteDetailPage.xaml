@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminRouteDetailPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -15,7 +15,6 @@
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
-
 
     <Shell.TitleView>
         <Grid
@@ -77,8 +76,6 @@
 
     <ScrollView>
         <VerticalStackLayout Padding="16" Spacing="12">
-
-
 
             <!--  Error  -->
             <Border
@@ -306,7 +303,7 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!--  Stops  -->
+            <!--  Stops Header & List (Always-Editable CardViews matching screenshot layout)  -->
             <Border
                 Padding="16"
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
@@ -314,8 +311,8 @@
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                          Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 16">
-                <VerticalStackLayout Spacing="10">
-                    <Grid ColumnDefinitions="*,Auto">
+                <VerticalStackLayout Spacing="12">
+                    <Grid Margin="0,0,0,6" ColumnDefinitions="*,Auto">
                         <Label Grid.Column="0" VerticalOptions="Center">
                             <Label.FormattedText>
                                 <FormattedString>
@@ -333,18 +330,20 @@
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>
+
+                        <!--  One single Update Records Button to save all stops  -->
                         <Button
                             Grid.Column="1"
                             Padding="12,6"
-                            BackgroundColor="{StaticResource Success}"
-                            Command="{Binding UpdateOrderCommand}"
+                            BackgroundColor="{StaticResource Primary}"
+                            Command="{Binding SaveStopsCommand}"
                             CornerRadius="8"
                             FontSize="12"
                             IsVisible="{Binding HasStops}"
-                            Text="Update Order"
+                            Text="Update Records"
                             TextColor="White" />
                     </Grid>
-                    <BoxView BackgroundColor="{AppThemeBinding Light={StaticResource StatusInactiveBg}, Dark={StaticResource StatusInactiveBgDark}}" HeightRequest="1" />
+
                     <CollectionView ItemsSource="{Binding Stops}" SelectionMode="None">
                         <CollectionView.EmptyView>
                             <Label
@@ -356,54 +355,254 @@
                         </CollectionView.EmptyView>
                         <CollectionView.ItemTemplate>
                             <DataTemplate x:DataType="models:Route.StopItem">
-                                <Grid
-                                    Padding="0,8"
-                                    ColumnDefinitions="48,*,Auto,Auto"
-                                    ColumnSpacing="10">
-                                    <Entry
-                                        Grid.Column="0"
-                                        FontAttributes="Bold"
-                                        FontSize="13"
-                                        HorizontalTextAlignment="Center"
-                                        Keyboard="Numeric"
-                                        Text="{Binding OrderText}"
-                                        WidthRequest="48" />
-                                    <Label
-                                        Grid.Column="1"
-                                        FontSize="14"
-                                        Text="{Binding StopName}"
-                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                                    Dark={StaticResource TextPrimaryDark}}"
-                                        VerticalOptions="Center" />
-                                    <Label
-                                        Grid.Column="2"
-                                        FontSize="12"
-                                        Text="{Binding MorningTime}"
-                                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                                    Dark={StaticResource TextSecondaryDark}}"
-                                        VerticalOptions="Center" />
-                                    <Border
-                                        Grid.Column="3"
-                                        Padding="6"
-                                        BackgroundColor="Transparent"
-                                        StrokeShape="RoundRectangle 8"
-                                        StrokeThickness="0"
-                                        VerticalOptions="Center">
-                                        <Border.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteDetailViewModel}}, Path=DeleteStopCommand}" CommandParameter="{Binding .}" />
-                                        </Border.GestureRecognizers>
-                                        <Image
-                                            HeightRequest="18"
-                                            HorizontalOptions="Center"
-                                            Source="delete.png"
-                                            VerticalOptions="Center"
-                                            WidthRequest="18">
-                                            <Image.Behaviors>
-                                                <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
-                                            </Image.Behaviors>
-                                        </Image>
-                                    </Border>
-                                </Grid>
+                                <!--  Distinct CardView Border with Left stripe accent  -->
+                                <Border
+                                    Margin="0,0,0,14"
+                                    Padding="0"
+                                    BackgroundColor="{AppThemeBinding Light=White,
+                                                                      Dark={StaticResource CardBgDark}}"
+                                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                             Dark={StaticResource BorderColorDark}}"
+                                    StrokeShape="RoundRectangle 16"
+                                    StrokeThickness="1">
+
+                                    <Grid ColumnDefinitions="4,*" ColumnSpacing="0">
+                                        <!--  Left Colored Accent Stripe  -->
+                                        <BoxView
+                                            Grid.Column="0"
+                                            BackgroundColor="#00288e"
+                                            VerticalOptions="Fill"
+                                            WidthRequest="4" />
+
+                                        <!--  Content area inside the Card  -->
+                                        <Grid
+                                            Grid.Column="1"
+                                            Padding="16,14,16,14"
+                                            RowDefinitions="Auto,Auto,Auto"
+                                            RowSpacing="12">
+
+                                            <!--  Top Row: Order Entry Badge, Editable Name, Sequence Label, Delete Icon  -->
+                                            <Grid
+                                                Grid.Row="0"
+                                                ColumnDefinitions="36,*,Auto"
+                                                ColumnSpacing="12"
+                                                VerticalOptions="Center">
+
+                                                <!--  Editable Stop Order Badge (#1)  -->
+                                                <Border
+                                                    Grid.Column="0"
+                                                    Padding="0"
+                                                    BackgroundColor="#e9eef7"
+                                                    HeightRequest="30"
+                                                    HorizontalOptions="Center"
+                                                    StrokeShape="RoundRectangle 8"
+                                                    VerticalOptions="Center"
+                                                    WidthRequest="32">
+                                                    <Entry
+                                                        BackgroundColor="Transparent"
+                                                        FontAttributes="Bold"
+                                                        FontSize="12"
+                                                        HeightRequest="30"
+                                                        HorizontalTextAlignment="Center"
+                                                        Keyboard="Numeric"
+                                                        Text="{Binding OrderText}"
+                                                        TextColor="#00288e"
+                                                        VerticalTextAlignment="Center"
+                                                        WidthRequest="32" />
+                                                </Border>
+
+                                                <!--  Editable Stop Name & Sequence  -->
+                                                <VerticalStackLayout
+                                                    Grid.Column="1"
+                                                    Spacing="0"
+                                                    VerticalOptions="Center">
+                                                    <Entry
+                                                        BackgroundColor="Transparent"
+                                                        FontAttributes="Bold"
+                                                        FontSize="15"
+                                                        HeightRequest="30"
+                                                        Text="{Binding StopName}"
+                                                        TextColor="#00288e" />
+                                                    <Label
+                                                        FontAttributes="Bold"
+                                                        FontSize="9"
+                                                        Text="{Binding StopOrder, StringFormat='SEQUENCE ORDER: {0}'}"
+                                                        TextColor="#8b95a5" />
+                                                </VerticalStackLayout>
+
+                                                <!--  Trash Delete Icon  -->
+                                                <Border
+                                                    Grid.Column="2"
+                                                    Padding="6"
+                                                    BackgroundColor="Transparent"
+                                                    StrokeThickness="0"
+                                                    VerticalOptions="Center">
+                                                    <Border.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminRouteDetailViewModel}}, Path=DeleteStopCommand}" CommandParameter="{Binding .}" />
+                                                    </Border.GestureRecognizers>
+                                                    <Image
+                                                        HeightRequest="20"
+                                                        Source="delete.png"
+                                                        WidthRequest="20">
+                                                        <Image.Behaviors>
+                                                            <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                                        </Image.Behaviors>
+                                                    </Image>
+                                                </Border>
+                                            </Grid>
+
+                                            <!--  Middle Row: Timing Box (Left Morning, Right Evening with Left/Right Alignments)  -->
+                                            <Border
+                                                Grid.Row="1"
+                                                Padding="0"
+                                                BackgroundColor="#f7f9fc"
+                                                HeightRequest="60"
+                                                Stroke="#e2e8f0"
+                                                StrokeShape="RoundRectangle 10"
+                                                StrokeThickness="1">
+                                                <Grid ColumnDefinitions="*,1,*">
+                                                    <!--  Morning Time (Aligned Left)  -->
+                                                    <Grid
+                                                        Grid.Column="0"
+                                                        Padding="12,6"
+                                                        ColumnDefinitions="Auto,*"
+                                                        ColumnSpacing="6"
+                                                        HorizontalOptions="Start"
+                                                        VerticalOptions="Center">
+                                                        <Label
+                                                            Grid.Column="0"
+                                                            FontSize="13"
+                                                            Text="☀️"
+                                                            VerticalOptions="Center" />
+                                                        <VerticalStackLayout
+                                                            Grid.Column="1"
+                                                            HorizontalOptions="Start"
+                                                            Spacing="0"
+                                                            VerticalOptions="Center">
+                                                            <Label
+                                                                FontAttributes="Bold"
+                                                                FontSize="9"
+                                                                HorizontalOptions="Start"
+                                                                Text="MORNING"
+                                                                TextColor="#8b95a5" />
+                                                            <Entry
+                                                                BackgroundColor="Transparent"
+                                                                FontAttributes="Bold"
+                                                                FontSize="15"
+                                                                HeightRequest="30"
+                                                                HorizontalTextAlignment="Start"
+                                                                Text="{Binding MorningTime}"
+                                                                TextColor="#1e293b"
+                                                                WidthRequest="80" />
+                                                        </VerticalStackLayout>
+                                                    </Grid>
+
+                                                    <!--  Divider line  -->
+                                                    <BoxView
+                                                        Grid.Column="1"
+                                                        BackgroundColor="#e2e8f0"
+                                                        HeightRequest="32"
+                                                        VerticalOptions="Center"
+                                                        WidthRequest="1" />
+
+                                                    <!--  Evening Time (Aligned Right)  -->
+                                                    <Grid
+                                                        Grid.Column="2"
+                                                        Padding="12,6"
+                                                        ColumnDefinitions="*,Auto"
+                                                        ColumnSpacing="6"
+                                                        HorizontalOptions="End"
+                                                        VerticalOptions="Center">
+                                                        <VerticalStackLayout
+                                                            Grid.Column="0"
+                                                            HorizontalOptions="End"
+                                                            Spacing="0"
+                                                            VerticalOptions="Center">
+                                                            <Label
+                                                                FontAttributes="Bold"
+                                                                FontSize="9"
+                                                                HorizontalOptions="End"
+                                                                Text="EVENING"
+                                                                TextColor="#8b95a5" />
+                                                            <Entry
+                                                                BackgroundColor="Transparent"
+                                                                FontAttributes="Bold"
+                                                                FontSize="15"
+                                                                HeightRequest="30"
+                                                                HorizontalTextAlignment="End"
+                                                                Text="{Binding EveningTime}"
+                                                                TextColor="#1e293b"
+                                                                WidthRequest="80" />
+                                                        </VerticalStackLayout>
+                                                        <Label
+                                                            Grid.Column="1"
+                                                            FontSize="13"
+                                                            Text="🌙"
+                                                            VerticalOptions="Center" />
+                                                    </Grid>
+                                                </Grid>
+                                            </Border>
+
+                                            <!--  Bottom Row: Coords Panel (Left Latitude, Right Longitude with Left/Right Alignments)  -->
+                                            <Grid Grid.Row="2" ColumnDefinitions="*,1,*">
+                                                <!--  Latitude (Aligned Left)  -->
+                                                <VerticalStackLayout
+                                                    Grid.Column="0"
+                                                    Padding="12,0,0,0"
+                                                    HorizontalOptions="Start"
+                                                    Spacing="1">
+                                                    <Label
+                                                        FontAttributes="Bold"
+                                                        FontSize="9"
+                                                        HorizontalOptions="Start"
+                                                        Text="LATITUDE"
+                                                        TextColor="#8b95a5" />
+                                                    <Entry
+                                                        BackgroundColor="Transparent"
+                                                        FontSize="13"
+                                                        HeightRequest="30"
+                                                        HorizontalTextAlignment="Start"
+                                                        Keyboard="Numeric"
+                                                        Text="{Binding Latitude}"
+                                                        TextColor="#1e293b"
+                                                        WidthRequest="120" />
+                                                </VerticalStackLayout>
+
+                                                <!--  Divider line  -->
+                                                <BoxView
+                                                    Grid.Column="1"
+                                                    BackgroundColor="#e2e8f0"
+                                                    HeightRequest="20"
+                                                    VerticalOptions="Center"
+                                                    WidthRequest="1" />
+
+                                                <!--  Longitude (Aligned Right)  -->
+                                                <VerticalStackLayout
+                                                    Grid.Column="2"
+                                                    Padding="0,0,12,0"
+                                                    HorizontalOptions="End"
+                                                    Spacing="1">
+                                                    <Label
+                                                        FontAttributes="Bold"
+                                                        FontSize="9"
+                                                        HorizontalOptions="End"
+                                                        Text="LONGITUDE"
+                                                        TextColor="#8b95a5" />
+                                                    <Entry
+                                                        BackgroundColor="Transparent"
+                                                        FontSize="13"
+                                                        HeightRequest="30"
+                                                        HorizontalTextAlignment="End"
+                                                        Keyboard="Numeric"
+                                                        Text="{Binding Longitude}"
+                                                        TextColor="#1e293b"
+                                                        WidthRequest="120" />
+                                                </VerticalStackLayout>
+                                            </Grid>
+
+                                        </Grid>
+                                    </Grid>
+                                </Border>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>

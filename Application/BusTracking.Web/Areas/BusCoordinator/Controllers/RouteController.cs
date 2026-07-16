@@ -115,5 +115,14 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             var r = await _route.ReorderStopsAsync(dto);
             return Json(new { r.Success, r.Message });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateStops([FromBody] BusTracking.Common.DTOs.Stop.UpdateStopsDto dto)
+        {
+            if (!PermissionHelper.Can(User, "route.edit"))
+                return Json(new { Success = false, Message = "Permission denied." });
+            var r = await _route.UpdateStopsAsync(dto);
+            return Json(new { r.Success, r.Message });
+        }
     }
 }

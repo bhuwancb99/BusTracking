@@ -223,7 +223,7 @@
                 </Border>
 
                 <!--  No trip placeholder  -->
-                <Border IsVisible="{Binding ActiveTrip, Converter={StaticResource IsNull}}" Style="{StaticResource StatCardBorder}">
+                <Border IsVisible="{Binding ActiveTrip, Converter={StaticResource NullToVisible}}" Style="{StaticResource StatCardBorder}">
                     <VerticalStackLayout
                         Padding="10"
                         HorizontalOptions="Center"

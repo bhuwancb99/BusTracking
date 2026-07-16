@@ -271,6 +271,15 @@ namespace BusTracking.API.Controllers
             return r.Success ? Ok(r) : BadRequest(r);
         }
 
+        [HttpPut("routes/{id}/stops")]
+        public async Task<IActionResult> UpdateStops(int id, [FromBody] BusTracking.Common.DTOs.Stop.UpdateStopsDto dto)
+        {
+            RequirePermission("route.edit");
+            dto.RouteId = id;
+            var r = await _route.UpdateStopsAsync(dto);
+            return r.Success ? Ok(r) : BadRequest(r);
+        }
+
         [HttpGet("routes/{routeId}/stops")]
         public async Task<IActionResult> RouteStops(int routeId)
         {

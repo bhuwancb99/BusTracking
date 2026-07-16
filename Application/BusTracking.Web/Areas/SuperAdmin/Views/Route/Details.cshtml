@@ -6,35 +6,48 @@
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h4 class="fw-bold mb-0"><i class="bi bi-map me-2 text-primary"></i>@Model?.RouteName</h4>
     <div class="d-flex gap-2">
-        @if (Model?.Stops.Count > 0)
-        {
-            <button class="btn btn-success btn-sm" id="btnUpdateOrder"><i class="bi bi-arrow-down-up me-1"></i>Update Order</button>
-        }
-        <a asp-action="Edit" asp-route-id="@Model?.RouteId" class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil me-1"></i>Edit</a>
+        <a asp-action="Edit" asp-route-id="@Model?.RouteId" class="btn btn-primary btn-sm"><i class="bi bi-pencil-square me-1"></i>Edit Route</a>
         <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
     </div>
 </div>
 
 <div class="row g-4">
-    <!-- Route info -->
+    <!-- Route info (Read-Only) -->
     <div class="col-lg-4">
         <div class="card border-0 shadow-sm mb-4">
-            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">Route Info</div>
+            <div class="card-header bg-white border-0 pt-4 px-4">
+                <span class="fw-semibold">Route Info</span>
+            </div>
             <div class="card-body p-4">
-                <table class="table table-borderless mb-0">
-                    <tr><th class="text-muted small">Code</th><td><code>@Model?.RouteCode</code></td></tr>
-                    <tr><th class="text-muted small">Morning</th><td><i class="bi bi-sunrise text-warning me-1"></i>@(Model?.MorningTime ?? "–")</td></tr>
-                    <tr><th class="text-muted small">Evening</th><td><i class="bi bi-sunset text-secondary me-1"></i>@(Model?.EveningTime ?? "–")</td></tr>
-                    <tr><th class="text-muted small">Stops</th><td><span class="badge bg-info-subtle text-info">@(Model?.StopCount ?? 0)</span></td></tr>
-                    <tr>
-                        <th class="text-muted small">Status</th>
-                        <td><span class="badge @(Model?.IsActive == true ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">@(Model?.IsActive == true ? "Active" : "Inactive")</span></td>
-                    </tr>
-                    @if (!string.IsNullOrEmpty(Model?.Description))
-                    {
-                        <tr><th class="text-muted small">Notes</th><td class="small text-muted">@Model.Description</td></tr>
-                    }
-                </table>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-muted">Route Name</label>
+                    <div class="form-control-plaintext fw-semibold">@Model?.RouteName</div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-muted">Route Code</label>
+                    <div class="form-control-plaintext"><code>@Model?.RouteCode</code></div>
+                </div>
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="form-label fw-semibold small text-muted"><i class="bi bi-sunrise text-warning me-1"></i>Morning</label>
+                        <div class="form-control-plaintext">@(Model?.MorningTime ?? "–")</div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label fw-semibold small text-muted"><i class="bi bi-sunset text-secondary me-1"></i>Evening</label>
+                        <div class="form-control-plaintext">@(Model?.EveningTime ?? "–")</div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-semibold small text-muted">Description</label>
+                    <div class="form-control-plaintext text-muted small">@(Model?.Description ?? "–")</div>
+                </div>
+                <div class="d-flex gap-2 mt-2">
+                    <label class="form-label fw-semibold small text-muted mb-0 me-2">Stops</label>
+                    <span class="badge bg-info-subtle text-info">@(Model?.StopCount ?? 0)</span>
+                    <span class="ms-3 badge @(Model?.IsActive == true ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">
+                        @(Model?.IsActive == true ? "Active" : "Inactive")
+                    </span>
+                </div>
             </div>
         </div>
 
@@ -42,7 +55,6 @@
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-pin-map me-2 text-primary"></i>Add Stop</div>
             <div class="card-body p-4">
-                <div id="addStopAlert"></div>
                 <div class="mb-3">
                     <label class="form-label fw-semibold small">Stop Name <span class="text-danger">*</span></label>
                     <input type="text" id="stopName" class="form-control form-control-sm" placeholder="e.g. City Park Gate" />
@@ -72,10 +84,26 @@
         </div>
     </div>
 
-    <!-- Stop timeline -->
+    <!-- Stop timeline with Edit Stop Records -->
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-signpost-split me-2 text-primary"></i>Stops on this Route</div>
+            <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                <span class="fw-semibold"><i class="bi bi-signpost-split me-2 text-primary"></i>Stops on this Route</span>
+                @if (Model?.Stops.Count > 0)
+                {
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary btn-sm" id="btnUpdateRecords">
+                            <i class="bi bi-pencil-square me-1"></i>Update Records
+                        </button>
+                        <button class="btn btn-success btn-sm d-none" id="btnSaveRecords">
+                            <i class="bi bi-check-lg me-1"></i>Save
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm d-none" id="btnCancelEdit">
+                            <i class="bi bi-x me-1"></i>Cancel
+                        </button>
+                    </div>
+                }
+            </div>
             <div class="card-body p-4">
                 @if (Model?.Stops.Count == 0)
                 {
@@ -88,37 +116,55 @@
                     <div class="stop-timeline" id="stopList">
                         @foreach (var stop in Model!.Stops)
                         {
-                            <div class="stop-item d-flex align-items-start gap-3" id="stop-@stop.StopId">
-                                <div class="stop-dot"></div>
+                            <div class="stop-item d-flex align-items-start gap-3 py-3 border-bottom" id="stop-@stop.StopId" data-stop-id="@stop.StopId">
+                                <div class="stop-dot mt-2"></div>
                                 <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <span class="fw-semibold">@stop.StopName</span>
-                                            <input type="number" min="1"
-                                                   class="form-control form-control-sm stop-order-input d-inline-block ms-2"
-                                                   style="width:70px"
-                                                   data-stop-id="@stop.StopId"
-                                                   data-original-order="@stop.StopOrder"
-                                                   value="@stop.StopOrder" />
+                                    <!-- View Mode Container -->
+                                    <div class="view-mode">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <span class="badge bg-secondary-subtle text-secondary me-2">#@stop.StopOrder</span>
+                                                <span class="fw-semibold stop-name-text">@stop.StopName</span>
+                                            </div>
+                                            <button class="btn btn-sm btn-outline-danger py-0 px-2 btn-del-stop" data-stop-id="@stop.StopId">
+                                                <i class="bi bi-x"></i>
+                                            </button>
                                         </div>
-                                        <button class="btn btn-sm btn-outline-danger py-0 px-2 btn-del-stop"
-                                                data-stop-id="@stop.StopId">
-                                            <i class="bi bi-x"></i>
-                                        </button>
+                                        <div class="d-flex gap-3 mt-1 small text-muted">
+                                            <span class="stop-morning-text"><i class="bi bi-sunrise me-1 text-warning"></i>@(stop.MorningTime ?? "–")</span>
+                                            <span class="stop-evening-text"><i class="bi bi-sunset me-1 text-secondary"></i>@(stop.EveningTime ?? "–")</span>
+                                            <span class="stop-coords-text"><i class="bi bi-geo-alt me-1 text-danger"></i>@(stop.Latitude.HasValue && stop.Longitude.HasValue ? $"{stop.Latitude}, {stop.Longitude}" : "–")</span>
+                                        </div>
                                     </div>
-                                    <div class="d-flex gap-3 mt-1 small text-muted">
-                                        @if (stop.MorningTime is not null)
-                                        {
-                                            <span><i class="bi bi-sunrise me-1 text-warning"></i>@stop.MorningTime</span>
-                                        }
-                                        @if (stop.EveningTime is not null)
-                                        {
-                                            <span><i class="bi bi-sunset me-1 text-secondary"></i>@stop.EveningTime</span>
-                                        }
-                                        @if (stop.Latitude is not null)
-                                        {
-                                            <span><i class="bi bi-geo-alt me-1 text-danger"></i>@stop.Latitude, @stop.Longitude</span>
-                                        }
+
+                                    <!-- Edit Mode Container (Hidden initially) -->
+                                    <div class="edit-mode d-none">
+                                        <div class="row g-2">
+                                            <div class="col-md-2 col-4">
+                                                <label class="form-label small text-muted mb-1">Order</label>
+                                                <input type="number" min="1" class="form-control form-control-sm stop-order-input" value="@stop.StopOrder" />
+                                            </div>
+                                            <div class="col-md-5 col-8">
+                                                <label class="form-label small text-muted mb-1">Stop Name</label>
+                                                <input type="text" class="form-control form-control-sm stop-name-input" value="@stop.StopName" />
+                                            </div>
+                                            <div class="col-md-2 col-6">
+                                                <label class="form-label small text-muted mb-1">Morning</label>
+                                                <input type="time" class="form-control form-control-sm stop-morning-input" value="@stop.MorningTime" />
+                                            </div>
+                                            <div class="col-md-3 col-6">
+                                                <label class="form-label small text-muted mb-1">Evening</label>
+                                                <input type="time" class="form-control form-control-sm stop-evening-input" value="@stop.EveningTime" />
+                                            </div>
+                                            <div class="col-md-6 col-6">
+                                                <label class="form-label small text-muted mb-1">Latitude</label>
+                                                <input type="number" step="0.0000001" class="form-control form-control-sm stop-lat-input" value="@stop.Latitude" placeholder="Lat" />
+                                            </div>
+                                            <div class="col-md-6 col-6">
+                                                <label class="form-label small text-muted mb-1">Longitude</label>
+                                                <input type="number" step="0.0000001" class="form-control form-control-sm stop-lng-input" value="@stop.Longitude" placeholder="Lng" />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -134,11 +180,98 @@
     <script>
         const routeId = @Model?.RouteId;
 
-        document.getElementById('btnAddStop')?.addEventListener('click', async () => {
-            const name  = document.getElementById('stopName').value.trim();
-            if (!name) {
-                busTrack.showToast('Stop name is required.', 'warning'); return;
+        // Toggle edit modes
+        const btnUpdateRecords = document.getElementById('btnUpdateRecords');
+        const btnSaveRecords = document.getElementById('btnSaveRecords');
+        const btnCancelEdit = document.getElementById('btnCancelEdit');
+
+        btnUpdateRecords?.addEventListener('click', () => {
+            document.querySelectorAll('.view-mode').forEach(el => el.classList.add('d-none'));
+            document.querySelectorAll('.edit-mode').forEach(el => el.classList.remove('d-none'));
+            btnUpdateRecords.classList.add('d-none');
+            btnSaveRecords.classList.remove('d-none');
+            btnCancelEdit.classList.remove('d-none');
+        });
+
+        btnCancelEdit?.addEventListener('click', () => {
+            document.querySelectorAll('.view-mode').forEach(el => el.classList.remove('d-none'));
+            document.querySelectorAll('.edit-mode').forEach(el => el.classList.add('d-none'));
+            btnUpdateRecords.classList.remove('d-none');
+            btnSaveRecords.classList.add('d-none');
+            btnCancelEdit.classList.add('d-none');
+            // reset values from visual text to inputs
+            document.querySelectorAll('.stop-item').forEach(item => {
+                const name = item.querySelector('.stop-name-text').textContent.trim();
+                const morning = item.querySelector('.stop-morning-text').textContent.replace('sunrise', '').replace(' ', '').trim();
+                const evening = item.querySelector('.stop-evening-text').textContent.replace('sunset', '').replace(' ', '').trim();
+                
+                item.querySelector('.stop-name-input').value = name;
+                item.querySelector('.stop-morning-input').value = morning === '–' ? '' : morning;
+                item.querySelector('.stop-evening-input').value = evening === '–' ? '' : evening;
+            });
+        });
+
+        btnSaveRecords?.addEventListener('click', async () => {
+            const stopItems = document.querySelectorAll('.stop-item');
+            const stopsData = [];
+            let orders = [];
+            let valid = true;
+
+            stopItems.forEach(item => {
+                const stopId = parseInt(item.dataset.stopId);
+                const order = parseInt(item.querySelector('.stop-order-input').value);
+                const name = item.querySelector('.stop-name-input').value.trim();
+                const morning = item.querySelector('.stop-morning-input').value || null;
+                const evening = item.querySelector('.stop-evening-input').value || null;
+                const latVal = item.querySelector('.stop-lat-input').value;
+                const lngVal = item.querySelector('.stop-lng-input').value;
+                const lat = latVal === "" ? null : parseFloat(latVal);
+                const lng = lngVal === "" ? null : parseFloat(lngVal);
+
+                if (!name) {
+                    busTrack.showToast('Stop name is required for all stops.', 'warning');
+                    valid = false;
+                    return;
+                }
+
+                orders.push(order);
+                stopsData.push({
+                    stopId,
+                    stopName: name,
+                    stopOrder: order,
+                    morningTime: morning,
+                    eveningTime: evening,
+                    latitude: lat,
+                    longitude: lng
+                });
+            });
+
+            if (!valid) return;
+
+            // Check unique order numbers
+            if (new Set(orders).size !== orders.length) {
+                busTrack.showToast('Order numbers must be unique.', 'warning');
+                return;
             }
+
+            const payload = {
+                routeId: routeId,
+                stops: stopsData
+            };
+
+            const result = await busTrack.post('/SuperAdmin/Route/UpdateStops', payload);
+            if (result.success) {
+                busTrack.showToast('Stop records saved successfully.', 'success');
+                setTimeout(() => location.reload(), 800);
+            } else {
+                busTrack.showToast(result.message, 'danger');
+            }
+        });
+
+        // Add stop
+        document.getElementById('btnAddStop')?.addEventListener('click', async () => {
+            const name = document.getElementById('stopName').value.trim();
+            if (!name) { busTrack.showToast('Stop name is required.', 'warning'); return; }
             const data = {
                 routeId,
                 stopName:    name,
@@ -148,66 +281,18 @@
                 longitude:   parseFloat(document.getElementById('stopLng').value) || null
             };
             const result = await busTrack.post('/SuperAdmin/Route/AddStop', data);
-            if (result.success) {
-                busTrack.showToast('Stop added. Refreshing…', 'success');
-                setTimeout(() => location.reload(), 800);
-            } else {
-                busTrack.showToast(result.message, 'danger');
-            }
+            if (result.success) { busTrack.showToast('Stop added. Refreshing…', 'success'); setTimeout(() => location.reload(), 800); }
+            else busTrack.showToast(result.message, 'danger');
         });
 
-        document.getElementById('btnUpdateOrder')?.addEventListener('click', async () => {
-            const inputs = document.querySelectorAll('.stop-order-input');
-            const allValues = [];
-            const changed = [];
-
-            inputs.forEach(inp => {
-                const original = parseInt(inp.dataset.originalOrder);
-                const current  = parseInt(inp.value);
-                allValues.push(current);
-                if (current !== original) {
-                    changed.push({ stopId: parseInt(inp.dataset.stopId), stopOrder: current });
-                }
-            });
-
-            if (changed.length === 0) {
-                busTrack.showToast('You have not changed anything in the order. Please update the order first, then click Update.', 'warning');
-                return;
-            }
-
-            const hasDuplicates = new Set(allValues).size !== allValues.length;
-            if (hasDuplicates) {
-                busTrack.showToast('Order numbers must be unique. Please fix duplicate order numbers before updating.', 'warning');
-                return;
-            }
-
-            const result = await busTrack.post('/SuperAdmin/Route/ReorderStops', {
-                routeId,
-                stops: Array.from(inputs).map(inp => ({
-                    stopId:    parseInt(inp.dataset.stopId),
-                    stopOrder: parseInt(inp.value)
-                }))
-            });
-
-            if (result.success) {
-                busTrack.showToast('Stop order updated. Refreshing…', 'success');
-                setTimeout(() => location.reload(), 800);
-            } else {
-                busTrack.showToast(result.message, 'danger');
-            }
-        });
-
+        // Delete stop
         document.querySelectorAll('.btn-del-stop').forEach(btn => {
             btn.addEventListener('click', async function () {
                 if (!confirm('Remove this stop?')) return;
                 const stopId = this.dataset.stopId;
                 const result = await busTrack.post(`/SuperAdmin/Route/DeleteStop?stopId=${stopId}`, {});
-                if (result.success) {
-                    document.getElementById(`stop-${stopId}`)?.remove();
-                    busTrack.showToast('Stop removed.', 'success');
-                } else {
-                    busTrack.showToast(result.message, 'danger');
-                }
+                if (result.success) { document.getElementById(`stop-${stopId}`)?.remove(); busTrack.showToast('Stop removed.', 'success'); }
+                else busTrack.showToast(result.message, 'danger');
             });
         });
     </script>

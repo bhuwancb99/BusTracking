@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminRouteDetailViewModel : BaseViewModel, IQueryAttributable
     {
@@ -17,6 +17,9 @@
         [ObservableProperty] private string _newStopLatitude = "";
         [ObservableProperty] private string _newStopLongitude = "";
 
+        // Stops inline edit mode
+        [ObservableProperty] private bool _isEditingStops;
+
         public AdminRouteDetailViewModel(IAuthService auth, INavigationService nav, IRouteService routes)
             : base(auth, nav) { _routes = routes; Title = "Route Details"; }
 
@@ -34,7 +37,12 @@
             {
                 Route = await _routes.GetByIdAsync(RouteId);
                 var stops = await _routes.GetStopsAsync(RouteId);
-                foreach (var s in stops) { s.OriginalOrder = s.StopOrder; s.OrderText = s.StopOrder.ToString(); }
+                foreach (var s in stops) 
+                { 
+                    s.OriginalOrder = s.StopOrder; 
+                    s.OrderText = s.StopOrder.ToString();
+                    s.IsEditing = IsEditingStops; // Preserve edit state if reloading while editing
+                }
                 Stops = new ObservableCollection<StopItem>(stops);
                 HasStops = stops.Count > 0;
             });
@@ -55,6 +63,86 @@
 
         [RelayCommand]
         private void ToggleAddStop() => IsAddStopVisible = !IsAddStopVisible;
+
+        [RelayCommand]
+        private void ToggleEditingStops()
+        {
+            if (IsEditingStops)
+            {
+                IsEditingStops = false;
+                foreach (var s in Stops) s.IsEditing = false;
+                _ = LoadAsync();
+            }
+            else
+            {
+                IsEditingStops = true;
+                foreach (var s in Stops) s.IsEditing = true;
+            }
+        }
+
+        [RelayCommand]
+        private async Task SaveStopsAsync()
+        {
+            var parsed = new List<(StopItem Stop, int NewOrder)>();
+            foreach (var s in Stops)
+            {
+                if (string.IsNullOrWhiteSpace(s.StopName))
+                {
+                    SetError("Stop name is required for all stops.");
+                    return;
+                }
+                if (!int.TryParse(s.OrderText, out var newOrder))
+                {
+                    SetError($"'{s.StopName}' has an invalid order number. Please enter a whole number.");
+                    return;
+                }
+                parsed.Add((s, newOrder));
+            }
+
+            var orders = parsed.Select(p => p.NewOrder).ToList();
+            if (orders.Distinct().Count() != orders.Count)
+            {
+                SetError("Order numbers must be unique. Please fix duplicate order numbers before updating.");
+                return;
+            }
+
+            var req = new UpdateStopsRequest
+            {
+                RouteId = RouteId,
+                Stops = Stops.Select(s => new UpdateStopItemRequest
+                {
+                    StopId = s.StopId,
+                    StopName = s.StopName.Trim(),
+                    StopOrder = int.Parse(s.OrderText),
+                    MorningTime = s.MorningTime,
+                    EveningTime = s.EveningTime,
+                    Latitude = s.Latitude,
+                    Longitude = s.Longitude
+                }).ToList()
+            };
+
+            bool success = false;
+            string? failMessage = null;
+
+            await RunAsync(async () =>
+            {
+                var r = await _routes.UpdateStopsAsync(req);
+                success = r.Success;
+                failMessage = r.Message;
+            });
+
+            if (success)
+            {
+                await ShowToastAsync("Stop records updated successfully.");
+                IsEditingStops = false;
+                foreach (var s in Stops) s.IsEditing = false;
+                await LoadAsync();
+            }
+            else if (failMessage is not null)
+            {
+                SetError(failMessage);
+            }
+        }
 
         [RelayCommand]
         private async Task AddStopAsync()
@@ -86,65 +174,6 @@
                 }
                 else SetError(r.Message);
             });
-        }
-
-        [RelayCommand]
-        private async Task UpdateOrderAsync()
-        {
-            var parsed = new List<(StopItem Stop, int NewOrder)>();
-            foreach (var s in Stops)
-            {
-                if (!int.TryParse(s.OrderText, out var newOrder))
-                {
-                    SetError($"'{s.StopName}' has an invalid order number. Please enter a whole number.");
-                    return;
-                }
-                parsed.Add((s, newOrder));
-            }
-
-            var changed = parsed.Where(p => p.NewOrder != p.Stop.OriginalOrder).ToList();
-            if (changed.Count == 0)
-            {
-                SetError("You have not changed anything in the order. Please update the order first, then click Update.");
-                return;
-            }
-
-            var orders = parsed.Select(p => p.NewOrder).ToList();
-            if (orders.Distinct().Count() != orders.Count)
-            {
-                SetError("Order numbers must be unique. Please fix duplicate order numbers before updating.");
-                return;
-            }
-
-            var req = new ReorderStopsRequest
-            {
-                RouteId = RouteId,
-                Stops = parsed.Select(p => new StopOrderItemRequest { StopId = p.Stop.StopId, StopOrder = p.NewOrder }).ToList()
-            };
-
-            bool success = false;
-            string? failMessage = null;
-
-            await RunAsync(async () =>
-            {
-                var r = await _routes.ReorderStopsAsync(req);
-                success = r.Success;
-                failMessage = r.Message;
-            });
-
-            // LoadAsync manages its own busy state, so it must run after the RunAsync
-            // above has fully finished (and reset IsBusy) — calling it while still
-            // inside RunAsync would hit RunAsync's own re-entrancy guard and silently
-            // no-op, leaving the list showing the stale, pre-update order.
-            if (success)
-            {
-                await ShowToastAsync("Stop order updated.");
-                await LoadAsync();
-            }
-            else if (failMessage is not null)
-            {
-                SetError(failMessage);
-            }
         }
 
         [RelayCommand]

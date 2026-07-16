@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Interfaces
+namespace BusTracking.Mobile.Interfaces
 {
     public interface IRouteService
     {
@@ -12,5 +12,6 @@
         Task<ApiResponse<object>> AddStopAsync(CreateStopRequest req);
         Task<ApiResponse<object>> DeleteStopAsync(int stopId, int routeId);
         Task<ApiResponse<object>> ReorderStopsAsync(ReorderStopsRequest req);
+        Task<ApiResponse<object>> UpdateStopsAsync(UpdateStopsRequest req);
     }
 }

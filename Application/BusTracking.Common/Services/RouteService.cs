@@ -117,6 +117,49 @@ namespace BusTracking.Common.Services
 
             return ApiResponse<bool>.Ok(true, "Stop order updated.");
         }
+        public async Task<ApiResponse<bool>> UpdateStopsAsync(BusTracking.Common.DTOs.Stop.UpdateStopsDto dto)
+        {
+            if (dto.Stops is null || dto.Stops.Count == 0) return ApiResponse<bool>.Fail("No stop records received.");
+            if (dto.Stops.Select(x => x.StopOrder).Distinct().Count() != dto.Stops.Count)
+                return ApiResponse<bool>.Fail("Order numbers must be unique.");
+            if (dto.Stops.Any(x => string.IsNullOrWhiteSpace(x.StopName)))
+                return ApiResponse<bool>.Fail("Stop name cannot be empty.");
+
+            var stopIds = dto.Stops.Select(x => x.StopId).ToList();
+            var stops = await _db.Stops.Where(s => s.RouteId == dto.RouteId && s.IsActive && stopIds.Contains(s.StopId)).ToListAsync();
+            if (stops.Count != dto.Stops.Count) return ApiResponse<bool>.Fail("Not all stops were found.");
+
+            var strategy = _db.Database.CreateExecutionStrategy();
+            await strategy.ExecuteAsync(async () =>
+            {
+                await using var tx = await _db.Database.BeginTransactionAsync();
+
+                // Phase 1: move to negative orders and update details
+                foreach (var stop in stops)
+                {
+                    var item = dto.Stops.First(s => s.StopId == stop.StopId);
+                    stop.StopName = item.StopName;
+                    stop.MorningTime = item.MorningTime is not null ? TimeOnly.Parse(item.MorningTime) : null;
+                    stop.EveningTime = item.EveningTime is not null ? TimeOnly.Parse(item.EveningTime) : null;
+                    stop.Latitude = item.Latitude;
+                    stop.Longitude = item.Longitude;
+                    stop.StopOrder = -stop.StopId; // prevent unique index collision
+                }
+                await _db.SaveChangesAsync();
+
+                // Phase 2: set the correct orders
+                foreach (var item in dto.Stops)
+                {
+                    var stop = stops.First(s => s.StopId == item.StopId);
+                    stop.StopOrder = item.StopOrder;
+                }
+                await _db.SaveChangesAsync();
+
+                await tx.CommitAsync();
+            });
+
+            return ApiResponse<bool>.Ok(true, "Stops updated successfully.");
+        }
         public async Task<ApiResponse<List<StopDto>>> GetStopsByRouteAsync(int routeId)
         {
             var stops = await _db.Stops.Where(s => s.RouteId == routeId && s.IsActive)

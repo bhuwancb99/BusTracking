@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Services
+namespace BusTracking.Mobile.Services
 {
     public class RouteService : IRouteService
     {
@@ -119,5 +119,15 @@
             if (result.Success) { _cache.Remove(ListCacheKey); _cache.Remove($"route_stops_{req.RouteId}"); }
             return result;
         }
+        public async Task<ApiResponse<object>> UpdateStopsAsync(UpdateStopsRequest req)
+        {
+            var url = IsSuperAdmin
+                ? string.Format(Constants.Admin.RouteStops, req.RouteId)
+                : string.Format(Constants.Coordinator.RouteStops, req.RouteId);
+            var result = await _api.PutAsync<object>(url, req);
+            if (result.Success) { _cache.Remove(ListCacheKey); _cache.Remove($"route_stops_{req.RouteId}"); }
+            return result;
+        }
     }
+}
 }

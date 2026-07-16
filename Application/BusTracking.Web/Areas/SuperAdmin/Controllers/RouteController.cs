@@ -103,6 +103,13 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> UpdateStops([FromBody] BusTracking.Common.DTOs.Stop.UpdateStopsDto dto)
+        {
+            var r = await _route.UpdateStopsAsync(dto);
+            return Json(new { r.Success, r.Message });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> DeleteStop(int stopId)
         {
             var r = await _route.DeleteStopAsync(stopId);
