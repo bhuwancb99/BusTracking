@@ -130,4 +130,3 @@ namespace BusTracking.Mobile.Services
         }
     }
 }
-}
