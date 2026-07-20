@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Interfaces
+namespace BusTracking.Common.Interfaces
 {
     public interface IAppConfigService
     {
@@ -9,6 +9,12 @@
         Task<ApiResponse<bool>> UpdateAsync(int configId, UpdateAppConfigDto dto);
         Task<ApiResponse<bool>> DeleteAsync(int configId);
         Task<ApiResponse<bool>> ToggleActiveAsync(int configId);
+
+        /// <summary>Returns active config value for a key or null if not found</summary>
+        Task<string?> GetValueAsync(string configKey);
+
+        /// <summary>Returns active config value for a key converted to T, or defaultValue if invalid/not found</summary>
+        Task<T> GetValueAsync<T>(string configKey, T defaultValue);
 
         /// <summary>Returns only active key-value pairs for a given platform (used by MAUI apps)</summary>
         Task<ApiResponse<List<AppConfigValueDto>>> GetConfigForPlatformAsync(ConfigPlatform platform);

@@ -34,6 +34,8 @@ namespace BusTracking.Common.Services
                     BusNumber = t.Bus.BusNumber,
                     DriverName = t.Driver.FullName,
                     RouteName = t.Route.RouteName,
+                    StartStopName = t.Route.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).Select(s => s.StopName).FirstOrDefault(),
+                    EndStopName = t.Route.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).Select(s => s.StopName).LastOrDefault(),
                     TripType = t.TripType.ToString(),
                     TripDate = t.TripDate.ToString("yyyy-MM-dd"),
                     Status = t.Status.ToString(),
@@ -45,17 +47,7 @@ namespace BusTracking.Common.Services
             { Items = items, TotalCount = total, PageNumber = page, PageSize = pageSize });
         }
 
-        public async Task<int> GetListPageSizeAsync()
-        {
-            var raw = await _db.AppConfigurations
-                .Where(c => c.ConfigKey == AppConstants.AppConfigPageSizeKey && c.IsActive)
-                .Select(c => c.ConfigValue)
-                .FirstOrDefaultAsync();
-
-            return int.TryParse(raw, out var size) && size > 0
-                ? PaginationHelper.ClampPageSize(size)
-                : AppConstants.DefaultPageSize;
-        }
+        public Task<int> GetListPageSizeAsync() => PaginationHelper.GetListPageSizeAsync(_db);
 
         public async Task<ApiResponse<List<StudentTripStatusDto>>> GetTripStudentsAsync(int tripId)
         {
@@ -132,7 +124,8 @@ namespace BusTracking.Common.Services
         public async Task<ApiResponse<TripListDto>> GetByIdAsync(int tripId)
         {
             var t = await _db.BusTrips
-                .Include(x => x.Bus).Include(x => x.Driver).Include(x => x.Route)
+                .Include(x => x.Bus).Include(x => x.Driver)
+                .Include(x => x.Route).ThenInclude(r => r!.Stops)
                 .FirstOrDefaultAsync(x => x.TripId == tripId);
             if (t is null) return ApiResponse<TripListDto>.Fail("Trip not found.");
             return ApiResponse<TripListDto>.Ok(new TripListDto
@@ -141,6 +134,8 @@ namespace BusTracking.Common.Services
                 BusNumber = t.Bus.BusNumber,
                 DriverName = t.Driver.FullName,
                 RouteName = t.Route.RouteName,
+                StartStopName = t.Route.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).Select(s => s.StopName).FirstOrDefault(),
+                EndStopName = t.Route.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).Select(s => s.StopName).LastOrDefault(),
                 TripType = t.TripType.ToString(),
                 TripDate = t.TripDate.ToString("yyyy-MM-dd"),
                 Status = t.Status.ToString(),

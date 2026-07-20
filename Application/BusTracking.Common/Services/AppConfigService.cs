@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Services
+namespace BusTracking.Common.Services
 {
     public class AppConfigService : IAppConfigService
     {
@@ -53,17 +53,30 @@
             });
         }
 
-        public async Task<int> GetListPageSizeAsync()
+        public async Task<string?> GetValueAsync(string configKey)
         {
-            var raw = await _db.AppConfigurations
-                .Where(c => c.ConfigKey == AppConstants.AppConfigPageSizeKey && c.IsActive)
+            if (string.IsNullOrWhiteSpace(configKey)) return null;
+            return await _db.AppConfigurations
+                .Where(c => c.ConfigKey == configKey && c.IsActive)
                 .Select(c => c.ConfigValue)
                 .FirstOrDefaultAsync();
-
-            return int.TryParse(raw, out var size) && size > 0
-                ? PaginationHelper.ClampPageSize(size)
-                : AppConstants.DefaultPageSize;
         }
+
+        public async Task<T> GetValueAsync<T>(string configKey, T defaultValue)
+        {
+            var raw = await GetValueAsync(configKey);
+            if (string.IsNullOrWhiteSpace(raw)) return defaultValue;
+            try
+            {
+                return (T)Convert.ChangeType(raw, typeof(T));
+            }
+            catch
+            {
+                return defaultValue;
+            }
+        }
+
+        public Task<int> GetListPageSizeAsync() => PaginationHelper.GetListPageSizeAsync(_db);
 
         public async Task<ApiResponse<AppConfigDto>> GetByIdAsync(int configId)
         {

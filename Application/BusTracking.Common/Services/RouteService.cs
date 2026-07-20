@@ -16,7 +16,18 @@ namespace BusTracking.Common.Services
 
             var total = await q.CountAsync();
             var items = await q.OrderBy(r => r.RouteName).Skip((page - 1) * pageSize).Take(pageSize)
-                .Select(r => new RouteListDto { RouteId = r.RouteId, RouteName = r.RouteName, RouteCode = r.RouteCode, MorningTime = r.MorningTime != null ? r.MorningTime.Value.ToString("HH:mm") : null, EveningTime = r.EveningTime != null ? r.EveningTime.Value.ToString("HH:mm") : null, StopCount = r.Stops.Count(s => s.IsActive), IsActive = r.IsActive }).ToListAsync();
+                .Select(r => new RouteListDto
+                {
+                    RouteId = r.RouteId,
+                    RouteName = r.RouteName,
+                    RouteCode = r.RouteCode,
+                    StartStopName = r.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).Select(s => s.StopName).FirstOrDefault(),
+                    EndStopName = r.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).Select(s => s.StopName).LastOrDefault(),
+                    MorningTime = r.MorningTime != null ? r.MorningTime.Value.ToString("HH:mm") : null,
+                    EveningTime = r.EveningTime != null ? r.EveningTime.Value.ToString("HH:mm") : null,
+                    StopCount = r.Stops.Count(s => s.IsActive),
+                    IsActive = r.IsActive
+                }).ToListAsync();
             return ApiResponse<PagedResult<RouteListDto>>.Ok(new PagedResult<RouteListDto> { Items = items, TotalCount = total, PageNumber = page, PageSize = pageSize });
         }
 
@@ -32,6 +43,8 @@ namespace BusTracking.Common.Services
                     RouteId = r.RouteId,
                     RouteName = r.RouteName,
                     RouteCode = r.RouteCode,
+                    StartStopName = r.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).Select(s => s.StopName).FirstOrDefault(),
+                    EndStopName = r.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).Select(s => s.StopName).LastOrDefault(),
                     MorningTime = r.MorningTime != null ? r.MorningTime.Value.ToString("HH:mm") : null,
                     EveningTime = r.EveningTime != null ? r.EveningTime.Value.ToString("HH:mm") : null,
                     StopCount = r.Stops.Count(s => s.IsActive),
@@ -39,22 +52,35 @@ namespace BusTracking.Common.Services
                 }).ToListAsync();
         }
 
-        public async Task<int> GetListPageSizeAsync()
-        {
-            var raw = await _db.AppConfigurations
-                .Where(c => c.ConfigKey == AppConstants.AppConfigPageSizeKey && c.IsActive)
-                .Select(c => c.ConfigValue)
-                .FirstOrDefaultAsync();
-
-            return int.TryParse(raw, out var size) && size > 0
-                ? PaginationHelper.ClampPageSize(size)
-                : AppConstants.DefaultPageSize;
-        }
+        public Task<int> GetListPageSizeAsync() => PaginationHelper.GetListPageSizeAsync(_db);
         public async Task<ApiResponse<RouteDetailDto>> GetByIdAsync(int routeId)
         {
             var r = await _db.Routes.Include(x => x.Stops.Where(s => s.IsActive)).FirstOrDefaultAsync(x => x.RouteId == routeId && x.IsActive);
             if (r is null) return ApiResponse<RouteDetailDto>.Fail("Not found.");
-            return ApiResponse<RouteDetailDto>.Ok(new RouteDetailDto { RouteId = r.RouteId, RouteName = r.RouteName, RouteCode = r.RouteCode, Description = r.Description, MorningTime = r.MorningTime?.ToString("HH:mm"), EveningTime = r.EveningTime?.ToString("HH:mm"), StopCount = r.Stops.Count, IsActive = r.IsActive, Stops = r.Stops.OrderBy(s => s.StopOrder).Select(s => new StopDto { StopId = s.StopId, StopName = s.StopName, StopOrder = s.StopOrder, Latitude = s.Latitude, Longitude = s.Longitude, MorningTime = s.MorningTime?.ToString("HH:mm"), EveningTime = s.EveningTime?.ToString("HH:mm") }).ToList() });
+            var activeStops = r.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).ToList();
+            return ApiResponse<RouteDetailDto>.Ok(new RouteDetailDto
+            {
+                RouteId = r.RouteId,
+                RouteName = r.RouteName,
+                RouteCode = r.RouteCode,
+                Description = r.Description,
+                StartStopName = activeStops.FirstOrDefault()?.StopName,
+                EndStopName = activeStops.LastOrDefault()?.StopName,
+                MorningTime = r.MorningTime?.ToString("HH:mm"),
+                EveningTime = r.EveningTime?.ToString("HH:mm"),
+                StopCount = activeStops.Count,
+                IsActive = r.IsActive,
+                Stops = activeStops.Select(s => new StopDto
+                {
+                    StopId = s.StopId,
+                    StopName = s.StopName,
+                    StopOrder = s.StopOrder,
+                    Latitude = s.Latitude,
+                    Longitude = s.Longitude,
+                    MorningTime = s.MorningTime?.ToString("HH:mm"),
+                    EveningTime = s.EveningTime?.ToString("HH:mm")
+                }).ToList()
+            });
         }
         public async Task<ApiResponse<bool>> CreateAsync(CreateRouteDto dto, int createdBy)
         {

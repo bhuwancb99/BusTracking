@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Services
+namespace BusTracking.Mobile.Services
 {
     public class DriverTripService : IDriverTripService
     {
@@ -101,5 +101,20 @@
         /// <summary>POST /api/location/ping</summary>
         public Task<ApiResponse<object>> PingLocationAsync(int tripId, LocationPingRequest req)
             => _api.PostAsync<object>(Constants.Driver.LocationPing, req);
+
+        /// <summary>GET /api/trips/{tripId}/students</summary>
+        public async Task<List<DriverStudentStatus>> GetTripStudentsAsync(int tripId)
+        {
+            var r = await _api.GetAsync<List<DriverStudentStatus>>($"api/trips/{tripId}/students");
+            return r.Data ?? [];
+        }
+
+        /// <summary>POST /api/trips/{tripId}/stops/{stopId}/reach</summary>
+        public Task<ApiResponse<object>> ReachStopAsync(int tripId, int stopId)
+            => _api.PostAsync<object>($"api/trips/{tripId}/stops/{stopId}/reach");
+
+        /// <summary>POST /api/trips/{tripId}/stops/{stopId}/depart</summary>
+        public Task<ApiResponse<object>> DepartStopAsync(int tripId, int stopId)
+            => _api.PostAsync<object>($"api/trips/{tripId}/stops/{stopId}/depart");
     }
 }

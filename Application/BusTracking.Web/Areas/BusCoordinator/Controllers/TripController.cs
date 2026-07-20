@@ -7,11 +7,12 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
         private readonly IBusService _bus;
         private readonly IDriverService _driver;
         private readonly IRouteService _route;
+        private readonly IAppConfigService _appConfig;
         private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
 
-        public TripController(ITripService trip, IBusService bus, IDriverService driver, IRouteService route)
+        public TripController(ITripService trip, IBusService bus, IDriverService driver, IRouteService route, IAppConfigService appConfig)
         {
-            _trip = trip; _bus = bus; _driver = driver; _route = route;
+            _trip = trip; _bus = bus; _driver = driver; _route = route; _appConfig = appConfig;
         }
 
         public async Task<IActionResult> Index(int page = 1, string? busId = null, string? status = null)
@@ -32,6 +33,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             var stops = await _trip.GetStopEventsAsync(id);
             ViewBag.Students = students.Data ?? [];
             ViewBag.Stops = stops.Data ?? [];
+            ViewBag.GoogleMapApiKey = await _appConfig.GetValueAsync("GoogleMapApiKey") ?? "";
             return View(tripR.Data);
         }
 

@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.DTOs.Trip
+namespace BusTracking.Common.DTOs.Trip
 {
     public class TripListDto
     {
@@ -6,6 +6,10 @@
         public string BusNumber { get; set; } = "";
         public string DriverName { get; set; } = "";
         public string RouteName { get; set; } = "";
+        public string? StartStopName { get; set; }
+        public string? EndStopName { get; set; }
+        public string FromLocation => string.IsNullOrWhiteSpace(StartStopName) ? "—" : StartStopName;
+        public string ToLocation => string.IsNullOrWhiteSpace(EndStopName) ? "—" : EndStopName;
         public string TripType { get; set; } = "";
         public string TripDate { get; set; } = "";
         public string Status { get; set; } = "";

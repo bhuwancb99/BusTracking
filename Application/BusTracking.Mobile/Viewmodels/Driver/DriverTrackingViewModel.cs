@@ -14,6 +14,13 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         [ObservableProperty] private bool _isInProgress;
         [ObservableProperty] private ObservableCollection<DriverTripStop> _stops = [];
         [ObservableProperty] private DriverTripStop? _selectedStop;
+        [ObservableProperty] private bool _isSheetExpanded; // Collapsed by default
+
+        [RelayCommand]
+        private void ToggleSheet() => IsSheetExpanded = !IsSheetExpanded;
+
+        // JS bridge for Google Maps WebView
+        public Action<string>? SendToMap { get; set; }
 
         // ── Permission state ──────────────────────────────────────────────
         [ObservableProperty] private bool _locationGranted;
@@ -50,12 +57,45 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         {
             await RunAsync(async () =>
             {
-                var list = await _driverTrip.GetTripStopsAsync(TripId);
-                Stops = new ObservableCollection<DriverTripStop>(list);
+                var stopsList = await _driverTrip.GetTripStopsAsync(TripId);
+                var studentsList = await _driverTrip.GetTripStudentsAsync(TripId);
+
+                // Group students under their respective stop
+                foreach (var stop in stopsList)
+                {
+                    stop.Students = studentsList
+                        .Where(st => st.StopOrder == stop.StopOrder ||
+                                     (st.StopName != null && st.StopName.Equals(stop.StopName, StringComparison.OrdinalIgnoreCase)))
+                        .ToList();
+                }
+
+                Stops = new ObservableCollection<DriverTripStop>(stopsList);
                 IsEmpty = Stops.Count == 0;
                 SelectedStop = Stops.FirstOrDefault(s => s.Status != "Departed")
                             ?? Stops.FirstOrDefault();
+
+                UpdateMapStops();
             });
+        }
+
+        private void UpdateMapStops()
+        {
+            if (Stops.Count == 0 || SendToMap is null) return;
+            try
+            {
+                var mapStops = Stops.Select(s => new
+                {
+                    order = s.StopOrder,
+                    label = s.StopName,
+                    lat = (double)(s.Latitude ?? 0),
+                    lng = (double)(s.Longitude ?? 0),
+                    status = s.Status
+                }).ToList();
+
+                var stopsJson = JsonSerializer.Serialize(mapStops);
+                SendToMap.Invoke($"setRouteStops({stopsJson})");
+            }
+            catch { }
         }
 
         // ── Called by DriverTrackingPage.OnAppearing ──────────────────────
@@ -158,6 +198,12 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         {
             GpsStatus = $"● Live  {(speed.HasValue ? $"{(int)speed} km/h" : "")}";
 
+            // Update live bus marker on Google Map WebView
+            var sLat = lat.ToString(CultureInfo.InvariantCulture);
+            var sLng = lng.ToString(CultureInfo.InvariantCulture);
+            var sHdg = (heading ?? 0).ToString(CultureInfo.InvariantCulture);
+            SendToMap?.Invoke($"moveBus({sLat}, {sLng}, {sHdg})");
+
             if (_hub.IsConnected)
             {
                 await _hub.SendLocationAsync(
@@ -185,9 +231,16 @@ namespace BusTracking.Mobile.Viewmodels.Driver
             if (stop.Status != "Pending") return;
             await RunAsync(async () =>
             {
-                stop.Status = "Reached";
-                OnPropertyChanged(nameof(Stops));
-                await LoadStopsAsync();
+                var r = await _driverTrip.ReachStopAsync(TripId, stop.StopId);
+                if (r.Success)
+                {
+                    await ShowToastAsync($"Reached '{stop.StopName}'");
+                    await LoadStopsAsync();
+                }
+                else
+                {
+                    SetError(r.Message);
+                }
             });
         }
 
@@ -198,36 +251,53 @@ namespace BusTracking.Mobile.Viewmodels.Driver
             if (stop.Status != "Reached") return;
             await RunAsync(async () =>
             {
-                stop.Status = "Departed";
-                OnPropertyChanged(nameof(Stops));
-                await LoadStopsAsync();
+                var r = await _driverTrip.DepartStopAsync(TripId, stop.StopId);
+                if (r.Success)
+                {
+                    await ShowToastAsync($"Departed '{stop.StopName}'");
+                    await LoadStopsAsync();
+                }
+                else
+                {
+                    SetError(r.Message);
+                }
             });
         }
 
         // ── Update student boarding ───────────────────────────────────────
         [RelayCommand]
-        private async Task UpdateBoardingAsync(
-            (DriverStudentStatus student, string status) args)
+        private async Task ChangeStudentStatusAsync(DriverStudentStatus student)
         {
-            var (student, status) = args;
+            if (student is null || string.IsNullOrEmpty(student.BoardingStatus)) return;
             await RunAsync(async () =>
             {
-                if (SelectedStop is null) return;
+                var targetStop = Stops.FirstOrDefault(s => s.Students.Any(st => st.StudentId == student.StudentId));
+                int stopId = targetStop?.StopId ?? SelectedStop?.StopId ?? 0;
+
                 var r = await _driverTrip.UpdateBoardingAsync(TripId,
                     new UpdateBoardingRequest
                     {
                         StudentId = student.StudentId,
-                        StopId = SelectedStop.StopId,
-                        BoardingStatus = status
+                        StopId = stopId,
+                        BoardingStatus = student.BoardingStatus
                     });
                 if (r.Success)
                 {
-                    student.BoardingStatus = status;
-                    await ShowToastAsync($"{student.StudentName}: {status}");
+                    await ShowToastAsync($"{student.StudentName}: {student.BoardingStatus}");
                     await LoadStopsAsync();
                 }
                 else SetError(r.Message);
             });
+        }
+
+        [RelayCommand]
+        private async Task UpdateBoardingAsync(
+            (DriverStudentStatus student, string status) args)
+        {
+            var (student, status) = args;
+            if (student is null || string.IsNullOrEmpty(status)) return;
+            student.BoardingStatus = status;
+            await ChangeStudentStatusAsync(student);
         }
 
         // ── End trip ──────────────────────────────────────────────────────

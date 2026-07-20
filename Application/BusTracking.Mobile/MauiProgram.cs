@@ -107,9 +107,10 @@ namespace BusTracking.Mobile
             Routing.RegisterRoute("CoordTripDetail", typeof(CoordTripDetailPage));
             Routing.RegisterRoute("CoordSubAdminDetail", typeof(CoordSubAdminDetailPage));
 
-            // ── Driver — Detail page ──────────────────────────────────────────
+            // ── Driver — Detail & List pages ──────────────────────────────────
+            Routing.RegisterRoute("DriverTripList", typeof(DriverTripListPage));
             Routing.RegisterRoute("DriverTripDetail", typeof(DriverTripDetailPage));
-
+            Routing.RegisterRoute("DriverNotification", typeof(DriverNotificationPage));
             Routing.RegisterRoute("DriverTracking", typeof(DriverTrackingPage));
         }
 

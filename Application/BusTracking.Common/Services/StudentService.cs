@@ -43,17 +43,7 @@ namespace BusTracking.Common.Services
             });
         }
 
-        public async Task<int> GetListPageSizeAsync()
-        {
-            var raw = await _db.AppConfigurations
-                .Where(c => c.ConfigKey == AppConstants.AppConfigPageSizeKey && c.IsActive)
-                .Select(c => c.ConfigValue)
-                .FirstOrDefaultAsync();
-
-            return int.TryParse(raw, out var size) && size > 0
-                ? PaginationHelper.ClampPageSize(size)
-                : AppConstants.DefaultPageSize;
-        }
+        public Task<int> GetListPageSizeAsync() => PaginationHelper.GetListPageSizeAsync(_db);
         public async Task<ApiResponse<StudentListDto>> GetByIdAsync(int studentId)
         {
             var s = await _db.Students.Include(x => x.User).Include(x => x.Standard).Include(x => x.Bus).Include(x => x.Stop).FirstOrDefaultAsync(x => x.StudentId == studentId);

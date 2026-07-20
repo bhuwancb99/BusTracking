@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Helpers
+namespace BusTracking.Common.Helpers
 {
     public static class PaginationHelper
     {
@@ -8,6 +8,22 @@
             int min = 1,
             int max = AppConstants.MaxPageSize)
             => Math.Clamp(size, min, max);
+
+        /// <summary>
+        /// Global common method to fetch active AppConfig PageSize from AppDbContext.
+        /// Used across all domain services to eliminate duplicate DB query blocks.
+        /// </summary>
+        public static async Task<int> GetListPageSizeAsync(AppDbContext db)
+        {
+            var raw = await db.AppConfigurations
+                .Where(c => c.ConfigKey == AppConstants.AppConfigPageSizeKey && c.IsActive)
+                .Select(c => c.ConfigValue)
+                .FirstOrDefaultAsync();
+
+            return int.TryParse(raw, out var size) && size > 0
+                ? ClampPageSize(size)
+                : AppConstants.DefaultPageSize;
+        }
 
         /// <summary>
         /// Returns page numbers to display in pagination UI.

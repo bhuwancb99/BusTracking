@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Interfaces
+namespace BusTracking.Mobile.Interfaces
 {
     /// <summary>
     /// Service used exclusively by the Driver role for managing their own trips.
@@ -62,5 +62,20 @@
         /// </summary>
         /// <returns></returns>
         Task<DriverDashboardData?> GetDashboardAsync();
+
+        /// <summary>
+        /// Get all students assigned to a trip with their boarding status and stop info.
+        /// </summary>
+        Task<List<DriverStudentStatus>> GetTripStudentsAsync(int tripId);
+
+        /// <summary>
+        /// Mark a stop as reached.
+        /// </summary>
+        Task<ApiResponse<object>> ReachStopAsync(int tripId, int stopId);
+
+        /// <summary>
+        /// Mark a stop as departed.
+        /// </summary>
+        Task<ApiResponse<object>> DepartStopAsync(int tripId, int stopId);
     }
 }
