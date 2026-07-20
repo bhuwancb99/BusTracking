@@ -1,4 +1,4 @@
-﻿namespace BusTracking.API.Controllers
+namespace BusTracking.API.Controllers
 {
     [Authorize(Roles = "Driver"), Route("api/trips/{tripId}/boarding")]
     public class BoardingController : ApiBaseController
@@ -10,15 +10,18 @@
         {
             public int StudentId { get; set; }
             public int StopId { get; set; }
-            public string BoardingStatus { get; set; } = "";   // PickedUp | NoShow
+            public string BoardingStatus { get; set; } = "";
+            public string Status { get; set; } = "";
         }
 
-        /// <summary>Driver marks student as PickedUp or NoShow</summary>
+        /// <summary>Driver marks student as PickedUp, NoShow, OnLeave, or Pending</summary>
         [HttpPut]
         public async Task<IActionResult> UpdateBoarding(int tripId, [FromBody] UpdateBoardingRequest req)
         {
-            if (!Enum.TryParse<BoardingStatus>(req.BoardingStatus, true, out var status))
-                return BadRequest(ApiResponse<bool>.Fail("Invalid boarding status."));
+            var rawStatus = !string.IsNullOrWhiteSpace(req.BoardingStatus) ? req.BoardingStatus : req.Status;
+
+            if (!Enum.TryParse<BoardingStatus>(rawStatus, true, out var status))
+                return BadRequest(ApiResponse<bool>.Fail($"Invalid boarding status '{rawStatus}'."));
 
             var existing = await _db.StudentTripStatuses
                 .FirstOrDefaultAsync(s => s.TripId == tripId && s.StudentId == req.StudentId);
@@ -42,7 +45,7 @@
             }
 
             await _db.SaveChangesAsync();
-            return Ok(ApiResponse<bool>.Ok(true, "Status updated."));
+            return Ok(ApiResponse<bool>.Ok(true, $"Status updated to {status}."));
         }
     }
 }

@@ -1,0 +1,127 @@
+@model List<BusTracking.Common.Entities.TimeZoneMaster>
+@{
+    ViewData["Title"] = "Time Zones Master";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h2 class="fw-bold m-0"><i class="bi bi-clock-history text-primary me-2"></i>Time Zones Master</h2>
+    <a href="@Url.Action("Create", "TimeZone", new { area = "SystemAdmin" })" class="btn btn-primary rounded-3">
+        <i class="bi bi-plus-circle me-2"></i>Add Time Zone
+    </a>
+</div>
+
+<div class="premium-card rounded-4 border-0 p-4 mb-4">
+    <form method="get" class="row g-2 align-items-center">
+        <div class="col-md-6">
+            <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Search by name, IANA or Windows ID..." />
+        </div>
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100 rounded-3"><i class="bi bi-search me-2"></i>Search</button>
+        </div>
+        <div class="col-md-3">
+            <a href="@Url.Action("Index", "TimeZone", new { area = "SystemAdmin" })" class="btn btn-secondary w-100 rounded-3"><i class="bi bi-x-circle me-2"></i>Clear</a>
+        </div>
+    </form>
+</div>
+
+<div class="premium-card rounded-4 border-0 p-0 overflow-hidden">
+    <div class="table-responsive">
+        <table class="premium-table m-0">
+            <thead>
+                <tr>
+                    <th style="width: 70px;">Order</th>
+                    <th>Time Zone Name</th>
+                    <th>IANA ID</th>
+                    <th>Windows ID</th>
+                    <th>UTC Offset</th>
+                    <th style="width: 120px; text-align: center;">Active</th>
+                    <th style="width: 120px; text-align: center;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count == 0)
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-secondary py-5">
+                            <i class="bi bi-clock text-muted" style="font-size: 2.5rem;"></i>
+                            <p class="mt-2">No time zone records found.</p>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold text-secondary">@item.DisplayOrder</td>
+                            <td class="fw-semibold text-dark">@item.TimeZoneName</td>
+                            <td><code class="text-primary bg-light px-2 py-1 rounded">@item.IanaTimeZoneId</code></td>
+                            <td><code class="text-secondary bg-light px-2 py-1 rounded">@item.WindowsTimeZoneId</code></td>
+                            <td><span class="badge bg-secondary">@item.UtcOffset</span></td>
+                            <td class="text-center">
+                                <label class="switch">
+                                    <input type="checkbox" class="tz-toggle" data-id="@item.TimeZoneId" @(item.IsActive ? "checked" : "") />
+                                    <span class="slider"></span>
+                                </label>
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-1">
+                                    <a href="@Url.Action("Edit", "TimeZone", new { area = "SystemAdmin", id = item.TimeZoneId })" class="btn btn-outline-primary btn-sm rounded-3">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form action="@Url.Action("Delete", "TimeZone", new { area = "SystemAdmin", id = item.TimeZoneId })" method="post" onsubmit="return confirm('Are you sure you want to delete this Time Zone?');" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-3">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Pagination -->
+@if (ViewBag.TotalPages > 1)
+{
+    <nav class="d-flex justify-content-center mt-4">
+        <ul class="pagination gap-1">
+            <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link rounded-3 bg-secondary text-light border-0" href="@Url.Action("Index", "TimeZone", new { area = "SystemAdmin", search = ViewBag.Search, page = ViewBag.CurrentPage - 1 })"><i class="bi bi-chevron-left"></i></a>
+            </li>
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
+                    <a class="page-link rounded-3 border-0 @(ViewBag.CurrentPage == i ? "bg-primary text-light" : "bg-secondary text-secondary")" href="@Url.Action("Index", "TimeZone", new { area = "SystemAdmin", search = ViewBag.Search, page = i })">@i</a>
+                </li>
+            }
+            <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                <a class="page-link rounded-3 bg-secondary text-light border-0" href="@Url.Action("Index", "TimeZone", new { area = "SystemAdmin", search = ViewBag.Search, page = ViewBag.CurrentPage + 1 })"><i class="bi bi-chevron-right"></i></a>
+            </li>
+        </ul>
+    </nav>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.tz-toggle').change(function() {
+                var tzId = $(this).data('id');
+                $.ajax({
+                    url: '@Url.Action("ToggleActive", "TimeZone", new { area = "SystemAdmin" })',
+                    type: 'POST',
+                    data: { id: tzId },
+                    success: function(res) {
+                    },
+                    error: function() {
+                        alert('An error occurred while updating status.');
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -54,6 +54,7 @@ BEGIN TRY
     IF OBJECT_ID('SystemAdministrators', 'U') IS NOT NULL DELETE FROM SystemAdministrators;
     IF OBJECT_ID('Users', 'U') IS NOT NULL DELETE FROM Users;
     IF OBJECT_ID('Schools', 'U') IS NOT NULL DELETE FROM Schools;
+    IF OBJECT_ID('TimeZoneMasters', 'U') IS NOT NULL DELETE FROM TimeZoneMasters;
     IF OBJECT_ID('Permissions', 'U') IS NOT NULL DELETE FROM Permissions;
     IF OBJECT_ID('Roles', 'U') IS NOT NULL DELETE FROM Roles;
 
@@ -140,6 +141,7 @@ IF OBJECT_ID('NotificationSettings', 'U') IS NOT NULL DROP TABLE NotificationSet
 IF OBJECT_ID('SystemAdministrators', 'U') IS NOT NULL DROP TABLE SystemAdministrators;
 IF OBJECT_ID('Users', 'U') IS NOT NULL DROP TABLE Users;
 IF OBJECT_ID('Schools', 'U') IS NOT NULL DROP TABLE Schools;
+IF OBJECT_ID('TimeZoneMasters', 'U') IS NOT NULL DROP TABLE TimeZoneMasters;
 IF OBJECT_ID('Permissions', 'U') IS NOT NULL DROP TABLE Permissions;
 IF OBJECT_ID('Roles', 'U') IS NOT NULL DROP TABLE Roles;
 PRINT 'All tables dropped.';

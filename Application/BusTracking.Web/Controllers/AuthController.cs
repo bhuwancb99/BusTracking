@@ -44,6 +44,11 @@ public class AuthController : Controller
             claims.Add(new Claim("school_id", result.Data.SchoolId.Value.ToString()));
         }
 
+        if (!string.IsNullOrWhiteSpace(result.Data.TimeZoneInfoId))
+        {
+            claims.Add(new Claim("time_zone", result.Data.TimeZoneInfoId));
+        }
+
         // For BusCoordinators, load their assigned permissions and add as claims
         if (result.Data.Role == "BusCoordinator")
         {

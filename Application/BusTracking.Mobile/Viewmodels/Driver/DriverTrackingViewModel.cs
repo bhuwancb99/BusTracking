@@ -26,6 +26,7 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         [ObservableProperty] private bool _locationGranted;
         [ObservableProperty] private bool _locationDeniedPermanently;
         [ObservableProperty] private string _gpsStatus = "";
+        private bool _isLoadingStops;
 
         /// <summary>True when location is denied — bottom banner is visible.</summary>
         public bool ShowLocationBanner => !LocationGranted;
@@ -55,26 +56,45 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         [RelayCommand]
         private async Task LoadStopsAsync()
         {
+            if (_isLoadingStops) return;
+            _isLoadingStops = true;
             await RunAsync(async () =>
             {
-                var stopsList = await _driverTrip.GetTripStopsAsync(TripId);
-                var studentsList = await _driverTrip.GetTripStudentsAsync(TripId);
-
-                // Group students under their respective stop
-                foreach (var stop in stopsList)
+                try
                 {
-                    stop.Students = studentsList
-                        .Where(st => st.StopOrder == stop.StopOrder ||
-                                     (st.StopName != null && st.StopName.Equals(stop.StopName, StringComparison.OrdinalIgnoreCase)))
-                        .ToList();
+                    DriverStudentStatus.StatusChangedCallback = null;
+                    var stopsList = await _driverTrip.GetTripStopsAsync(TripId);
+                    var studentsList = await _driverTrip.GetTripStudentsAsync(TripId);
+
+                    // Group students under their respective stop
+                    foreach (var stop in stopsList)
+                    {
+                        stop.Students = studentsList
+                            .Where(st => st.StopOrder == stop.StopOrder ||
+                                         (st.StopName != null && st.StopName.Equals(stop.StopName, StringComparison.OrdinalIgnoreCase)))
+                            .ToList();
+                    }
+
+                    Stops = new ObservableCollection<DriverTripStop>(stopsList);
+                    IsEmpty = Stops.Count == 0;
+                    SelectedStop = Stops.FirstOrDefault(s => s.Status != "Departed")
+                                ?? Stops.FirstOrDefault();
+
+                    UpdateMapStops();
+
+                    DriverStudentStatus.StatusChangedCallback = (student) =>
+                    {
+                        if (_isLoadingStops) return;
+                        MainThread.BeginInvokeOnMainThread(async () =>
+                        {
+                            await ChangeStudentStatusAsync(student);
+                        });
+                    };
                 }
-
-                Stops = new ObservableCollection<DriverTripStop>(stopsList);
-                IsEmpty = Stops.Count == 0;
-                SelectedStop = Stops.FirstOrDefault(s => s.Status != "Departed")
-                            ?? Stops.FirstOrDefault();
-
-                UpdateMapStops();
+                finally
+                {
+                    _isLoadingStops = false;
+                }
             });
         }
 
@@ -268,7 +288,7 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         [RelayCommand]
         private async Task ChangeStudentStatusAsync(DriverStudentStatus student)
         {
-            if (student is null || string.IsNullOrEmpty(student.BoardingStatus)) return;
+            if (student is null || string.IsNullOrEmpty(student.BoardingStatus) || _isLoadingStops) return;
             await RunAsync(async () =>
             {
                 var targetStop = Stops.FirstOrDefault(s => s.Students.Any(st => st.StudentId == student.StudentId));
@@ -277,14 +297,16 @@ namespace BusTracking.Mobile.Viewmodels.Driver
                 var r = await _driverTrip.UpdateBoardingAsync(TripId,
                     new UpdateBoardingRequest
                     {
+                        TripId = TripId,
                         StudentId = student.StudentId,
                         StopId = stopId,
-                        BoardingStatus = student.BoardingStatus
+                        BoardingStatus = student.BoardingStatus,
+                        Status = student.BoardingStatus
                     });
                 if (r.Success)
                 {
+                    student.NotifyStatusChanged();
                     await ShowToastAsync($"{student.StudentName}: {student.BoardingStatus}");
-                    await LoadStopsAsync();
                 }
                 else SetError(r.Message);
             });

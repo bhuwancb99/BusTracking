@@ -1,4 +1,4 @@
-﻿-- ============================================================
+-- ============================================================
 --  BUS TRACKING APPLICATION - Full Database Script
 --  Platform : SQL Server (T-SQL)
 --  Applications:
@@ -24,8 +24,20 @@ USE BusTrackingDB;
 GO
 
 -- ============================================================
--- 0. SCHOOLS & SYSTEM ADMINISTRATORS
+-- 0. TIME ZONE MASTERS, SCHOOLS & SYSTEM ADMINISTRATORS
 -- ============================================================
+CREATE TABLE TimeZoneMasters (
+    TimeZoneId         INT           NOT NULL IDENTITY(1,1),
+    TimeZoneName       NVARCHAR(200) NOT NULL,
+    IanaTimeZoneId     NVARCHAR(100) NOT NULL,
+    WindowsTimeZoneId  NVARCHAR(100) NOT NULL,
+    UtcOffset          NVARCHAR(20)  NOT NULL,
+    IsActive           BIT           NOT NULL CONSTRAINT DF_TimeZoneMasters_IsActive DEFAULT 1,
+    DisplayOrder       INT           NOT NULL CONSTRAINT DF_TimeZoneMasters_DisplayOrder DEFAULT 0,
+    CONSTRAINT PK_TimeZoneMasters PRIMARY KEY (TimeZoneId)
+);
+GO
+
 CREATE TABLE Schools (
     SchoolId       INT           NOT NULL IDENTITY(1,1),
     SchoolName     NVARCHAR(200) NOT NULL,
@@ -36,11 +48,14 @@ CREATE TABLE Schools (
     EmailAddress   NVARCHAR(100) NOT NULL,
     PrincipalName  NVARCHAR(150) NOT NULL,
     Website        NVARCHAR(200) NULL,
+    TimeZoneId     INT           NULL,
+    TimeZoneInfoId NVARCHAR(100) NULL CONSTRAINT DF_Schools_TimeZoneInfoId DEFAULT 'India Standard Time',
     IsActive       BIT           NOT NULL CONSTRAINT DF_Schools_IsActive DEFAULT 1,
     CreatedAt      DATETIME2     NOT NULL CONSTRAINT DF_Schools_CreatedAt DEFAULT GETUTCDATE(),
     UpdatedAt      DATETIME2     NOT NULL CONSTRAINT DF_Schools_UpdatedAt DEFAULT GETUTCDATE(),
     CONSTRAINT PK_Schools PRIMARY KEY (SchoolId),
-    CONSTRAINT UQ_Schools_SchoolCode UNIQUE (SchoolCode)
+    CONSTRAINT UQ_Schools_SchoolCode UNIQUE (SchoolCode),
+    CONSTRAINT FK_Schools_TimeZoneMasters FOREIGN KEY (TimeZoneId) REFERENCES TimeZoneMasters(TimeZoneId) ON DELETE SET NULL
 );
 GO
 

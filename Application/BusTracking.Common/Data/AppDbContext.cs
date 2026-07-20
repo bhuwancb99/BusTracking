@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<School> Schools { get; set; }
+    public DbSet<TimeZoneMaster> TimeZoneMasters { get; set; }
     public DbSet<SystemAdministrator> SystemAdministrators { get; set; }
 
     public DbSet<Role> Roles { get; set; }
@@ -45,6 +46,7 @@ public class AppDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<School>().ToTable("Schools");
+        modelBuilder.Entity<TimeZoneMaster>().ToTable("TimeZoneMasters");
         modelBuilder.Entity<SystemAdministrator>().ToTable("SystemAdministrators");
         // ── Explicit table names — must match SQL script exactly ─────
         modelBuilder.Entity<Role>().ToTable("Roles");
@@ -174,20 +176,59 @@ public class AppDbContext : DbContext
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        var schoolId = _currentUserService.SchoolId;
-        if (schoolId.HasValue)
+        var modifiedEntries = ChangeTracker.Entries()
+            .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified)
+            .ToList();
+
+        if (modifiedEntries.Count > 0)
         {
-            foreach (var entry in ChangeTracker.Entries<IMultiTenant>())
+            var schoolId = _currentUserService.SchoolId;
+            var timeZoneInfoId = _currentUserService.TimeZoneInfoId;
+
+            // Validation: If logged-in user belongs to a school tenant, ensure TimeZone is configured
+            if (schoolId.HasValue && string.IsNullOrWhiteSpace(timeZoneInfoId))
             {
+                var school = Schools.IgnoreQueryFilters().FirstOrDefault(s => s.SchoolId == schoolId.Value);
+                timeZoneInfoId = school?.TimeZoneInfoId ?? school?.TimeZone?.WindowsTimeZoneId;
+                if (string.IsNullOrWhiteSpace(timeZoneInfoId))
+                {
+                    throw new InvalidOperationException("Time zone ID is missing or not configured for your school. Please select a valid Time Zone in School Settings before performing this operation.");
+                }
+            }
+
+            var schoolNow = TimeZoneHelper.GetNow(timeZoneInfoId);
+
+            foreach (var entry in modifiedEntries)
+            {
+                if (entry.Entity is IMultiTenant tenantEntity && schoolId.HasValue && entry.State == EntityState.Added)
+                {
+                    if (tenantEntity.SchoolId == null || tenantEntity.SchoolId == 0)
+                    {
+                        tenantEntity.SchoolId = schoolId.Value;
+                    }
+                }
+
                 if (entry.State == EntityState.Added)
                 {
-                    if (entry.Entity.SchoolId == null || entry.Entity.SchoolId == 0)
+                    var createdAtProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "CreatedAt");
+                    if (createdAtProp != null && createdAtProp.Metadata.ClrType == typeof(DateTime))
                     {
-                        entry.Entity.SchoolId = schoolId.Value;
+                        var val = (DateTime)(createdAtProp.CurrentValue ?? DateTime.MinValue);
+                        if (val == default || val == DateTime.MinValue)
+                        {
+                            createdAtProp.CurrentValue = schoolNow;
+                        }
                     }
+                }
+
+                var updatedAtProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "UpdatedAt");
+                if (updatedAtProp != null && updatedAtProp.Metadata.ClrType == typeof(DateTime))
+                {
+                    updatedAtProp.CurrentValue = schoolNow;
                 }
             }
         }
+
         return base.SaveChangesAsync(cancellationToken);
     }
 }

@@ -11,5 +11,9 @@ namespace BusTracking.Common.DTOs.Auth
         public DateTime Expiry { get; set; }
         public string Permissions { get; set; } = "";
         public int? SchoolId { get; set; }
+        public string? SchoolName { get; set; }
+        public string? TimeZoneInfoId { get; set; } = "India Standard Time";
+        public string? TimeZoneName { get; set; }
+        public string? UtcOffset { get; set; }
     }
 }

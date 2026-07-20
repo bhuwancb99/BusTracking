@@ -193,7 +193,11 @@ namespace BusTracking.Common.Services
                 .Include(s => s.User)
                 .Where(s => s.BusId == dto.BusId && s.User.IsActive)
                 .ToListAsync();
-            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var bus = await _db.Buses.FirstOrDefaultAsync(b => b.BusId == dto.BusId);
+            var school = bus?.SchoolId.HasValue == true
+                ? await _db.Schools.Include(s => s.TimeZone).IgnoreQueryFilters().FirstOrDefaultAsync(s => s.SchoolId == bus.SchoolId.Value)
+                : null;
+            var today = TimeZoneHelper.GetSchoolTodayDate(school);
             foreach (var s in students)
             {
                 var onLeave = await _db.StudentAvailabilities.AnyAsync(a =>

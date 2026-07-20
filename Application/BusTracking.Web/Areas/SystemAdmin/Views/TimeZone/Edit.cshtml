@@ -1,0 +1,78 @@
+@model BusTracking.Common.Entities.TimeZoneMaster
+@{
+    ViewData["Title"] = "Edit Time Zone";
+}
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="d-flex align-items-center mb-4">
+            <a href="@Url.Action("Index", "TimeZone", new { area = "SystemAdmin" })" class="btn btn-secondary btn-sm me-3 rounded-circle" style="padding: 0.375rem 0.5rem;">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <h2 class="fw-bold m-0"><i class="bi bi-clock-history text-primary me-2"></i>Edit Time Zone</h2>
+        </div>
+
+        <div class="premium-card rounded-4 border-0 p-4">
+            <form asp-action="Edit" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="TimeZoneId" />
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger py-2 border-0 rounded-3 mb-4" style="background-color: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                        <div asp-validation-summary="All"></div>
+                    </div>
+                }
+
+                <div class="row g-3">
+                    <div class="col-md-12">
+                        <label asp-for="TimeZoneName" class="form-label fw-bold">Time Zone Display Name</label>
+                        <input asp-for="TimeZoneName" class="form-control" required />
+                        <span asp-validation-for="TimeZoneName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="IanaTimeZoneId" class="form-label">IANA TimeZone ID</label>
+                        <input asp-for="IanaTimeZoneId" class="form-control" required />
+                        <span asp-validation-for="IanaTimeZoneId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="WindowsTimeZoneId" class="form-label">Windows TimeZone ID</label>
+                        <input asp-for="WindowsTimeZoneId" class="form-control" required />
+                        <span asp-validation-for="WindowsTimeZoneId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="UtcOffset" class="form-label">UTC Offset</label>
+                        <input asp-for="UtcOffset" class="form-control" required />
+                        <span asp-validation-for="UtcOffset" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="DisplayOrder" class="form-label">Display Order</label>
+                        <input asp-for="DisplayOrder" type="number" class="form-control" required />
+                        <span asp-validation-for="DisplayOrder" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 mt-3">
+                        <label class="form-label d-block">Status</label>
+                        <div class="form-check form-switch pt-1">
+                            <input class="form-check-input" type="checkbox" asp-for="IsActive" id="IsActiveSwitch" style="cursor: pointer; width: 45px; height: 22px;">
+                            <label class="form-check-label ms-2 text-secondary" for="IsActiveSwitch">Active / Enabled</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-4 gap-2">
+                    <a href="@Url.Action("Index", "TimeZone", new { area = "SystemAdmin" })" class="btn btn-secondary rounded-3">Cancel</a>
+                    <button type="submit" class="btn btn-primary rounded-3"><i class="bi bi-save me-2"></i>Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

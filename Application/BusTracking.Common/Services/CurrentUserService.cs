@@ -53,5 +53,23 @@ namespace BusTracking.Common.Services
                 return null;
             }
         }
+
+        public string? TimeZoneInfoId
+        {
+            get
+            {
+                var user = _httpContextAccessor.HttpContext?.User;
+                if (user?.Identity?.IsAuthenticated == true)
+                {
+                    var tz = user.FindFirst("time_zone")?.Value ?? user.FindFirst("TimeZoneInfoId")?.Value;
+                    if (!string.IsNullOrWhiteSpace(tz))
+                        return tz;
+                }
+                return null;
+            }
+        }
+
+        public DateTime SchoolNow => TimeZoneHelper.GetNow(TimeZoneInfoId);
+        public DateOnly SchoolToday => TimeZoneHelper.GetToday(TimeZoneInfoId);
     }
 }

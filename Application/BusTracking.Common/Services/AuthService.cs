@@ -28,12 +28,26 @@ namespace BusTracking.Common.Services
             if (!user.IsActive)
                 return ApiResponse<LoginResponseDto>.Fail("Your account has been deactivated. Please contact your System Administrator for assistance.");
 
+            string? schoolName = null;
+            string? timeZoneInfoId = "India Standard Time";
+            string? timeZoneName = null;
+            string? utcOffset = null;
+
             // Cascading Deactivation / School Inactivity Checks
             if (user.SchoolId.HasValue)
             {
-                var school = await _db.Schools.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.SchoolId == user.SchoolId.Value);
+                var school = await _db.Schools
+                    .Include(s => s.TimeZone)
+                    .IgnoreQueryFilters()
+                    .FirstOrDefaultAsync(s => s.SchoolId == user.SchoolId.Value);
+
                 if (school == null || !school.IsActive)
                     return ApiResponse<LoginResponseDto>.Fail("Your account has been deactivated. Please contact your System Administrator for assistance.");
+
+                schoolName = school.SchoolName;
+                timeZoneInfoId = school.TimeZoneInfoId ?? school.TimeZone?.WindowsTimeZoneId ?? "India Standard Time";
+                timeZoneName = school.TimeZone?.TimeZoneName;
+                utcOffset = school.TimeZone?.UtcOffset;
 
                 if (user.Role.RoleName != AppConstants.RoleSuperAdmin)
                 {
@@ -56,7 +70,7 @@ namespace BusTracking.Common.Services
                 ? System.Text.Json.JsonSerializer.Serialize(permissionKeys)
                 : "";
 
-            var token = _jwt.GenerateToken(user.UserId, user.Email ?? user.UserName, user.Role.RoleName, permissionKeys, user.SchoolId);
+            var token = _jwt.GenerateToken(user.UserId, user.Email ?? user.UserName, user.Role.RoleName, permissionKeys, user.SchoolId, timeZoneInfoId);
             return ApiResponse<LoginResponseDto>.Ok(new LoginResponseDto
             {
                 UserId = user.UserId,
@@ -67,7 +81,11 @@ namespace BusTracking.Common.Services
                 Token = token,
                 Expiry = DateTime.UtcNow.AddHours(8),
                 Permissions = permissions,
-                SchoolId = user.SchoolId
+                SchoolId = user.SchoolId,
+                SchoolName = schoolName,
+                TimeZoneInfoId = timeZoneInfoId,
+                TimeZoneName = timeZoneName,
+                UtcOffset = utcOffset
             });
         }
 

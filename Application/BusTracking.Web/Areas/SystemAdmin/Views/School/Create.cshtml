@@ -69,10 +69,18 @@
                         <span asp-validation-for="EmailAddress" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-12">
+                    <div class="col-md-6">
                         <label asp-for="Website" class="form-label">Website (Optional)</label>
                         <input asp-for="Website" type="url" class="form-control" placeholder="https://example.com" />
                         <span asp-validation-for="Website" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="TimeZoneId" class="form-label fw-bold">School Time Zone</label>
+                        <select asp-for="TimeZoneId" asp-items="(List<SelectListItem>)ViewBag.TimeZones" class="form-select">
+                            <option value="">-- Select Time Zone --</option>
+                        </select>
+                        <span asp-validation-for="TimeZoneId" class="text-danger small"></span>
                     </div>
 
                     <div class="col-md-12">

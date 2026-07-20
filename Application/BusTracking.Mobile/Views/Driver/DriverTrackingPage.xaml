@@ -402,17 +402,18 @@
                                                                         VerticalOptions="Center">
                                                                         <Border
                                                                             Grid.Column="0"
-                                                                            Padding="0"
+                                                                            Padding="6"
                                                                             BackgroundColor="{Binding BoardingColor}"
                                                                             HeightRequest="28"
                                                                             StrokeShape="RoundRectangle 6"
                                                                             VerticalOptions="Center"
                                                                             WidthRequest="28">
-                                                                            <Label
-                                                                                FontSize="12"
+                                                                            <Image
+                                                                                HeightRequest="16"
                                                                                 HorizontalOptions="Center"
-                                                                                Text="{Binding BoardingIcon}"
-                                                                                VerticalOptions="Center" />
+                                                                                Source="{Binding BoardingIcon}"
+                                                                                VerticalOptions="Center"
+                                                                                WidthRequest="16" />
                                                                         </Border>
 
                                                                         <VerticalStackLayout
@@ -435,33 +436,26 @@
                                                                         <!--  Student Status Picker Dropdown (matching website dropdown options: Pending, PickedUp, NoShow, OnLeave)  -->
                                                                         <Border
                                                                             Grid.Column="2"
-                                                                            Padding="6,0"
+                                                                            Padding="8,0"
                                                                             BackgroundColor="{AppThemeBinding Light=#F8FAFC,
                                                                                                               Dark=#1E293B}"
-                                                                            HeightRequest="32"
+                                                                            HeightRequest="42"
                                                                             Stroke="{Binding BoardingColor}"
                                                                             StrokeShape="RoundRectangle 8"
                                                                             StrokeThickness="1.5"
                                                                             VerticalOptions="Center"
-                                                                            WidthRequest="110">
+                                                                            WidthRequest="135">
                                                                             <Picker
                                                                                 Title="Status"
                                                                                 BackgroundColor="Transparent"
                                                                                 FontAttributes="Bold"
-                                                                                FontSize="11"
-                                                                                HeightRequest="32"
+                                                                                FontSize="12"
+                                                                                HeightRequest="42"
                                                                                 HorizontalOptions="Fill"
                                                                                 ItemsSource="{x:Static driver:DriverStudentStatus.StatusOptions}"
-                                                                                SelectedItem="{Binding BoardingStatus}"
+                                                                                SelectedItem="{Binding BoardingStatus, Mode=TwoWay}"
                                                                                 TextColor="{Binding BoardingColor}"
-                                                                                VerticalOptions="Center">
-                                                                                <Picker.Behaviors>
-                                                                                    <mct:EventToCommandBehavior
-                                                                                        Command="{Binding BindingContext.ChangeStudentStatusCommand, Source={x:Reference PageRoot}}"
-                                                                                        CommandParameter="{Binding .}"
-                                                                                        EventName="SelectedIndexChanged" />
-                                                                                </Picker.Behaviors>
-                                                                            </Picker>
+                                                                                VerticalOptions="Center" />
                                                                         </Border>
                                                                     </Grid>
                                                                 </Border>

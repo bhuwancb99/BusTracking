@@ -12,6 +12,7 @@ namespace BusTracking.Common.Services
         {
             var driver = await _db.DriverDetails
                 .Include(d => d.Bus).ThenInclude(b => b!.Route)
+                .Include(d => d.User).ThenInclude(u => u!.School).ThenInclude(s => s!.TimeZone)
                 .FirstOrDefaultAsync(d => d.UserId == driverUserId);
 
             if (driver?.Bus is null)
@@ -26,10 +27,14 @@ namespace BusTracking.Common.Services
                 RouteName = driver.Bus.Route?.RouteName ?? "No route assigned"
             };
 
-            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var schoolToday = TimeZoneHelper.GetSchoolTodayDate(driver.User?.School);
+            var todayUtc = DateOnly.FromDateTime(DateTime.UtcNow);
+
             var trip = await _db.BusTrips
+                .FirstOrDefaultAsync(t => t.BusId == driver.BusId && t.Status == TripStatus.InProgress)
+                    ?? await _db.BusTrips
                 .FirstOrDefaultAsync(t => t.BusId == driver.BusId
-                                       && t.TripDate == today
+                                       && (t.TripDate == schoolToday || t.TripDate == todayUtc)
                                        && t.Status != TripStatus.Cancelled);
 
             if (trip is not null)

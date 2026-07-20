@@ -5,10 +5,10 @@ namespace BusTracking.Common.Services
         private readonly IConfiguration _cfg;
         public JwtService(IConfiguration cfg) => _cfg = cfg;
 
-        public string GenerateToken(int userId, string email, string role, int? schoolId = null)
-            => GenerateToken(userId, email, role, [], schoolId);
+        public string GenerateToken(int userId, string email, string role, int? schoolId = null, string? timeZoneInfoId = null)
+            => GenerateToken(userId, email, role, [], schoolId, timeZoneInfoId);
 
-        public string GenerateToken(int userId, string email, string role, IEnumerable<string> permissions, int? schoolId = null)
+        public string GenerateToken(int userId, string email, string role, IEnumerable<string> permissions, int? schoolId = null, string? timeZoneInfoId = null)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_cfg["Jwt:Key"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -24,8 +24,9 @@ namespace BusTracking.Common.Services
             if (schoolId.HasValue)
                 claims.Add(new Claim("school_id", schoolId.Value.ToString()));
 
-            // Embed each permission key as a separate "permission" claim so that
-            // User.HasClaim("permission", "subadmin.view") works in API controllers.
+            if (!string.IsNullOrWhiteSpace(timeZoneInfoId))
+                claims.Add(new Claim("time_zone", timeZoneInfoId));
+
             foreach (var perm in permissions)
                 claims.Add(new Claim("permission", perm));
 
@@ -39,7 +40,7 @@ namespace BusTracking.Common.Services
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public (int userId, string email, string role, int? schoolId)? ValidateToken(string token)
+        public (int userId, string email, string role, int? schoolId, string? timeZoneInfoId)? ValidateToken(string token)
         {
             try
             {
@@ -67,7 +68,9 @@ namespace BusTracking.Common.Services
                 if (int.TryParse(schoolClaim, out var sId))
                     schoolId = sId;
 
-                return (userId, email, role, schoolId);
+                var tzClaim = jwt.Claims.FirstOrDefault(c => c.Type == "time_zone")?.Value;
+
+                return (userId, email, role, schoolId, tzClaim);
             }
             catch { return null; }
         }

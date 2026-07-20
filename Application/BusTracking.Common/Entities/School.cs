@@ -29,6 +29,14 @@ namespace BusTracking.Common.Entities
         [MaxLength(200)]
         public string? Website { get; set; }
 
+        public int? TimeZoneId { get; set; }
+
+        [MaxLength(100)]
+        public string? TimeZoneInfoId { get; set; } = "India Standard Time";
+
+        [ForeignKey(nameof(TimeZoneId))]
+        public TimeZoneMaster? TimeZone { get; set; }
+
         public bool IsActive { get; set; } = true;
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

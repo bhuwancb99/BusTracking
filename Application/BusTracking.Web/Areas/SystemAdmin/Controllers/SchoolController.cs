@@ -15,7 +15,7 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
 
         public async Task<IActionResult> Index(string search, int page = 1)
         {
-            var query = _db.Schools.IgnoreQueryFilters().AsQueryable();
+            var query = _db.Schools.Include(s => s.TimeZone).IgnoreQueryFilters().AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -40,20 +40,37 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
         }
 
         [HttpGet]
-        public IActionResult Create() => View();
+        public async Task<IActionResult> Create()
+        {
+            await PopulateTimeZonesViewBagAsync();
+            return View();
+        }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(School school, IFormFile? logoFile)
         {
             if (!ModelState.IsValid)
+            {
+                await PopulateTimeZonesViewBagAsync();
                 return View(school);
+            }
 
             // Check unique School Code
             var exists = await _db.Schools.IgnoreQueryFilters().AnyAsync(s => s.SchoolCode == school.SchoolCode.Trim());
             if (exists)
             {
                 ModelState.AddModelError("SchoolCode", "School Code already exists. Please choose a unique school code.");
+                await PopulateTimeZonesViewBagAsync();
                 return View(school);
+            }
+
+            if (school.TimeZoneId.HasValue && school.TimeZoneId.Value > 0)
+            {
+                var tzItem = await _db.TimeZoneMasters.FindAsync(school.TimeZoneId.Value);
+                if (tzItem != null)
+                {
+                    school.TimeZoneInfoId = tzItem.WindowsTimeZoneId;
+                }
             }
 
             school.SchoolName = school.SchoolName.Trim();
@@ -80,6 +97,7 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
                 catch (Exception ex)
                 {
                     ModelState.AddModelError("", "Logo upload failed: " + ex.Message);
+                    await PopulateTimeZonesViewBagAsync();
                     return View(school);
                 }
             }
@@ -93,6 +111,7 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
         {
             var school = await _db.Schools.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.SchoolId == id);
             if (school == null) return NotFound();
+            await PopulateTimeZonesViewBagAsync();
             return View(school);
         }
 
@@ -103,7 +122,10 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
             if (school == null) return NotFound();
 
             if (!ModelState.IsValid)
+            {
+                await PopulateTimeZonesViewBagAsync();
                 return View(model);
+            }
 
             // Check unique School Code
             var exists = await _db.Schools.IgnoreQueryFilters()
@@ -111,6 +133,7 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
             if (exists)
             {
                 ModelState.AddModelError("SchoolCode", "School Code already exists.");
+                await PopulateTimeZonesViewBagAsync();
                 return View(model);
             }
 
@@ -124,7 +147,18 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
                 catch (Exception ex)
                 {
                     ModelState.AddModelError("", "Logo upload failed: " + ex.Message);
+                    await PopulateTimeZonesViewBagAsync();
                     return View(model);
+                }
+            }
+
+            if (model.TimeZoneId.HasValue && model.TimeZoneId.Value > 0)
+            {
+                var tzItem = await _db.TimeZoneMasters.FindAsync(model.TimeZoneId.Value);
+                if (tzItem != null)
+                {
+                    school.TimeZoneId = model.TimeZoneId;
+                    school.TimeZoneInfoId = tzItem.WindowsTimeZoneId;
                 }
             }
 
@@ -141,6 +175,16 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
             await _db.SaveChangesAsync();
             TempData["SuccessMessage"] = "School updated successfully.";
             return RedirectToAction(nameof(Index));
+        }
+
+        private async Task PopulateTimeZonesViewBagAsync()
+        {
+            var list = await _db.TimeZoneMasters.Where(t => t.IsActive).OrderBy(t => t.DisplayOrder).ToListAsync();
+            ViewBag.TimeZones = list.Select(t => new SelectListItem
+            {
+                Value = t.TimeZoneId.ToString(),
+                Text = t.TimeZoneName
+            }).ToList();
         }
 
         [HttpPost]

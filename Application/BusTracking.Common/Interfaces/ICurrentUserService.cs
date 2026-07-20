@@ -5,5 +5,8 @@ namespace BusTracking.Common.Interfaces
         int? UserId { get; }
         int? SchoolId { get; }
         string? UserRole { get; }
+        string? TimeZoneInfoId { get; }
+        DateTime SchoolNow { get; }
+        DateOnly SchoolToday { get; }
     }
 }

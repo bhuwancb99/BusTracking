@@ -1,4 +1,4 @@
-﻿namespace BusTracking.API.Controllers
+namespace BusTracking.API.Controllers
 {
     [Authorize(Roles = "Driver"), Route("api/[controller]")]
     public class TripsController : ApiBaseController
@@ -11,16 +11,22 @@
         [HttpGet("my-trip")]
         public async Task<IActionResult> GetMyTrip()
         {
-            var today = DateOnly.FromDateTime(DateTime.UtcNow);
             var driver = await _db.DriverDetails
                 .Include(d => d.Bus).ThenInclude(b => b!.Route)
+                .Include(d => d.User).ThenInclude(u => u!.School).ThenInclude(s => s!.TimeZone)
                 .FirstOrDefaultAsync(d => d.UserId == CurrentUserId);
 
             if (driver?.Bus is null)
                 return NotFound(ApiResponse<object>.Fail("No bus assigned."));
 
+            var schoolToday = TimeZoneHelper.GetSchoolTodayDate(driver.User?.School);
+            var todayUtc = DateOnly.FromDateTime(DateTime.UtcNow);
+
             var trip = await _db.BusTrips
-                .FirstOrDefaultAsync(t => t.BusId == driver.BusId && t.TripDate == today
+                .FirstOrDefaultAsync(t => t.BusId == driver.BusId && t.Status == TripStatus.InProgress)
+                    ?? await _db.BusTrips
+                .FirstOrDefaultAsync(t => t.BusId == driver.BusId
+                                       && (t.TripDate == schoolToday || t.TripDate == todayUtc)
                                        && t.Status != TripStatus.Cancelled);
 
             return Ok(ApiResponse<object>.Ok(new
@@ -156,7 +162,11 @@
                 .OrderBy(s => s.StopOrder)
                 .Select(s => new
                 {
-                    s.StopId, s.StopName, s.StopOrder, s.Latitude, s.Longitude,
+                    s.StopId,
+                    s.StopName,
+                    s.StopOrder,
+                    s.Latitude,
+                    s.Longitude,
                     Status = events.TryGetValue(s.StopId, out var e) ? e.Status.ToString() : "Pending",
                     ReachedAt = events.TryGetValue(s.StopId, out var e2) ? e2.ReachedAt : null,
                     DepartedAt = events.TryGetValue(s.StopId, out var e3) ? e3.DepartedAt : null
