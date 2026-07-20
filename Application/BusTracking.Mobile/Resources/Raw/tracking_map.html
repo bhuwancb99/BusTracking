@@ -26,38 +26,91 @@
         let animationFrame = null;
         let userPanned = false;
         let lastHeading = 0;
+        let routeBounds = null;   // bounds of the stops/route only
+        let mapReady = false;     // true once google.maps + initMap() have finished
+        const pendingCalls = [];  // queue for calls that arrive before mapReady
 
         // Beautiful Amber / Yellow School Bus SVG Icon (with windshield, headlights, side mirrors, and shadow)
         function getBusIcon(headingDeg) {
             const h = Math.round(headingDeg || 0);
             return {
                 url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
-                        <defs>
-                            <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
-                                <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.4"/>
-                            </filter>
-                        </defs>
-                        <g transform="rotate(${h} 24 24)" filter="url(#shadow)">
-                            <!-- Main Vehicle Chassis (Amber School Bus Body) -->
-                            <rect x="15" y="6" width="18" height="36" rx="6" fill="#f59e0b" stroke="#ffffff" stroke-width="2.5"/>
-                            <!-- Front Windshield -->
-                            <rect x="17" y="10" width="14" height="7" rx="1.5" fill="#0f172a"/>
-                            <!-- Rear Window -->
-                            <rect x="17" y="34" width="14" height="3" rx="1" fill="#334155"/>
-                            <!-- Roof Panel -->
-                            <rect x="18" y="19" width="12" height="13" rx="2" fill="#d97706" opacity="0.6"/>
-                            <!-- Side Mirrors -->
-                            <rect x="11" y="11" width="4" height="3.5" rx="1" fill="#0f172a"/>
-                            <rect x="33" y="11" width="4" height="3.5" rx="1" fill="#0f172a"/>
-                            <!-- Headlights -->
-                            <circle cx="17.5" cy="7.5" r="1.5" fill="#fef08a"/>
-                            <circle cx="30.5" cy="7.5" r="1.5" fill="#fef08a"/>
-                        </g>
-                    </svg>
-                `),
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+                            <defs>
+                                <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+                                    <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#000000" flood-opacity="0.4"/>
+                                </filter>
+                            </defs>
+                            <g transform="rotate(${h} 24 24)" filter="url(#shadow)">
+                                <!-- Main Vehicle Chassis (Amber School Bus Body) -->
+                                <rect x="15" y="6" width="18" height="36" rx="6" fill="#f59e0b" stroke="#ffffff" stroke-width="2.5"/>
+                                <!-- Front Windshield -->
+                                <rect x="17" y="10" width="14" height="7" rx="1.5" fill="#0f172a"/>
+                                <!-- Rear Window -->
+                                <rect x="17" y="34" width="14" height="3" rx="1" fill="#334155"/>
+                                <!-- Roof Panel -->
+                                <rect x="18" y="19" width="12" height="13" rx="2" fill="#d97706" opacity="0.6"/>
+                                <!-- Side Mirrors -->
+                                <rect x="11" y="11" width="4" height="3.5" rx="1" fill="#0f172a"/>
+                                <rect x="33" y="11" width="4" height="3.5" rx="1" fill="#0f172a"/>
+                                <!-- Headlights -->
+                                <circle cx="17.5" cy="7.5" r="1.5" fill="#fef08a"/>
+                                <circle cx="30.5" cy="7.5" r="1.5" fill="#fef08a"/>
+                            </g>
+                        </svg>
+                    `),
                 anchor: new google.maps.Point(24, 24),
                 scaledSize: new google.maps.Size(48, 48)
+            };
+        }
+
+        // Uber/Ola-style pickup "Start" pin — green teardrop with a solid white core
+        function getStartPinIcon() {
+            return {
+                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="52" viewBox="0 0 40 52">
+                            <defs>
+                                <filter id="pinShadow" x="-50%" y="-50%" width="200%" height="200%">
+                                    <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.35"/>
+                                </filter>
+                            </defs>
+                            <g filter="url(#pinShadow)">
+                                <path d="M20 2C10.6 2 3 9.6 3 19c0 12.4 17 29.5 17 29.5S37 31.4 37 19C37 9.6 29.4 2 20 2z"
+                                      fill="#16a34a" stroke="#ffffff" stroke-width="2.5"/>
+                                <circle cx="20" cy="19" r="8" fill="#ffffff"/>
+                                <circle cx="20" cy="19" r="4.5" fill="#16a34a"/>
+                            </g>
+                        </svg>
+                    `),
+                anchor: new google.maps.Point(20, 49),
+                scaledSize: new google.maps.Size(40, 52)
+            };
+        }
+
+        // Uber/Ola-style destination "End" pin — dark/red teardrop with a checkered-flag glyph
+        function getEndPinIcon() {
+            return {
+                url: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`
+                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="52" viewBox="0 0 40 52">
+                            <defs>
+                                <filter id="pinShadowEnd" x="-50%" y="-50%" width="200%" height="200%">
+                                    <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.35"/>
+                                </filter>
+                            </defs>
+                            <g filter="url(#pinShadowEnd)">
+                                <path d="M20 2C10.6 2 3 9.6 3 19c0 12.4 17 29.5 17 29.5S37 31.4 37 19C37 9.6 29.4 2 20 2z"
+                                      fill="#dc2626" stroke="#ffffff" stroke-width="2.5"/>
+                                <circle cx="20" cy="19" r="8" fill="#ffffff"/>
+                                <rect x="16" y="14.5" width="8" height="9" fill="#dc2626"/>
+                                <rect x="16" y="14.5" width="2" height="9" fill="#ffffff"/>
+                                <rect x="20" y="14.5" width="2" height="9" fill="#ffffff"/>
+                                <rect x="16" y="14.5" width="8" height="2" fill="#ffffff"/>
+                                <rect x="16" y="18.5" width="8" height="2" fill="#ffffff"/>
+                            </g>
+                        </svg>
+                    `),
+                anchor: new google.maps.Point(20, 49),
+                scaledSize: new google.maps.Size(40, 52)
             };
         }
 
@@ -104,11 +157,33 @@
                     map.panTo(busMarker.getPosition());
                 }
             });
+
+            // Map + all JS classes are ready — flush anything that queued up
+            // while the WebView/Google Maps script was still loading.
+            mapReady = true;
+            while (pendingCalls.length > 0) {
+                const call = pendingCalls.shift();
+                call();
+            }
         }
 
-        let routeBounds = null;
+        // Re-fits the viewport to cover the route AND the bus's current
+        // position, so the bus marker is never pushed outside the visible
+        // map — this is what was causing the bus to appear "missing".
+        function refitBoundsIncludingBus() {
+            if (!routeBounds) return;
+            const bounds = new google.maps.LatLngBounds();
+            bounds.union(routeBounds);
+            if (currentLat !== null && currentLng !== null) {
+                bounds.extend(new google.maps.LatLng(currentLat, currentLng));
+            }
+            if (!userPanned) {
+                map.fitBounds(bounds, 60);
+            }
+        }
 
         window.moveBus = function (lat, lng, headingDeg) {
+            if (!mapReady) { pendingCalls.push(() => window.moveBus(lat, lng, headingDeg)); return; }
             if (!lat || !lng) return;
             lat = Number(lat);
             lng = Number(lng);
@@ -123,7 +198,9 @@
                 accuracyCircle.setCenter(newPos);
                 currentLat = lat;
                 currentLng = lng;
-                if (!routeBounds && !userPanned) {
+                if (routeBounds) {
+                    refitBoundsIncludingBus();
+                } else if (!userPanned) {
                     map.panTo(newPos);
                 }
             } else {
@@ -145,10 +222,13 @@
                 }
 
                 animateTo(currentLat, currentLng, lat, lng, 1500);
+                refitBoundsIncludingBus();
             }
         };
 
         window.setRouteStops = function (stopsJson) {
+            if (!mapReady) { pendingCalls.push(() => window.setRouteStops(stopsJson)); return; }
+
             stopMarkers.forEach(m => m.setMap(null));
             stopMarkers = [];
 
@@ -156,40 +236,67 @@
             const pathCoords = [];
             const bounds = new google.maps.LatLngBounds();
 
-            stops.forEach(stop => {
-                if (!stop.lat || !stop.lng) return;
+            const validStops = stops.filter(s => s.lat && s.lng);
+            const minOrder = validStops.length ? Math.min(...validStops.map(s => s.order)) : null;
+            const maxOrder = validStops.length ? Math.max(...validStops.map(s => s.order)) : null;
+
+            validStops.forEach(stop => {
                 const pos = { lat: Number(stop.lat), lng: Number(stop.lng) };
                 pathCoords.push(pos);
                 bounds.extend(pos);
 
-                const color = stop.status === 'Departed' ? '#22c55e'
-                    : stop.status === 'Reached' ? '#f59e0b'
-                        : '#1e3a8a';
+                const isStart = stop.order === minOrder;
+                const isEnd = stop.order === maxOrder && maxOrder !== minOrder;
 
-                const marker = new google.maps.Marker({
-                    map, position: pos,
-                    title: `${stop.order}. ${stop.label}`,
-                    icon: {
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: 10,
-                        fillColor: color,
-                        fillOpacity: 1,
-                        strokeColor: '#ffffff',
-                        strokeWeight: 2.5
-                    },
-                    label: { text: String(stop.order), color: '#ffffff', fontSize: '11px', fontWeight: 'bold' },
-                    zIndex: 50
-                });
+                let marker;
+                if (isStart) {
+                    // Uber/Ola-style green pickup pin for the trip's starting stop
+                    marker = new google.maps.Marker({
+                        map, position: pos,
+                        title: `Start · ${stop.label}`,
+                        icon: getStartPinIcon(),
+                        zIndex: 60
+                    });
+                } else if (isEnd) {
+                    // Uber/Ola-style red destination flag for the final stop
+                    marker = new google.maps.Marker({
+                        map, position: pos,
+                        title: `End · ${stop.label}`,
+                        icon: getEndPinIcon(),
+                        zIndex: 60
+                    });
+                } else {
+                    const color = stop.status === 'Departed' ? '#22c55e'
+                        : stop.status === 'Reached' ? '#f59e0b'
+                            : '#1e3a8a';
+
+                    marker = new google.maps.Marker({
+                        map, position: pos,
+                        title: `${stop.order}. ${stop.label}`,
+                        icon: {
+                            path: google.maps.SymbolPath.CIRCLE,
+                            scale: 10,
+                            fillColor: color,
+                            fillOpacity: 1,
+                            strokeColor: '#ffffff',
+                            strokeWeight: 2.5
+                        },
+                        label: { text: String(stop.order), color: '#ffffff', fontSize: '11px', fontWeight: 'bold' },
+                        zIndex: 50
+                    });
+                }
 
                 const infoWin = new google.maps.InfoWindow({
-                    content: `<div style="font-size:13px;font-weight:bold">${stop.label}</div>
-                    <div style="font-size:11px;color:#666">Stop ${stop.order} · ${stop.status}</div>`
+                    content: `<div style="font-size:13px;font-weight:bold">${isStart ? '🟢 Start · ' : isEnd ? '🏁 End · ' : ''}${stop.label}</div>
+                        <div style="font-size:11px;color:#666">Stop ${stop.order} · ${stop.status}</div>`
                 });
                 marker.addListener('click', () => infoWin.open(map, marker));
                 stopMarkers.push(marker);
             });
 
             if (routePath) routePath.setMap(null);
+            routeBounds = null;
+
             if (pathCoords.length > 0) {
                 routePath = new google.maps.Polyline({
                     map, path: pathCoords, geodesic: true,
@@ -198,11 +305,14 @@
 
                 if (!bounds.isEmpty()) {
                     routeBounds = bounds;
-                    map.fitBounds(bounds);
                 }
 
-                // Keep bus visible at Start Point (Stop 1) until GPS location pings arrive
-                if (currentLat === null && pathCoords.length > 0) {
+                // Keep the bus visible at the Start stop until a real GPS ping
+                // arrives. If a GPS ping already arrived first (race with the
+                // driver's location fix), don't move the bus — but DO make
+                // sure the viewport is refit to include wherever the bus
+                // actually is, so it's never rendered off-screen.
+                if (currentLat === null) {
                     const startPos = new google.maps.LatLng(pathCoords[0].lat, pathCoords[0].lng);
                     busMarker.setPosition(startPos);
                     accuracyCircle.setCenter(startPos);
@@ -210,10 +320,13 @@
                     currentLat = pathCoords[0].lat;
                     currentLng = pathCoords[0].lng;
                 }
+
+                refitBoundsIncludingBus();
             }
         };
 
         window.onTripEnded = function () {
+            if (!mapReady) { pendingCalls.push(() => window.onTripEnded()); return; }
             const infoWin = new google.maps.InfoWindow({
                 content: '<div style="font-size:14px;font-weight:bold;color:#ef4444">🏁 Trip Ended</div>'
             });

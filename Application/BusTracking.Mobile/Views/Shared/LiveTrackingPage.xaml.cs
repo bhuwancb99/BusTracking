@@ -4,6 +4,15 @@ public partial class LiveTrackingPage : ViewBase<LiveTrackingViewModel>
 {
     private readonly IAppConfigService _appConfig;
 
+    // Guards against the race where setRouteStops()/moveBus() are invoked
+    // before the WebView has finished navigating to the map HTML — without
+    // this, EvaluateJavaScriptAsync silently throws (caught below) and the
+    // call — e.g. the very first setRouteStops that places the bus at the
+    // start stop — is lost forever instead of being retried.
+    private bool _webViewReady;
+    private readonly List<string> _pendingJs = new();
+    private readonly object _pendingJsLock = new();
+
     public LiveTrackingPage(LiveTrackingViewModel vm, IAppConfigService appConfig) : base(vm)
     {
         InitializeComponent();
@@ -13,9 +22,36 @@ public partial class LiveTrackingPage : ViewBase<LiveTrackingViewModel>
         vm.SendToMap = js =>
             MainThread.BeginInvokeOnMainThread(async () =>
             {
+                if (!_webViewReady)
+                {
+                    lock (_pendingJsLock) { _pendingJs.Add(js); }
+                    return;
+                }
+
                 try { await MapWebView.EvaluateJavaScriptAsync(js); }
-                catch { /* WebView not yet ready — next update will catch up */ }
+                catch { /* WebView not yet ready — will be retried on Navigated */ }
             });
+
+        if (MapWebView != null)
+        {
+            MapWebView.Navigated += async (s, e) =>
+            {
+                _webViewReady = true;
+
+                List<string> toFlush;
+                lock (_pendingJsLock)
+                {
+                    toFlush = new List<string>(_pendingJs);
+                    _pendingJs.Clear();
+                }
+
+                foreach (var js in toFlush)
+                {
+                    try { await MapWebView.EvaluateJavaScriptAsync(js); }
+                    catch { /* ignore, best-effort replay */ }
+                }
+            };
+        }
     }
 
     protected override async void OnAppearing()
@@ -36,6 +72,7 @@ public partial class LiveTrackingPage : ViewBase<LiveTrackingViewModel>
 
         // Inject the API key from AppConfig into the HTML at runtime
         // instead of hardcoding it in the .html file
+        _webViewReady = false;
         try
         {
             var html = await GoogleMapKeyHolder.GetMapHtmlAsync();
