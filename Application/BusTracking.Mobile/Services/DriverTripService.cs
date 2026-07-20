@@ -32,6 +32,7 @@ namespace BusTracking.Mobile.Services
                     BusNumber = dashboard.BusNumber,
                     RouteName = dashboard.RouteName,
                     TripType = resp.Trip.TripType ?? "",
+                    TripDate = !string.IsNullOrWhiteSpace(resp.Trip.TripDate) ? resp.Trip.TripDate : DateTime.Today.ToString("yyyy-MM-dd"),
                     Status = resp.Trip.Status ?? "",
                     StartedAt = resp.Trip.StartedAt,
                     EndedAt = resp.Trip.EndedAt
@@ -61,6 +62,7 @@ namespace BusTracking.Mobile.Services
                 BusNumber = r.Data.Bus?.BusNumber  ?? "",
                 RouteName = r.Data.Route?.RouteName ?? "",
                 TripType  = t.TripType  ?? "",
+                TripDate  = !string.IsNullOrWhiteSpace(t.TripDate) ? t.TripDate : DateTime.Today.ToString("yyyy-MM-dd"),
                 Status    = t.Status    ?? "",
                 StartedAt = t.StartedAt,
                 EndedAt   = t.EndedAt

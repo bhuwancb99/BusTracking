@@ -43,6 +43,7 @@ namespace BusTracking.Common.Services
                 {
                     TripId = trip.TripId,
                     TripType = trip.TripType.ToString(),
+                    TripDate = trip.TripDate.ToString("yyyy-MM-dd"),
                     Status = trip.Status.ToString(),
                     StartedAt = trip.StartedAt,
                     EndedAt = trip.EndedAt

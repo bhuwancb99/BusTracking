@@ -124,6 +124,19 @@ namespace BusTracking.Mobile.Viewmodels.Driver
             var granted = await RequestLocationPermissionAsync();
             if (!granted) return;
 
+            // Immediately query location so vehicle icon shows on map instantly
+            try
+            {
+                var loc = await Geolocation.GetLocationAsync(new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(3)))
+                       ?? await Geolocation.GetLastKnownLocationAsync();
+                if (loc != null)
+                {
+                    double? speedKmh = loc.Speed.HasValue && loc.Speed.Value > 0 ? loc.Speed.Value * 3.6 : (double?)null;
+                    OnLocationReceived(loc.Latitude, loc.Longitude, speedKmh, loc.Course);
+                }
+            }
+            catch { }
+
             // Connect SignalR
             var user = await Auth.GetCurrentUserAsync();
             if (user is not null)
@@ -134,7 +147,6 @@ namespace BusTracking.Mobile.Viewmodels.Driver
 
             // Start background GPS
             await _bgLocation.StartAsync(TripId, OnLocationReceived);
-            GpsStatus = "● Live";
         }
 
         // ── Called by DriverTrackingPage.OnDisappearing ───────────────────
@@ -216,7 +228,8 @@ namespace BusTracking.Mobile.Viewmodels.Driver
             double lat, double lng,
             double? speed, double? heading)
         {
-            GpsStatus = $"● Live  {(speed.HasValue ? $"{(int)speed} km/h" : "")}";
+            var speedKmh = speed.HasValue && speed.Value > 0.5 ? Math.Round(speed.Value) : 0;
+            GpsStatus = $"{speedKmh} km/h";
 
             // Update live bus marker on Google Map WebView
             var sLat = lat.ToString(CultureInfo.InvariantCulture);

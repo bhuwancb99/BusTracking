@@ -65,4 +65,27 @@ public partial class DriverTrackingPage : ViewBase<DriverTrackingViewModel>
         ViewModel.StopGpsTimer();
         base.OnDisappearing();
     }
+
+    private void OnHeaderPanUpdated(object? sender, PanUpdatedEventArgs e)
+    {
+        switch (e.StatusType)
+        {
+            case GestureStatus.Running:
+                if (e.TotalY < -15)
+                {
+                    if (BindingContext is DriverTrackingViewModel vm && !vm.IsSheetExpanded)
+                    {
+                        vm.IsSheetExpanded = true;
+                    }
+                }
+                else if (e.TotalY > 15)
+                {
+                    if (BindingContext is DriverTrackingViewModel vm && vm.IsSheetExpanded)
+                    {
+                        vm.IsSheetExpanded = false;
+                    }
+                }
+                break;
+        }
+    }
 }

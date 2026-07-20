@@ -208,23 +208,37 @@ public class AppDbContext : DbContext
                     }
                 }
 
-                if (entry.State == EntityState.Added)
+                foreach (var prop in entry.Properties)
                 {
-                    var createdAtProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "CreatedAt");
-                    if (createdAtProp != null && createdAtProp.Metadata.ClrType == typeof(DateTime))
+                    if (prop.Metadata.ClrType == typeof(DateTime) || prop.Metadata.ClrType == typeof(DateTime?))
                     {
-                        var val = (DateTime)(createdAtProp.CurrentValue ?? DateTime.MinValue);
-                        if (val == default || val == DateTime.MinValue)
+                        var propName = prop.Metadata.Name;
+                        var isCreated = propName.Equals("CreatedAt", StringComparison.OrdinalIgnoreCase) ||
+                                       propName.Equals("RecordedAt", StringComparison.OrdinalIgnoreCase) ||
+                                       propName.Equals("UploadedAt", StringComparison.OrdinalIgnoreCase) ||
+                                       propName.Equals("AssignedAt", StringComparison.OrdinalIgnoreCase) ||
+                                       propName.Equals("SentAt", StringComparison.OrdinalIgnoreCase) ||
+                                       propName.Equals("LoggedAt", StringComparison.OrdinalIgnoreCase);
+
+                        var isUpdated = propName.Equals("UpdatedAt", StringComparison.OrdinalIgnoreCase) ||
+                                       propName.Equals("LastModifiedAt", StringComparison.OrdinalIgnoreCase);
+
+                        if (entry.State == EntityState.Added && isCreated)
                         {
-                            createdAtProp.CurrentValue = schoolNow;
+                            prop.CurrentValue = schoolNow;
+                        }
+                        else if (isUpdated)
+                        {
+                            prop.CurrentValue = schoolNow;
+                        }
+                        else if (prop.CurrentValue is DateTime dt && dt != default)
+                        {
+                            if (dt.Kind == DateTimeKind.Utc || Math.Abs((dt - DateTime.UtcNow).TotalMinutes) < 10)
+                            {
+                                prop.CurrentValue = schoolNow;
+                            }
                         }
                     }
-                }
-
-                var updatedAtProp = entry.Properties.FirstOrDefault(p => p.Metadata.Name == "UpdatedAt");
-                if (updatedAtProp != null && updatedAtProp.Metadata.ClrType == typeof(DateTime))
-                {
-                    updatedAtProp.CurrentValue = schoolNow;
                 }
             }
         }

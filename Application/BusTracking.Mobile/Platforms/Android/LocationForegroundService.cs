@@ -58,7 +58,7 @@ namespace BusTracking.Mobile.Platforms.Android
             base.OnDestroy();
         }
 
-        // ── GPS loop — runs every 5 seconds ──────────────────────────────
+        // ── GPS loop — runs every 4 seconds ──────────────────────────────
         private async Task RunGpsLoopAsync(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
@@ -66,19 +66,31 @@ namespace BusTracking.Mobile.Platforms.Android
                 try
                 {
                     var loc = await Geolocation.GetLocationAsync(
-                        new GeolocationRequest(GeolocationAccuracy.Best,
-                                               TimeSpan.FromSeconds(4)));
+                        new GeolocationRequest(GeolocationAccuracy.Medium, TimeSpan.FromSeconds(6)));
+
+                    if (loc is null)
+                    {
+                        loc = await Geolocation.GetLastKnownLocationAsync();
+                    }
 
                     if (loc is not null)
+                    {
+                        // loc.Speed in Android is meters/sec -> convert to km/h (m/s * 3.6)
+                        double? speedKmh = loc.Speed.HasValue && loc.Speed.Value > 0 ? loc.Speed.Value * 3.6 : (double?)null;
+
                         OnLocationReceived?.Invoke(
                             loc.Latitude,
                             loc.Longitude,
-                            loc.Speed,
+                            speedKmh,
                             loc.Course);
+                    }
                 }
-                catch { /* GPS errors are non-fatal */ }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[GPS Service Error] {ex.Message}");
+                }
 
-                try { await Task.Delay(5_000, token); }
+                try { await Task.Delay(4_000, token); }
                 catch (TaskCanceledException) { break; }
             }
         }
