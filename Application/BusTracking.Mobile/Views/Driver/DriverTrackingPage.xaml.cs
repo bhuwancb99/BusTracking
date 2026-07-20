@@ -8,8 +8,10 @@ public partial class DriverTrackingPage : ViewBase<DriverTrackingViewModel>
     protected override void OnAppearing()
     {
         base.OnAppearing();
-        // Fire-and-forget: requests permission then starts GPS
-        _ = Task.Run(async () => await ViewModel.StartGpsTimer());
+        // Fire-and-forget: requests permission then starts GPS.
+        // Must run on the main thread — Permissions.RequestAsync throws
+        // if invoked from a background/thread-pool thread (Task.Run).
+        _ = MainThread.InvokeOnMainThreadAsync(async () => await ViewModel.StartGpsTimer());
     }
 
     protected override void OnDisappearing()

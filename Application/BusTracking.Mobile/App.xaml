@@ -11,6 +11,7 @@
             <!--  ── Converters ─────────────────────────────────────────  -->
             <converters:InvertBoolConverter x:Key="InvertBool" />
             <converters:InvertBoolConverter x:Key="InvertBoolConverter" />
+            <converters:InvertBoolConverter x:Key="Invert" />
             <converters:NullToBoolConverter x:Key="NullToBool" />
             <converters:NullToVisibleConverter x:Key="NullToVisible" />
             <converters:BoolToEyeIconConverter x:Key="BoolToEyeIcon" />
@@ -33,6 +34,9 @@
             <converters:NullableTimeSpanConverter x:Key="NullableTimeSpan" />
             <converters:EqualsToPendingConverter x:Key="EqualsToPending" />
             <converters:EqualsToReachedConverter x:Key="EqualsToReached" />
+            <converters:CountToHeightConverter x:Key="CountToHeight" />
+            <converters:StudentPickedUpTupleConverter x:Key="StudentPickedUpTuple" />
+            <converters:StudentNoShowTupleConverter x:Key="StudentNoShowTuple" />
 
 
             <ResourceDictionary.MergedDictionaries>

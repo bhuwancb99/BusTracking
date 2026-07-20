@@ -321,6 +321,60 @@ public class NullableTimeSpanConverter : IValueConverter
 }
 
 /// <summary>
+/// Converts an item count to a pixel HeightRequest, useful for sizing a
+/// non-scrolling CollectionView nested inside a ScrollView so it doesn't
+/// collapse to zero height. ConverterParameter is the per-row height (e.g. 60);
+/// defaults to 60 if not supplied or not parseable.
+///
+/// Register in App.xaml:
+///   &lt;converters:CountToHeightConverter x:Key="CountToHeight" /&gt;
+/// </summary>
+public class CountToHeightConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        var count = value is int i ? i : 0;
+        var rowHeight = parameter is not null && double.TryParse(parameter.ToString(), out var h) ? h : 60d;
+        return count * rowHeight;
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+/// <summary>
+/// Converts a DriverStudentStatus item into a (student, "PickedUp") tuple for
+/// passing to DriverTrackingViewModel.UpdateBoardingCommand.
+///
+/// Register in App.xaml:
+///   &lt;converters:StudentPickedUpTupleConverter x:Key="StudentPickedUpTuple" /&gt;
+/// </summary>
+public class StudentPickedUpTupleConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is DriverStudentStatus s ? (s, "PickedUp") : null;
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+/// <summary>
+/// Converts a DriverStudentStatus item into a (student, "NoShow") tuple for
+/// passing to DriverTrackingViewModel.UpdateBoardingCommand.
+///
+/// Register in App.xaml:
+///   &lt;converters:StudentNoShowTupleConverter x:Key="StudentNoShowTuple" /&gt;
+/// </summary>
+public class StudentNoShowTupleConverter : IValueConverter
+{
+    public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => value is DriverStudentStatus s ? (s, "NoShow") : null;
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        => throw new NotImplementedException();
+}
+
+/// <summary>
 /// Converts a stop's status string to true when it equals "Pending".
 /// Used to enable/disable the "Reached" button on DriverTrackingPage.
 ///
