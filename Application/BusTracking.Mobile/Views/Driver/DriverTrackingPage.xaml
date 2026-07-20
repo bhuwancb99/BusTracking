@@ -7,6 +7,7 @@
     xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Driver"
+    x:Name="PageRoot"
     Title="Live Tracking"
     x:DataType="vm:DriverTrackingViewModel"
     x:TypeArguments="vm:DriverTrackingViewModel"
@@ -313,7 +314,7 @@
                                                             StrokeShape="RoundRectangle 8"
                                                             StrokeThickness="0">
                                                             <Border.GestureRecognizers>
-                                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverTrackingViewModel}}, Path=MarkReachedCommand}" CommandParameter="{Binding .}" />
+                                                                <TapGestureRecognizer Command="{Binding BindingContext.MarkReachedCommand, Source={x:Reference PageRoot}}" CommandParameter="{Binding .}" />
                                                             </Border.GestureRecognizers>
                                                             <HorizontalStackLayout
                                                                 HorizontalOptions="Center"
@@ -342,7 +343,7 @@
                                                             StrokeShape="RoundRectangle 8"
                                                             StrokeThickness="0">
                                                             <Border.GestureRecognizers>
-                                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverTrackingViewModel}}, Path=MarkDepartedCommand}" CommandParameter="{Binding .}" />
+                                                                <TapGestureRecognizer Command="{Binding BindingContext.MarkDepartedCommand, Source={x:Reference PageRoot}}" CommandParameter="{Binding .}" />
                                                             </Border.GestureRecognizers>
                                                             <HorizontalStackLayout
                                                                 HorizontalOptions="Center"
@@ -456,7 +457,7 @@
                                                                                 VerticalOptions="Center">
                                                                                 <Picker.Behaviors>
                                                                                     <mct:EventToCommandBehavior
-                                                                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:DriverTrackingViewModel}}, Path=ChangeStudentStatusCommand}"
+                                                                                        Command="{Binding BindingContext.ChangeStudentStatusCommand, Source={x:Reference PageRoot}}"
                                                                                         CommandParameter="{Binding .}"
                                                                                         EventName="SelectedIndexChanged" />
                                                                                 </Picker.Behaviors>
