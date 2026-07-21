@@ -378,6 +378,10 @@
 </div>
 
 @section Scripts {
+    <!-- Leaflet CSS + JS — free, no API key needed -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
     <script>
         const TRIP_ID = @Model?.TripId;
         const IS_LIVE = @(isLive ? "true" : "false");
@@ -386,12 +390,203 @@
         const STOPS = [
             @foreach (var stop in stops.OrderBy(s => s.StopOrder))
             {
-                @:{ id: @stop.StopId, name: "@JavaScriptEncoder.Default.Encode(stop.StopName)", order: @stop.StopOrder, status: "@stop.Status" },
+                @:{ id: @stop.StopId, name: "@JavaScriptEncoder.Default.Encode(stop.StopName)", order: @stop.StopOrder, status: "@stop.Status", lat: @(stop.Latitude ?? 0), lng: @(stop.Longitude ?? 0) },
             }
         ];
 
-        let map, busMarker, routePolyline;
-        let stopMarkers = [];
+        // ── Init Leaflet map ─────────────────────────────────────────────────
+        const map = L.map('tripMap').setView([20.5937, 78.9629], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        // Yellow bus icon
+        const busIcon = L.divIcon({
+            html: '<div style="background:#fbbc04;border:2.5px solid #000;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.4)"><i class="bi bi-bus-front-fill" style="color:#000;font-size:16px"></i></div>',
+            iconSize: [32, 32], iconAnchor: [16, 16], className: ''
+        });
+        const busMarker = L.marker([20.5937, 78.9629], { icon: busIcon, title: 'School Bus', zIndexOffset: 2000 }).addTo(map);
+        let plannedRoadPolyline = null;
+        let liveTraveledPolyline = L.polyline([], { color: '#0d6efd', weight: 6, opacity: 0.9, lineJoin: 'round' }).addTo(map);
+
+        // Stop markers
+        const bounds = L.latLngBounds();
+        const validStops = STOPS.filter(s => s.lat && s.lng && (s.lat !== 0 || s.lng !== 0));
+        validStops.forEach(s => {
+            const stopLatLng = [s.lat, s.lng];
+            bounds.extend(stopLatLng);
+            const color = s.status === 'Departed' ? '#1e8e3e' : s.status === 'Reached' ? '#1a73e8' : '#9aa0a6';
+            const stopIcon = L.divIcon({
+                html: `<div style="background:${color};color:#fff;border:2px solid #fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;box-shadow:0 2px 6px rgba(0,0,0,.3)">${s.order}</div>`,
+                iconSize: [26, 26], iconAnchor: [13, 13], className: ''
+            });
+            L.marker(stopLatLng, { icon: stopIcon, title: `Stop #${s.order}: ${s.name}` })
+             .bindPopup(`<b>Stop #${s.order}</b><br>${s.name}<br><span style="color:${color}">${s.status}</span>`)
+             .addTo(map);
+        });
+        if (validStops.length > 0) { map.fitBounds(bounds, { padding: [40, 40] }); }
+
+        // ── OSRM Road Routing (Draws blue line on real roads between stops) ──
+        async function drawRoadRoute() {
+            if (validStops.length < 2) return;
+            const waypoints = validStops.map(s => `${s.lng},${s.lat}`).join(';');
+            const url = `https://router.project-osrm.org/route/v1/driving/${waypoints}?overview=full&geometries=geojson`;
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.routes && data.routes.length > 0) {
+                    const roadCoords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+                    if (plannedRoadPolyline) map.removeLayer(plannedRoadPolyline);
+                    plannedRoadPolyline = L.polyline(roadCoords, {
+                        color: '#1a73e8',
+                        weight: 6,
+                        opacity: 0.85,
+                        lineJoin: 'round'
+                    }).addTo(map);
+                    map.fitBounds(plannedRoadPolyline.getBounds(), { padding: [40, 40] });
+                }
+            } catch (e) {
+                console.warn("OSRM road routing fallback:", e);
+            }
+        }
+
+        drawRoadRoute();
+
+        let firstLocationSet = false;
+
+        if (IS_LIVE) {
+            loadHistory().then(() => {
+                fetchLocation();
+                setInterval(fetchLocation, 2500);
+            });
+        } else {
+            loadHistory();
+        }
+
+        async function fetchLocation() {
+            try {
+                const area = window.location.pathname.startsWith('/BusCoordinator') ? 'BusCoordinator' : 'SuperAdmin';
+                const res  = await fetch(`/${area}/Trip/LatestLocation?tripId=${TRIP_ID}`);
+                const data = await res.json();
+                if (!data.success || !data.data) return;
+
+                const { latitude: lat, longitude: lng, speed, heading, recordedAt } = data.data;
+                const latlng = [Number(lat), Number(lng)];
+                busMarker.setLatLng(latlng);
+                liveTraveledPolyline.addLatLng(latlng);
+
+                if (!firstLocationSet) { map.setView(latlng, 15); firstLocationSet = true; }
+                else map.panTo(latlng);
+
+                updateInfoBar(lat, lng, speed, heading, recordedAt);
+                document.getElementById('mapPlaceholder')?.remove();
+            } catch(e) { console.warn('Location fetch failed', e); }
+        }
+
+        async function loadHistory() {
+            try {
+                const area = window.location.pathname.startsWith('/BusCoordinator') ? 'BusCoordinator' : 'SuperAdmin';
+                const res  = await fetch(`/${area}/Trip/LocationHistory?tripId=${TRIP_ID}`);
+                const data = await res.json();
+                if (!data.success || !data.data?.length) return;
+
+                const coords = data.data.map(d => [Number(d.latitude), Number(d.longitude)]);
+                liveTraveledPolyline.setLatLngs(coords);
+                if (coords.length > 0) {
+                    const last = data.data[data.data.length - 1];
+                    busMarker.setLatLng([Number(last.latitude), Number(last.longitude)]);
+                    updateInfoBar(last.latitude, last.longitude, last.speed, last.heading, last.recordedAt);
+                    document.getElementById('mapPlaceholder')?.remove();
+                }
+            } catch(e) { console.warn('History load failed', e); }
+        }
+
+        function updateInfoBar(lat, lng, speed, heading, recordedAt) {
+            const spd = speed ? parseFloat(speed).toFixed(1) : '0';
+            const hdg = heading ? Math.round(heading) : 0;
+            const dirs = ['N','NE','E','SE','S','SW','W','NW','N'];
+
+            document.getElementById('latVal').textContent  = parseFloat(lat).toFixed(5);
+            document.getElementById('lngVal').textContent  = parseFloat(lng).toFixed(5);
+            document.getElementById('spdVal').textContent  = spd;
+            document.getElementById('hdgVal').textContent  = hdg;
+            document.getElementById('updVal').textContent  = new Date(recordedAt).toLocaleTimeString();
+            document.getElementById('spdBig').textContent        = spd;
+            document.getElementById('coordLabel').textContent    = `${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)}`;
+            document.getElementById('headingLabel').textContent  = dirs[Math.round(hdg / 45)] + ` ${hdg}°`;
+            document.getElementById('lastUpdLabel').textContent  = 'Updated ' + new Date(recordedAt).toLocaleTimeString();
+            document.getElementById('busStatusLabel').textContent = parseFloat(spd) > 2 ? '🚌 Moving' : '🅿️ Stopped';
+            document.getElementById('liveOverlay').style.display = '';
+        }
+
+        // ── Mark stop reached ────────────────────────────────────────────────
+        document.querySelectorAll('.btn-reach-stop').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const area = window.location.pathname.startsWith('/BusCoordinator') ? 'BusCoordinator' : 'SuperAdmin';
+                const res  = await fetch(`/${area}/Trip/ReachStop?tripId=${this.dataset.tripId}&stopId=${this.dataset.stopId}`, {
+                    method: 'POST', headers: { 'RequestVerificationToken': TOKEN() }
+                });
+                const data = await res.json();
+                busTrack.showToast(data.message, data.success ? 'success' : 'danger');
+                if (data.success) setTimeout(() => location.reload(), 700);
+            });
+        });
+
+        // ── Mark stop departed ───────────────────────────────────────────────
+        document.querySelectorAll('.btn-depart-stop').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const area = window.location.pathname.startsWith('/BusCoordinator') ? 'BusCoordinator' : 'SuperAdmin';
+                const res  = await fetch(`/${area}/Trip/DepartStop?tripId=${this.dataset.tripId}&stopId=${this.dataset.stopId}`, {
+                    method: 'POST', headers: { 'RequestVerificationToken': TOKEN() }
+                });
+                const data = await res.json();
+                busTrack.showToast(data.message, data.success ? 'success' : 'danger');
+                if (data.success) setTimeout(() => location.reload(), 700);
+            });
+        });
+
+        // ── Boarding status update ────────────────────────────────────────────
+        document.querySelectorAll('.boarding-option').forEach(opt => {
+            opt.addEventListener('click', async function (e) {
+                e.preventDefault();
+                const area = window.location.pathname.startsWith('/BusCoordinator') ? 'BusCoordinator' : 'SuperAdmin';
+                const body = {
+                    tripId   : parseInt(this.dataset.tripId),
+                    studentId: parseInt(this.dataset.studentId),
+                    stopId   : parseInt(this.dataset.stopId),
+                    status   : this.dataset.status
+                };
+                const res  = await fetch(`/${area}/Trip/UpdateBoarding`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': TOKEN() },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                busTrack.showToast(data.message, data.success ? 'success' : 'danger');
+                if (data.success) setTimeout(() => location.reload(), 700);
+            });
+        });
+    </script>
+}
+
+<style>
+    @@keyframes livePulse {
+        0%, 100% { opacity: 1; }
+        50%       { opacity: .2; }
+    }
+    .stop-timeline .stop-row:not(:last-child) {
+        padding-bottom: 16px;
+        border-left: 2px dashed #e8eaed;
+        margin-left: 9px;
+        padding-left: 16px;
+    }
+    .stop-timeline .stop-row:not(:last-child) .flex-shrink-0 {
+        margin-left: -25px;
+    }
+</style>
+
+
 
         function initGoogleMap() {
             map = new google.maps.Map(document.getElementById('tripMap'), {

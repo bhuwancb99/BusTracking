@@ -20,7 +20,7 @@ namespace BusTracking.Mobile.Services
                 BusName = resp.Bus?.BusName ?? "",
                 BusNumber = resp.Bus?.BusNumber ?? "",
                 RouteName = resp.Route?.RouteName ?? "",
-                TotalStudents = 0  // not returned by my-trip; set to 0 or fetch separately
+                TotalStudents = resp.TotalStudents
             };
 
             if (resp.Trip is not null)

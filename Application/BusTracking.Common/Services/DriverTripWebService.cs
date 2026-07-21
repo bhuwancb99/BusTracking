@@ -188,7 +188,9 @@ namespace BusTracking.Common.Services
                         StopOrder = s.StopOrder,
                         Status = ev?.Status.ToString() ?? "Pending",
                         ReachedAt = ev?.ReachedAt,
-                        DepartedAt = ev?.DepartedAt
+                        DepartedAt = ev?.DepartedAt,
+                        Latitude = (double?)s.Latitude,
+                        Longitude = (double?)s.Longitude
                     };
                 }).ToList();
 

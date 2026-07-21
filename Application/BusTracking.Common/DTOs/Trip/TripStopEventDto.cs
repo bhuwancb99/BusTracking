@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.DTOs.Trip
+namespace BusTracking.Common.DTOs.Trip
 {
     public class TripStopEventDto
     {
@@ -9,6 +9,8 @@
         public string Status { get; set; } = "";   // Pending | Reached | Departed
         public DateTime? ReachedAt { get; set; }
         public DateTime? DepartedAt { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
     }
 
 }

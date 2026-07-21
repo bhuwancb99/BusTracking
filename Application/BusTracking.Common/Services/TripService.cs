@@ -309,7 +309,9 @@ namespace BusTracking.Common.Services
                     StopOrder = e.Stop.StopOrder,
                     Status = e.Status.ToString(),
                     ReachedAt = e.ReachedAt,
-                    DepartedAt = e.DepartedAt
+                    DepartedAt = e.DepartedAt,
+                    Latitude = (double?)e.Stop.Latitude,
+                    Longitude = (double?)e.Stop.Longitude
                 }).ToListAsync();
             return ApiResponse<List<TripStopEventDto>>.Ok(events);
         }

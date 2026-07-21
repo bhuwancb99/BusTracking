@@ -34,6 +34,11 @@ namespace BusTracking.API.Controllers
                                        && (t.TripDate == schoolToday || t.TripDate == todayUtc)
                                        && t.Status != TripStatus.Cancelled);
 
+            var totalStudents = await _db.Students
+                .Include(s => s.User)
+                .Include(s => s.Stop)
+                .CountAsync(s => s.User.IsActive && (s.BusId == driver.BusId || (driver.Bus.RouteId != null && s.Stop != null && s.Stop.RouteId == driver.Bus.RouteId)));
+
             return Ok(ApiResponse<object>.Ok(new
             {
                 Bus = new
@@ -47,6 +52,7 @@ namespace BusTracking.API.Controllers
                     driver.Bus.Route.RouteId,
                     driver.Bus.Route.RouteName
                 },
+                TotalStudents = totalStudents,
                 Trip = trip is null ? null : new
                 {
                     trip.TripId,
