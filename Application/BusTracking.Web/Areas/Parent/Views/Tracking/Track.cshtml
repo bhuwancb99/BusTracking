@@ -1,49 +1,285 @@
-@* Parent/Tracking/Track.cshtml - reuses shared tracking view *@
 @model List<BusTracking.Common.DTOs.Trip.StudentTripStatusDto>
+@using BusTracking.Common.Entities
+@using BusTracking.Common.DTOs.Trip
+@using System.Text.Encodings.Web
 @{
     ViewData["Title"] = "Track Bus";
+    var children = ViewBag.Children as List<StudentDetail> ?? [];
+    var selectedStudent = ViewBag.SelectedStudent as StudentDetail;
+    var trip = ViewBag.Trip as BusTrip;
+    var stops = ViewBag.Stops as List<TripStopEventDto> ?? [];
+    var googleApiKey = ViewBag.GoogleMapApiKey as string ?? "";
+    var isLive = trip?.Status == TripStatus.InProgress;
 }
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0"><i class="bi bi-geo-alt me-2 text-danger"></i>Live Bus Tracking</h4>
-    <span class="text-muted small" id="lastUpdated">Updates every 10s</span>
-</div>
-<div class="row g-4">
-    <div class="col-lg-8">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white border-0 pt-4 px-4 fw-semibold"><i class="bi bi-map me-2"></i>Live Location</div>
-            <div class="card-body p-0">
-                <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-                <div id="busMap" data-trip-id="@ViewBag.TripId" style="height:460px;border-radius:0 0 10px 10px"></div>
-            </div>
+
+<!-- ── Header & Children Dropdown Picker ─────────────────────────────── -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h4 class="fw-bold mb-0">
+                <i class="bi bi-geo-alt me-2 text-danger"></i>Live Bus Tracking
+            </h4>
+            <span class="text-muted small">Select your child to track their bus in real-time</span>
+        </div>
+        <div class="d-flex align-items-center gap-2" style="min-width:240px">
+            <label class="fw-semibold small text-muted text-nowrap"><i class="bi bi-person-heart me-1"></i>Child:</label>
+            <select class="form-select shadow-sm fw-semibold" onchange="window.location.href='/Parent/Tracking/Track?studentId=' + this.value">
+                @foreach (var c in children)
+                {
+                    <option value="@c.StudentId" selected="@(c.StudentId == selectedStudent?.StudentId)">
+                        @c.User?.FullName (@(c.Standard?.StandardName ?? "Student"))
+                    </option>
+                }
+            </select>
         </div>
     </div>
-    <div class="col-lg-4">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-mortarboard me-2 text-primary"></i>Students</div>
-            <div class="card-body p-0" style="max-height:480px;overflow-y:auto">
-                @if (Model is null || Model.Count == 0)
-                {
-                    <div class="text-center text-muted py-4 px-3"><i class="bi bi-mortarboard fs-1 d-block mb-2"></i>No student data.</div>
-                }
-                else
-                {
-                    @foreach (var s in Model)
-                    {
-                        var css = s.BoardingStatus switch { "PickedUp" => "bg-success", "NoShow" => "bg-danger", "OnLeave" => "bg-warning", _ => "bg-secondary" };
-                        <div class="d-flex align-items-center gap-3 p-3 border-bottom">
-                            <span class="badge rounded-pill @css" style="width:10px;height:10px;padding:0"></span>
-                            <div class="flex-grow-1">
-                                <div class="fw-semibold small">@s.StudentName</div>
-                                <div class="text-muted" style="font-size:.72rem"><i class="bi bi-geo-alt me-1"></i>@s.StopName</div>
+</div>
+
+@if (trip == null)
+{
+    <div class="card border-0 shadow-sm text-center py-5">
+        <div class="card-body">
+            <i class="bi bi-bus-front text-muted" style="font-size:3.5rem"></i>
+            <h5 class="fw-bold mt-3">No trips available</h5>
+            <p class="text-muted small">No trip is available for <strong>@(selectedStudent?.User?.FullName)</strong> right now.</p>
+        </div>
+    </div>
+}
+else
+{
+    <!-- ── Trip Summary Banner ────────────────────────────────────────── -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <span class="badge rounded-pill px-3 py-2" style="@(isLive ? "background:#e6f4ea;color:#1e8e3e" : "background:#e8f0fe;color:#1a73e8")">
+                        <i class="bi @(isLive ? "bi-geo-alt-fill" : "bi-clock") me-1"></i>@trip.Status
+                    </span>
+                    <span class="badge rounded-pill px-3 py-2 bg-light text-dark border">
+                        <i class="bi bi-bus-front me-1 text-primary"></i>Bus: @trip.Bus?.BusNumber
+                    </span>
+                    <span class="badge rounded-pill px-3 py-2 bg-light text-dark border">
+                        <i class="bi bi-person-badge me-1 text-info"></i>Driver: @trip.Driver?.FullName
+                    </span>
+                    <span class="badge rounded-pill px-3 py-2 bg-light text-dark border">
+                        <i class="bi bi-map me-1 text-warning"></i>Route: @trip.Route?.RouteName
+                    </span>
+                </div>
+            </div>
+            @if (isLive)
+            {
+                <span class="badge d-flex align-items-center gap-1 px-3 py-2" style="background:#e6f4ea;color:#1e8e3e;font-size:.8rem">
+                    <span id="liveDot" style="display:inline-block;width:8px;height:8px;background:#1e8e3e;border-radius:50%;animation:livePulse 1.5s infinite"></span>
+                    LIVE GPS TRACKING
+                </span>
+            }
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- ══ LEFT COLUMN — ROUTE STOPS & STUDENT STATUS ═══════════════ -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-0 pt-4 px-4 fw-semibold">
+                    <i class="bi bi-signpost-split me-2 text-primary"></i>Route Stops & Boarding Status
+                </div>
+                <div class="card-body p-4" style="max-height:600px;overflow-y:auto">
+                    <div class="stop-timeline">
+                        @foreach (var stop in stops.OrderBy(s => s.StopOrder))
+                        {
+                            var color = stop.Status == "Departed" ? "#1e8e3e" : stop.Status == "Reached" ? "#1a73e8" : "#dadce0";
+                            var icon = stop.Status == "Departed" ? "bi-check-circle-fill" : stop.Status == "Reached" ? "bi-geo-alt-fill" : "bi-circle";
+
+                            <div class="d-flex gap-3 mb-3 align-items-start stop-row">
+                                <div class="flex-shrink-0 mt-1">
+                                    <i class="bi @icon" style="color:@color;font-size:1.1rem"></i>
+                                </div>
+                                <div class="flex-grow-1 bg-light p-3 rounded-3 border">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="fw-semibold small">@stop.StopName</span>
+                                        <span class="badge rounded-pill px-2" style="font-size:.7rem;@(stop.Status == "Departed" ? "background:#e6f4ea;color:#1e8e3e" : stop.Status == "Reached" ? "background:#e8f0fe;color:#1a73e8" : "background:#f1f3f4;color:#5f6368")">
+                                            @stop.Status
+                                        </span>
+                                    </div>
+                                    @if (stop.ReachedAt.HasValue || stop.DepartedAt.HasValue)
+                                    {
+                                        <div class="small text-muted mt-1" style="font-size:.72rem">
+                                            @if (stop.ReachedAt.HasValue)
+                                            {
+                                                <span><i class="bi bi-clock me-1 text-primary"></i>Reached @stop.ReachedAt.Value.ToString("HH:mm")</span>
+                                            }
+                                            @if (stop.DepartedAt.HasValue)
+                                            {
+                                                <span class="ms-2"><i class="bi bi-arrow-right me-1 text-success"></i>Departed @stop.DepartedAt.Value.ToString("HH:mm")</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
                             </div>
-                            <span class="badge @(s.BoardingStatus == "PickedUp" ? "bg-success-subtle text-success" : s.BoardingStatus == "NoShow" ? "bg-danger-subtle text-danger" : "bg-secondary-subtle text-secondary") small">@s.BoardingStatus</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ RIGHT COLUMN — LIVE GOOGLE MAP ═══════════════════════ -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm" style="overflow:hidden">
+                <div class="card-header bg-white border-0 pt-3 px-4 fw-semibold">
+                    <i class="bi bi-map me-2 text-primary"></i>Live Google Map
+                </div>
+                <div class="card-body p-0 position-relative">
+                    <div id="tripMap" style="height:520px;width:100%"></div>
+
+                    <div id="liveOverlay" class="position-absolute bottom-0 start-0 end-0 px-3 py-2"
+                         style="background:linear-gradient(transparent,rgba(0,0,0,.75));pointer-events:none;z-index:500;display:none">
+                        <div class="d-flex justify-content-between align-items-end text-white">
+                            <div>
+                                <div id="spdBig" style="font-size:2rem;font-weight:700;line-height:1">–</div>
+                                <div style="font-size:.7rem;opacity:.8">km/h</div>
+                            </div>
+                            <div class="text-center">
+                                <div id="busStatusLabel" style="font-size:.85rem;font-weight:600">–</div>
+                                <div id="lastUpdLabel" style="font-size:.68rem;opacity:.75">–</div>
+                            </div>
+                            <div class="text-end">
+                                <div id="coordLabel" style="font-size:.68rem;opacity:.75">–</div>
+                                <div id="headingLabel" style="font-size:.75rem">–</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (!isLive)
+                    {
+                        <div id="mapPlaceholder" class="position-absolute top-50 start-50 translate-middle text-center"
+                             style="pointer-events:none;z-index:999">
+                            <div style="background:rgba(255,255,255,.94);border-radius:12px;padding:16px 24px;box-shadow:0 4px 20px rgba(0,0,0,.15)">
+                                <i class="bi bi-bus-front text-primary" style="font-size:2.5rem"></i>
+                                <div class="fw-semibold mt-1" style="font-size:.9rem">@(trip.Status == TripStatus.Completed ? "Trip completed" : "Trip not started yet")</div>
+                                <div class="text-muted" style="font-size:.75rem">@(trip.Status == TripStatus.Completed ? "Route summary shown" : "Live map will activate when driver starts the ride")</div>
+                            </div>
                         </div>
                     }
-                }
+                </div>
             </div>
         </div>
     </div>
-</div>
-@section Scripts {
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 }
+
+@section Scripts {
+    @if (trip != null)
+    {
+        <script>
+            const TRIP_ID = @trip.TripId;
+            const IS_LIVE = @(isLive ? "true" : "false");
+
+            const STOPS = [
+                @foreach (var stop in stops.OrderBy(s => s.StopOrder))
+                {
+                    @:{ id: @stop.StopId, name: "@JavaScriptEncoder.Default.Encode(stop.StopName)", order: @stop.StopOrder, status: "@stop.Status" },
+                }
+            ];
+
+            let map, busMarker;
+
+            function initGoogleMap() {
+                map = new google.maps.Map(document.getElementById('tripMap'), {
+                    zoom: 14, center: { lat: 28.6139, lng: 77.2090 }, mapTypeId: 'roadmap'
+                });
+
+                busMarker = new google.maps.Marker({
+                    map: map,
+                    icon: {
+                        path: 'M12 2C8 2 4 2.5 4 6v9.5C4 17 5 18 6.5 18L5 19.5v.5h14v-.5L17.5 18c1.5 0 2.5-1 2.5-2.5V6c0-3.5-4-4-8-4zm-4.5 13c-.83 0-1.5-.67-1.5-1.5S6.67 12 7.5 12s1.5.67 1.5 1.5S8.33 15 7.5 15zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM18 10H6V6h12v4z',
+                        scale: 1.5, fillColor: '#fbbc04', fillOpacity: 1, strokeColor: '#000000', strokeWeight: 1.5,
+                        anchor: new google.maps.Point(12, 12), rotation: 0
+                    },
+                    title: 'School Bus', zIndex: 100
+                });
+
+                STOPS.forEach(s => {
+                    const color = s.status === 'Departed' ? '#1e8e3e' : s.status === 'Reached' ? '#1a73e8' : '#9aa0a6';
+                    new google.maps.Marker({
+                        map: map, title: `Stop #${s.order}: ${s.name}`,
+                        icon: { path: google.maps.SymbolPath.CIRCLE, scale: 9, fillColor: color, fillOpacity: 1, strokeColor: '#ffffff', strokeWeight: 2 },
+                        label: { text: String(s.order), color: '#ffffff', fontSize: '10px', fontWeight: 'bold' }
+                    });
+                });
+
+                if (IS_LIVE) {
+                    fetchLocation();
+                    setInterval(fetchLocation, 2500);
+                } else {
+                    loadHistory();
+                }
+            }
+
+            async function fetchLocation() {
+                try {
+                    const res = await fetch(`/Parent/Tracking/LatestLocation?tripId=${TRIP_ID}`);
+                    const data = await res.json();
+                    if (!data.success || !data.data) return;
+
+                    const { latitude: lat, longitude: lng, speed, heading, recordedAt } = data.data;
+                    const pos = new google.maps.LatLng(Number(lat), Number(lng));
+                    busMarker.setPosition(pos); map.panTo(pos);
+
+                    if (heading || heading === 0) {
+                        const icon = busMarker.getIcon(); icon.rotation = Number(heading); busMarker.setIcon(icon);
+                    }
+                    updateInfoBar(lat, lng, speed, heading, recordedAt);
+                    document.getElementById('mapPlaceholder')?.remove();
+                } catch (e) { console.warn('Location fetch failed', e); }
+            }
+
+            async function loadHistory() {
+                try {
+                    const res = await fetch(`/Parent/Tracking/LocationHistory?tripId=${TRIP_ID}`);
+                    const data = await res.json();
+                    if (!data.success || !data.data?.length) return;
+
+                    const coords = data.data.map(d => ({ lat: Number(d.latitude), lng: Number(d.longitude) }));
+                    if (coords.length > 0) {
+                        new google.maps.Polyline({ path: coords, strokeColor: '#1a73e8', strokeOpacity: 0.8, strokeWeight: 5, map: map });
+                        const bounds = new google.maps.LatLngBounds(); coords.forEach(c => bounds.extend(c)); map.fitBounds(bounds);
+                        const last = coords[coords.length - 1]; const lastData = data.data[data.data.length - 1];
+                        busMarker.setPosition(new google.maps.LatLng(last.lat, last.lng));
+                        updateInfoBar(lastData.latitude, lastData.longitude, lastData.speed, lastData.heading, lastData.recordedAt);
+                        document.getElementById('mapPlaceholder')?.remove();
+                    }
+                } catch (e) { console.warn('History load failed', e); }
+            }
+
+            function updateInfoBar(lat, lng, speed, heading, recordedAt) {
+                const spd = speed ? parseFloat(speed).toFixed(1) : '0';
+                const hdg = heading ? Math.round(heading) : 0;
+                document.getElementById('spdBig').textContent = spd;
+                document.getElementById('coordLabel').textContent = `${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)}`;
+                document.getElementById('headingLabel').textContent = headingToCompass(hdg);
+                document.getElementById('lastUpdLabel').textContent = 'Updated ' + new Date(recordedAt).toLocaleTimeString();
+                document.getElementById('busStatusLabel').textContent = parseFloat(spd) > 2 ? '🚌 Moving' : '🅿️ Stopped';
+                document.getElementById('liveOverlay').style.display = '';
+            }
+
+            function headingToCompass(h) {
+                const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW', 'N'];
+                return dirs[Math.round(h / 45)] + ` ${h}°`;
+            }
+        </script>
+
+        @if (!string.IsNullOrEmpty(googleApiKey))
+        {
+            <script src="https://maps.googleapis.com/maps/api/js?key=@googleApiKey&callback=initGoogleMap&libraries=geometry" async defer></script>
+        }
+    }
+}
+
+<style>
+    @@keyframes livePulse {
+        0%, 100% { opacity: 1; } 50% { opacity: .2; }
+    }
+    .stop-timeline .stop-row:not(:last-child) {
+        padding-bottom: 12px; border-left: 2px dashed #e8eaed; margin-left: 9px; padding-left: 14px;
+    }
+    .stop-timeline .stop-row:not(:last-child) .flex-shrink-0 { margin-left: -23px; }
+</style>

@@ -1,28 +1,32 @@
-@model BusTracking.Common.DTOs.Trip.TripListDto
+@model BusTracking.Common.DTOs.Driver.DriverTripSummary
 @using BusTracking.Common.DTOs.Trip
 @using System.Text.Encodings.Web
 @{
-    ViewData["Title"] = $"Trip #{Model?.TripId}";
+    ViewData["Title"] = $"Trip #{Model?.TripId} – Live Tracking";
     var students = ViewBag.Students as List<StudentTripStatusDto> ?? [];
     var stops = ViewBag.Stops as List<TripStopEventDto> ?? [];
+    var busInfo = ViewBag.BusInfo as BusTracking.Common.DTOs.Driver.DriverMyTripDto;
     var isLive = Model?.Status == "InProgress";
     var googleApiKey = ViewBag.GoogleMapApiKey as string ?? "";
     var statusStyle = Model?.Status switch
     {
         "Scheduled" => "background:#e8f0fe;color:#1a73e8",
-        "InProgress" => "background:#e6f4ea;color:#1e8e3e",
-        "Completed" => "background:#f1f3f4;color:#5f6368",
+        "InProgress" => "background:#fef9c3;color:#854d0e",
+        "Completed" => "background:#e6f4ea;color:#1e8e3e",
         "Cancelled" => "background:#fce8e6;color:#c5221f",
         _ => "background:#f1f3f4;color:#5f6368"
     };
 }
+
+<!-- AntiForgery token for AJAX -->
+@Html.AntiForgeryToken()
 
 <!-- ── Header ─────────────────────────────────────────────────────── -->
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
     <div>
         <h4 class="fw-bold mb-1">
             <i class="bi bi-bus-front me-2 text-primary"></i>
-            Trip #@Model?.TripId — @Model?.BusNumber
+            Trip #@Model?.TripId — @busInfo?.BusNumber
         </h4>
         <div class="d-flex align-items-center gap-2 flex-wrap">
             <span class="badge rounded-pill px-3 py-2" style="@statusStyle;font-size:.8rem">
@@ -33,35 +37,19 @@
                   style="@(Model?.TripType == "Morning" ? "background:#fff3e0;color:#e65100" : "background:#e8eaf6;color:#3949ab");font-size:.75rem">
                 <i class="bi @(Model?.TripType == "Morning" ? "bi-sunrise" : "bi-sunset") me-1"></i>@Model?.TripType
             </span>
-            <span class="text-muted small"><i class="bi bi-person-video2 me-1"></i>@Model?.DriverName</span>
-            <span class="text-muted small"><i class="bi bi-map me-1"></i>@Model?.RouteName</span>
+            <span class="text-muted small"><i class="bi bi-map me-1"></i>@busInfo?.RouteName</span>
         </div>
     </div>
     <div class="d-flex gap-2 flex-wrap">
-        @if (Model?.Status == "Scheduled")
-        {
-            <form asp-area="BusCoordinator" asp-controller="Trip" asp-action="Start" asp-route-id="@Model.TripId" method="post">
-                @Html.AntiForgeryToken()
-                <button class="btn btn-success px-4"><i class="bi bi-play-fill me-1"></i>Start Trip</button>
-            </form>
-        }
         @if (Model?.Status == "InProgress")
         {
-            <form asp-area="BusCoordinator" asp-controller="Trip" asp-action="End" asp-route-id="@Model.TripId" method="post"
-                  onsubmit="return confirm('End this trip?')">
+            <form asp-action="End" asp-route-tripId="@Model!.TripId" method="post"
+                  onsubmit="return confirm('End this trip? Tracking will stop for all parents.')">
                 @Html.AntiForgeryToken()
                 <button class="btn btn-danger px-4"><i class="bi bi-stop-fill me-1"></i>End Trip</button>
             </form>
         }
-        @if (Model?.Status is "Scheduled" or "InProgress")
-        {
-            <form asp-area="BusCoordinator" asp-controller="Trip" asp-action="Cancel" asp-route-id="@Model!.TripId" method="post"
-                  onsubmit="return confirm('Cancel this trip?')">
-                @Html.AntiForgeryToken()
-                <button class="btn btn-outline-warning px-3"><i class="bi bi-x-lg me-1"></i>Cancel</button>
-            </form>
-        }
-        <a asp-area="BusCoordinator" asp-controller="Trip" asp-action="Index" class="btn btn-outline-secondary px-3">
+        <a asp-action="Index" class="btn btn-outline-secondary px-3">
             <i class="bi bi-arrow-left me-1"></i>Back
         </a>
     </div>
@@ -69,7 +57,7 @@
 
 <div class="row g-4">
 
-    <!-- ══ LEFT COLUMN — ROUTE STOPS & ASSIGNED STUDENTS ═══════════════ -->
+    <!-- ══ LEFT COLUMN — ROUTE STOPS & STUDENTS ═══════════════════════ -->
     <div class="col-lg-5">
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-header bg-white border-0 pt-4 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
@@ -92,7 +80,7 @@
             <div class="card-body p-4" style="max-height:750px;overflow-y:auto">
                 @if (!stops.Any())
                 {
-                    <p class="text-muted small text-center py-2">No stops added to this trip.</p>
+                    <p class="text-muted small text-center py-2">No stops configured for this trip.</p>
                 }
                 else
                 {
@@ -107,7 +95,8 @@
                             var isFirst = stop.StopId == firstStop?.StopId;
                             var isLast = stop.StopId == lastStop?.StopId;
                             var dotColor = stop.Status switch { "Departed" => "#1e8e3e", "Reached" => "#1a73e8", _ => "#dadce0" };
-                            var dotIcon = isFirst ? "bi-geo-alt-fill" : isLast ? "bi-flag-fill" : (stop.Status switch { "Departed" => "bi-check-circle-fill", "Reached" => "bi-geo-alt-fill", _ => "bi-circle" });
+                            var dotIcon = isFirst ? "bi-geo-alt-fill" : isLast ? "bi-flag-fill"
+                                            : stop.Status switch { "Departed" => "bi-check-circle-fill", "Reached" => "bi-geo-alt-fill", _ => "bi-circle" };
                             var iconColor = isFirst ? "#c5221f" : isLast ? "#1e8e3e" : dotColor;
 
                             var stopStudents = students
@@ -119,13 +108,10 @@
                             var pendingStudentsCount = stopStudents.Count(st => st.BoardingStatus == "Pending");
                             var allStudentsUpdated = pendingStudentsCount == 0;
 
-                            // Step-by-Step Rule:
-                            // 1. Stop idx can be Reached ONLY IF all previous stops are Departed
+                            // Sequential step-by-step rules
                             var canReach = stop.Status == "Pending" && (idx == 0 || orderedStops[idx - 1].Status == "Departed");
-                            // 2. Stop idx can be Departed ONLY IF stop is Reached AND all assigned students' boarding status updated
                             var isReached = stop.Status == "Reached";
                             var canDepart = isReached && allStudentsUpdated;
-                            // 3. Student boarding status can be changed ONLY IF stop is Reached
                             var canUpdateBoarding = isLive && isReached;
 
                             <div class="d-flex gap-3 mb-4 align-items-start stop-row" data-stop-id="@stop.StopId">
@@ -191,8 +177,8 @@
                                                         <div>
                                                             <button class="btn btn-sm btn-secondary opacity-75 mt-1 disabled"
                                                                     style="font-size:.7rem;padding:4px 12px;border-radius:20px"
-                                                                    title="Please update all @pendingStudentsCount pending student boarding status(es) first">
-                                                                <i class="bi bi-exclamation-triangle me-1"></i>Update Students First (@pendingStudentsCount)
+                                                                    title="Update all @pendingStudentsCount pending student(s) first">
+                                                                <i class="bi bi-exclamation-triangle me-1"></i>Update Students (@pendingStudentsCount)
                                                             </button>
                                                         </div>
                                                     }
@@ -209,7 +195,7 @@
                                         </div>
                                     </div>
 
-                                    <!-- Nested Students under this specific stop -->
+                                    <!-- Students nested under this stop -->
                                     <div class="mt-2 ms-2">
                                         <div class="d-flex align-items-center mb-2">
                                             <span class="small fw-semibold text-muted">
@@ -250,8 +236,7 @@
                                                     };
 
                                                     <div class="d-flex align-items-center justify-content-between p-2 px-3 rounded-3 border-start border-3"
-                                                         style="background:#fafafa;border-left-color:@(s.BoardingStatus == "PickedUp" ? "#1e8e3e" : s.BoardingStatus == "NoShow" ? "#c5221f" : s.BoardingStatus == "OnLeave" ? "#e65100" : "#9aa0a6")!important"
-                                                         id="srow-@s.StudentId">
+                                                         style="background:#fafafa;border-left-color:@(s.BoardingStatus == "PickedUp" ? "#1e8e3e" : s.BoardingStatus == "NoShow" ? "#c5221f" : s.BoardingStatus == "OnLeave" ? "#e65100" : "#9aa0a6")!important">
                                                         <div class="d-flex align-items-center gap-2">
                                                             <div class="rounded-circle d-flex align-items-center justify-content-center bg-info-subtle text-info fw-bold flex-shrink-0"
                                                                  style="width:32px;height:32px;font-size:.78rem">
@@ -266,9 +251,9 @@
                                                         @if (canUpdateBoarding)
                                                         {
                                                             <div class="dropdown">
-                                                                <button class="btn btn-sm dropdown-toggle sboarding-badge"
+                                                                <button class="btn btn-sm dropdown-toggle"
                                                                         style="@bsCss;border:none;font-size:.73rem;border-radius:20px;padding:3px 10px"
-                                                                        data-bs-toggle="dropdown" id="sbtn-@s.StudentId">
+                                                                        data-bs-toggle="dropdown">
                                                                     <i class="bi @bsIcon me-1"></i>@s.BoardingStatus
                                                                 </button>
                                                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
@@ -276,8 +261,10 @@
                                                                     {
                                                                         <li>
                                                                             <a class="dropdown-item small boarding-option" href="#"
-                                                                               data-trip-id="@Model!.TripId" data-student-id="@s.StudentId"
-                                                                               data-stop-id="@stop.StopOrder" data-status="@st.Item1" data-btn-id="sbtn-@s.StudentId">
+                                                                               data-trip-id="@Model!.TripId"
+                                                                               data-student-id="@s.StudentId"
+                                                                               data-stop-id="@stop.StopOrder"
+                                                                               data-status="@st.Item1">
                                                                                 <i class="bi @st.Item2 me-2" style="color:@st.Item3"></i>@st.Item1
                                                                             </a>
                                                                         </li>
@@ -288,7 +275,7 @@
                                                         else
                                                         {
                                                             <span class="badge rounded-pill px-3 py-1" style="@bsCss;font-size:.72rem"
-                                                                  title="@(stop.Status == "Pending" ? "Boarding status can be updated when stop is Reached" : "")">
+                                                                  title="@(stop.Status == "Pending" ? "Available when stop is Reached" : "")">
                                                                 <i class="bi @bsIcon me-1"></i>@s.BoardingStatus
                                                             </span>
                                                         }
@@ -306,19 +293,15 @@
         </div>
     </div>
 
-    <!-- ══ RIGHT COLUMN — LIVE GOOGLE MAP ═══════════════════════ -->
+    <!-- ══ RIGHT COLUMN — LIVE GOOGLE MAP ════════════════════════════ -->
     <div class="col-lg-7">
         <div class="card border-0 shadow-sm" style="overflow:hidden">
-
-            <!-- Map header with live badge -->
             <div class="card-header bg-white border-0 pt-3 px-4 d-flex justify-content-between align-items-center">
-                <span class="fw-semibold">
-                    <i class="bi bi-map me-2 text-primary"></i>Live Google Map Tracking
-                </span>
+                <span class="fw-semibold"><i class="bi bi-map me-2 text-primary"></i>Live Google Map Tracking</span>
                 @if (isLive)
                 {
                     <span class="badge d-flex align-items-center gap-1" style="background:#e6f4ea;color:#1e8e3e;font-size:.75rem">
-                        <span id="liveDot" style="display:inline-block;width:8px;height:8px;background:#1e8e3e;border-radius:50%;animation:livePulse 1.5s infinite"></span>
+                        <span style="display:inline-block;width:8px;height:8px;background:#1e8e3e;border-radius:50%;animation:livePulse 1.5s infinite"></span>
                         LIVE GPS
                     </span>
                 }
@@ -327,12 +310,10 @@
                     <span class="text-muted small">Trip not in progress</span>
                 }
             </div>
-
-            <!-- Google Map Canvas -->
             <div class="card-body p-0 position-relative">
                 <div id="tripMap" style="height:520px;width:100%"></div>
 
-                <!-- Speed & Status overlay -->
+                <!-- Speed overlay -->
                 <div id="liveOverlay" class="position-absolute bottom-0 start-0 end-0 px-3 py-2"
                      style="background:linear-gradient(transparent,rgba(0,0,0,.75));pointer-events:none;z-index:500;display:none">
                     <div class="d-flex justify-content-between align-items-end text-white">
@@ -353,19 +334,16 @@
 
                 @if (!isLive)
                 {
-                    <div id="mapPlaceholder" class="position-absolute top-50 start-50 translate-middle text-center"
-                         style="pointer-events:none;z-index:999">
+                    <div class="position-absolute top-50 start-50 translate-middle text-center" style="pointer-events:none;z-index:999">
                         <div style="background:rgba(255,255,255,.94);border-radius:12px;padding:16px 24px;box-shadow:0 4px 20px rgba(0,0,0,.15)">
                             <i class="bi bi-bus-front text-primary" style="font-size:2.5rem"></i>
                             <div class="fw-semibold mt-1" style="font-size:.9rem">@(Model?.Status == "Completed" ? "Trip completed" : "Trip not started yet")</div>
-                            <div class="text-muted" style="font-size:.75rem">@(Model?.Status == "Completed" ? "Route summary shown" : "Start trip to activate live GPS map")</div>
+                            <div class="text-muted" style="font-size:.75rem">@(Model?.Status == "Completed" ? "Route summary shown below" : "Start trip to activate live GPS")</div>
                         </div>
                     </div>
                 }
             </div>
-
-            <!-- Bottom info bar -->
-            <div class="px-4 py-2 border-top d-flex gap-4 small text-muted flex-wrap" id="gpsInfoBar">
+            <div class="px-4 py-2 border-top d-flex gap-4 small text-muted flex-wrap">
                 <span><i class="bi bi-geo-alt me-1 text-danger"></i><span id="latVal">–</span></span>
                 <span><i class="bi bi-geo me-1 text-primary"></i><span id="lngVal">–</span></span>
                 <span><i class="bi bi-speedometer2 me-1 text-success"></i><span id="spdVal">–</span> km/h</span>
@@ -381,203 +359,148 @@
     <script>
         const TRIP_ID = @Model?.TripId;
         const IS_LIVE = @(isLive ? "true" : "false");
-        const TOKEN   = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+        const TOKEN = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
 
         const STOPS = [
-            @foreach (var stop in stops.OrderBy(s => s.StopOrder))
+                    @foreach (var stop in stops.OrderBy(s => s.StopOrder))
             {
                 @:{ id: @stop.StopId, name: "@JavaScriptEncoder.Default.Encode(stop.StopName)", order: @stop.StopOrder, status: "@stop.Status" },
             }
-        ];
+                ];
 
-        let map, busMarker, routePolyline;
-        let stopMarkers = [];
+        let map, busMarker;
 
         function initGoogleMap() {
             map = new google.maps.Map(document.getElementById('tripMap'), {
                 zoom: 14,
                 center: { lat: 28.6139, lng: 77.2090 },
-                mapTypeId: 'roadmap',
-                disableDefaultUI: false,
-                zoomControl: true
+                mapTypeId: 'roadmap'
             });
 
-            // High resolution Yellow Bus Icon
             busMarker = new google.maps.Marker({
                 map: map,
                 icon: {
                     path: 'M12 2C8 2 4 2.5 4 6v9.5C4 17 5 18 6.5 18L5 19.5v.5h14v-.5L17.5 18c1.5 0 2.5-1 2.5-2.5V6c0-3.5-4-4-8-4zm-4.5 13c-.83 0-1.5-.67-1.5-1.5S6.67 12 7.5 12s1.5.67 1.5 1.5S8.33 15 7.5 15zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM18 10H6V6h12v4z',
-                    scale: 1.5,
-                    fillColor: '#fbbc04',
-                    fillOpacity: 1,
-                    strokeColor: '#000000',
-                    strokeWeight: 1.5,
-                    anchor: new google.maps.Point(12, 12),
-                    rotation: 0
+                    scale: 1.5, fillColor: '#fbbc04', fillOpacity: 1, strokeColor: '#000', strokeWeight: 1.5,
+                    anchor: new google.maps.Point(12, 12), rotation: 0
                 },
-                title: 'School Bus',
-                zIndex: 100
+                title: 'Bus', zIndex: 100
             });
 
             STOPS.forEach(s => {
                 const color = s.status === 'Departed' ? '#1e8e3e' : s.status === 'Reached' ? '#1a73e8' : '#9aa0a6';
-
                 const marker = new google.maps.Marker({
-                    map: map,
-                    title: `Stop #${s.order}: ${s.name}`,
-                    icon: {
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: 10,
-                        fillColor: color,
-                        fillOpacity: 1,
-                        strokeColor: '#ffffff',
-                        strokeWeight: 2
-                    },
-                    label: { text: String(s.order), color: '#ffffff', fontSize: '10px', fontWeight: 'bold' }
+                    map, title: `Stop #${s.order}: ${s.name}`,
+                    icon: { path: google.maps.SymbolPath.CIRCLE, scale: 10, fillColor: color, fillOpacity: 1, strokeColor: '#fff', strokeWeight: 2 },
+                    label: { text: String(s.order), color: '#fff', fontSize: '10px', fontWeight: 'bold' }
                 });
-
-                const infoWin = new google.maps.InfoWindow({
-                    content: `<div><b>Stop #${s.order}</b><br>${s.name}<br><span style="color:${color}">${s.status}</span></div>`
-                });
+                const infoWin = new google.maps.InfoWindow({ content: `<div><b>Stop #${s.order}</b><br>${s.name}<br><span style="color:${color}">${s.status}</span></div>` });
                 marker.addListener('click', () => infoWin.open(map, marker));
-                stopMarkers.push(marker);
             });
 
             if (IS_LIVE) {
+                // Location is sent by the driver's mobile app — just poll the server
                 fetchLocation();
-                setInterval(fetchLocation, 2500); // 2.5s high-frequency live tracking
+                setInterval(fetchLocation, 2500); // Poll every 2.5s
             } else {
                 loadHistory();
             }
         }
 
+
         async function fetchLocation() {
             try {
-                const area = window.location.pathname.startsWith('/BusCoordinator') ? 'BusCoordinator' : 'SuperAdmin';
-                const res  = await fetch(`/${area}/Trip/LatestLocation?tripId=${TRIP_ID}`);
+                const res = await fetch(`/Driver/Trip/LatestLocation?tripId=${TRIP_ID}`);
                 const data = await res.json();
                 if (!data.success || !data.data) return;
-
                 const { latitude: lat, longitude: lng, speed, heading, recordedAt } = data.data;
                 const pos = new google.maps.LatLng(Number(lat), Number(lng));
-
                 busMarker.setPosition(pos);
                 map.panTo(pos);
-
-                if (heading || heading === 0) {
-                    const icon = busMarker.getIcon();
-                    icon.rotation = Number(heading);
-                    busMarker.setIcon(icon);
-                }
-
+                if (heading || heading === 0) { const icon = busMarker.getIcon(); icon.rotation = Number(heading); busMarker.setIcon(icon); }
                 updateInfoBar(lat, lng, speed, heading, recordedAt);
-                document.getElementById('mapPlaceholder')?.remove();
-            } catch(e) { console.warn('Location fetch failed', e); }
+            } catch (e) { console.warn('Location fetch failed', e); }
         }
 
         async function loadHistory() {
             try {
-                const area = window.location.pathname.startsWith('/BusCoordinator') ? 'BusCoordinator' : 'SuperAdmin';
-                const res  = await fetch(`/${area}/Trip/LocationHistory?tripId=${TRIP_ID}`);
+                const res = await fetch(`/Driver/Trip/LocationHistory?tripId=${TRIP_ID}`);
                 const data = await res.json();
                 if (!data.success || !data.data?.length) return;
-
                 const coords = data.data.map(d => ({ lat: Number(d.latitude), lng: Number(d.longitude) }));
-                if (coords.length > 0) {
-                    routePolyline = new google.maps.Polyline({
-                        path: coords,
-                        geodesic: true,
-                        strokeColor: '#1a73e8',
-                        strokeOpacity: 0.8,
-                        strokeWeight: 5,
-                        map: map
-                    });
-
-                    const bounds = new google.maps.LatLngBounds();
-                    coords.forEach(c => bounds.extend(c));
-                    map.fitBounds(bounds);
-
-                    const last = coords[coords.length - 1];
-                    const lastData = data.data[data.data.length - 1];
-                    busMarker.setPosition(new google.maps.LatLng(last.lat, last.lng));
-                    updateInfoBar(lastData.latitude, lastData.longitude, lastData.speed, lastData.heading, lastData.recordedAt);
-                    document.getElementById('mapPlaceholder')?.remove();
-                }
-            } catch(e) { console.warn('History load failed', e); }
+                new google.maps.Polyline({ path: coords, geodesic: true, strokeColor: '#1a73e8', strokeOpacity: 0.8, strokeWeight: 5, map });
+                const bounds = new google.maps.LatLngBounds();
+                coords.forEach(c => bounds.extend(c));
+                map.fitBounds(bounds);
+                const last = data.data[data.data.length - 1];
+                busMarker.setPosition(new google.maps.LatLng(Number(last.latitude), Number(last.longitude)));
+                updateInfoBar(last.latitude, last.longitude, last.speed, last.heading, last.recordedAt);
+            } catch (e) { }
         }
 
         function updateInfoBar(lat, lng, speed, heading, recordedAt) {
             const spd = speed ? parseFloat(speed).toFixed(1) : '0';
             const hdg = heading ? Math.round(heading) : 0;
-
-            document.getElementById('latVal').textContent  = parseFloat(lat).toFixed(5);
-            document.getElementById('lngVal').textContent  = parseFloat(lng).toFixed(5);
-            document.getElementById('spdVal').textContent  = spd;
-            document.getElementById('hdgVal').textContent  = hdg;
-            document.getElementById('updVal').textContent  = new Date(recordedAt).toLocaleTimeString();
-
-            document.getElementById('spdBig').textContent        = spd;
-            document.getElementById('coordLabel').textContent    = `${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)}`;
-            document.getElementById('headingLabel').textContent  = headingToCompass(hdg);
-            document.getElementById('lastUpdLabel').textContent  = 'Updated ' + new Date(recordedAt).toLocaleTimeString();
-
-            const moving = parseFloat(spd) > 2;
-            document.getElementById('busStatusLabel').textContent = moving ? '🚌 Moving' : '🅿️ Stopped';
+            document.getElementById('latVal').textContent = parseFloat(lat).toFixed(5);
+            document.getElementById('lngVal').textContent = parseFloat(lng).toFixed(5);
+            document.getElementById('spdVal').textContent = spd;
+            document.getElementById('hdgVal').textContent = hdg;
+            document.getElementById('updVal').textContent = new Date(recordedAt).toLocaleTimeString();
+            document.getElementById('spdBig').textContent = spd;
+            document.getElementById('coordLabel').textContent = `${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)}`;
+            const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW', 'N'];
+            document.getElementById('headingLabel').textContent = dirs[Math.round(hdg / 45)] + ` ${hdg}°`;
+            document.getElementById('lastUpdLabel').textContent = 'Updated ' + new Date(recordedAt).toLocaleTimeString();
+            document.getElementById('busStatusLabel').textContent = parseFloat(spd) > 2 ? '🚌 Moving' : '🅿️ Stopped';
             document.getElementById('liveOverlay').style.display = '';
         }
 
-        function headingToCompass(h) {
-            const dirs = ['N','NE','E','SE','S','SW','W','NW','N'];
-            return dirs[Math.round(h / 45)] + ` ${h}°`;
-        }
-
-        // ── Mark stop reached ────────────────────────────────────────────────
+        // ── Mark stop reached ────────────────────────────────────────────
         document.querySelectorAll('.btn-reach-stop').forEach(btn => {
-            btn.addEventListener('click', async function () {
-                const area = window.location.pathname.startsWith('/BusCoordinator') ? 'BusCoordinator' : 'SuperAdmin';
-                const res  = await fetch(`/${area}/Trip/ReachStop?tripId=${this.dataset.tripId}&stopId=${this.dataset.stopId}`, {
+            btn.addEventListener('click', async function() {
+                this.disabled = true;
+                const res = await fetch(`/Driver/Trip/ReachStop?tripId=${this.dataset.tripId}&stopId=${this.dataset.stopId}`, {
                     method: 'POST', headers: { 'RequestVerificationToken': TOKEN() }
                 });
                 const data = await res.json();
                 busTrack.showToast(data.message, data.success ? 'success' : 'danger');
                 if (data.success) setTimeout(() => location.reload(), 700);
+                else this.disabled = false;
             });
         });
 
-        // ── Mark stop departed ───────────────────────────────────────────────
+        // ── Mark stop departed ───────────────────────────────────────────
         document.querySelectorAll('.btn-depart-stop').forEach(btn => {
-            btn.addEventListener('click', async function () {
-                const area = window.location.pathname.startsWith('/BusCoordinator') ? 'BusCoordinator' : 'SuperAdmin';
-                const res  = await fetch(`/${area}/Trip/DepartStop?tripId=${this.dataset.tripId}&stopId=${this.dataset.stopId}`, {
+            btn.addEventListener('click', async function() {
+                this.disabled = true;
+                const res = await fetch(`/Driver/Trip/DepartStop?tripId=${this.dataset.tripId}&stopId=${this.dataset.stopId}`, {
                     method: 'POST', headers: { 'RequestVerificationToken': TOKEN() }
                 });
                 const data = await res.json();
                 busTrack.showToast(data.message, data.success ? 'success' : 'danger');
                 if (data.success) setTimeout(() => location.reload(), 700);
+                else this.disabled = false;
             });
         });
 
-        // ── Boarding status update ────────────────────────────────────────────
+        // ── Boarding status update ────────────────────────────────────────
         document.querySelectorAll('.boarding-option').forEach(opt => {
-            opt.addEventListener('click', async function (e) {
+            opt.addEventListener('click', async function(e) {
                 e.preventDefault();
-                const area = window.location.pathname.startsWith('/BusCoordinator') ? 'BusCoordinator' : 'SuperAdmin';
                 const body = {
-                    tripId   : parseInt(this.dataset.tripId),
+                    tripId: parseInt(this.dataset.tripId),
                     studentId: parseInt(this.dataset.studentId),
-                    stopId   : parseInt(this.dataset.stopId),
-                    status   : this.dataset.status
+                    stopId: parseInt(this.dataset.stopId),
+                    status: this.dataset.status
                 };
-                const res  = await fetch(`/${area}/Trip/UpdateBoarding`, {
+                const res = await fetch('/Driver/Trip/UpdateBoarding', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': TOKEN() },
                     body: JSON.stringify(body)
                 });
                 const data = await res.json();
                 busTrack.showToast(data.message, data.success ? 'success' : 'danger');
-                if (data.success) {
-                    setTimeout(() => location.reload(), 700);
-                }
+                if (data.success) setTimeout(() => location.reload(), 700);
             });
         });
     </script>
@@ -590,16 +513,23 @@
 
 <style>
     @@keyframes livePulse {
-        0%, 100% { opacity: 1; }
-        50%       { opacity: .2; }
+        0%, 100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: .2;
+        }
     }
+
     .stop-timeline .stop-row:not(:last-child) {
         padding-bottom: 16px;
         border-left: 2px dashed #e8eaed;
         margin-left: 9px;
         padding-left: 16px;
     }
-    .stop-timeline .stop-row:not(:last-child) .flex-shrink-0 {
-        margin-left: -25px;
-    }
+
+        .stop-timeline .stop-row:not(:last-child) .flex-shrink-0 {
+            margin-left: -25px;
+        }
 </style>

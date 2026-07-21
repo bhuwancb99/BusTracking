@@ -159,7 +159,6 @@ namespace BusTracking.Common.Services
             if (!DateOnly.TryParse(dto.TripDate, out var td))
                 return ApiResponse<TripListDto>.Fail("Invalid date.");
 
-            // Check duplicate trip same bus+date+type
             if (await _db.BusTrips.IgnoreQueryFilters().AnyAsync(t =>
                 t.BusId == dto.BusId && t.TripDate == td && t.TripType == tt &&
                 t.Status != TripStatus.Cancelled))
@@ -189,7 +188,6 @@ namespace BusTracking.Common.Services
             _db.BusTrips.Add(trip);
             await _db.SaveChangesAsync();
 
-            // Auto-create TripStopEvents for all stops on route
             var stops = await _db.Stops
                 .IgnoreQueryFilters()
                 .Where(s => s.RouteId == dto.RouteId && s.IsActive)
@@ -198,7 +196,6 @@ namespace BusTracking.Common.Services
                 _db.TripStopEvents.Add(new TripStopEvent
                 { TripId = trip.TripId, StopId = stop.StopId, Status = TripStopStatus.Pending });
 
-            // Auto-create StudentTripStatus for all students on this bus
             var students = await _db.Students
                 .IgnoreQueryFilters()
                 .Include(s => s.User)
@@ -274,7 +271,6 @@ namespace BusTracking.Common.Services
                 using var tx = await _db.Database.BeginTransactionAsync();
                 try
                 {
-                    // 1. Delete all child references first
                     var events = await _db.TripStopEvents.IgnoreQueryFilters().Where(e => e.TripId == tripId).ToListAsync();
                     if (events.Count > 0) _db.TripStopEvents.RemoveRange(events);
 
@@ -284,10 +280,7 @@ namespace BusTracking.Common.Services
                     var locations = await _db.BusLiveLocations.IgnoreQueryFilters().Where(l => l.TripId == tripId).ToListAsync();
                     if (locations.Count > 0) _db.BusLiveLocations.RemoveRange(locations);
 
-                    // 2. Remove main BusTrip record
                     _db.BusTrips.Remove(t);
-
-                    // 3. Save changes and commit transaction
                     await _db.SaveChangesAsync();
                     await tx.CommitAsync();
 
@@ -323,9 +316,43 @@ namespace BusTracking.Common.Services
 
         public async Task<ApiResponse<bool>> ReachStopAsync(int tripId, int stopId)
         {
+            var trip = await _db.BusTrips
+                .IgnoreQueryFilters()
+                .Include(t => t.Bus).ThenInclude(b => b!.Route).ThenInclude(r => r!.Stops)
+                .FirstOrDefaultAsync(t => t.TripId == tripId);
+
+            if (trip?.Bus?.Route is null)
+                return ApiResponse<bool>.Fail("Trip or route not found.");
+
+            var orderedStops = trip.Bus.Route.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).ToList();
+            var currentStop = orderedStops.FirstOrDefault(s => s.StopId == stopId);
+            if (currentStop is null) return ApiResponse<bool>.Fail("Stop not found.");
+
+            // Sequential check: Previous stops must be Departed!
+            var previousStopIds = orderedStops.Where(s => s.StopOrder < currentStop.StopOrder).Select(s => s.StopId).ToList();
+            if (previousStopIds.Count > 0)
+            {
+                var prevEvents = await _db.TripStopEvents
+                    .IgnoreQueryFilters()
+                    .Where(e => e.TripId == tripId && previousStopIds.Contains(e.StopId))
+                    .ToListAsync();
+
+                var incompletePrevious = previousStopIds.Any(id =>
+                {
+                    var e = prevEvents.FirstOrDefault(x => x.StopId == id);
+                    return e == null || e.Status != TripStopStatus.Departed;
+                });
+
+                if (incompletePrevious)
+                {
+                    return ApiResponse<bool>.Fail("Cannot reach this stop. All previous stops must be departed first in sequential order.");
+                }
+            }
+
             var evt = await _db.TripStopEvents
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(e => e.TripId == tripId && e.StopId == stopId);
+
             if (evt is null)
             {
                 _db.TripStopEvents.Add(new TripStopEvent
@@ -338,6 +365,46 @@ namespace BusTracking.Common.Services
             }
             await _db.SaveChangesAsync();
             return ApiResponse<bool>.Ok(true, "Stop marked as reached.");
+        }
+
+        public async Task<ApiResponse<bool>> DepartStopAsync(int tripId, int stopId)
+        {
+            var evt = await _db.TripStopEvents
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(e => e.TripId == tripId && e.StopId == stopId);
+
+            if (evt is null || evt.Status != TripStopStatus.Reached)
+            {
+                return ApiResponse<bool>.Fail("Stop must be marked as Reached before marking as Departed.");
+            }
+
+            // Sequential check: All students assigned to this stop must have their boarding status updated!
+            var stop = await _db.Stops.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.StopId == stopId);
+            if (stop != null)
+            {
+                var stopStudents = await _db.Students
+                    .IgnoreQueryFilters()
+                    .Where(s => s.StopId == stopId || (s.Stop != null && s.Stop.StopOrder == stop.StopOrder))
+                    .Select(s => s.StudentId)
+                    .ToListAsync();
+
+                if (stopStudents.Count > 0)
+                {
+                    var pendingCount = await _db.StudentTripStatuses
+                        .IgnoreQueryFilters()
+                        .CountAsync(sts => sts.TripId == tripId && stopStudents.Contains(sts.StudentId) && sts.BoardingStatus == BoardingStatus.Pending);
+
+                    if (pendingCount > 0)
+                    {
+                        return ApiResponse<bool>.Fail("Cannot depart this stop yet. All student boarding statuses (Picked Up, No-Show, or On Leave) for this stop must be updated first.");
+                    }
+                }
+            }
+
+            evt.DepartedAt = DateTime.UtcNow;
+            evt.Status = TripStopStatus.Departed;
+            await _db.SaveChangesAsync();
+            return ApiResponse<bool>.Ok(true, "Stop marked as departed.");
         }
 
         public async Task<ApiResponse<bool>> UpdateBoardingAsync(int tripId, int studentId, int stopId, string status)

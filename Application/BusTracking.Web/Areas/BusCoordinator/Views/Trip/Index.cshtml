@@ -37,17 +37,17 @@
 <div class="card border-0 shadow-sm">
     <div class="card-body p-0">
         <div class="table-responsive">
-            <table class="table align-middle mb-0" style="table-layout:fixed;min-width:900px">
+            <table class="table align-middle mb-0" style="table-layout:fixed;min-width:1050px">
                 <colgroup>
                     <col style="width:60px" />
-                    <col style="width:130px" />
-                    <col style="width:110px" />
-                    <col style="width:160px" />
-                    <col style="width:160px" />
-                    <col style="width:90px" />
-                    <col style="width:110px" />
-                    <col style="width:130px" />
                     <col style="width:120px" />
+                    <col style="width:110px" />
+                    <col style="width:150px" />
+                    <col style="width:150px" />
+                    <col style="width:120px" />
+                    <col style="width:110px" />
+                    <col style="width:90px" />
+                    <col style="width:170px" />
                 </colgroup>
                 <thead style="background:#f8f9fc">
                     <tr style="border-bottom:2px solid #e9ecef">
@@ -59,7 +59,7 @@
                         <th class="py-3 small text-uppercase text-muted fw-semibold">Route</th>
                         <th class="py-3 small text-uppercase text-muted fw-semibold">Status</th>
                         <th class="py-3 small text-uppercase text-muted fw-semibold">Started</th>
-                        <th class="py-3 small text-uppercase text-muted fw-semibold text-end pe-3">Actions</th>
+                        <th class="py-3 small text-uppercase text-muted fw-semibold text-end pe-3" style="min-width:170px">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -100,8 +100,8 @@
                             <td>
                                 <span class="badge rounded-pill px-2"
                                       style="@(t.TripType == "Morning"
-                                                                                                        ? "background:#fff3e0;color:#e65100"
-                                                                                                        : "background:#e8eaf6;color:#3949ab");font-size:.75rem">
+                                                                                            ? "background:#fff3e0;color:#e65100"
+                                                                                            : "background:#e8eaf6;color:#3949ab");font-size:.75rem">
                                     <i class="bi @(t.TripType == "Morning" ? "bi-sunrise" : "bi-sunset") me-1"></i>
                                     @t.TripType
                                 </span>
@@ -118,7 +118,7 @@
                             <td class="small text-muted">
                                 @(t.StartedAt?.ToString("HH:mm") ?? "–")
                             </td>
-                            <td class="text-end pe-3">
+                            <td class="text-end pe-3" style="min-width:170px">
                                 <div class="d-flex justify-content-end gap-1 flex-nowrap">
                                     <!-- View details -->
                                     <a asp-area="BusCoordinator" asp-action="Details" asp-route-id="@t.TripId"

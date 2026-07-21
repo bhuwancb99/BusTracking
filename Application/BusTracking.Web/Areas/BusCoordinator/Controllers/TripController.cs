@@ -102,6 +102,15 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> DepartStop(int tripId, int stopId)
+        {
+            if (!PermissionHelper.Can(User, "trip.manage"))
+                return Json(new { Success = false, Message = "Permission denied." });
+            var r = await _trip.DepartStopAsync(tripId, stopId);
+            return Json(new { r.Success, r.Message });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> UpdateBoarding([FromBody] UpdateBoardingRequest req)
         {
             if (!PermissionHelper.Can(User, "trip.manage"))

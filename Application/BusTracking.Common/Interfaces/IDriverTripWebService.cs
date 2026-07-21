@@ -9,5 +9,9 @@ namespace BusTracking.Common.Interfaces
         Task<ApiResponse<List<TripStopEventDto>>> GetTripStopsAsync(int tripId);
         Task<ApiResponse<bool>> ReachStopAsync(int tripId, int stopId);
         Task<ApiResponse<bool>> DepartStopAsync(int tripId, int stopId);
+        Task<ApiResponse<bool>> UpdateBoardingAsync(int tripId, int studentId, int stopId, string status);
+        Task<ApiResponse<BusLocationDto?>> GetLatestLocationAsync(int tripId);
+        Task<ApiResponse<List<BusLocationDto>>> GetLocationHistoryAsync(int tripId);
+        Task<ApiResponse<bool>> InsertLocationPingAsync(int tripId, int busId, decimal lat, decimal lng, decimal? speed, decimal? heading);
     }
 }

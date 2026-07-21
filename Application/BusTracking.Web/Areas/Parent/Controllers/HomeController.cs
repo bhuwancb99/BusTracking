@@ -20,10 +20,33 @@ namespace BusTracking.Web.Areas.Parent.Controllers
 
         public async Task<IActionResult> Availability(int studentId = 0)
         {
-            var id = studentId > 0 ? studentId : UserId;
-            var r = await _s.GetAvailabilitiesAsync(id);
-            ViewBag.StudentId = id;
-            return View(r.Data);
+            var parentRes = await _parent.GetByIdAsync(UserId);
+            var studentIds = parentRes.Success && parentRes.Data != null
+                ? parentRes.Data.Students.Select(s => s.StudentId).ToList()
+                : new List<int>();
+
+            var children = await _db.Students
+                .Include(s => s.User)
+                .Include(s => s.Standard)
+                .Where(s => studentIds.Contains(s.StudentId) && s.User.IsActive)
+                .ToListAsync();
+
+            ViewBag.Children = children;
+
+            var selectedStudent = (studentId > 0 ? children.FirstOrDefault(c => c.StudentId == studentId) : null)
+                                ?? children.FirstOrDefault();
+
+            ViewBag.SelectedStudent = selectedStudent;
+            var targetStudentId = selectedStudent?.StudentId ?? 0;
+            ViewBag.StudentId = targetStudentId;
+
+            if (targetStudentId == 0)
+            {
+                return View(new List<AvailabilityDto>());
+            }
+
+            var r = await _s.GetAvailabilitiesAsync(targetStudentId);
+            return View(r.Data ?? new List<AvailabilityDto>());
         }
 
         [HttpPost, ValidateAntiForgeryToken]
@@ -35,20 +58,19 @@ namespace BusTracking.Web.Areas.Parent.Controllers
         }
 
         // ── GET /Parent/Home/MyChildren ───────────────────────────────
-        // Returns children list WITH ProfileImageUrl so dashboard cards show photos
         [HttpGet]
         public async Task<IActionResult> MyChildren()
         {
             var parent = await _parent.GetByIdAsync(UserId);
             if (!parent.Success) return Json(Array.Empty<object>());
 
-            // Fetch student user records to get ProfileImageUrl
             var studentUserIds = parent.Data!.Students.Select(s => s.StudentId).ToList();
 
             var studentUsers = await _db.Students
                 .Include(s => s.User)
                 .Include(s => s.Bus)
                 .Include(s => s.Stop)
+                .Include(s => s.Standard)
                 .Where(s => studentUserIds.Contains(s.StudentId))
                 .ToListAsync();
 
@@ -57,25 +79,23 @@ namespace BusTracking.Web.Areas.Parent.Controllers
                 s.StudentId,
                 s.StudentCode,
                 FullName = s.User.FullName,
-                s.Standard,
+                StandardName = s.Standard?.StandardName,
                 BusNumber = s.Bus?.BusNumber,
                 BusName = s.Bus?.BusName,
                 StopName = s.Stop?.StopName,
                 IsActive = s.User.IsActive,
                 ProfileImageUrl = s.User.ProfileImageUrl,
-                UserId = s.UserId              // needed for photo update
+                UserId = s.UserId
             });
 
             return Json(children);
         }
 
         // ── POST /Parent/Home/UpdateChildPhoto?studentUserId=88 ───────
-        // Parent uploads a photo for their child (student)
         [HttpPost, ValidateAntiForgeryToken]
         [RequestSizeLimit(5_242_880)]
         public async Task<IActionResult> UpdateChildPhoto(int studentUserId, IFormFile file)
         {
-            // Security: verify this student belongs to the logged-in parent
             var parent = await _parent.GetByIdAsync(UserId);
             if (!parent.Success)
                 return Json(new { success = false, message = "Parent not found." });

@@ -1,15 +1,44 @@
 @* Parent/Home/Availability.cshtml *@
 @model List<BusTracking.Common.DTOs.Availability.AvailabilityDto>
+@using BusTracking.Common.Entities
 @{
     ViewData["Title"] = "Manage Availability";
+    var children = ViewBag.Children as List<StudentDetail> ?? [];
+    var selectedStudent = ViewBag.SelectedStudent as StudentDetail;
 }
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0"><i class="bi bi-calendar-check me-2 text-info"></i>Manage Child's Availability</h4>
+
+<!-- ── Header & Children Dropdown Picker ─────────────────────────────── -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+            <h4 class="fw-bold mb-0">
+                <i class="bi bi-calendar-check me-2 text-info"></i>Manage Child's Availability / Leave
+            </h4>
+            <span class="text-muted small">Select child to mark leave or view upcoming unavailability</span>
+        </div>
+        @if (children.Any())
+        {
+            <div class="d-flex align-items-center gap-2" style="min-width:240px">
+                <label class="fw-semibold small text-muted text-nowrap"><i class="bi bi-person-heart me-1"></i>Child:</label>
+                <select class="form-select shadow-sm fw-semibold" onchange="window.location.href='/Parent/Home/Availability?studentId=' + this.value">
+                    @foreach (var c in children)
+                    {
+                        <option value="@c.StudentId" selected="@(c.StudentId == selectedStudent?.StudentId)">
+                            @c.User?.FullName (@(c.Standard?.StandardName ?? "Student"))
+                        </option>
+                    }
+                </select>
+            </div>
+        }
+    </div>
 </div>
+
 <div class="row g-4">
     <div class="col-lg-4">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">Mark Unavailability</div>
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+                Mark Unavailability for @(selectedStudent?.User?.FullName ?? "Child")
+            </div>
             <div class="card-body p-4">
                 <form asp-area="Parent" asp-controller="Home" asp-action="SetAvailability" method="post">
                     @Html.AntiForgeryToken()
@@ -34,29 +63,43 @@
                         <label class="form-label fw-semibold">Remarks</label>
                         <textarea name="Remarks" class="form-control" rows="2" placeholder="Optional…"></textarea>
                     </div>
-                    <button type="submit" class="btn btn-info w-100 text-white">Save</button>
+                    <button type="submit" class="btn btn-info w-100 text-white" @(ViewBag.StudentId == 0 ? "disabled" : "")>
+                        <i class="bi bi-check-circle me-1"></i>Save Availability
+                    </button>
                 </form>
             </div>
         </div>
     </div>
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">Upcoming Records</div>
+            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+                Upcoming Records for @(selectedStudent?.User?.FullName ?? "Child")
+            </div>
             <div class="card-body p-4">
                 @if (Model is null || Model.Count == 0)
                 {
-                    <div class="text-center text-muted py-4"><i class="bi bi-calendar-check fs-1 d-block mb-2"></i>No upcoming records.</div>
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-calendar-check fs-1 d-block mb-2"></i>
+                        No upcoming unavailability records found.
+                    </div>
                 }
                 else
                 {
                     <div class="table-responsive">
-                        <table class="table align-middle table-hover">
-                            <thead class="table-light"><tr><th>Reason</th><th>From</th><th>To</th><th>Remarks</th></tr></thead>
+                        <table class="table align-middle table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Reason</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Remarks</th>
+                                </tr>
+                            </thead>
                             <tbody>
                                 @foreach (var a in Model)
                                 {
                                     <tr>
-                                        <td><span class="badge bg-warning-subtle text-warning">@a.AvailabilityType</span></td>
+                                        <td><span class="badge bg-warning-subtle text-warning px-3 py-1">@a.AvailabilityType</span></td>
                                         <td>@a.FromDate</td>
                                         <td>@a.ToDate</td>
                                         <td class="text-muted small">@(a.Remarks ?? "–")</td>

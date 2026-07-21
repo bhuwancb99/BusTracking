@@ -255,11 +255,19 @@ namespace BusTracking.Mobile.Viewmodels.Driver
             }
         }
 
-        // ── Mark stop Reached ─────────────────────────────────────────────
+        // ── Mark stop Reached (Step-by-step rule) ─────────────────────────
         [RelayCommand]
         private async Task MarkReachedAsync(DriverTripStop stop)
         {
             if (stop is null || stop.Status != "Pending") return;
+
+            var idx = Stops.IndexOf(stop);
+            if (idx > 0 && Stops[idx - 1].Status != "Departed")
+            {
+                SetError("Cannot reach this stop yet. All previous stops must be departed first in sequential order.");
+                return;
+            }
+
             await RunAsync(async () =>
             {
                 var r = await _driverTrip.ReachStopAsync(TripId, stop.StopId);
@@ -277,11 +285,19 @@ namespace BusTracking.Mobile.Viewmodels.Driver
             });
         }
 
-        // ── Mark stop Departed ────────────────────────────────────────────
+        // ── Mark stop Departed (Step-by-step rule with student check) ──────
         [RelayCommand]
         private async Task MarkDepartedAsync(DriverTripStop stop)
         {
             if (stop is null || stop.Status != "Reached") return;
+
+            var pendingStudents = stop.Students.Where(s => string.IsNullOrEmpty(s.BoardingStatus) || s.BoardingStatus.Equals("Pending", StringComparison.OrdinalIgnoreCase)).ToList();
+            if (pendingStudents.Count > 0)
+            {
+                SetError($"Cannot depart this stop yet. Please update boarding status (Picked Up, No-Show, or On Leave) for all {pendingStudents.Count} assigned student(s) first.");
+                return;
+            }
+
             await RunAsync(async () =>
             {
                 var r = await _driverTrip.DepartStopAsync(TripId, stop.StopId);
@@ -304,9 +320,16 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         private async Task ChangeStudentStatusAsync(DriverStudentStatus student)
         {
             if (student is null || string.IsNullOrEmpty(student.BoardingStatus)) return;
+
+            var targetStop = Stops.FirstOrDefault(s => s.Students.Any(st => st.StudentId == student.StudentId));
+            if (targetStop != null && targetStop.Status != "Reached")
+            {
+                SetError($"Student boarding status can only be updated when stop '{targetStop.StopName}' is Reached.");
+                return;
+            }
+
             await RunAsync(async () =>
             {
-                var targetStop = Stops.FirstOrDefault(s => s.Students.Any(st => st.StudentId == student.StudentId));
                 int stopId = student.StopId > 0 ? student.StopId : (targetStop?.StopId ?? SelectedStop?.StopId ?? 0);
 
                 var req = new UpdateBoardingRequest

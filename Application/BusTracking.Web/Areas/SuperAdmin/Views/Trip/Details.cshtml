@@ -101,8 +101,9 @@
                     var lastStop = orderedStops.LastOrDefault();
 
                     <div class="stop-timeline">
-                        @foreach (var stop in orderedStops)
+                        @for (int idx = 0; idx < orderedStops.Count; idx++)
                         {
+                            var stop = orderedStops[idx];
                             var isFirst = stop.StopId == firstStop?.StopId;
                             var isLast = stop.StopId == lastStop?.StopId;
                             var dotColor = stop.Status switch { "Departed" => "#1e8e3e", "Reached" => "#1a73e8", _ => "#dadce0" };
@@ -114,6 +115,18 @@
                                              (!string.IsNullOrEmpty(st.StopName) && st.StopName.Equals(stop.StopName, StringComparison.OrdinalIgnoreCase)))
                                 .OrderBy(st => st.StudentName)
                                 .ToList();
+
+                            var pendingStudentsCount = stopStudents.Count(st => st.BoardingStatus == "Pending");
+                            var allStudentsUpdated = pendingStudentsCount == 0;
+
+                            // Step-by-Step Rule:
+                            // 1. Stop idx can be Reached ONLY IF all previous stops are Departed
+                            var canReach = stop.Status == "Pending" && (idx == 0 || orderedStops[idx - 1].Status == "Departed");
+                            // 2. Stop idx can be Departed ONLY IF stop is Reached AND all assigned students' boarding status updated
+                            var isReached = stop.Status == "Reached";
+                            var canDepart = isReached && allStudentsUpdated;
+                            // 3. Student boarding status can be changed ONLY IF stop is Reached
+                            var canUpdateBoarding = isLive && isReached;
 
                             <div class="d-flex gap-3 mb-4 align-items-start stop-row" data-stop-id="@stop.StopId">
                                 <div class="flex-shrink-0 mt-1">
@@ -149,15 +162,49 @@
                                                   style="font-size:.75rem;@(stop.Status == "Departed" ? "background:#e6f4ea;color:#1e8e3e" : stop.Status == "Reached" ? "background:#e8f0fe;color:#1a73e8" : "background:#f1f3f4;color:#5f6368")">
                                                 @stop.Status
                                             </span>
-                                            @if (isLive && stop.Status == "Pending")
+                                            @if (isLive)
                                             {
-                                                <div>
-                                                    <button class="btn btn-sm btn-reach-stop shadow-sm mt-1"
-                                                            style="font-size:.75rem;background:#1a73e8;color:white;border:none;padding:3px 12px;border-radius:20px"
-                                                            data-trip-id="@Model!.TripId" data-stop-id="@stop.StopId">
-                                                        <i class="bi bi-geo-alt me-1"></i>Mark Reached
-                                                    </button>
-                                                </div>
+                                                @if (canReach)
+                                                {
+                                                    <div>
+                                                        <button class="btn btn-sm btn-reach-stop shadow-sm mt-1"
+                                                                style="font-size:.75rem;background:#1a73e8;color:white;border:none;padding:4px 14px;border-radius:20px"
+                                                                data-trip-id="@Model!.TripId" data-stop-id="@stop.StopId">
+                                                            <i class="bi bi-geo-alt me-1"></i>Mark Reached
+                                                        </button>
+                                                    </div>
+                                                }
+                                                else if (isReached)
+                                                {
+                                                    if (canDepart)
+                                                    {
+                                                        <div>
+                                                            <button class="btn btn-sm btn-depart-stop shadow-sm mt-1"
+                                                                    style="font-size:.75rem;background:#1e8e3e;color:white;border:none;padding:4px 14px;border-radius:20px"
+                                                                    data-trip-id="@Model!.TripId" data-stop-id="@stop.StopId">
+                                                                <i class="bi bi-arrow-right me-1"></i>Mark Departed
+                                                            </button>
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div>
+                                                            <button class="btn btn-sm btn-secondary opacity-75 mt-1 disabled"
+                                                                    style="font-size:.7rem;padding:4px 12px;border-radius:20px"
+                                                                    title="Please update all @pendingStudentsCount pending student boarding status(es) first">
+                                                                <i class="bi bi-exclamation-triangle me-1"></i>Update Students First (@pendingStudentsCount)
+                                                            </button>
+                                                        </div>
+                                                    }
+                                                }
+                                                else if (stop.Status == "Pending")
+                                                {
+                                                    <div>
+                                                        <span class="badge bg-secondary-subtle text-muted mt-1 px-3 py-2" style="font-size:.7rem;border-radius:20px">
+                                                            <i class="bi bi-lock me-1"></i>Waiting Previous Stop
+                                                        </span>
+                                                    </div>
+                                                }
                                             }
                                         </div>
                                     </div>
@@ -168,6 +215,12 @@
                                             <span class="small fw-semibold text-muted">
                                                 <i class="bi bi-people me-1"></i>Students for this stop (@stopStudents.Count)
                                             </span>
+                                            @if (isReached && pendingStudentsCount > 0)
+                                            {
+                                                <span class="badge bg-warning-subtle text-warning ms-2" style="font-size:.65rem">
+                                                    @pendingStudentsCount pending update
+                                                </span>
+                                            }
                                         </div>
 
                                         @if (!stopStudents.Any())
@@ -210,7 +263,7 @@
                                                             </div>
                                                         </div>
 
-                                                        @if (isLive)
+                                                        @if (canUpdateBoarding)
                                                         {
                                                             <div class="dropdown">
                                                                 <button class="btn btn-sm dropdown-toggle sboarding-badge"
@@ -219,7 +272,7 @@
                                                                     <i class="bi @bsIcon me-1"></i>@s.BoardingStatus
                                                                 </button>
                                                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                                                    @foreach (var st in new[] { ("Pending", "bi-circle", "#5f6368"), ("PickedUp", "bi-check-circle-fill", "#1e8e3e"), ("NoShow", "bi-x-circle-fill", "#c5221f"), ("OnLeave", "bi-calendar-x", "#e65100") })
+                                                                    @foreach (var st in new[] { ("PickedUp", "bi-check-circle-fill", "#1e8e3e"), ("NoShow", "bi-x-circle-fill", "#c5221f"), ("OnLeave", "bi-calendar-x", "#e65100") })
                                                                     {
                                                                         <li>
                                                                             <a class="dropdown-item small boarding-option" href="#"
@@ -234,7 +287,8 @@
                                                         }
                                                         else
                                                         {
-                                                            <span class="badge rounded-pill px-3 py-1" style="@bsCss;font-size:.72rem">
+                                                            <span class="badge rounded-pill px-3 py-1" style="@bsCss;font-size:.72rem"
+                                                                  title="@(stop.Status == "Pending" ? "Boarding status can be updated when stop is Reached" : "")">
                                                                 <i class="bi @bsIcon me-1"></i>@s.BoardingStatus
                                                             </span>
                                                         }
@@ -330,11 +384,11 @@
         const TOKEN = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
 
         const STOPS = [
-                    @foreach (var stop in stops.OrderBy(s => s.StopOrder))
+            @foreach (var stop in stops.OrderBy(s => s.StopOrder))
             {
                 @:{ id: @stop.StopId, name: "@JavaScriptEncoder.Default.Encode(stop.StopName)", order: @stop.StopOrder, status: "@stop.Status" },
             }
-                ];
+        ];
 
         let map, busMarker, routePolyline;
         let stopMarkers = [];
@@ -482,6 +536,19 @@
             btn.addEventListener('click', async function() {
                 const area = window.location.pathname.startsWith('/BusCoordinator') ? 'BusCoordinator' : 'SuperAdmin';
                 const res = await fetch(`/${area}/Trip/ReachStop?tripId=${this.dataset.tripId}&stopId=${this.dataset.stopId}`, {
+                    method: 'POST', headers: { 'RequestVerificationToken': TOKEN() }
+                });
+                const data = await res.json();
+                busTrack.showToast(data.message, data.success ? 'success' : 'danger');
+                if (data.success) setTimeout(() => location.reload(), 700);
+            });
+        });
+
+        // ── Mark stop departed ───────────────────────────────────────────────
+        document.querySelectorAll('.btn-depart-stop').forEach(btn => {
+            btn.addEventListener('click', async function() {
+                const area = window.location.pathname.startsWith('/BusCoordinator') ? 'BusCoordinator' : 'SuperAdmin';
+                const res = await fetch(`/${area}/Trip/DepartStop?tripId=${this.dataset.tripId}&stopId=${this.dataset.stopId}`, {
                     method: 'POST', headers: { 'RequestVerificationToken': TOKEN() }
                 });
                 const data = await res.json();
