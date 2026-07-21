@@ -118,8 +118,8 @@ public class AppDbContext : DbContext
             .HasOne(t => t.Driver).WithMany()
             .HasForeignKey(t => t.DriverId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<StudentTripStatus>()
-            .HasOne(s => s.Student).WithMany(sd => sd.TripStatuses)
-            .HasForeignKey(s => s.StudentId).OnDelete(DeleteBehavior.Restrict);
+            .HasOne(sts => sts.Student).WithMany()
+            .HasForeignKey(sts => sts.StudentId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<DriverDetail>()
             .HasOne(d => d.Bus).WithOne(b => b.Driver)
             .HasForeignKey<DriverDetail>(d => d.BusId).OnDelete(DeleteBehavior.SetNull);
@@ -223,6 +223,12 @@ public class AppDbContext : DbContext
                         var isUpdated = propName.Equals("UpdatedAt", StringComparison.OrdinalIgnoreCase) ||
                                        propName.Equals("LastModifiedAt", StringComparison.OrdinalIgnoreCase);
 
+                        var isTripEvent = propName.Equals("StartedAt", StringComparison.OrdinalIgnoreCase) ||
+                                          propName.Equals("EndedAt", StringComparison.OrdinalIgnoreCase) ||
+                                          propName.Equals("ReachedAt", StringComparison.OrdinalIgnoreCase) ||
+                                          propName.Equals("DepartedAt", StringComparison.OrdinalIgnoreCase) ||
+                                          propName.Equals("LastLoginAt", StringComparison.OrdinalIgnoreCase);
+
                         if (entry.State == EntityState.Added && isCreated)
                         {
                             prop.CurrentValue = schoolNow;
@@ -231,12 +237,14 @@ public class AppDbContext : DbContext
                         {
                             prop.CurrentValue = schoolNow;
                         }
+                        else if (isTripEvent)
+                        {
+                            prop.CurrentValue = schoolNow;
+                        }
                         else if (prop.CurrentValue is DateTime dt && dt != default)
                         {
-                            if (dt.Kind == DateTimeKind.Utc || Math.Abs((dt - DateTime.UtcNow).TotalMinutes) < 10)
-                            {
-                                prop.CurrentValue = schoolNow;
-                            }
+                            // Convert any UTC or approximate UTC datetime to logged-in user's school timezone local time
+                            prop.CurrentValue = schoolNow;
                         }
                     }
                 }

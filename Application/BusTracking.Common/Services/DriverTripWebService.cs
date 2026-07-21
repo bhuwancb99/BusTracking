@@ -27,14 +27,34 @@ namespace BusTracking.Common.Services
                 RouteName = driver.Bus.Route?.RouteName ?? "No route assigned"
             };
 
-            var schoolToday = TimeZoneHelper.GetSchoolTodayDate(driver.User?.School);
-            var todayUtc = DateOnly.FromDateTime(DateTime.UtcNow);
+            var timeZoneId = driver.User?.School?.TimeZoneInfoId
+                          ?? driver.User?.School?.TimeZone?.WindowsTimeZoneId
+                          ?? "India Standard Time";
+            var schoolToday = TimeZoneHelper.GetToday(timeZoneId);
 
+            // 1. Auto-close lingering InProgress trips from previous days
+            var yesterdayInProgress = await _db.BusTrips
+                .Where(t => t.BusId == driver.BusId && t.Status == TripStatus.InProgress && t.TripDate < schoolToday)
+                .ToListAsync();
+
+            if (yesterdayInProgress.Count > 0)
+            {
+                foreach (var oldTrip in yesterdayInProgress)
+                {
+                    oldTrip.Status = TripStatus.Completed;
+                    oldTrip.EndedAt = TimeZoneHelper.GetNow(timeZoneId);
+                }
+                await _db.SaveChangesAsync();
+            }
+
+            // 2. Fetch TODAY'S trip for driver based on school TimeZone date
             var trip = await _db.BusTrips
-                .FirstOrDefaultAsync(t => t.BusId == driver.BusId && t.Status == TripStatus.InProgress)
+                .FirstOrDefaultAsync(t => t.BusId == driver.BusId
+                                       && t.TripDate == schoolToday
+                                       && t.Status == TripStatus.InProgress)
                     ?? await _db.BusTrips
                 .FirstOrDefaultAsync(t => t.BusId == driver.BusId
-                                       && (t.TripDate == schoolToday || t.TripDate == todayUtc)
+                                       && t.TripDate == schoolToday
                                        && t.Status != TripStatus.Cancelled);
 
             if (trip is not null)
@@ -63,8 +83,14 @@ namespace BusTracking.Common.Services
             if (trip.Status != TripStatus.Scheduled)
                 return ApiResponse<bool>.Fail("Trip cannot be started in its current status.");
 
+            var timeZoneId = _db.Users
+                .Include(u => u.School)
+                .Where(u => u.UserId == driverUserId)
+                .Select(u => u.School != null ? u.School.TimeZoneInfoId : null)
+                .FirstOrDefault() ?? "India Standard Time";
+
             trip.Status = TripStatus.InProgress;
-            trip.StartedAt = DateTime.UtcNow;
+            trip.StartedAt = TimeZoneHelper.GetNow(timeZoneId);
             await _db.SaveChangesAsync();
             return ApiResponse<bool>.Ok(true, "Trip started successfully.");
         }
@@ -77,8 +103,14 @@ namespace BusTracking.Common.Services
             if (trip.Status != TripStatus.InProgress)
                 return ApiResponse<bool>.Fail("Trip is not currently in progress.");
 
+            var timeZoneId = _db.Users
+                .Include(u => u.School)
+                .Where(u => u.UserId == driverUserId)
+                .Select(u => u.School != null ? u.School.TimeZoneInfoId : null)
+                .FirstOrDefault() ?? "India Standard Time";
+
             trip.Status = TripStatus.Completed;
-            trip.EndedAt = DateTime.UtcNow;
+            trip.EndedAt = TimeZoneHelper.GetNow(timeZoneId);
             await _db.SaveChangesAsync();
             return ApiResponse<bool>.Ok(true, "Trip completed successfully.");
         }
@@ -100,7 +132,13 @@ namespace BusTracking.Common.Services
             var statuses = await _db.StudentTripStatuses
                 .Where(x => x.TripId == tripId).ToListAsync();
 
-            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var timeZoneId = _db.Users
+                .Include(u => u.School)
+                .Where(u => u.UserId == trip.DriverId)
+                .Select(u => u.School != null ? u.School.TimeZoneInfoId : null)
+                .FirstOrDefault() ?? "India Standard Time";
+            var today = TimeZoneHelper.GetToday(timeZoneId);
+
             var studentIds = students.Select(s => s.StudentId).ToList();
             var unavail = await _db.StudentAvailabilities
                 .Where(a => studentIds.Contains(a.StudentId)
@@ -172,17 +210,24 @@ namespace BusTracking.Common.Services
             var ev = await _db.TripStopEvents
                 .FirstOrDefaultAsync(e => e.TripId == tripId && e.StopId == stopId);
 
+            var timeZoneId = _db.BusTrips
+                .Include(t => t.Driver).ThenInclude(d => d!.School)
+                .Where(t => t.TripId == tripId)
+                .Select(t => t.Driver.School != null ? t.Driver.School.TimeZoneInfoId : null)
+                .FirstOrDefault() ?? "India Standard Time";
+            var now = TimeZoneHelper.GetNow(timeZoneId);
+
             if (ev is null)
                 _db.TripStopEvents.Add(new TripStopEvent
                 {
                     TripId = tripId,
                     StopId = stopId,
-                    ReachedAt = DateTime.UtcNow,
+                    ReachedAt = now,
                     Status = TripStopStatus.Reached
                 });
             else
             {
-                ev.ReachedAt = DateTime.UtcNow;
+                ev.ReachedAt = now;
                 ev.Status = TripStopStatus.Reached;
             }
 
@@ -195,17 +240,24 @@ namespace BusTracking.Common.Services
             var ev = await _db.TripStopEvents
                 .FirstOrDefaultAsync(e => e.TripId == tripId && e.StopId == stopId);
 
+            var timeZoneId = _db.BusTrips
+                .Include(t => t.Driver).ThenInclude(d => d!.School)
+                .Where(t => t.TripId == tripId)
+                .Select(t => t.Driver.School != null ? t.Driver.School.TimeZoneInfoId : null)
+                .FirstOrDefault() ?? "India Standard Time";
+            var now = TimeZoneHelper.GetNow(timeZoneId);
+
             if (ev is null)
                 _db.TripStopEvents.Add(new TripStopEvent
                 {
                     TripId = tripId,
                     StopId = stopId,
-                    DepartedAt = DateTime.UtcNow,
+                    DepartedAt = now,
                     Status = TripStopStatus.Departed
                 });
             else
             {
-                ev.DepartedAt = DateTime.UtcNow;
+                ev.DepartedAt = now;
                 ev.Status = TripStopStatus.Departed;
             }
 

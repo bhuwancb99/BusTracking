@@ -5,6 +5,7 @@ namespace BusTracking.Mobile.Models.Driver
         public static Action<DriverStudentStatus>? StatusChangedCallback { get; set; }
 
         public int StudentId { get; set; }
+        public int StopId { get; set; }
         public string StudentCode { get; set; } = "";
         public string StudentName { get; set; } = "";
         public string? StopName { get; set; }

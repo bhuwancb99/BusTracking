@@ -66,13 +66,18 @@ namespace BusTracking.Mobile.Viewmodels.Driver
                     var stopsList = await _driverTrip.GetTripStopsAsync(TripId);
                     var studentsList = await _driverTrip.GetTripStudentsAsync(TripId);
 
-                    // Group students under their respective stop
+                    // Group students under their respective stop and assign StopId
                     foreach (var stop in stopsList)
                     {
                         stop.Students = studentsList
                             .Where(st => st.StopOrder == stop.StopOrder ||
                                          (st.StopName != null && st.StopName.Equals(stop.StopName, StringComparison.OrdinalIgnoreCase)))
                             .ToList();
+
+                        foreach (var st in stop.Students)
+                        {
+                            st.StopId = stop.StopId;
+                        }
                     }
 
                     Stops = new ObservableCollection<DriverTripStop>(stopsList);
@@ -84,7 +89,6 @@ namespace BusTracking.Mobile.Viewmodels.Driver
 
                     DriverStudentStatus.StatusChangedCallback = (student) =>
                     {
-                        if (_isLoadingStops) return;
                         MainThread.BeginInvokeOnMainThread(async () =>
                         {
                             await ChangeStudentStatusAsync(student);
@@ -165,13 +169,11 @@ namespace BusTracking.Mobile.Viewmodels.Driver
 
             if (granted)
             {
-                // Permission just granted — start GPS and refresh the page
                 await StartGpsTimer();
                 await LoadStopsCommand.ExecuteAsync(null);
             }
             else if (LocationDeniedPermanently)
             {
-                // Permanently denied — send driver to Settings
                 if (AppInfo.Current.ShowSettingsUI != null)
                     AppInfo.Current.ShowSettingsUI();
             }
@@ -180,18 +182,15 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         // ── Core permission logic ─────────────────────────────────────────
         private async Task<bool> RequestLocationPermissionAsync()
         {
-            // Check current status first (no prompt if already granted)
             var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
 
             if (status == PermissionStatus.Granted)
             {
-                // Android 10+ also needs background permission
                 status = await EnsureBackgroundLocationAsync();
             }
 
             if (status != PermissionStatus.Granted)
             {
-                // Request the permission — system dialog appears
                 status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
             }
 
@@ -231,7 +230,6 @@ namespace BusTracking.Mobile.Viewmodels.Driver
             var speedKmh = speed.HasValue && speed.Value > 0.5 ? Math.Round(speed.Value) : 0;
             GpsStatus = $"{speedKmh} km/h";
 
-            // Update live bus marker on Google Map WebView
             var sLat = lat.ToString(CultureInfo.InvariantCulture);
             var sLng = lng.ToString(CultureInfo.InvariantCulture);
             var sHdg = (heading ?? 0).ToString(CultureInfo.InvariantCulture);
@@ -261,14 +259,16 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         [RelayCommand]
         private async Task MarkReachedAsync(DriverTripStop stop)
         {
-            if (stop.Status != "Pending") return;
+            if (stop is null || stop.Status != "Pending") return;
             await RunAsync(async () =>
             {
                 var r = await _driverTrip.ReachStopAsync(TripId, stop.StopId);
                 if (r.Success)
                 {
+                    stop.Status = "Reached";
+                    stop.ReachedAt = DateTime.UtcNow;
+                    UpdateMapStops();
                     await ShowToastAsync($"Reached '{stop.StopName}'");
-                    await LoadStopsAsync();
                 }
                 else
                 {
@@ -281,14 +281,16 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         [RelayCommand]
         private async Task MarkDepartedAsync(DriverTripStop stop)
         {
-            if (stop.Status != "Reached") return;
+            if (stop is null || stop.Status != "Reached") return;
             await RunAsync(async () =>
             {
                 var r = await _driverTrip.DepartStopAsync(TripId, stop.StopId);
                 if (r.Success)
                 {
+                    stop.Status = "Departed";
+                    stop.DepartedAt = DateTime.UtcNow;
+                    UpdateMapStops();
                     await ShowToastAsync($"Departed '{stop.StopName}'");
-                    await LoadStopsAsync();
                 }
                 else
                 {
@@ -301,27 +303,31 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         [RelayCommand]
         private async Task ChangeStudentStatusAsync(DriverStudentStatus student)
         {
-            if (student is null || string.IsNullOrEmpty(student.BoardingStatus) || _isLoadingStops) return;
+            if (student is null || string.IsNullOrEmpty(student.BoardingStatus)) return;
             await RunAsync(async () =>
             {
                 var targetStop = Stops.FirstOrDefault(s => s.Students.Any(st => st.StudentId == student.StudentId));
-                int stopId = targetStop?.StopId ?? SelectedStop?.StopId ?? 0;
+                int stopId = student.StopId > 0 ? student.StopId : (targetStop?.StopId ?? SelectedStop?.StopId ?? 0);
 
-                var r = await _driverTrip.UpdateBoardingAsync(TripId,
-                    new UpdateBoardingRequest
-                    {
-                        TripId = TripId,
-                        StudentId = student.StudentId,
-                        StopId = stopId,
-                        BoardingStatus = student.BoardingStatus,
-                        Status = student.BoardingStatus
-                    });
+                var req = new UpdateBoardingRequest
+                {
+                    TripId = TripId,
+                    StudentId = student.StudentId,
+                    StopId = stopId,
+                    BoardingStatus = student.BoardingStatus,
+                    Status = student.BoardingStatus
+                };
+
+                var r = await _driverTrip.UpdateBoardingAsync(TripId, req);
                 if (r.Success)
                 {
                     student.NotifyStatusChanged();
                     await ShowToastAsync($"{student.StudentName}: {student.BoardingStatus}");
                 }
-                else SetError(r.Message);
+                else
+                {
+                    SetError(r.Message);
+                }
             });
         }
 

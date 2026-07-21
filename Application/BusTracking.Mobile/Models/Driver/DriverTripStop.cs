@@ -1,13 +1,18 @@
-﻿namespace BusTracking.Mobile.Models.Driver
+namespace BusTracking.Mobile.Models.Driver
 {
-    public class DriverTripStop
+    public partial class DriverTripStop : ObservableObject
     {
         public int StopId { get; set; }
         public string StopName { get; set; } = "";
         public int StopOrder { get; set; }
         public decimal? Latitude { get; set; }
         public decimal? Longitude { get; set; }
-        public string Status { get; set; } = "Pending"; // Pending | Reached | Departed
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(StatusColor))]
+        [NotifyPropertyChangedFor(nameof(StatusLabel))]
+        private string _status = "Pending"; // Pending | Reached | Departed
+
         public DateTime? ReachedAt { get; set; }
         public DateTime? DepartedAt { get; set; }
         public List<DriverStudentStatus> Students { get; set; } = [];
@@ -26,16 +31,13 @@
             _ => "🕐 Pending"
         };
 
-        // ── Convenience helpers used by DriverTripDetailPage.xaml ────────────
-        // Exposes the first student's details per stop (school-bus: one student per stop)
-
+        // ── Convenience helpers ──────────────────────────────────────────────
         public string PickupTime => ReachedAt?.ToString("HH:mm") ?? "--:--";
 
         public string StudentName => Students.FirstOrDefault()?.StudentName ?? "—";
 
         public string StudentCode => Students.FirstOrDefault()?.StudentCode ?? "";
 
-        // BoardingStatus == "PickedUp" means the student boarded the bus
         public bool IsBoarded => Students.FirstOrDefault()?.BoardingStatus == "PickedUp";
 
         public string BoardingLabel => Students.FirstOrDefault()?.BoardingStatus switch

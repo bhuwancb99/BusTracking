@@ -8,6 +8,7 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         [ObservableProperty] private string _busDisplay = "No bus assigned";
         [ObservableProperty] private string _routeDisplay = "No route";
         [ObservableProperty] private int _totalStudents;
+        [ObservableProperty] private bool _hasTrip;
         [ObservableProperty] private bool _hasActiveTrip;
         [ObservableProperty] private DriverTripItem? _activeTrip;
         [ObservableProperty] private string _todayDate = "";
@@ -36,7 +37,13 @@ namespace BusTracking.Mobile.Viewmodels.Driver
                 await RunAsync(async () =>
                 {
                     var data = await _driverTrip.GetDashboardAsync();
-                    if (data is null) return;
+                    if (data is null)
+                    {
+                        ActiveTrip = null;
+                        HasTrip = false;
+                        HasActiveTrip = false;
+                        return;
+                    }
 
                     BusDisplay = string.IsNullOrWhiteSpace(data.BusNumber)
                         ? "No bus assigned"
@@ -44,6 +51,7 @@ namespace BusTracking.Mobile.Viewmodels.Driver
                     RouteDisplay = string.IsNullOrWhiteSpace(data.RouteName) ? "No route" : data.RouteName;
                     TotalStudents = data.TotalStudents;
                     ActiveTrip = data.ActiveTrip;
+                    HasTrip = data.ActiveTrip != null && data.ActiveTrip.TripId > 0;
                     HasActiveTrip = data.ActiveTrip?.Status == "InProgress";
                 });
             }

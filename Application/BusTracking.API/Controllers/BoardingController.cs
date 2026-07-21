@@ -23,6 +23,8 @@ namespace BusTracking.API.Controllers
             if (!Enum.TryParse<BoardingStatus>(rawStatus, true, out var status))
                 return BadRequest(ApiResponse<bool>.Fail($"Invalid boarding status '{rawStatus}'."));
 
+            var now = TimeZoneHelper.GetNow(CurrentTimeZoneInfoId);
+
             var existing = await _db.StudentTripStatuses
                 .FirstOrDefaultAsync(s => s.TripId == tripId && s.StudentId == req.StudentId);
 
@@ -34,13 +36,14 @@ namespace BusTracking.API.Controllers
                     StudentId = req.StudentId,
                     StopId = req.StopId,
                     BoardingStatus = status,
+                    UpdatedAt = now,
                     UpdatedBy = CurrentUserId
                 });
             }
             else
             {
                 existing.BoardingStatus = status;
-                existing.UpdatedAt = DateTime.UtcNow;
+                existing.UpdatedAt = now;
                 existing.UpdatedBy = CurrentUserId;
             }
 

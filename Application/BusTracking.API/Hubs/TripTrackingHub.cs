@@ -71,6 +71,12 @@ namespace BusTracking.API.Hubs
             decimal lat, decimal lng,
             decimal? speed, decimal? heading)
         {
+            // Retrieve time zone for logged-in user / tenant
+            var timeZoneInfoId = Context.User?.FindFirst("time_zone_id")?.Value
+                              ?? Context.User?.FindFirst("TimeZoneInfoId")?.Value
+                              ?? "India Standard Time";
+            var now = TimeZoneHelper.GetNow(timeZoneInfoId);
+
             // Persist to DB (keeps history + supports late-joining clients)
             _db.BusLiveLocations.Add(new BusLiveLocation
             {
@@ -80,12 +86,12 @@ namespace BusTracking.API.Hubs
                 Longitude = lng,
                 Speed = speed,
                 Heading = heading,
-                RecordedAt = DateTime.UtcNow
+                RecordedAt = now
             });
             await _db.SaveChangesAsync();
 
             // Broadcast to everyone watching this trip instantly
-            var timeStamp = DateTime.UtcNow.ToString("o");
+            var timeStamp = now.ToString("o");
             await Clients.Group($"trip-{tripId}")
                 .SendAsync("BusLocationUpdated", lat, lng, speed, heading, timeStamp);
         }

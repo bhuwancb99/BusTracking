@@ -118,8 +118,8 @@
                     </Grid>
                 </Border>
 
-                <!--  Active trip card  -->
-                <Border IsVisible="{Binding ActiveTrip}" Style="{StaticResource StatCardBorder}">
+                <!--  Active / Assigned trip card (Visible ONLY when HasTrip is True)  -->
+                <Border IsVisible="{Binding HasTrip}" Style="{StaticResource StatCardBorder}">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                             <GradientStop Offset="0.0" Color="{AppThemeBinding Light={StaticResource SuccessLight}, Dark=#032314}" />
@@ -222,8 +222,8 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <!--  No trip placeholder  -->
-                <Border IsVisible="{Binding ActiveTrip, Converter={StaticResource NullToVisible}}" Style="{StaticResource StatCardBorder}">
+                <!--  No trip placeholder (Visible ONLY when HasTrip is False)  -->
+                <Border IsVisible="{Binding HasTrip, Converter={StaticResource InvertBool}}" Style="{StaticResource StatCardBorder}">
                     <VerticalStackLayout
                         Padding="10"
                         HorizontalOptions="Center"

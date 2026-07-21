@@ -7,6 +7,11 @@ namespace BusTracking.API.Controllers
         private readonly ITripService _trip;
         public TripsController(AppDbContext db, ITripService trip) { _db = db; _trip = trip; }
 
+        private DateTime GetSchoolNow()
+        {
+            return TimeZoneHelper.GetNow(CurrentTimeZoneInfoId);
+        }
+
         /// <summary>Get driver's assigned bus and today's trip</summary>
         [HttpGet("my-trip")]
         public async Task<IActionResult> GetMyTrip()
@@ -20,7 +25,7 @@ namespace BusTracking.API.Controllers
                 return NotFound(ApiResponse<object>.Fail("No bus assigned."));
 
             var schoolToday = TimeZoneHelper.GetSchoolTodayDate(driver.User?.School);
-            var todayUtc = DateOnly.FromDateTime(DateTime.UtcNow);
+            var todayUtc = DateOnly.FromDateTime(GetSchoolNow());
 
             var trip = await _db.BusTrips
                 .FirstOrDefaultAsync(t => t.BusId == driver.BusId && t.Status == TripStatus.InProgress)
@@ -61,8 +66,9 @@ namespace BusTracking.API.Controllers
             if (trip is null || trip.DriverId != CurrentUserId)
                 return NotFound(ApiResponse<bool>.Fail("Trip not found."));
 
+            var now = GetSchoolNow();
             trip.Status = TripStatus.InProgress;
-            trip.StartedAt = DateTime.UtcNow;
+            trip.StartedAt = now;
             await _db.SaveChangesAsync();
             return Ok(ApiResponse<bool>.Ok(true, "Trip started."));
         }
@@ -75,8 +81,9 @@ namespace BusTracking.API.Controllers
             if (trip is null || trip.DriverId != CurrentUserId)
                 return NotFound(ApiResponse<bool>.Fail("Trip not found."));
 
+            var now = GetSchoolNow();
             trip.Status = TripStatus.Completed;
-            trip.EndedAt = DateTime.UtcNow;
+            trip.EndedAt = now;
             await _db.SaveChangesAsync();
             return Ok(ApiResponse<bool>.Ok(true, "Trip completed."));
         }
@@ -96,19 +103,21 @@ namespace BusTracking.API.Controllers
             var evt = await _db.TripStopEvents
                 .FirstOrDefaultAsync(e => e.TripId == tripId && e.StopId == stopId);
 
+            var now = GetSchoolNow();
+
             if (evt is null)
             {
                 _db.TripStopEvents.Add(new TripStopEvent
                 {
                     TripId = tripId,
                     StopId = stopId,
-                    ReachedAt = DateTime.UtcNow,
+                    ReachedAt = now,
                     Status = TripStopStatus.Reached
                 });
             }
             else
             {
-                evt.ReachedAt = DateTime.UtcNow;
+                evt.ReachedAt = now;
                 evt.Status = TripStopStatus.Reached;
             }
 
@@ -123,19 +132,21 @@ namespace BusTracking.API.Controllers
             var evt = await _db.TripStopEvents
                 .FirstOrDefaultAsync(e => e.TripId == tripId && e.StopId == stopId);
 
+            var now = GetSchoolNow();
+
             if (evt is null)
             {
                 _db.TripStopEvents.Add(new TripStopEvent
                 {
                     TripId = tripId,
                     StopId = stopId,
-                    DepartedAt = DateTime.UtcNow,
+                    DepartedAt = now,
                     Status = TripStopStatus.Departed
                 });
             }
             else
             {
-                evt.DepartedAt = DateTime.UtcNow;
+                evt.DepartedAt = now;
                 evt.Status = TripStopStatus.Departed;
             }
 
