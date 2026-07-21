@@ -110,7 +110,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<AppConfiguration>().Property(c => c.Platform).HasConversion<string>();
         modelBuilder.Entity<AppConfiguration>().HasIndex(c => new { c.ConfigKey, c.Platform }).IsUnique();
 
-        // ── Prevent cascade cycles ────────────────────────────────────
+        // ── Prevent cascade cycles & explicit relationship mapping ─────
         modelBuilder.Entity<SubAdminPermission>()
             .HasOne(sp => sp.User).WithMany(u => u.SubAdminPermissions)
             .HasForeignKey(sp => sp.UserId).OnDelete(DeleteBehavior.Restrict);
@@ -118,8 +118,11 @@ public class AppDbContext : DbContext
             .HasOne(t => t.Driver).WithMany()
             .HasForeignKey(t => t.DriverId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<StudentTripStatus>()
-            .HasOne(sts => sts.Student).WithMany()
+            .HasOne(sts => sts.Student).WithMany(s => s.TripStatuses)
             .HasForeignKey(sts => sts.StudentId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<StudentAvailability>()
+            .HasOne(a => a.Student).WithMany(s => s.Availabilities)
+            .HasForeignKey(a => a.StudentId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<DriverDetail>()
             .HasOne(d => d.Bus).WithOne(b => b.Driver)
             .HasForeignKey<DriverDetail>(d => d.BusId).OnDelete(DeleteBehavior.SetNull);
