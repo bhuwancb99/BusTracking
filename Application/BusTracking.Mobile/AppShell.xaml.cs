@@ -31,6 +31,63 @@ public partial class AppShell : Shell
         var parts = (user.FullName ?? "U").Split(' ', StringSplitOptions.RemoveEmptyEntries);
         LblInitials.Text = string.Concat(parts.Take(2).Select(w => char.ToUpper(w[0]).ToString()));
 
+        // Load School Header Card logic:
+        // 1. If SchoolName and SchoolLogoUrl are both null/empty, hide BrandSchoolCard.
+        // 2. If SchoolName exists:
+        //    - Display SchoolName
+        //    - If SchoolLogoUrl exists & loads, display logo image
+        //    - Else, display initial letter circle (e.g. 'S' for Super Admin or first letter of SchoolName)
+        bool hasSchoolName = !string.IsNullOrWhiteSpace(user.SchoolName);
+        bool hasSchoolLogo = !string.IsNullOrWhiteSpace(user.SchoolLogoUrl);
+
+        if (!hasSchoolName && !hasSchoolLogo)
+        {
+            BrandSchoolCard.IsVisible = false;
+        }
+        else
+        {
+            BrandSchoolCard.IsVisible = true;
+
+            if (hasSchoolName)
+            {
+                LblBrandSchoolName.Text = user.SchoolName;
+            }
+            else
+            {
+                LblBrandSchoolName.Text = FriendlyRole(user.Role);
+            }
+
+            // Determine initial letter (e.g., 'S' for Super Admin or 'D' for Default School)
+            char initialChar = 'S';
+            if (hasSchoolName && !string.IsNullOrWhiteSpace(user.SchoolName))
+            {
+                initialChar = char.ToUpper(user.SchoolName.Trim()[0]);
+            }
+            else if (!string.IsNullOrWhiteSpace(user.Role))
+            {
+                initialChar = char.ToUpper(user.Role.Trim()[0]);
+            }
+            LblBrandSchoolInitial.Text = initialChar.ToString();
+
+            string? logoUrl = null;
+            if (hasSchoolLogo)
+            {
+                logoUrl = await ResolveImageUrlAsync(user.SchoolLogoUrl);
+            }
+
+            if (!string.IsNullOrWhiteSpace(logoUrl))
+            {
+                BrandSchoolLogoImage.Source = ImageSource.FromUri(new Uri(logoUrl));
+                BrandSchoolLogoBorder.IsVisible = true;
+                BrandSchoolInitialBorder.IsVisible = false;
+            }
+            else
+            {
+                BrandSchoolLogoBorder.IsVisible = false;
+                BrandSchoolInitialBorder.IsVisible = true;
+            }
+        }
+
         // Load avatar (respects IsMobileUpdateImage config)
         await LoadAvatarAsync(user.ProfileImageUrl);
 
@@ -91,30 +148,26 @@ public partial class AppShell : Shell
     {
         if (string.IsNullOrWhiteSpace(storedUrl)) return null;
 
-        // Extract just the path portion
-        string imagePath;
-        try
+        // If it's already a full absolute HTTP/HTTPS URL, return it directly
+        if (storedUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            storedUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
         {
-            imagePath = new Uri(storedUrl).AbsolutePath;
-        }
-        catch
-        {
-            imagePath = storedUrl.StartsWith('/') ? storedUrl : "/" + storedUrl;
+            return storedUrl;
         }
 
+        // Relative path: resolve using configured base URL
+        string imagePath = storedUrl.StartsWith('/') ? storedUrl : "/" + storedUrl;
         bool mobileImageEnabled = await _appConfig.IsMobileImageUpdateEnabledAsync();
 
         if (mobileImageEnabled)
         {
-            // IsMobileUpdateImage = 1: serve from API server
             return Constants.ApiBaseUrl.TrimEnd('/') + imagePath;
         }
         else
         {
-            // IsMobileUpdateImage = 0: serve from website server
             var websiteBase = await _appConfig.GetWebsiteImageUrlAsync();
             return string.IsNullOrWhiteSpace(websiteBase)
-                ? null
+                ? Constants.ApiBaseUrl.TrimEnd('/') + imagePath
                 : websiteBase.TrimEnd('/') + imagePath;
         }
     }

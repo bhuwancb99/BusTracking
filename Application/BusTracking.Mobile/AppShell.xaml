@@ -44,8 +44,9 @@
                 RowDefinitions="Auto,Auto,Auto"
                 RowSpacing="12">
 
-                <!--  Brand Card View  -->
+                <!--  Brand / School Card View  -->
                 <Border
+                    x:Name="BrandSchoolCard"
                     Grid.Row="0"
                     Padding="14,12"
                     Stroke="{AppThemeBinding Light={StaticResource BorderColor},
@@ -59,41 +60,57 @@
                         </LinearGradientBrush>
                     </Border.Background>
                     <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
-                        <Border
-                            BackgroundColor="{AppThemeBinding Light={StaticResource Primary},
-                                                              Dark={StaticResource PrimaryDark}}"
+                        <Grid
                             HeightRequest="36"
-                            StrokeShape="RoundRectangle 8"
-                            StrokeThickness="0"
+                            VerticalOptions="Center"
                             WidthRequest="36">
-                            <Image
-                                HeightRequest="20"
-                                HorizontalOptions="Center"
-                                Source="bus.png"
-                                VerticalOptions="Center"
-                                WidthRequest="20">
-                                <Image.Behaviors>
-                                    <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource PrimaryButtonTextLight}, Dark={StaticResource PrimaryButtonTextDark}}" />
-                                </Image.Behaviors>
-                            </Image>
-                        </Border>
-                        <Label VerticalOptions="Center">
-                            <Label.FormattedText>
-                                <FormattedString>
-                                    <Span
-                                        FontAttributes="Bold"
-                                        FontSize="18"
-                                        Text="BusTrack "
-                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                                    Dark=White}" />
-                                    <Span
-                                        FontSize="18"
-                                        Text="Admin"
-                                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                                    Dark={StaticResource TextSecondaryDark}}" />
-                                </FormattedString>
-                            </Label.FormattedText>
-                        </Label>
+                            <!--  Alphabet Initial Circle (Shown when no School Logo Image exists)  -->
+                            <Border
+                                x:Name="BrandSchoolInitialBorder"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource Primary},
+                                                                  Dark={StaticResource PrimaryDark}}"
+                                HeightRequest="36"
+                                StrokeShape="RoundRectangle 18"
+                                StrokeThickness="0"
+                                WidthRequest="36">
+                                <Label
+                                    x:Name="LblBrandSchoolInitial"
+                                    FontAttributes="Bold"
+                                    FontSize="16"
+                                    HorizontalOptions="Center"
+                                    Text="S"
+                                    TextColor="{AppThemeBinding Light={StaticResource PrimaryButtonTextLight},
+                                                                Dark={StaticResource PrimaryButtonTextDark}}"
+                                    VerticalOptions="Center" />
+                            </Border>
+
+                            <!--  Circular School Logo Image (Shown when School Logo Image exists)  -->
+                            <Border
+                                x:Name="BrandSchoolLogoBorder"
+                                BackgroundColor="Transparent"
+                                HeightRequest="36"
+                                IsVisible="False"
+                                StrokeShape="RoundRectangle 18"
+                                StrokeThickness="0"
+                                WidthRequest="36">
+                                <Image
+                                    x:Name="BrandSchoolLogoImage"
+                                    Aspect="AspectFill"
+                                    HeightRequest="36"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center"
+                                    WidthRequest="36" />
+                            </Border>
+                        </Grid>
+                        <Label
+                            x:Name="LblBrandSchoolName"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            LineBreakMode="TailTruncation"
+                            Text="BusTrack"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark=White}"
+                            VerticalOptions="Center" />
                     </HorizontalStackLayout>
                 </Border>
 

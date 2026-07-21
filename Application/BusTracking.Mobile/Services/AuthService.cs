@@ -34,13 +34,18 @@ namespace BusTracking.Mobile.Services
             // Clear any old/corrupt session before saving new one
             await _db.ClearSessionAsync();
 
-            // Fetch profile image URL right after login
+            // Fetch profile image URL & school info right after login
             _api.SetToken(user.Token);
             try
             {
                 var profileResp = await _api.GetAsync<UserProfileDto>(Constants.Common.Profile);
                 if (profileResp.Success && profileResp.Data is not null)
+                {
                     user.ProfileImageUrl = profileResp.Data.ProfileImageUrl;
+                    if (user.SchoolId == null) user.SchoolId = profileResp.Data.SchoolId;
+                    if (string.IsNullOrWhiteSpace(user.SchoolName)) user.SchoolName = profileResp.Data.SchoolName;
+                    if (string.IsNullOrWhiteSpace(user.SchoolLogoUrl)) user.SchoolLogoUrl = profileResp.Data.SchoolLogo;
+                }
             }
             catch { /* non-fatal — proceed without image */ }
 
@@ -93,9 +98,6 @@ namespace BusTracking.Mobile.Services
                 {
                     try
                     {
-                        // GET /api/admin/coordinators/{id}/permissions returns:
-                        // { assignedPermissionIds: [1,3], allPermissions: [{id,key,...}] }
-                        // Cross-reference to get the permission key strings.
                         var url = string.Format(Constants.Admin.CoordinatorPerms, session.UserId);
                         var permR = await _api.GetAsync<PermissionsResponse>(url);
                         if (permR.Success && permR.Data is not null)

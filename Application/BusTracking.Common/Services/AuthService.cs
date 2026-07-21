@@ -29,6 +29,7 @@ namespace BusTracking.Common.Services
                 return ApiResponse<LoginResponseDto>.Fail("Your account has been deactivated. Please contact your System Administrator for assistance.");
 
             string? schoolName = null;
+            string? schoolLogo = null;
             string? timeZoneInfoId = "India Standard Time";
             string? timeZoneName = null;
             string? utcOffset = null;
@@ -45,6 +46,7 @@ namespace BusTracking.Common.Services
                     return ApiResponse<LoginResponseDto>.Fail("Your account has been deactivated. Please contact your System Administrator for assistance.");
 
                 schoolName = school.SchoolName;
+                schoolLogo = school.SchoolLogo;
                 timeZoneInfoId = school.TimeZoneInfoId ?? school.TimeZone?.WindowsTimeZoneId ?? "India Standard Time";
                 timeZoneName = school.TimeZone?.TimeZoneName;
                 utcOffset = school.TimeZone?.UtcOffset;
@@ -83,6 +85,7 @@ namespace BusTracking.Common.Services
                 Permissions = permissions,
                 SchoolId = user.SchoolId,
                 SchoolName = schoolName,
+                SchoolLogo = schoolLogo,
                 TimeZoneInfoId = timeZoneInfoId,
                 TimeZoneName = timeZoneName,
                 UtcOffset = utcOffset

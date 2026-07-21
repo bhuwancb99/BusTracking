@@ -16,5 +16,8 @@ namespace BusTracking.Mobile.Models.Auth
         public DateTime Expiry { get; set; }
         public string Permissions { get; set; } = ""; // JSON array of permission keys
         public string? ProfileImageUrl { get; set; }  // full URL from API server
+        public int? SchoolId { get; set; }
+        public string? SchoolName { get; set; }
+        public string? SchoolLogoUrl { get; set; }
     }
 }

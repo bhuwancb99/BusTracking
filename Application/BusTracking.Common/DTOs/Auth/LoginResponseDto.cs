@@ -12,6 +12,7 @@ namespace BusTracking.Common.DTOs.Auth
         public string Permissions { get; set; } = "";
         public int? SchoolId { get; set; }
         public string? SchoolName { get; set; }
+        public string? SchoolLogo { get; set; }
         public string? TimeZoneInfoId { get; set; } = "India Standard Time";
         public string? TimeZoneName { get; set; }
         public string? UtcOffset { get; set; }

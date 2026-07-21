@@ -10,5 +10,8 @@ namespace BusTracking.Mobile.Models.User
         public string? ProfileImageUrl { get; set; }
         public string Role { get; set; } = "";
         public bool IsActive { get; set; }
+        public int? SchoolId { get; set; }
+        public string? SchoolName { get; set; }
+        public string? SchoolLogo { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Database;
+namespace BusTracking.Mobile.Database;
 
 public class LocalDatabase
 {
@@ -40,7 +40,11 @@ public class LocalDatabase
             Role = user.Role,
             Token = Encrypt(user.Token),
             Expiry = user.Expiry,
-            Permissions = user.Permissions
+            Permissions = user.Permissions,
+            ProfileImageUrl = user.ProfileImageUrl,
+            SchoolId = user.SchoolId,
+            SchoolName = user.SchoolName,
+            SchoolLogoUrl = user.SchoolLogoUrl
         };
 
         await db.DeleteAllAsync<SessionUser>();
