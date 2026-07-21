@@ -8,6 +8,7 @@ namespace BusTracking.Common.Services
         public async Task<ApiResponse<PagedResult<TripListDto>>> GetAllAsync(int page, string? busId, string? status = null, string? date = null)
         {
             var q = _db.BusTrips
+                .IgnoreQueryFilters()
                 .Include(t => t.Bus)
                 .Include(t => t.Driver)
                 .Include(t => t.Route)
@@ -51,19 +52,24 @@ namespace BusTracking.Common.Services
 
         public async Task<ApiResponse<List<StudentTripStatusDto>>> GetTripStudentsAsync(int tripId)
         {
-            var trip = await _db.BusTrips.Include(t => t.Bus)
+            var trip = await _db.BusTrips
+                .IgnoreQueryFilters()
+                .Include(t => t.Bus)
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
             if (trip is null) return ApiResponse<List<StudentTripStatusDto>>.Fail("Trip not found.");
 
             var students = await _db.Students
+                .IgnoreQueryFilters()
                 .Include(s => s.User).Include(s => s.Stop)
                 .Where(s => s.BusId == trip.BusId && s.User.IsActive).ToListAsync();
 
             var statuses = await _db.StudentTripStatuses
+                .IgnoreQueryFilters()
                 .Where(sts => sts.TripId == tripId).ToListAsync();
 
             var today = DateOnly.FromDateTime(DateTime.UtcNow);
             var avails = await _db.StudentAvailabilities
+                .IgnoreQueryFilters()
                 .Where(a => students.Select(s => s.StudentId).Contains(a.StudentId)
                          && today >= a.FromDate && today <= a.ToDate).ToListAsync();
 
@@ -91,6 +97,7 @@ namespace BusTracking.Common.Services
         public async Task<ApiResponse<BusLocationDto?>> GetLatestLocationAsync(int tripId)
         {
             var loc = await _db.BusLiveLocations
+                .IgnoreQueryFilters()
                 .Where(l => l.TripId == tripId)
                 .OrderByDescending(l => l.RecordedAt)
                 .Select(l => new BusLocationDto
@@ -107,6 +114,7 @@ namespace BusTracking.Common.Services
         public async Task<ApiResponse<List<BusLocationDto>>> GetLocationHistoryAsync(int tripId)
         {
             var list = await _db.BusLiveLocations
+                .IgnoreQueryFilters()
                 .Where(l => l.TripId == tripId)
                 .OrderBy(l => l.RecordedAt)
                 .Select(l => new BusLocationDto
@@ -120,10 +128,10 @@ namespace BusTracking.Common.Services
             return ApiResponse<List<BusLocationDto>>.Ok(list);
         }
 
-
         public async Task<ApiResponse<TripListDto>> GetByIdAsync(int tripId)
         {
             var t = await _db.BusTrips
+                .IgnoreQueryFilters()
                 .Include(x => x.Bus).Include(x => x.Driver)
                 .Include(x => x.Route).ThenInclude(r => r!.Stops)
                 .FirstOrDefaultAsync(x => x.TripId == tripId);
@@ -152,7 +160,7 @@ namespace BusTracking.Common.Services
                 return ApiResponse<TripListDto>.Fail("Invalid date.");
 
             // Check duplicate trip same bus+date+type
-            if (await _db.BusTrips.AnyAsync(t =>
+            if (await _db.BusTrips.IgnoreQueryFilters().AnyAsync(t =>
                 t.BusId == dto.BusId && t.TripDate == td && t.TripType == tt &&
                 t.Status != TripStatus.Cancelled))
                 return ApiResponse<TripListDto>.Fail($"A {dto.TripType} trip for this bus on {dto.TripDate} already exists.");
@@ -161,6 +169,7 @@ namespace BusTracking.Common.Services
             if (driverId <= 0)
             {
                 var assignedDriver = await _db.DriverDetails
+                    .IgnoreQueryFilters()
                     .Include(d => d.User)
                     .FirstOrDefaultAsync(d => d.BusId == dto.BusId && d.User.IsActive);
                 if (assignedDriver == null)
@@ -182,6 +191,7 @@ namespace BusTracking.Common.Services
 
             // Auto-create TripStopEvents for all stops on route
             var stops = await _db.Stops
+                .IgnoreQueryFilters()
                 .Where(s => s.RouteId == dto.RouteId && s.IsActive)
                 .OrderBy(s => s.StopOrder).ToListAsync();
             foreach (var stop in stops)
@@ -190,109 +200,111 @@ namespace BusTracking.Common.Services
 
             // Auto-create StudentTripStatus for all students on this bus
             var students = await _db.Students
+                .IgnoreQueryFilters()
                 .Include(s => s.User)
                 .Where(s => s.BusId == dto.BusId && s.User.IsActive)
                 .ToListAsync();
-            var bus = await _db.Buses.FirstOrDefaultAsync(b => b.BusId == dto.BusId);
+            var bus = await _db.Buses.IgnoreQueryFilters().FirstOrDefaultAsync(b => b.BusId == dto.BusId);
             var school = bus?.SchoolId.HasValue == true
                 ? await _db.Schools.Include(s => s.TimeZone).IgnoreQueryFilters().FirstOrDefaultAsync(s => s.SchoolId == bus.SchoolId.Value)
                 : null;
             var today = TimeZoneHelper.GetSchoolTodayDate(school);
+
             foreach (var s in students)
             {
-                var onLeave = await _db.StudentAvailabilities.AnyAsync(a =>
-                    a.StudentId == s.StudentId && today >= a.FromDate && today <= a.ToDate);
+                var isUnavail = await _db.StudentAvailabilities
+                    .IgnoreQueryFilters()
+                    .AnyAsync(a => a.StudentId == s.StudentId && today >= a.FromDate && today <= a.ToDate);
+
                 _db.StudentTripStatuses.Add(new StudentTripStatus
                 {
                     TripId = trip.TripId,
                     StudentId = s.StudentId,
-                    StopId = s.StopId ?? (stops.FirstOrDefault()?.StopId ?? 0),
-                    BoardingStatus = onLeave ? BoardingStatus.OnLeave : BoardingStatus.Pending
+                    StopId = s.StopId ?? 0,
+                    BoardingStatus = isUnavail ? BoardingStatus.OnLeave : BoardingStatus.Pending
                 });
             }
-            await _db.SaveChangesAsync();
 
+            await _db.SaveChangesAsync();
             return await GetByIdAsync(trip.TripId);
         }
 
         public async Task<ApiResponse<bool>> StartTripAsync(int tripId)
         {
-            var t = await _db.BusTrips.FindAsync(tripId);
-            if (t is null) return ApiResponse<bool>.Fail("Trip not found.");
-            if (t.Status != TripStatus.Scheduled)
-                return ApiResponse<bool>.Fail($"Cannot start a trip with status: {t.Status}.");
-            t.Status = TripStatus.InProgress;
-            t.StartedAt = DateTime.UtcNow;
+            var trip = await _db.BusTrips.IgnoreQueryFilters().FirstOrDefaultAsync(t => t.TripId == tripId);
+            if (trip is null) return ApiResponse<bool>.Fail("Trip not found.");
+            if (trip.Status != TripStatus.Scheduled) return ApiResponse<bool>.Fail("Trip is not in Scheduled status.");
+            trip.Status = TripStatus.InProgress;
+            trip.StartedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
             return ApiResponse<bool>.Ok(true, "Trip started.");
         }
 
         public async Task<ApiResponse<bool>> EndTripAsync(int tripId)
         {
-            var t = await _db.BusTrips.FindAsync(tripId);
-            if (t is null) return ApiResponse<bool>.Fail("Trip not found.");
-            t.Status = TripStatus.Completed;
-            t.EndedAt = DateTime.UtcNow;
+            var trip = await _db.BusTrips.IgnoreQueryFilters().FirstOrDefaultAsync(t => t.TripId == tripId);
+            if (trip is null) return ApiResponse<bool>.Fail("Trip not found.");
+            if (trip.Status != TripStatus.InProgress) return ApiResponse<bool>.Fail("Trip is not InProgress.");
+            trip.Status = TripStatus.Completed;
+            trip.EndedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
             return ApiResponse<bool>.Ok(true, "Trip completed.");
         }
 
         public async Task<ApiResponse<bool>> CancelTripAsync(int tripId)
         {
-            var t = await _db.BusTrips.FindAsync(tripId);
-            if (t is null) return ApiResponse<bool>.Fail("Trip not found.");
-            t.Status = TripStatus.Cancelled;
+            var trip = await _db.BusTrips.IgnoreQueryFilters().FirstOrDefaultAsync(t => t.TripId == tripId);
+            if (trip is null) return ApiResponse<bool>.Fail("Trip not found.");
+            if (trip.Status == TripStatus.Completed) return ApiResponse<bool>.Fail("Cannot cancel completed trip.");
+            trip.Status = TripStatus.Cancelled;
             await _db.SaveChangesAsync();
             return ApiResponse<bool>.Ok(true, "Trip cancelled.");
         }
 
         public async Task<ApiResponse<bool>> DeleteAsync(int tripId)
         {
-            var t = await _db.BusTrips.FindAsync(tripId);
+            var t = await _db.BusTrips.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.TripId == tripId);
             if (t is null) return ApiResponse<bool>.Fail("Trip not found.");
             if (t.Status == TripStatus.InProgress)
                 return ApiResponse<bool>.Fail("Cannot delete an in-progress trip. End or cancel it first.");
-            _db.BusTrips.Remove(t);
-            await _db.SaveChangesAsync();
-            return ApiResponse<bool>.Ok(true, "Trip deleted.");
-        }
 
-        public async Task<ApiResponse<bool>> UpdateBoardingAsync(int tripId, int studentId, int stopId, string status)
-        {
-            if (!Enum.TryParse<BoardingStatus>(status, out var bs))
-                return ApiResponse<bool>.Fail("Invalid boarding status.");
-            var existing = await _db.StudentTripStatuses
-                .FirstOrDefaultAsync(s => s.TripId == tripId && s.StudentId == studentId);
-            if (existing is null)
-                _db.StudentTripStatuses.Add(new StudentTripStatus
-                { TripId = tripId, StudentId = studentId, StopId = stopId, BoardingStatus = bs });
-            else
-            { existing.BoardingStatus = bs; existing.UpdatedAt = DateTime.UtcNow; }
-            await _db.SaveChangesAsync();
-            return ApiResponse<bool>.Ok(true, $"Marked as {status}.");
-        }
+            var strategy = _db.Database.CreateExecutionStrategy();
+            return await strategy.ExecuteAsync(async () =>
+            {
+                using var tx = await _db.Database.BeginTransactionAsync();
+                try
+                {
+                    // 1. Delete all child references first
+                    var events = await _db.TripStopEvents.IgnoreQueryFilters().Where(e => e.TripId == tripId).ToListAsync();
+                    if (events.Count > 0) _db.TripStopEvents.RemoveRange(events);
 
-        public async Task<ApiResponse<bool>> ReachStopAsync(int tripId, int stopId)
-        {
-            var evt = await _db.TripStopEvents
-                .FirstOrDefaultAsync(e => e.TripId == tripId && e.StopId == stopId);
-            if (evt is null)
-            {
-                _db.TripStopEvents.Add(new TripStopEvent
-                { TripId = tripId, StopId = stopId, ReachedAt = DateTime.UtcNow, Status = TripStopStatus.Reached });
-            }
-            else
-            {
-                evt.ReachedAt = DateTime.UtcNow;
-                evt.Status = TripStopStatus.Reached;
-            }
-            await _db.SaveChangesAsync();
-            return ApiResponse<bool>.Ok(true, "Stop marked as reached.");
+                    var statuses = await _db.StudentTripStatuses.IgnoreQueryFilters().Where(s => s.TripId == tripId).ToListAsync();
+                    if (statuses.Count > 0) _db.StudentTripStatuses.RemoveRange(statuses);
+
+                    var locations = await _db.BusLiveLocations.IgnoreQueryFilters().Where(l => l.TripId == tripId).ToListAsync();
+                    if (locations.Count > 0) _db.BusLiveLocations.RemoveRange(locations);
+
+                    // 2. Remove main BusTrip record
+                    _db.BusTrips.Remove(t);
+
+                    // 3. Save changes and commit transaction
+                    await _db.SaveChangesAsync();
+                    await tx.CommitAsync();
+
+                    return ApiResponse<bool>.Ok(true, "Trip deleted successfully.");
+                }
+                catch (Exception ex)
+                {
+                    await tx.RollbackAsync();
+                    return ApiResponse<bool>.Fail($"Failed to delete trip: {ex.Message}");
+                }
+            });
         }
 
         public async Task<ApiResponse<List<TripStopEventDto>>> GetStopEventsAsync(int tripId)
         {
             var events = await _db.TripStopEvents
+                .IgnoreQueryFilters()
                 .Include(e => e.Stop)
                 .Where(e => e.TripId == tripId)
                 .OrderBy(e => e.Stop.StopOrder)
@@ -309,8 +321,48 @@ namespace BusTracking.Common.Services
             return ApiResponse<List<TripStopEventDto>>.Ok(events);
         }
 
-        public async Task<ApiResponse<bool>> InsertLocationPingAsync(
-        int tripId, int busId, decimal lat, decimal lng, decimal? speed, decimal? heading)
+        public async Task<ApiResponse<bool>> ReachStopAsync(int tripId, int stopId)
+        {
+            var evt = await _db.TripStopEvents
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(e => e.TripId == tripId && e.StopId == stopId);
+            if (evt is null)
+            {
+                _db.TripStopEvents.Add(new TripStopEvent
+                { TripId = tripId, StopId = stopId, ReachedAt = DateTime.UtcNow, Status = TripStopStatus.Reached });
+            }
+            else
+            {
+                evt.ReachedAt = DateTime.UtcNow;
+                evt.Status = TripStopStatus.Reached;
+            }
+            await _db.SaveChangesAsync();
+            return ApiResponse<bool>.Ok(true, "Stop marked as reached.");
+        }
+
+        public async Task<ApiResponse<bool>> UpdateBoardingAsync(int tripId, int studentId, int stopId, string status)
+        {
+            if (!Enum.TryParse<BoardingStatus>(status, true, out var bs))
+                return ApiResponse<bool>.Fail("Invalid status.");
+
+            var s = await _db.StudentTripStatuses
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(x => x.TripId == tripId && x.StudentId == studentId);
+            if (s is null)
+            {
+                _db.StudentTripStatuses.Add(new StudentTripStatus
+                { TripId = tripId, StudentId = studentId, StopId = stopId, BoardingStatus = bs });
+            }
+            else
+            {
+                s.BoardingStatus = bs;
+                s.UpdatedAt = DateTime.UtcNow;
+            }
+            await _db.SaveChangesAsync();
+            return ApiResponse<bool>.Ok(true, "Boarding status updated.");
+        }
+
+        public async Task<ApiResponse<bool>> InsertLocationPingAsync(int tripId, int busId, decimal lat, decimal lng, decimal? speed, decimal? heading)
         {
             _db.BusLiveLocations.Add(new BusLiveLocation
             {
@@ -323,8 +375,7 @@ namespace BusTracking.Common.Services
                 RecordedAt = DateTime.UtcNow
             });
             await _db.SaveChangesAsync();
-            return ApiResponse<bool>.Ok(true);
+            return ApiResponse<bool>.Ok(true, "Location recorded.");
         }
-
     }
 }

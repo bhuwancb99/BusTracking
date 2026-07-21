@@ -117,9 +117,18 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<BusTrip>()
             .HasOne(t => t.Driver).WithMany()
             .HasForeignKey(t => t.DriverId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<TripStopEvent>()
+            .HasOne(t => t.Trip).WithMany(bt => bt.StopEvents)
+            .HasForeignKey(t => t.TripId).OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<StudentTripStatus>()
             .HasOne(sts => sts.Student).WithMany(s => s.TripStatuses)
             .HasForeignKey(sts => sts.StudentId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<StudentTripStatus>()
+            .HasOne(sts => sts.Trip).WithMany(bt => bt.StudentStatuses)
+            .HasForeignKey(sts => sts.TripId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<BusLiveLocation>()
+            .HasOne(l => l.Trip).WithMany(bt => bt.LiveLocations)
+            .HasForeignKey(l => l.TripId).OnDelete(DeleteBehavior.Cascade);
         modelBuilder.Entity<StudentAvailability>()
             .HasOne(a => a.Student).WithMany(s => s.Availabilities)
             .HasForeignKey(a => a.StudentId).OnDelete(DeleteBehavior.Restrict);
