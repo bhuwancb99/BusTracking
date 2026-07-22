@@ -715,6 +715,9 @@ SELECT * FROM (VALUES
     ('SupportPhone',       '',    1, 'Support phone number shown inside the mobile app',         'Mobile', 1, 1),
     ('IsMobileUpdateImage',       '1',    1, 'When true: app uploads images via API and shows Upload/Remove buttons',         'Mobile', 1, 1),
     ('WebsiteImageUrl',       'https://10.0.2.2:7001',    1, 'Used to construct full image URLs when IsMobileUpdateImage = 1',         'Mobile', 1, 1)
+    ('AppConfigPageSize',       '10',    1, 'Number of rows per page on the App Configuration list (Web & Mobile)',         'Both', 1, 1)
+    ('GoogleMapApiKey',       '',    1, 'this is used for connect google map Api',         'Both', 1, 1)
+    ('TrackingHubUrl',       'https://10.0.2.2:7001',    1, '',         'Both', 1, 1)
 ) AS v(ConfigKey, ConfigValue, SchoolId, Description, Platform, IsActive, CreatedBy)
 WHERE NOT EXISTS (
     SELECT 1 FROM AppConfigurations

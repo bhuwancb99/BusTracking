@@ -4,17 +4,9 @@ namespace BusTracking.API.Hubs
     /// SignalR hub for real-time bus location broadcasting.
     ///
     /// Groups:
-    ///   "trip-{tripId}"  — all clients watching this trip (parents, coordinator, student)
-    ///   "driver-{tripId}" — only the driver (for receiving admin messages later)
-    ///
-    /// Flow:
-    ///   1. Driver app connects → calls JoinAsDriver(tripId)
-    ///   2. Parent/Student app connects → calls WatchTrip(tripId)
-    ///   3. Driver calls SendLocation(tripId, lat, lng, speed, heading) every ~5s
-    ///   4. Hub broadcasts "BusLocationUpdated" to the trip group instantly
-    ///   5. When trip ends, driver calls TripEnded(tripId) → notifies all watchers
+    ///   "trip-{tripId}"  — all clients watching this trip (parents, coordinator, student, admin)
+    ///   "driver-{tripId}" — only the driver
     /// </summary>
-    [Authorize]
     public class TripTrackingHub : Hub
     {
         private readonly AppDbContext _db;
@@ -23,6 +15,7 @@ namespace BusTracking.API.Hubs
         // ──────────────────────────────────────────────────────────────────
         // DRIVER — joins as broadcaster for this trip
         // ──────────────────────────────────────────────────────────────────
+        [Authorize]
         public async Task JoinAsDriver(int tripId)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, $"trip-{tripId}");
@@ -30,8 +23,9 @@ namespace BusTracking.API.Hubs
         }
 
         // ──────────────────────────────────────────────────────────────────
-        // PARENT / STUDENT / COORDINATOR — join as watcher
+        // PARENT / STUDENT / COORDINATOR / SUPERADMIN — join as watcher
         // ──────────────────────────────────────────────────────────────────
+        [AllowAnonymous]
         public async Task WatchTrip(int tripId)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, $"trip-{tripId}");
@@ -52,11 +46,14 @@ namespace BusTracking.API.Hubs
                 .FirstOrDefaultAsync();
 
             if (last is not null)
+            {
                 await Clients.Caller.SendAsync("BusLocationUpdated",
                     last.Latitude, last.Longitude,
                     last.Speed, last.Heading, last.RecordedAt);
+            }
         }
 
+        [AllowAnonymous]
         public async Task LeaveTrip(int tripId)
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, $"trip-{tripId}");
@@ -66,18 +63,17 @@ namespace BusTracking.API.Hubs
         // ──────────────────────────────────────────────────────────────────
         // DRIVER sends location → hub saves + broadcasts
         // ──────────────────────────────────────────────────────────────────
+        [Authorize]
         public async Task SendLocation(
             int tripId, int busId,
             decimal lat, decimal lng,
             decimal? speed, decimal? heading)
         {
-            // Retrieve time zone for logged-in user / tenant
             var timeZoneInfoId = Context.User?.FindFirst("time_zone_id")?.Value
                               ?? Context.User?.FindFirst("TimeZoneInfoId")?.Value
                               ?? "India Standard Time";
             var now = TimeZoneHelper.GetNow(timeZoneInfoId);
 
-            // Persist to DB (keeps history + supports late-joining clients)
             _db.BusLiveLocations.Add(new BusLiveLocation
             {
                 TripId = tripId,
@@ -90,7 +86,6 @@ namespace BusTracking.API.Hubs
             });
             await _db.SaveChangesAsync();
 
-            // Broadcast to everyone watching this trip instantly
             var timeStamp = now.ToString("o");
             await Clients.Group($"trip-{tripId}")
                 .SendAsync("BusLocationUpdated", lat, lng, speed, heading, timeStamp);
@@ -99,6 +94,7 @@ namespace BusTracking.API.Hubs
         // ──────────────────────────────────────────────────────────────────
         // DRIVER notifies when trip ends
         // ──────────────────────────────────────────────────────────────────
+        [Authorize]
         public async Task TripEnded(int tripId)
         {
             await Clients.Group($"trip-{tripId}")

@@ -31,11 +31,11 @@ public class TripController : Controller
 
         var stops = await _driverTrip.GetTripStopsAsync(tripId);
         var students = await _driverTrip.GetTripStudentsAsync(tripId);
-        var googleApiKey = await _appConfig.GetValueAsync("GoogleMapApiKey") ?? "";
-
         ViewBag.Stops = stops.Data ?? [];
         ViewBag.Students = students.Data ?? [];
-        ViewBag.GoogleMapApiKey = googleApiKey;
+        ViewBag.GoogleMapApiKey = await _appConfig.GetValueAsync("GoogleMapApiKey") ?? "";
+        var rawHubUrl = await _appConfig.GetValueAsync(AppConstants.AppConfigTrackingHubUrlKey);
+        ViewBag.TrackingHubUrl = AppConstants.FormatTrackingHubUrl(rawHubUrl);
         ViewBag.BusInfo = myTrip.Data;
         return View(myTrip.Data.Trip);
     }

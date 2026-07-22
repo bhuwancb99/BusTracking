@@ -34,6 +34,8 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             ViewBag.Students = students.Data ?? [];
             ViewBag.Stops = stops.Data ?? [];
             ViewBag.GoogleMapApiKey = await _appConfig.GetValueAsync("GoogleMapApiKey") ?? "";
+            var rawHubUrl = await _appConfig.GetValueAsync(AppConstants.AppConfigTrackingHubUrlKey);
+            ViewBag.TrackingHubUrl = AppConstants.FormatTrackingHubUrl(rawHubUrl);
             return View(tripR.Data);
         }
 

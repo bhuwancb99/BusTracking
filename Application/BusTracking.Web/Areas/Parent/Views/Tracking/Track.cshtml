@@ -121,7 +121,7 @@ else
             </div>
         </div>
 
-        <!-- ══ RIGHT COLUMN — LIVE MAP (Leaflet + OSRM Road Routing) ════ -->
+        <!-- ══ RIGHT COLUMN — LIVE MAP ════ -->
         <div class="col-lg-7">
             <div class="card border-0 shadow-sm" style="overflow:hidden">
                 <div class="card-header bg-white border-0 pt-3 px-4 fw-semibold d-flex justify-content-between align-items-center">
@@ -176,6 +176,7 @@ else
 @section Scripts {
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.5/signalr.min.js"></script>
 
     @if (trip != null)
     {
@@ -184,11 +185,11 @@ else
             const IS_LIVE = @(isLive ? "true" : "false");
 
             const STOPS = [
-                @foreach (var stop in stops.OrderBy(s => s.StopOrder))
+                            @foreach (var stop in stops.OrderBy(s => s.StopOrder))
                 {
                     @:{ id: @stop.StopId, name: "@JavaScriptEncoder.Default.Encode(stop.StopName)", order: @stop.StopOrder, status: "@stop.Status", lat: @(stop.Latitude ?? 0), lng: @(stop.Longitude ?? 0) },
                 }
-            ];
+                        ];
 
             const map = L.map('tripMap').setView([20.5937, 78.9629], 5);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -197,17 +198,15 @@ else
             }).addTo(map);
 
             const busIcon = L.divIcon({
-                html: '<div style="background:#fbbc04;border:2.5px solid #000;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.4)"><i class="bi bi-bus-front-fill" style="color:#000;font-size:16px"></i></div>',
-                iconSize: [32, 32], iconAnchor: [16, 16], className: ''
+                html: '<div style="background:#fbbc04;border:2.5px solid #ffffff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.4)"><i class="bi bi-bus-front-fill" style="color:#000;font-size:18px"></i></div>',
+                iconSize: [34, 34], iconAnchor: [17, 17], className: ''
             });
-
-            const busMarker = L.marker([20.5937, 78.9629], { icon: busIcon, title: 'School Bus', zIndexOffset: 2000 }).addTo(map);
-            let plannedRoadPolyline = null;
-            let liveTraveledPolyline = L.polyline([], { color: '#0d6efd', weight: 6, opacity: 0.9, lineJoin: 'round' }).addTo(map);
 
             // Render Stop Markers
             const bounds = L.latLngBounds();
             const validStops = STOPS.filter(s => s.lat && s.lng && (s.lat !== 0 || s.lng !== 0));
+            validStops.sort((a, b) => a.order - b.order);
+
             validStops.forEach(s => {
                 const stopLatLng = [s.lat, s.lng];
                 bounds.extend(stopLatLng);
@@ -217,10 +216,18 @@ else
                     iconSize: [26, 26], iconAnchor: [13, 13], className: ''
                 });
                 L.marker(stopLatLng, { icon: stopIcon, title: `Stop #${s.order}: ${s.name}` })
-                 .bindPopup(`<b>Stop #${s.order}</b><br>${s.name}<br><span style="color:${color}">${s.status}</span>`)
-                 .addTo(map);
+                    .bindPopup(`<b>Stop #${s.order}</b><br>${s.name}<br><span style="color:${color}">${s.status}</span>`)
+                    .addTo(map);
             });
-            if (validStops.length > 0) { map.fitBounds(bounds, { padding: [40, 40] }); }
+
+            // Position bus at Stop #1 initially so bus is immediately visible on map
+            const firstStopPos = validStops.length > 0 ? [validStops[0].lat, validStops[0].lng] : [20.5937, 78.9629];
+            const busMarker = L.marker(firstStopPos, { icon: busIcon, title: 'School Bus', zIndexOffset: 2000 }).addTo(map);
+
+            if (validStops.length > 0) { map.fitBounds(bounds, { padding: [50, 50] }); }
+
+            let plannedRoadPolyline = null;
+            let liveTraveledPolyline = L.polyline([], { color: '#0d6efd', weight: 6, opacity: 0.9, lineJoin: 'round' }).addTo(map);
 
             // ── OSRM Road Routing (Draws blue line on real roads between stops) ──
             async function drawRoadRoute() {
@@ -239,7 +246,7 @@ else
                             opacity: 0.85,
                             lineJoin: 'round'
                         }).addTo(map);
-                        map.fitBounds(plannedRoadPolyline.getBounds(), { padding: [40, 40] });
+                        map.fitBounds(plannedRoadPolyline.getBounds(), { padding: [50, 50] });
                     }
                 } catch (e) {
                     console.warn("OSRM road routing fallback:", e);
@@ -250,47 +257,87 @@ else
 
             let firstLocationSet = false;
 
+            function updateBusPos(lat, lng, speed, heading, recordedAt) {
+                if (!lat || !lng) return;
+                const latlng = [Number(lat), Number(lng)];
+                busMarker.setLatLng(latlng);
+
+                // Prevent extra straight line jumps across map
+                const pts = liveTraveledPolyline.getLatLngs();
+                if (pts.length > 0) {
+                    const lastPt = pts[pts.length - 1];
+                    if (map.distance(lastPt, latlng) > 3000) {
+                        liveTraveledPolyline.setLatLngs([latlng]);
+                    } else {
+                        liveTraveledPolyline.addLatLng(latlng);
+                    }
+                } else {
+                    liveTraveledPolyline.addLatLng(latlng);
+                }
+
+                if (!firstLocationSet) { map.setView(latlng, 15); firstLocationSet = true; }
+                else map.panTo(latlng);
+
+                updateInfoBar(lat, lng, speed, heading, recordedAt);
+                document.getElementById('mapPlaceholder')?.remove();
+            }
+
             if (IS_LIVE) {
                 loadHistory().then(() => {
                     fetchLocation();
                     setInterval(fetchLocation, 2500);
                 });
+
+                // SignalR real-time client connecting to API hub configured in AppConfig
+                if (typeof signalR !== 'undefined') {
+                    const hubUrl = "@(ViewBag.TrackingHubUrl as string ?? "")";
+
+                    const connection = new signalR.HubConnectionBuilder()
+                        .withUrl(hubUrl)
+                        .withAutomaticReconnect()
+                        .build();
+
+                    connection.on("BusLocationUpdated", (lat, lng, speed, heading, timeStamp) => {
+                        updateBusPos(lat, lng, speed, heading, timeStamp);
+                    });
+
+                    connection.on("TripEnded", (endedTripId) => {
+                        if (endedTripId === TRIP_ID) {
+                            document.getElementById('liveSpeedBadge')?.remove();
+                            document.getElementById('busStatusLabel').textContent = '🏁 Trip Ended';
+                        }
+                    });
+
+                    connection.start().then(() => {
+                        connection.invoke("WatchTrip", TRIP_ID);
+                    }).catch(err => console.warn("SignalR connection note:", err));
+                }
             } else {
                 loadHistory();
             }
 
             async function fetchLocation() {
                 try {
-                    const res  = await fetch(`/Parent/Tracking/LatestLocation?tripId=${TRIP_ID}`);
+                    const res = await fetch(`/Parent/Tracking/LatestLocation?tripId=${TRIP_ID}`);
                     const data = await res.json();
                     if (!data.success || !data.data) return;
 
                     const { latitude: lat, longitude: lng, speed, heading, recordedAt } = data.data;
-                    const latlng = [Number(lat), Number(lng)];
-                    busMarker.setLatLng(latlng);
-                    liveTraveledPolyline.addLatLng(latlng); // Live blue road polyline dynamically grows!
-
-                    if (!firstLocationSet) { map.setView(latlng, 15); firstLocationSet = true; }
-                    else map.panTo(latlng);
-
-                    updateInfoBar(lat, lng, speed, heading, recordedAt);
-                    document.getElementById('mapPlaceholder')?.remove();
+                    updateBusPos(lat, lng, speed, heading, recordedAt);
                 } catch (e) { console.warn('Location fetch failed', e); }
             }
 
             async function loadHistory() {
                 try {
-                    const res  = await fetch(`/Parent/Tracking/LocationHistory?tripId=${TRIP_ID}`);
+                    const res = await fetch(`/Parent/Tracking/LocationHistory?tripId=${TRIP_ID}`);
                     const data = await res.json();
                     if (!data.success || !data.data?.length) return;
 
                     const coords = data.data.map(d => [Number(d.latitude), Number(d.longitude)]);
-                    liveTraveledPolyline.setLatLngs(coords); // Set complete traveled path along roads
+                    liveTraveledPolyline.setLatLngs(coords);
                     if (coords.length > 0) {
                         const last = data.data[data.data.length - 1];
-                        busMarker.setLatLng([Number(last.latitude), Number(last.longitude)]);
-                        updateInfoBar(last.latitude, last.longitude, last.speed, last.heading, last.recordedAt);
-                        document.getElementById('mapPlaceholder')?.remove();
+                        updateBusPos(last.latitude, last.longitude, last.speed, last.heading, last.recordedAt);
                     }
                 } catch (e) { console.warn('History load failed', e); }
             }
@@ -298,12 +345,12 @@ else
             function updateInfoBar(lat, lng, speed, heading, recordedAt) {
                 const spd = speed ? parseFloat(speed).toFixed(1) : '0';
                 const hdg = heading ? Math.round(heading) : 0;
-                const dirs = ['N','NE','E','SE','S','SW','W','NW','N'];
-                document.getElementById('spdBig').textContent       = spd;
+                const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW', 'N'];
+                document.getElementById('spdBig').textContent = spd;
                 document.getElementById('topSpeedVal') && (document.getElementById('topSpeedVal').textContent = Math.round(parseFloat(spd)));
-                document.getElementById('coordLabel').textContent   = `${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)}`;
+                document.getElementById('coordLabel').textContent = `${parseFloat(lat).toFixed(4)}, ${parseFloat(lng).toFixed(4)}`;
                 document.getElementById('headingLabel').textContent = dirs[Math.round(hdg / 45)] + ` ${hdg}°`;
-                document.getElementById('lastUpdLabel').textContent = 'Updated ' + new Date(recordedAt).toLocaleTimeString();
+                document.getElementById('lastUpdLabel').textContent = 'Updated ' + (recordedAt ? new Date(recordedAt).toLocaleTimeString() : new Date().toLocaleTimeString());
                 document.getElementById('busStatusLabel').textContent = parseFloat(spd) > 2 ? '🚌 Moving' : '🅿️ Stopped';
                 document.getElementById('liveOverlay').style.display = '';
             }
@@ -313,10 +360,23 @@ else
 
 <style>
     @@keyframes livePulse {
-        0%, 100% { opacity: 1; } 50% { opacity: .2; }
+        0%, 100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: .2;
+        }
     }
+
     .stop-timeline .stop-row:not(:last-child) {
-        padding-bottom: 12px; border-left: 2px dashed #e8eaed; margin-left: 9px; padding-left: 14px;
+        padding-bottom: 12px;
+        border-left: 2px dashed #e8eaed;
+        margin-left: 9px;
+        padding-left: 14px;
     }
-    .stop-timeline .stop-row:not(:last-child) .flex-shrink-0 { margin-left: -23px; }
+
+        .stop-timeline .stop-row:not(:last-child) .flex-shrink-0 {
+            margin-left: -23px;
+        }
 </style>

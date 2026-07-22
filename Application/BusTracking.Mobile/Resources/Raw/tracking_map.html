@@ -2,6 +2,8 @@
 <html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         * {
             margin: 0;
@@ -12,6 +14,10 @@
         html, body, #map {
             width: 100%;
             height: 100%;
+        }
+
+        .bus-marker-div {
+            transition: all 0.5s linear;
         }
     </style>
 </head>
@@ -30,135 +36,301 @@
         let mapReady = false;
         const pendingCalls = [];
 
-        // Beautiful Amber / Yellow School Bus SVG Icon (with windshield, headlights, side mirrors)
+        // Leaflet Fallback State
+        let leafletMap = null;
+        let leafletBusMarker = null;
+        let leafletPlannedPolyline = null;
+        let leafletLivePolyline = null;
+        let leafletStopMarkers = [];
+        let isLeafletFallback = false;
+        let lastValidStops = [];
+
+        function notifyMapError(msg) {
+            console.error("[MapError]", msg);
+            try {
+                window.location.href = "applog://maperror?message=" + encodeURIComponent(msg);
+            } catch (e) { }
+        }
+
+        // Automatic Google Maps Auth/Quota Failure Callback
+        window.gm_authFailure = function () {
+            notifyMapError("Google Maps JavaScript 2D daily quota limit reached or API Key authentication failed.");
+            activateLeafletFallback();
+        };
+
+        function onGoogleMapsScriptError() {
+            notifyMapError("Failed to load Google Maps JS SDK script.");
+            activateLeafletFallback();
+        }
+
+        function activateLeafletFallback() {
+            if (isLeafletFallback) return;
+            isLeafletFallback = true;
+            console.warn("Activating Leaflet / OpenStreetMap fallback map.");
+
+            const mapDiv = document.getElementById('map');
+            if (mapDiv) mapDiv.innerHTML = '';
+
+            try {
+                leafletMap = L.map('map', { zoomControl: true, attributionControl: false }).setView([20.5937, 78.9629], 5);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(leafletMap);
+
+                const busIconHtml = (heading) => `
+                        <div style="background:#fbbc04;border:2.5px solid #ffffff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.4);transform:rotate(${heading || 0}deg)">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="#000">
+                                <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5-1.5zM6 8.5C6 7.67 8.69 7 12 7s6 .67 6 1.5V12H6V8.5z"/>
+                            </svg>
+                        </div>`;
+
+                const busDivIcon = (heading) => L.divIcon({
+                    html: busIconHtml(heading),
+                    iconSize: [34, 34], iconAnchor: [17, 17], className: 'bus-marker-div'
+                });
+
+                leafletBusMarker = L.marker([20.5937, 78.9629], { icon: busDivIcon(0), zIndexOffset: 2000 }).addTo(leafletMap);
+                leafletLivePolyline = L.polyline([], { color: '#2563eb', weight: 6, opacity: 0.9, lineJoin: 'round' }).addTo(leafletMap);
+
+                mapReady = true;
+
+                if (lastValidStops && lastValidStops.length > 0) {
+                    renderLeafletStops(lastValidStops);
+                }
+
+                while (pendingCalls.length > 0) {
+                    const call = pendingCalls.shift();
+                    call();
+                }
+            } catch (e) {
+                notifyMapError("Failed to initialize Leaflet fallback map: " + e.message);
+            }
+        }
+
+        function renderLeafletStops(stopsJson) {
+            if (!leafletMap) return;
+            leafletStopMarkers.forEach(m => leafletMap.removeLayer(m));
+            leafletStopMarkers = [];
+
+            const stops = typeof stopsJson === 'string' ? JSON.parse(stopsJson) : stopsJson;
+            const validStops = stops.filter(s => s.lat && s.lng && (Number(s.lat) !== 0 || Number(s.lng) !== 0));
+            if (validStops.length === 0) return;
+
+            // Sort strictly in numerical sequence (Stop 1, 2, 3, 4, 5...)
+            validStops.sort((a, b) => Number(a.order) - Number(b.order));
+            lastValidStops = validStops;
+
+            // Reset live traveled polyline on new route load to prevent extra lines across map
+            if (leafletLivePolyline) leafletLivePolyline.setLatLngs([]);
+            currentLat = null;
+            currentLng = null;
+
+            const bounds = L.latLngBounds();
+            validStops.forEach(stop => {
+                const latlng = [Number(stop.lat), Number(stop.lng)];
+                bounds.extend(latlng);
+
+                const isStart = stop.order === 1 || stop === validStops[0];
+                const isEnd = stop === validStops[validStops.length - 1] && validStops.length > 1;
+
+                const color = isStart ? '#16a34a' : isEnd ? '#dc2626' : (stop.status === 'Departed' ? '#22c55e' : stop.status === 'Reached' ? '#f59e0b' : '#2563eb');
+                const stopIcon = L.divIcon({
+                    html: `<div style="background:${color};color:#fff;border:2px solid #fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,.3)">${stop.order}</div>`,
+                    iconSize: [28, 28], iconAnchor: [14, 14], className: ''
+                });
+
+                const m = L.marker(latlng, { icon: stopIcon, title: `Stop #${stop.order}: ${stop.label}` })
+                    .bindPopup(`<b>Stop #${stop.order}</b><br>${stop.label}<br><span style="color:${color}">${stop.status || ''}</span>`)
+                    .addTo(leafletMap);
+                leafletStopMarkers.push(m);
+            });
+
+            // Position bus at Stop #1 initially
+            const firstStop = validStops[0];
+            const startLat = Number(firstStop.lat);
+            const startLng = Number(firstStop.lng);
+            leafletBusMarker.setLatLng([startLat, startLng]);
+
+            leafletMap.fitBounds(bounds, { padding: [50, 50] });
+
+            // Fetch road polylines from OSRM strictly adhering to stop order sequence
+            if (validStops.length >= 2) {
+                const waypoints = validStops.map(s => `${Number(s.lng)},${Number(s.lat)}`).join(';');
+                const url = `https://router.project-osrm.org/route/v1/driving/${waypoints}?overview=full&geometries=geojson`;
+
+                fetch(url)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.routes && data.routes.length > 0) {
+                            const roadCoords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+                            if (leafletPlannedPolyline) leafletMap.removeLayer(leafletPlannedPolyline);
+                            leafletPlannedPolyline = L.polyline(roadCoords, {
+                                color: '#2563eb', weight: 6, opacity: 0.85, lineJoin: 'round'
+                            }).addTo(leafletMap);
+                            leafletMap.fitBounds(leafletPlannedPolyline.getBounds(), { padding: [50, 50] });
+                        }
+                    })
+                    .catch(e => {
+                        console.warn('OSRM road routing fallback, using direct polyline:', e);
+                        const straightCoords = validStops.map(s => [Number(s.lat), Number(s.lng)]);
+                        if (leafletPlannedPolyline) leafletMap.removeLayer(leafletPlannedPolyline);
+                        leafletPlannedPolyline = L.polyline(straightCoords, {
+                            color: '#2563eb', weight: 6, opacity: 0.85, lineJoin: 'round'
+                        }).addTo(leafletMap);
+                    });
+            }
+        }
+
+        // Beautiful Amber / Yellow School Bus SVG Icon
         function getBusIcon(headingDeg) {
             const h = Math.round(headingDeg || 0);
             return {
                 url: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`
-                        <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44">
-                            <g transform="rotate(${h} 22 22)">
-                                <!-- Main Vehicle Chassis (Amber School Bus Body) -->
-                                <rect x="13" y="4" width="18" height="36" rx="5" fill="#f59e0b" stroke="#ffffff" stroke-width="2.5"/>
-                                <!-- Front Windshield -->
-                                <rect x="15" y="8" width="14" height="7" rx="1.5" fill="#0f172a"/>
-                                <!-- Rear Window -->
-                                <rect x="15" y="32" width="14" height="3" rx="1" fill="#334155"/>
-                                <!-- Roof Panel -->
-                                <rect x="16" y="17" width="12" height="13" rx="2" fill="#d97706" opacity="0.6"/>
-                                <!-- Side Mirrors -->
-                                <rect x="9" y="9" width="4" height="3.5" rx="1" fill="#0f172a"/>
-                                <rect x="31" y="9" width="4" height="3.5" rx="1" fill="#0f172a"/>
-                                <!-- Headlights -->
-                                <circle cx="15.5" cy="5.5" r="1.5" fill="#fef08a"/>
-                                <circle cx="28.5" cy="5.5" r="1.5" fill="#fef08a"/>
-                            </g>
-                        </svg>
-                    `),
+                            <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 44 44">
+                                <g transform="rotate(${h} 22 22)">
+                                    <rect x="13" y="4" width="18" height="36" rx="5" fill="#f59e0b" stroke="#ffffff" stroke-width="2.5"/>
+                                    <rect x="15" y="8" width="14" height="7" rx="1.5" fill="#0f172a"/>
+                                    <rect x="15" y="32" width="14" height="3" rx="1" fill="#334155"/>
+                                    <rect x="16" y="17" width="12" height="13" rx="2" fill="#d97706" opacity="0.6"/>
+                                    <rect x="9" y="9" width="4" height="3.5" rx="1" fill="#0f172a"/>
+                                    <rect x="31" y="9" width="4" height="3.5" rx="1" fill="#0f172a"/>
+                                    <circle cx="15.5" cy="5.5" r="1.5" fill="#fef08a"/>
+                                    <circle cx="28.5" cy="5.5" r="1.5" fill="#fef08a"/>
+                                </g>
+                            </svg>
+                        `),
                 anchor: new google.maps.Point(22, 22),
                 scaledSize: new google.maps.Size(44, 44)
             };
         }
 
-        // Green pickup pin for the trip's starting stop
         function getStartPinIcon() {
             return {
                 url: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`
-                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="48" viewBox="0 0 36 48">
-                            <path d="M18 2C9.7 2 3 8.7 3 17c0 11 15 27 15 27s15-16 15-27c0-8.3-6.7-15-15-15z" fill="#16a34a" stroke="#ffffff" stroke-width="2.5"/>
-                            <circle cx="18" cy="17" r="7" fill="#ffffff"/>
-                            <circle cx="18" cy="17" r="4" fill="#16a34a"/>
-                        </svg>
-                    `),
+                            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="48" viewBox="0 0 36 48">
+                                <path d="M18 2C9.7 2 3 8.7 3 17c0 11 15 27 15 27s15-16 15-27c0-8.3-6.7-15-15-15z" fill="#16a34a" stroke="#ffffff" stroke-width="2.5"/>
+                                <circle cx="18" cy="17" r="7" fill="#ffffff"/>
+                                <circle cx="18" cy="17" r="4" fill="#16a34a"/>
+                            </svg>
+                        `),
                 anchor: new google.maps.Point(18, 45),
                 scaledSize: new google.maps.Size(36, 48)
             };
         }
 
-        // Red destination flag for final stop
         function getEndPinIcon() {
             return {
                 url: 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(`
-                        <svg xmlns="http://www.w3.org/2000/svg" width="36" height="48" viewBox="0 0 36 48">
-                            <path d="M18 2C9.7 2 3 8.7 3 17c0 11 15 27 15 27s15-16 15-27c0-8.3-6.7-15-15-15z" fill="#dc2626" stroke="#ffffff" stroke-width="2.5"/>
-                            <circle cx="18" cy="17" r="7" fill="#ffffff"/>
-                            <rect x="14.5" y="13" width="7" height="8" fill="#dc2626"/>
-                            <rect x="14.5" y="13" width="2" height="8" fill="#ffffff"/>
-                            <rect x="18" y="13" width="2" height="8" fill="#ffffff"/>
-                        </svg>
-                    `),
+                            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="48" viewBox="0 0 36 48">
+                                <path d="M18 2C9.7 2 3 8.7 3 17c0 11 15 27 15 27s15-16 15-27c0-8.3-6.7-15-15-15z" fill="#dc2626" stroke="#ffffff" stroke-width="2.5"/>
+                                <circle cx="18" cy="17" r="7" fill="#ffffff"/>
+                                <rect x="14.5" y="13" width="7" height="8" fill="#dc2626"/>
+                                <rect x="14.5" y="13" width="2" height="8" fill="#ffffff"/>
+                                <rect x="18" y="13" width="2" height="8" fill="#ffffff"/>
+                            </svg>
+                        `),
                 anchor: new google.maps.Point(18, 45),
                 scaledSize: new google.maps.Size(36, 48)
             };
         }
 
         function initMap() {
-            map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 16,
-                center: { lat: 28.6139, lng: 77.2090 },
-                mapTypeId: 'roadmap',
-                disableDefaultUI: true,
-                zoomControl: true,
-                gestureHandling: 'greedy',
-                styles: [
-                    { elementType: 'geometry', stylers: [{ color: '#f8fafc' }] },
-                    { elementType: 'labels.text.fill', stylers: [{ color: '#475569' }] },
-                    { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
-                    { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#e2e8f0' }] },
-                    { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#cbd5e1' }] },
-                ]
-            });
+            try {
+                map = new google.maps.Map(document.getElementById('map'), {
+                    zoom: 16,
+                    center: { lat: 28.6139, lng: 77.2090 },
+                    mapTypeId: 'roadmap',
+                    disableDefaultUI: true,
+                    zoomControl: true,
+                    gestureHandling: 'greedy',
+                    styles: [
+                        { elementType: 'geometry', stylers: [{ color: '#f8fafc' }] },
+                        { elementType: 'labels.text.fill', stylers: [{ color: '#475569' }] },
+                        { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#ffffff' }] },
+                        { featureType: 'road.arterial', elementType: 'geometry', stylers: [{ color: '#e2e8f0' }] },
+                        { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#cbd5e1' }] },
+                    ]
+                });
 
-            busMarker = new google.maps.Marker({
-                map: map,
-                icon: getBusIcon(0),
-                title: 'School Bus',
-                optimized: false,
-                visible: true,
-                zIndex: 999
-            });
+                busMarker = new google.maps.Marker({
+                    map: map,
+                    icon: getBusIcon(0),
+                    title: 'School Bus',
+                    optimized: false,
+                    visible: true,
+                    zIndex: 999
+                });
 
-            accuracyCircle = new google.maps.Circle({
-                map: map,
-                strokeColor: '#f59e0b',
-                strokeOpacity: 0.4,
-                strokeWeight: 1.5,
-                fillColor: '#f59e0b',
-                fillOpacity: 0.12,
-                radius: 35
-            });
+                accuracyCircle = new google.maps.Circle({
+                    map: map,
+                    strokeColor: '#f59e0b',
+                    strokeOpacity: 0.4,
+                    strokeWeight: 1.5,
+                    fillColor: '#f59e0b',
+                    fillOpacity: 0.12,
+                    radius: 35
+                });
 
-            map.addListener('dragstart', () => { userPanned = true; });
-            busMarker.addListener('click', () => {
-                userPanned = false;
-                if (busMarker.getPosition()) {
-                    map.panTo(busMarker.getPosition());
+                map.addListener('dragstart', () => { userPanned = true; });
+                busMarker.addListener('click', () => {
+                    userPanned = false;
+                    if (busMarker.getPosition()) {
+                        map.panTo(busMarker.getPosition());
+                    }
+                });
+
+                mapReady = true;
+                while (pendingCalls.length > 0) {
+                    const call = pendingCalls.shift();
+                    call();
                 }
-            });
-
-            mapReady = true;
-            while (pendingCalls.length > 0) {
-                const call = pendingCalls.shift();
-                call();
+            } catch (e) {
+                notifyMapError("Google Maps initialization exception: " + e.message);
+                activateLeafletFallback();
             }
         }
 
-        // Checks if a location ping is valid for the current route (rejects California emulator pings > 100km)
         function isLocationValidForRoute(lat, lng) {
             if (!routeBounds || !google.maps.geometry || !google.maps.geometry.spherical) return true;
             const center = routeBounds.getCenter();
             const pos = new google.maps.LatLng(lat, lng);
             const distMeters = google.maps.geometry.spherical.computeDistanceBetween(center, pos);
-            return distMeters <= 100000; // 100 km radius
+            return distMeters <= 100000;
         }
 
         window.moveBus = function (lat, lng, headingDeg) {
-            if (!mapReady) { pendingCalls.push(() => window.moveBus(lat, lng, headingDeg)); return; }
             if (!lat || !lng) return;
             lat = Number(lat);
             lng = Number(lng);
             if (isNaN(lat) || isNaN(lng) || lat === 0 || lng === 0) return;
 
-            // Reject invalid GPS pings (e.g. Android emulator default location in California)
+            if (isLeafletFallback) {
+                if (!leafletBusMarker) return;
+                const latlng = [lat, lng];
+                leafletBusMarker.setLatLng(latlng);
+
+                if (leafletLivePolyline) {
+                    const pts = leafletLivePolyline.getLatLngs();
+                    if (pts.length > 0) {
+                        const lastPt = pts[pts.length - 1];
+                        const distM = leafletMap.distance(lastPt, latlng);
+                        if (distM > 3000) {
+                            // Jumped more than 3km (old location ping) -> clear polyline to avoid straight line
+                            leafletLivePolyline.setLatLngs([latlng]);
+                        } else {
+                            leafletLivePolyline.addLatLng(latlng);
+                        }
+                    } else {
+                        leafletLivePolyline.addLatLng(latlng);
+                    }
+                }
+
+                currentLat = lat;
+                currentLng = lng;
+                leafletMap.panTo(latlng);
+                return;
+            }
+
+            if (!mapReady) { pendingCalls.push(() => window.moveBus(lat, lng, headingDeg)); return; }
+
             if (!isLocationValidForRoute(lat, lng)) {
                 console.warn('GPS ping ignored because it is out of route bounds:', lat, lng);
                 return;
@@ -167,15 +339,13 @@
             const newPos = new google.maps.LatLng(lat, lng);
             busMarker.setVisible(true);
 
-            if (currentLat === null) {
-                currentLat = lat;
-                currentLng = lng;
+            if (busMarker.getPosition() === null) {
                 busMarker.setPosition(newPos);
                 accuracyCircle.setCenter(newPos);
             } else {
                 let heading = headingDeg;
                 if ((heading === null || heading === undefined || heading === 0) && google.maps.geometry && google.maps.geometry.spherical) {
-                    const fromPos = new google.maps.LatLng(currentLat, currentLng);
+                    const fromPos = busMarker.getPosition();
                     const dist = google.maps.geometry.spherical.computeDistanceBetween(fromPos, newPos);
                     if (dist > 2) {
                         heading = google.maps.geometry.spherical.computeHeading(fromPos, newPos);
@@ -189,23 +359,31 @@
                     busMarker.setIcon(getBusIcon(lastHeading));
                 }
 
-                animateTo(currentLat, currentLng, lat, lng, 1200);
-                currentLat = lat;
-                currentLng = lng;
+                animateTo(currentLat || lat, currentLng || lng, lat, lng, 1200);
             }
+            currentLat = lat;
+            currentLng = lng;
         };
 
         window.setRouteStops = function (stopsJson) {
+            const stops = typeof stopsJson === 'string' ? JSON.parse(stopsJson) : stopsJson;
+            const validStops = stops.filter(s => s.lat && s.lng && (Number(s.lat) !== 0 || Number(s.lng) !== 0));
+            validStops.sort((a, b) => Number(a.order) - Number(b.order));
+            lastValidStops = validStops;
+
+            if (isLeafletFallback) {
+                renderLeafletStops(validStops);
+                return;
+            }
+
             if (!mapReady) { pendingCalls.push(() => window.setRouteStops(stopsJson)); return; }
 
             stopMarkers.forEach(m => m.setMap(null));
             stopMarkers = [];
 
-            const stops = typeof stopsJson === 'string' ? JSON.parse(stopsJson) : stopsJson;
             const pathCoords = [];
             const bounds = new google.maps.LatLngBounds();
 
-            const validStops = stops.filter(s => s.lat && s.lng);
             const minOrder = validStops.length ? Math.min(...validStops.map(s => s.order)) : null;
             const maxOrder = validStops.length ? Math.max(...validStops.map(s => s.order)) : null;
 
@@ -255,7 +433,7 @@
 
                 const infoWin = new google.maps.InfoWindow({
                     content: `<div style="font-size:13px;font-weight:bold">${isStart ? '🟢 Start · ' : isEnd ? '🏁 End · ' : ''}${stop.label}</div>
-                            <div style="font-size:11px;color:#666">Stop ${stop.order} · ${stop.status}</div>`
+                                <div style="font-size:11px;color:#666">Stop ${stop.order} · ${stop.status}</div>`
                 });
                 marker.addListener('click', () => infoWin.open(map, marker));
                 stopMarkers.push(marker);
@@ -265,16 +443,11 @@
             routeBounds = null;
 
             if (pathCoords.length > 0) {
-                routePath = new google.maps.Polyline({
-                    map, path: pathCoords, geodesic: true,
-                    strokeColor: '#2563eb', strokeOpacity: 0.85, strokeWeight: 5
-                });
-
                 if (!bounds.isEmpty()) {
                     routeBounds = bounds;
                 }
 
-                // ALWAYS display bus icon immediately at Stop 1 (Start Point) on route load
+                // Place bus at Stop #1 initially
                 currentLat = pathCoords[0].lat;
                 currentLng = pathCoords[0].lng;
                 const startPos = new google.maps.LatLng(currentLat, currentLng);
@@ -287,11 +460,49 @@
                 if (!userPanned && map) {
                     map.fitBounds(routeBounds, 50);
                 }
+
+                if (validStops.length >= 2) {
+                    const waypoints = validStops.map(s => `${Number(s.lng)},${Number(s.lat)}`).join(';');
+                    const url = `https://router.project-osrm.org/route/v1/driving/${waypoints}?overview=full&geometries=geojson`;
+
+                    fetch(url)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.routes && data.routes.length > 0) {
+                                const roadCoords = data.routes[0].geometry.coordinates.map(c => new google.maps.LatLng(c[1], c[0]));
+                                if (routePath) routePath.setMap(null);
+                                routePath = new google.maps.Polyline({
+                                    map: map,
+                                    path: roadCoords,
+                                    geodesic: true,
+                                    strokeColor: '#2563eb',
+                                    strokeOpacity: 0.85,
+                                    strokeWeight: 6,
+                                    zIndex: 5
+                                });
+                            }
+                        })
+                        .catch(e => console.warn('OSRM road routing fallback:', e));
+                }
             }
         };
 
         window.onTripEnded = function () {
+            if (isLeafletFallback) {
+                if (leafletBusMarker && lastValidStops && lastValidStops.length > 0) {
+                    const lastStop = lastValidStops[lastValidStops.length - 1];
+                    leafletBusMarker.setLatLng([Number(lastStop.lat), Number(lastStop.lng)]);
+                    leafletBusMarker.bindPopup('<b style="color:#ef4444">🏁 Trip Ended</b>').openPopup();
+                }
+                return;
+            }
             if (!mapReady) { pendingCalls.push(() => window.onTripEnded()); return; }
+
+            if (lastValidStops && lastValidStops.length > 0) {
+                const lastStop = lastValidStops[lastValidStops.length - 1];
+                busMarker.setPosition(new google.maps.LatLng(Number(lastStop.lat), Number(lastStop.lng)));
+            }
+
             const infoWin = new google.maps.InfoWindow({
                 content: '<div style="font-size:14px;font-weight:bold;color:#ef4444">🏁 Trip Ended</div>'
             });
@@ -322,12 +533,8 @@
         }
     </script>
 
-    <!--
-      YOUR_GOOGLE_MAPS_API_KEY is replaced at runtime by GoogleMapKeyHolder.GetMapHtmlAsync()
-      which reads the key from AppConfig table (key: "GoogleMapApiKey").
-      Never hardcode the real key here.
-    -->
     <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap&libraries=geometry"
+            onerror="onGoogleMapsScriptError()"
             async defer></script>
 </body>
 </html>

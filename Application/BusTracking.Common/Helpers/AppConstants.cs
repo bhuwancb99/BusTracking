@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Helpers
+namespace BusTracking.Common.Helpers
 {
     public static class AppConstants
     {
@@ -22,6 +22,20 @@
         public const int MaxPageSize = 100;
 
         public const string AppConfigPageSizeKey = "AppConfigPageSize";
+        public const string AppConfigTrackingHubUrlKey = "TrackingHubUrl";
+
+        /// <summary>
+        /// Formats base API URL from AppConfig (e.g. "https://xyz.xyz.com")
+        /// by appending "/hubs/tracking". Checks if URL ends with "/" to append "hubs/tracking" or "/hubs/tracking".
+        /// </summary>
+        public static string FormatTrackingHubUrl(string? rawUrl)
+        {
+            if (string.IsNullOrWhiteSpace(rawUrl)) return "";
+            var trimmed = rawUrl.Trim();
+            if (trimmed.EndsWith("/hubs/tracking", System.StringComparison.OrdinalIgnoreCase))
+                return trimmed;
+            return trimmed.EndsWith("/") ? $"{trimmed}hubs/tracking" : $"{trimmed}/hubs/tracking";
+        }
 
         // GPS ping interval (seconds) — used in MAUI
         public const int GpsPingIntervalSeconds = 10;

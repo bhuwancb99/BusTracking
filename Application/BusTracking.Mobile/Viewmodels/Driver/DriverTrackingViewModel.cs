@@ -243,16 +243,16 @@ namespace BusTracking.Mobile.Viewmodels.Driver
                     speed.HasValue ? (decimal?)speed : null,
                     heading.HasValue ? (decimal?)heading : null);
             }
-            else
+
+            // Persist GPS ping to BusLiveLocations database table
+            await _driverTrip.PingLocationAsync(TripId, new LocationPingRequest
             {
-                await _driverTrip.PingLocationAsync(TripId, new LocationPingRequest
-                {
-                    Latitude = lat,
-                    Longitude = lng,
-                    Speed = speed,
-                    Heading = heading
-                });
-            }
+                TripId = TripId,
+                Latitude = lat,
+                Longitude = lng,
+                Speed = speed,
+                Heading = heading
+            });
         }
 
         // ── Mark stop Reached (Step-by-step rule) ─────────────────────────

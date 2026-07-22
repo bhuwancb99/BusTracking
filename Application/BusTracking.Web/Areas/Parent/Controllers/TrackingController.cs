@@ -44,6 +44,8 @@ namespace BusTracking.Web.Areas.Parent.Controllers
 
             ViewBag.SelectedStudent = selectedStudent;
             ViewBag.GoogleMapApiKey = await _appConfig.GetValueAsync("GoogleMapApiKey") ?? "";
+            var rawHubUrl = await _appConfig.GetValueAsync(AppConstants.AppConfigTrackingHubUrlKey);
+            ViewBag.TrackingHubUrl = AppConstants.FormatTrackingHubUrl(rawHubUrl);
 
             if (selectedStudent?.BusId == null)
             {

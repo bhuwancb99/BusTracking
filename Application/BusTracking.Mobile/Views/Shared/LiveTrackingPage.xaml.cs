@@ -34,6 +34,39 @@ public partial class LiveTrackingPage : ViewBase<LiveTrackingViewModel>
 
         if (MapWebView != null)
         {
+            MapWebView.Navigating += async (s, e) =>
+            {
+                if (e.Url != null && e.Url.StartsWith("applog://maperror", StringComparison.OrdinalIgnoreCase))
+                {
+                    e.Cancel = true;
+                    try
+                    {
+                        var uri = new Uri(e.Url);
+                        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+                        var errorMsg = query["message"] ?? "Google Maps error / limit reached.";
+
+                        // 1. Console Log
+                        Console.WriteLine($"[MAP ERROR CONSOLE] {errorMsg}");
+                        System.Diagnostics.Debug.WriteLine($"[MAP ERROR CONSOLE] {errorMsg}");
+
+                        // 2. Database Logger Table Entry
+                        var logService = IPlatformApplication.Current?.Services.GetService<IMobileLogService>();
+                        if (logService != null)
+                        {
+                            await logService.LogEventAsync(
+                                message: $"Map Load/Auth Error: {errorMsg}",
+                                moduleName: "LiveTracking",
+                                actionName: "GoogleMapAuthError",
+                                additionalDetails: $"GoogleMapApiKey: {GoogleMapKeyHolder.ApiKey}");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[MAP ERROR PARSE EX] {ex.Message}");
+                    }
+                }
+            };
+
             MapWebView.Navigated += async (s, e) =>
             {
                 _webViewReady = true;

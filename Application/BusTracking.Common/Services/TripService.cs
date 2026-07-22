@@ -97,6 +97,7 @@ namespace BusTracking.Common.Services
         public async Task<ApiResponse<BusLocationDto?>> GetLatestLocationAsync(int tripId)
         {
             var loc = await _db.BusLiveLocations
+                .AsNoTracking()
                 .IgnoreQueryFilters()
                 .Where(l => l.TripId == tripId)
                 .OrderByDescending(l => l.RecordedAt)
@@ -114,6 +115,7 @@ namespace BusTracking.Common.Services
         public async Task<ApiResponse<List<BusLocationDto>>> GetLocationHistoryAsync(int tripId)
         {
             var list = await _db.BusLiveLocations
+                .AsNoTracking()
                 .IgnoreQueryFilters()
                 .Where(l => l.TripId == tripId)
                 .OrderBy(l => l.RecordedAt)
