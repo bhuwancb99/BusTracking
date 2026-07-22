@@ -25,11 +25,15 @@ namespace BusTracking.Mobile
         {
             try
             {
+                var isUseMap = await _config.GetValueAsync("IsUseGoogleMap");
+                if (!string.IsNullOrWhiteSpace(isUseMap))
+                    GoogleMapKeyHolder.IsUseGoogleMap = isUseMap;
+
                 var key = await _config.GetValueAsync("GoogleMapApiKey");
                 if (!string.IsNullOrWhiteSpace(key))
                     GoogleMapKeyHolder.ApiKey = key;
             }
-            catch { /* non-fatal — map will show API key error until next launch */ }
+            catch { /* non-fatal — map will use default until next launch */ }
         }
     }
 }

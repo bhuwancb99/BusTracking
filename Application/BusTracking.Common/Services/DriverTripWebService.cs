@@ -74,7 +74,10 @@ namespace BusTracking.Common.Services
         // ── Start / End ────────────────────────────────────────────────────
         public async Task<ApiResponse<bool>> StartTripAsync(int tripId, int driverUserId)
         {
-            var trip = await _db.BusTrips.FindAsync(tripId);
+            var trip = await _db.BusTrips
+                .Include(t => t.Route).ThenInclude(r => r!.Stops)
+                .FirstOrDefaultAsync(t => t.TripId == tripId);
+
             if (trip is null || trip.DriverId != driverUserId)
                 return ApiResponse<bool>.Fail("Trip not found.");
             if (trip.Status != TripStatus.Scheduled)
@@ -86,8 +89,40 @@ namespace BusTracking.Common.Services
                 .Select(u => u.School != null ? u.School.TimeZoneInfoId : null)
                 .FirstOrDefault() ?? "India Standard Time";
 
+            var now = TimeZoneHelper.GetNow(timeZoneId);
             trip.Status = TripStatus.InProgress;
-            trip.StartedAt = TimeZoneHelper.GetNow(timeZoneId);
+            trip.StartedAt = now;
+
+            // 1. Remove old live location history for this trip
+            var oldLocations = await _db.BusLiveLocations
+                .IgnoreQueryFilters()
+                .Where(l => l.TripId == tripId)
+                .ToListAsync();
+            if (oldLocations.Count > 0)
+            {
+                _db.BusLiveLocations.RemoveRange(oldLocations);
+            }
+
+            // 2. Seed initial position at Stop #1 (Start Point)
+            var firstStop = trip.Route?.Stops
+                .Where(s => s.IsActive && s.Latitude.HasValue && s.Longitude.HasValue && s.Latitude != 0 && s.Longitude != 0)
+                .OrderBy(s => s.StopOrder)
+                .FirstOrDefault();
+
+            if (firstStop?.Latitude != null && firstStop?.Longitude != null)
+            {
+                _db.BusLiveLocations.Add(new BusLiveLocation
+                {
+                    TripId = tripId,
+                    BusId = trip.BusId,
+                    Latitude = firstStop.Latitude.Value,
+                    Longitude = firstStop.Longitude.Value,
+                    Speed = 0,
+                    Heading = 0,
+                    RecordedAt = now
+                });
+            }
+
             await _db.SaveChangesAsync();
             return ApiResponse<bool>.Ok(true, "Trip started successfully.");
         }

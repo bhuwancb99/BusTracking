@@ -95,17 +95,18 @@ public partial class DriverTrackingPage : ViewBase<DriverTrackingViewModel>
     {
         base.OnAppearing();
 
-        // Safe check: reload API key if it failed to load during initial startup
-        if (string.IsNullOrWhiteSpace(GoogleMapKeyHolder.ApiKey))
+        // Safe check: reload API key & IsUseGoogleMap from AppConfig
+        try
         {
-            try
-            {
-                var key = await _appConfig.GetValueAsync("GoogleMapApiKey");
-                if (!string.IsNullOrWhiteSpace(key))
-                    GoogleMapKeyHolder.ApiKey = key;
-            }
-            catch { /* offline/error fallback */ }
+            var isUseMap = await _appConfig.GetValueAsync("IsUseGoogleMap");
+            if (!string.IsNullOrWhiteSpace(isUseMap))
+                GoogleMapKeyHolder.IsUseGoogleMap = isUseMap;
+
+            var key = await _appConfig.GetValueAsync("GoogleMapApiKey");
+            if (!string.IsNullOrWhiteSpace(key))
+                GoogleMapKeyHolder.ApiKey = key;
         }
+        catch { /* offline/error fallback */ }
 
         // Inject the API key from AppConfig into the HTML at runtime
         _webViewReady = false;

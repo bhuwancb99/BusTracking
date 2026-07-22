@@ -31,12 +31,9 @@
         let currentLat = null, currentLng = null;
         let animationFrame = null;
         let userPanned = false;
-        let lastHeading = 0;
         let routeBounds = null;
         let mapReady = false;
         const pendingCalls = [];
-
-        // Leaflet Fallback State
         let leafletMap = null;
         let leafletBusMarker = null;
         let leafletPlannedPolyline = null;
@@ -44,6 +41,29 @@
         let leafletStopMarkers = [];
         let isLeafletFallback = false;
         let lastValidStops = [];
+
+        // Configured Map Mode: "1" = Paid Google Map, "0" = Free Leaflet Map
+        const IS_USE_GOOGLE_MAP = "YOUR_IS_USE_GOOGLE_MAP";
+
+        if (IS_USE_GOOGLE_MAP === "0") {
+            console.log("[MapMode] IsUseGoogleMap is 0. Activating Leaflet map immediately.");
+            activateLeafletFallback();
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            if (IS_USE_GOOGLE_MAP === "0") {
+                activateLeafletFallback();
+            }
+        });
+
+        window.addEventListener("load", function () {
+            if (isLeafletFallback && leafletMap) {
+                leafletMap.invalidateSize();
+                if (lastValidStops && lastValidStops.length > 0) {
+                    renderLeafletStops(lastValidStops);
+                }
+            }
+        });
 
         function notifyMapError(msg) {
             console.error("[MapError]", msg);
@@ -91,6 +111,13 @@
                 leafletLivePolyline = L.polyline([], { color: '#2563eb', weight: 6, opacity: 0.9, lineJoin: 'round' }).addTo(leafletMap);
 
                 mapReady = true;
+
+                // Force Leaflet container size recalculation after DOM layout stabilizes
+                [100, 300, 600].forEach(delay => {
+                    setTimeout(() => {
+                        if (leafletMap) leafletMap.invalidateSize();
+                    }, delay);
+                });
 
                 if (lastValidStops && lastValidStops.length > 0) {
                     renderLeafletStops(lastValidStops);
@@ -147,9 +174,23 @@
             const firstStop = validStops[0];
             const startLat = Number(firstStop.lat);
             const startLng = Number(firstStop.lng);
-            leafletBusMarker.setLatLng([startLat, startLng]);
+            currentLat = startLat;
+            currentLng = startLng;
+            if (leafletBusMarker) {
+                leafletBusMarker.setLatLng([startLat, startLng]);
+            }
 
-            leafletMap.fitBounds(bounds, { padding: [50, 50] });
+            // Force Leaflet to recalculate container size and fit bounds to the route!
+            [50, 200, 500].forEach(delay => {
+                setTimeout(() => {
+                    if (leafletMap) {
+                        leafletMap.invalidateSize();
+                        if (bounds.isValid()) {
+                            leafletMap.fitBounds(bounds, { padding: [50, 50] });
+                        }
+                    }
+                }, delay);
+            });
 
             // Fetch road polylines from OSRM strictly adhering to stop order sequence
             if (validStops.length >= 2) {
@@ -165,7 +206,14 @@
                             leafletPlannedPolyline = L.polyline(roadCoords, {
                                 color: '#2563eb', weight: 6, opacity: 0.85, lineJoin: 'round'
                             }).addTo(leafletMap);
-                            leafletMap.fitBounds(leafletPlannedPolyline.getBounds(), { padding: [50, 50] });
+                            [100, 300].forEach(delay => {
+                                setTimeout(() => {
+                                    if (leafletMap && leafletPlannedPolyline) {
+                                        leafletMap.invalidateSize();
+                                        leafletMap.fitBounds(leafletPlannedPolyline.getBounds(), { padding: [50, 50] });
+                                    }
+                                }, delay);
+                            });
                         }
                     })
                     .catch(e => {
@@ -533,8 +581,16 @@
         }
     </script>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_API_KEY&callback=initMap&libraries=geometry"
-            onerror="onGoogleMapsScriptError()"
-            async defer></script>
+    <script>
+        const googleScriptUrl = "GOOGLE_MAPS_SCRIPT_URL";
+        if (googleScriptUrl && googleScriptUrl.length > 5) {
+            const s = document.createElement('script');
+            s.src = googleScriptUrl;
+            s.async = true;
+            s.defer = true;
+            s.onerror = function () { onGoogleMapsScriptError(); };
+            document.head.appendChild(s);
+        }
+    </script>
 </body>
 </html>
