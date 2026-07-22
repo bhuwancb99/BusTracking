@@ -225,6 +225,30 @@ else
 
             let plannedRoadPolyline = null;
             let liveTraveledPolyline = L.polyline([], { color: '#0d6efd', weight: 6, opacity: 0.9, lineJoin: 'round' }).addTo(map);
+            let allRoadCoords = [];
+
+            function updateRemainingRoutePolyline(lat, lng) {
+                if (!allRoadCoords || allRoadCoords.length < 2) return;
+                let closestIdx = 0;
+                let minDist = Infinity;
+
+                for (let i = 0; i < allRoadCoords.length; i++) {
+                    const d = map.distance([lat, lng], allRoadCoords[i]);
+                    if (d < minDist) {
+                        minDist = d;
+                        closestIdx = i;
+                    }
+                }
+
+                const remainingCoords = [[lat, lng]];
+                for (let i = closestIdx + 1; i < allRoadCoords.length; i++) {
+                    remainingCoords.push(allRoadCoords[i]);
+                }
+
+                if (plannedRoadPolyline) {
+                    plannedRoadPolyline.setLatLngs(remainingCoords);
+                }
+            }
 
             // ── OSRM Road Routing (Draws blue line on real roads between stops) ──
             async function drawRoadRoute() {
@@ -236,6 +260,7 @@ else
                     const data = await res.json();
                     if (data.routes && data.routes.length > 0) {
                         const roadCoords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+                        allRoadCoords = roadCoords;
                         if (plannedRoadPolyline) map.removeLayer(plannedRoadPolyline);
                         plannedRoadPolyline = L.polyline(roadCoords, {
                             color: '#1a73e8',
@@ -247,6 +272,8 @@ else
                     }
                 } catch (e) {
                     console.warn("OSRM road routing fallback:", e);
+                    const straightCoords = validStops.map(s => [s.lat, s.lng]);
+                    allRoadCoords = straightCoords;
                 }
             }
 
@@ -258,6 +285,7 @@ else
                 if (!lat || !lng) return;
                 const latlng = [Number(lat), Number(lng)];
                 busMarker.setLatLng(latlng);
+                updateRemainingRoutePolyline(Number(lat), Number(lng));
 
                 // Prevent extra straight line jumps across map
                 const pts = liveTraveledPolyline.getLatLngs();
