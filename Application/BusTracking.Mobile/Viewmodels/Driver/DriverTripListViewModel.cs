@@ -22,6 +22,8 @@ namespace BusTracking.Mobile.Viewmodels.Driver
 
         public override Task InitializeAsync() => RefreshCommand.ExecuteAsync(null);
 
+        public override Task RefreshOnReturnAsync() => RefreshCommand.ExecuteAsync(null);
+
         [RelayCommand]
         private async Task RefreshAsync()
         {

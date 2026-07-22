@@ -17,7 +17,7 @@
 
     <!--  Match status bar UI with all other app pages  -->
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light=White, Dark={StaticResource PageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
     <!--  Top Navigation Header  -->

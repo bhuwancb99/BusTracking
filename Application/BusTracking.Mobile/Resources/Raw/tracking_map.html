@@ -108,7 +108,6 @@
                 });
 
                 leafletBusMarker = L.marker([20.5937, 78.9629], { icon: busDivIcon(0), zIndexOffset: 2000 }).addTo(leafletMap);
-                leafletLivePolyline = L.polyline([], { color: '#2563eb', weight: 6, opacity: 0.9, lineJoin: 'round' }).addTo(leafletMap);
 
                 mapReady = true;
 
@@ -354,22 +353,6 @@
                 if (!leafletBusMarker) return;
                 const latlng = [lat, lng];
                 leafletBusMarker.setLatLng(latlng);
-
-                if (leafletLivePolyline) {
-                    const pts = leafletLivePolyline.getLatLngs();
-                    if (pts.length > 0) {
-                        const lastPt = pts[pts.length - 1];
-                        const distM = leafletMap.distance(lastPt, latlng);
-                        if (distM > 3000) {
-                            // Jumped more than 3km (old location ping) -> clear polyline to avoid straight line
-                            leafletLivePolyline.setLatLngs([latlng]);
-                        } else {
-                            leafletLivePolyline.addLatLng(latlng);
-                        }
-                    } else {
-                        leafletLivePolyline.addLatLng(latlng);
-                    }
-                }
 
                 currentLat = lat;
                 currentLng = lng;

@@ -227,7 +227,6 @@ else
             if (validStops.length > 0) { map.fitBounds(bounds, { padding: [50, 50] }); }
 
             let plannedRoadPolyline = null;
-            let liveTraveledPolyline = L.polyline([], { color: '#0d6efd', weight: 6, opacity: 0.9, lineJoin: 'round' }).addTo(map);
             let allRoadCoords = [];
 
             function updateRemainingRoutePolyline(lat, lng) {
@@ -289,19 +288,6 @@ else
                 const latlng = [Number(lat), Number(lng)];
                 busMarker.setLatLng(latlng);
                 updateRemainingRoutePolyline(Number(lat), Number(lng));
-
-                // Prevent extra straight line jumps across map
-                const pts = liveTraveledPolyline.getLatLngs();
-                if (pts.length > 0) {
-                    const lastPt = pts[pts.length - 1];
-                    if (map.distance(lastPt, latlng) > 3000) {
-                        liveTraveledPolyline.setLatLngs([latlng]);
-                    } else {
-                        liveTraveledPolyline.addLatLng(latlng);
-                    }
-                } else {
-                    liveTraveledPolyline.addLatLng(latlng);
-                }
 
                 if (!firstLocationSet) { map.setView(latlng, 15); firstLocationSet = true; }
                 else map.panTo(latlng);
