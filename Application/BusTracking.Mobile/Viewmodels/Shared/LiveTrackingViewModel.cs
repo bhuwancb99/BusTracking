@@ -38,7 +38,14 @@ namespace BusTracking.Mobile.Viewmodels.Shared
         [ObservableProperty] private string _connectionStatus = "Connecting…";
         [ObservableProperty] private bool _isLive;
         [ObservableProperty] private bool _tripEnded;
+        [ObservableProperty] private bool _isSheetExpanded;
         [ObservableProperty] private ObservableCollection<StopStatus> _stops = [];
+
+        [RelayCommand]
+        private void ToggleSheet()
+        {
+            IsSheetExpanded = !IsSheetExpanded;
+        }
 
         // JS bridge wired by code-behind
         public Action<string>? SendToMap { get; set; }

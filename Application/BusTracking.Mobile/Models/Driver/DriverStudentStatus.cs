@@ -2,7 +2,7 @@ namespace BusTracking.Mobile.Models.Driver
 {
     public partial class DriverStudentStatus : ObservableObject
     {
-        public static Action<DriverStudentStatus>? StatusChangedCallback { get; set; }
+        public static Action<DriverStudentStatus, string?>? StatusChangedCallback { get; set; }
 
         public int StudentId { get; set; }
         public int StopId { get; set; }
@@ -13,6 +13,8 @@ namespace BusTracking.Mobile.Models.Driver
         public bool IsUnavailable { get; set; }
         public string? AvailabilityType { get; set; }
 
+        private bool _isReverting;
+
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(BoardingColor))]
         [NotifyPropertyChangedFor(nameof(BoardingIcon))]
@@ -20,10 +22,20 @@ namespace BusTracking.Mobile.Models.Driver
 
         partial void OnBoardingStatusChanged(string? oldValue, string newValue)
         {
+            if (_isReverting) return;
             if (!string.IsNullOrEmpty(oldValue) && oldValue != newValue)
             {
-                StatusChangedCallback?.Invoke(this);
+                StatusChangedCallback?.Invoke(this, oldValue);
             }
+        }
+
+        public void RevertStatusSilently(string? previousStatus)
+        {
+            if (string.IsNullOrEmpty(previousStatus)) return;
+            _isReverting = true;
+            BoardingStatus = previousStatus;
+            _isReverting = false;
+            NotifyStatusChanged();
         }
 
         public void NotifyStatusChanged()

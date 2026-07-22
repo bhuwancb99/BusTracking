@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:driver="clr-namespace:BusTracking.Mobile.Models.Driver"
     xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:sfBottomSheet="clr-namespace:Syncfusion.Maui.Toolkit.BottomSheet;assembly=Syncfusion.Maui.Toolkit"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Driver"
     x:Name="PageRoot"
@@ -14,12 +15,12 @@
     BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
                                       Dark={StaticResource PageBgDark}}">
 
-    <!--  Match status bar UI with all other app pages (White header background, Dark icons)  -->
+    <!--  Match status bar UI with all other app pages  -->
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light=White, Dark={StaticResource PageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
-    <!--  Top Navigation Header: Live Tracking title center, End Trip button on far right end  -->
+    <!--  Top Navigation Header  -->
     <Shell.TitleView>
         <Grid Padding="0,0,12,0" ColumnDefinitions="Auto,*,Auto">
             <ImageButton
@@ -56,62 +57,112 @@
         </Grid>
     </Shell.TitleView>
 
-    <!--  Full-Screen Layered Grid  -->
-    <Grid>
+    <!--  Full-Screen Layout: Map fills space between header and fixed bottom bar  -->
+    <Grid RowDefinitions="*,Auto">
 
-        <!--  ==============================================================  -->
-        <!--  LAYER 1 — Full Screen Google Maps WebView  -->
-        <!--  ==============================================================  -->
-        <WebView
-            x:Name="MapWebView"
-            HorizontalOptions="Fill"
-            Source="tracking_map.html"
-            VerticalOptions="Fill" />
+        <!--  ROW 0 — Map occupies full screen between header & bottom bar  -->
+        <Grid Grid.Row="0">
+            <!--  Map WebView  -->
+            <WebView
+                x:Name="MapWebView"
+                HorizontalOptions="Fill"
+                Source="tracking_map.html"
+                VerticalOptions="Fill" />
 
-        <!--  ==============================================================  -->
-        <!--  LAYER 2 — Floating Top Speed/GPS Pill (Positioned higher up)  -->
-        <!--  ==============================================================  -->
+            <!--  Floating Top Speed/GPS Pill  -->
+            <Border
+                Margin="0,10,0,0"
+                Padding="14,6"
+                BackgroundColor="White"
+                HorizontalOptions="Center"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0"
+                VerticalOptions="Start">
+                <Border.Shadow>
+                    <Shadow
+                        Brush="#30000000"
+                        Radius="6"
+                        Offset="0,2" />
+                </Border.Shadow>
+                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Live"
+                        TextColor="#1a1a2e"
+                        VerticalOptions="Center" />
+                    <Label
+                        FontSize="12"
+                        Text="•"
+                        TextColor="#22c55e"
+                        VerticalOptions="Center" />
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="{Binding GpsStatus}"
+                        TextColor="#22c55e"
+                        VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
+
+            <!--  LOCATION PERMISSION BANNER  -->
+            <Border
+                Padding="16,14"
+                BackgroundColor="#1a1a2e"
+                IsVisible="{Binding ShowLocationBanner}"
+                StrokeShape="RoundRectangle 20,20,0,0"
+                StrokeThickness="0"
+                VerticalOptions="End">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                    <Border
+                        Grid.Column="0"
+                        Padding="0"
+                        BackgroundColor="#FF6B35"
+                        HeightRequest="40"
+                        StrokeShape="RoundRectangle 20"
+                        WidthRequest="40">
+                        <Image
+                            HeightRequest="20"
+                            HorizontalOptions="Center"
+                            Source="map_pin.svg"
+                            VerticalOptions="Center"
+                            WidthRequest="20" />
+                    </Border>
+
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Spacing="2"
+                        VerticalOptions="Center">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="13"
+                            Text="Location not enabled"
+                            TextColor="White" />
+                        <Label
+                            FontSize="11"
+                            Text="Parents cannot see the bus without your location."
+                            TextColor="#AAAACC" />
+                    </VerticalStackLayout>
+
+                    <Button
+                        Grid.Column="2"
+                        Padding="12,0"
+                        BackgroundColor="#FF6B35"
+                        Command="{Binding RequestLocationCommand}"
+                        CornerRadius="8"
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        HeightRequest="38"
+                        Text="{Binding LocationBannerButtonText}"
+                        TextColor="White" />
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!--  ROW 1 — Fixed Bottom Button Bar (Pinned at bottom of page)  -->
         <Border
-            Margin="0,10,0,0"
-            Padding="14,6"
-            BackgroundColor="White"
-            HorizontalOptions="Center"
-            StrokeShape="RoundRectangle 20"
-            StrokeThickness="0"
-            VerticalOptions="Start">
-            <Border.Shadow>
-                <Shadow
-                    Brush="#30000000"
-                    Radius="6"
-                    Offset="0,2" />
-            </Border.Shadow>
-            <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
-                <Label
-                    FontAttributes="Bold"
-                    FontSize="12"
-                    Text="Live"
-                    TextColor="#1a1a2e"
-                    VerticalOptions="Center" />
-                <Label
-                    FontSize="12"
-                    Text="•"
-                    TextColor="#22c55e"
-                    VerticalOptions="Center" />
-                <Label
-                    FontAttributes="Bold"
-                    FontSize="12"
-                    Text="{Binding GpsStatus}"
-                    TextColor="#22c55e"
-                    VerticalOptions="Center" />
-            </HorizontalStackLayout>
-        </Border>
-
-        <!--  ==============================================================  -->
-        <!--  LAYER 3 — Bottom Flyout Sheet (Collapsible / Expandable)  -->
-        <!--  Default: Collapsed at bottom. Tap header to expand.  -->
-        <!--  ==============================================================  -->
-        <Border
-            Padding="0"
+            Grid.Row="1"
+            Padding="16,12"
             BackgroundColor="{AppThemeBinding Light=White,
                                               Dark={StaticResource CardBgDark}}"
             StrokeShape="RoundRectangle 24,24,0,0"
@@ -124,33 +175,72 @@
                     Offset="0,-4" />
             </Border.Shadow>
 
-            <VerticalStackLayout Padding="16,10,16,16" Spacing="8">
+            <Grid
+                ColumnDefinitions="*,Auto,Auto"
+                ColumnSpacing="10"
+                VerticalOptions="Center">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ToggleSheetCommand}" />
+                </Grid.GestureRecognizers>
 
-                <!--  Swipeable BottomSheet Header (Swipe up/down gesture or tap to expand/collapse)  -->
-                <VerticalStackLayout Spacing="6">
-                    <VerticalStackLayout.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding ToggleSheetCommand}" />
-                        <PanGestureRecognizer PanUpdated="OnHeaderPanUpdated" />
-                    </VerticalStackLayout.GestureRecognizers>
+                <Label
+                    Grid.Column="0"
+                    FontAttributes="Bold"
+                    FontSize="15"
+                    Text="Trip Stops &amp; Students"
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                Dark={StaticResource TextPrimaryDark}}"
+                    VerticalOptions="Center" />
 
-                    <!--  Drag Handle Bar  -->
-                    <BoxView
-                        Margin="0,0,0,4"
-                        BackgroundColor="#cbd5e1"
-                        CornerRadius="2"
-                        HeightRequest="5"
-                        HorizontalOptions="Center"
-                        WidthRequest="48" />
+                <Border
+                    Grid.Column="1"
+                    Padding="10,4"
+                    BackgroundColor="{StaticResource PrimaryLight}"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="0"
+                    VerticalOptions="Center">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="11"
+                        Text="{Binding Stops.Count, StringFormat='Stops: {0}'}"
+                        TextColor="{StaticResource Primary}" />
+                </Border>
 
-                    <!--  Flyout Header: Title & Count Badge  -->
+                <Image
+                    Grid.Column="2"
+                    HeightRequest="20"
+                    Source="chevron_up.svg"
+                    VerticalOptions="Center"
+                    WidthRequest="20" />
+            </Grid>
+        </Border>
+
+        <!--  SYNCFUSION BOTTOM SHEET (White header background & rounded top corners)  -->
+        <sfBottomSheet:SfBottomSheet
+            x:Name="StopsBottomSheet"
+            Grid.RowSpan="2"
+            Background="{AppThemeBinding Light=White,
+                                         Dark={StaticResource CardBgDark}}"
+            CornerRadius="24"
+            FullExpandedRatio="0.88"
+            HalfExpandedRatio="0.65"
+            IsModal="False"
+            IsOpen="{Binding IsSheetExpanded, Mode=TwoWay}">
+            <sfBottomSheet:SfBottomSheet.BottomSheetContent>
+                <Grid BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource CardBgDark}}" RowDefinitions="Auto,*">
+
+                    <!--  Top Header with Title, Badge & Small Close (X) Button  -->
                     <Grid
-                        Margin="4,0"
-                        ColumnDefinitions="*,Auto"
-                        ColumnSpacing="8">
+                        Grid.Row="0"
+                        Padding="16,14"
+                        BackgroundColor="{AppThemeBinding Light=White,
+                                                          Dark={StaticResource CardBgDark}}"
+                        ColumnDefinitions="*,Auto,Auto"
+                        ColumnSpacing="10">
                         <Label
                             Grid.Column="0"
                             FontAttributes="Bold"
-                            FontSize="15"
+                            FontSize="16"
                             Text="Trip Stops &amp; Students"
                             TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                         Dark={StaticResource TextPrimaryDark}}"
@@ -169,16 +259,32 @@
                                 Text="{Binding Stops.Count, StringFormat='Stops: {0}'}"
                                 TextColor="{StaticResource Primary}" />
                         </Border>
+
+                        <!--  Small, clean close button  -->
+                        <Border
+                            Grid.Column="2"
+                            Padding="6"
+                            BackgroundColor="{AppThemeBinding Light=#F1F5F9,
+                                                              Dark=#1E293B}"
+                            HeightRequest="32"
+                            StrokeShape="RoundRectangle 16"
+                            StrokeThickness="0"
+                            VerticalOptions="Center"
+                            WidthRequest="32">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleSheetCommand}" />
+                            </Border.GestureRecognizers>
+                            <Image
+                                HeightRequest="16"
+                                HorizontalOptions="Center"
+                                Source="close.svg"
+                                VerticalOptions="Center"
+                                WidthRequest="16" />
+                        </Border>
                     </Grid>
-                </VerticalStackLayout>
 
-                <!--  Expanded Details Section (Visible ONLY when IsSheetExpanded is True)  -->
-                <VerticalStackLayout
-                    Margin="0,4,0,0"
-                    IsVisible="{Binding IsSheetExpanded}"
-                    Spacing="10">
-
-                    <ScrollView HeightRequest="340">
+                    <!--  Scrollable Content Inside Bottom Sheet  -->
+                    <ScrollView Grid.Row="1" Padding="16,4,16,16">
                         <VerticalStackLayout Spacing="12">
 
                             <!--  Stops & Students Collection  -->
@@ -274,14 +380,15 @@
                                                         </Border>
                                                     </Grid>
 
-                                                    <!--  Action Buttons using SVG vector icons: Reached & Departed  -->
+                                                    <!--  Action Buttons: Reached & Departed with Sequential Rule Enablement  -->
                                                     <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                                                        <!--  Reached Button with reached.svg  -->
+                                                        <!--  Reached Button (Enabled ONLY if previous stop is completed)  -->
                                                         <Border
                                                             Grid.Column="0"
                                                             BackgroundColor="{StaticResource Primary}"
                                                             HeightRequest="36"
-                                                            IsEnabled="{Binding Status, Converter={StaticResource EqualsToPending}}"
+                                                            IsEnabled="{Binding CanMarkReached}"
+                                                            Opacity="{Binding ReachedOpacity}"
                                                             StrokeShape="RoundRectangle 8"
                                                             StrokeThickness="0">
                                                             <Border.GestureRecognizers>
@@ -305,12 +412,13 @@
                                                             </HorizontalStackLayout>
                                                         </Border>
 
-                                                        <!--  Departed Button with departed.svg  -->
+                                                        <!--  Departed Button (Enabled ONLY if stop is Reached)  -->
                                                         <Border
                                                             Grid.Column="1"
                                                             BackgroundColor="{StaticResource Success}"
                                                             HeightRequest="36"
-                                                            IsEnabled="{Binding Status, Converter={StaticResource EqualsToReached}}"
+                                                            IsEnabled="{Binding CanMarkDeparted}"
+                                                            Opacity="{Binding DepartedOpacity}"
                                                             StrokeShape="RoundRectangle 8"
                                                             StrokeThickness="0">
                                                             <Border.GestureRecognizers>
@@ -404,7 +512,7 @@
                                                                                                             Dark={StaticResource TextSecondaryDark}}" />
                                                                         </VerticalStackLayout>
 
-                                                                        <!--  Student Status Picker Dropdown (matching website dropdown options: Pending, PickedUp, NoShow, OnLeave)  -->
+                                                                        <!--  Student Status Picker Dropdown  -->
                                                                         <Border
                                                                             Grid.Column="2"
                                                                             Padding="8,0"
@@ -443,65 +551,9 @@
 
                         </VerticalStackLayout>
                     </ScrollView>
-                </VerticalStackLayout>
-
-            </VerticalStackLayout>
-        </Border>
-
-        <!--  ==============================================================  -->
-        <!--  LOCATION PERMISSION BANNER  -->
-        <!--  ==============================================================  -->
-        <Border
-            Padding="16,14"
-            BackgroundColor="#1a1a2e"
-            IsVisible="{Binding ShowLocationBanner}"
-            StrokeShape="RoundRectangle 20,20,0,0"
-            StrokeThickness="0"
-            VerticalOptions="End">
-            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-                <Border
-                    Grid.Column="0"
-                    Padding="0"
-                    BackgroundColor="#FF6B35"
-                    HeightRequest="40"
-                    StrokeShape="RoundRectangle 20"
-                    WidthRequest="40">
-                    <Image
-                        HeightRequest="20"
-                        HorizontalOptions="Center"
-                        Source="map_pin.svg"
-                        VerticalOptions="Center"
-                        WidthRequest="20" />
-                </Border>
-
-                <VerticalStackLayout
-                    Grid.Column="1"
-                    Spacing="2"
-                    VerticalOptions="Center">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="13"
-                        Text="Location not enabled"
-                        TextColor="White" />
-                    <Label
-                        FontSize="11"
-                        Text="Parents cannot see the bus without your location."
-                        TextColor="#AAAACC" />
-                </VerticalStackLayout>
-
-                <Button
-                    Grid.Column="2"
-                    Padding="12,0"
-                    BackgroundColor="#FF6B35"
-                    Command="{Binding RequestLocationCommand}"
-                    CornerRadius="8"
-                    FontAttributes="Bold"
-                    FontSize="12"
-                    HeightRequest="38"
-                    Text="{Binding LocationBannerButtonText}"
-                    TextColor="White" />
-            </Grid>
-        </Border>
+                </Grid>
+            </sfBottomSheet:SfBottomSheet.BottomSheetContent>
+        </sfBottomSheet:SfBottomSheet>
 
     </Grid>
 </views:ViewBase>

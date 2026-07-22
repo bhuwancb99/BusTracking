@@ -11,7 +11,24 @@ namespace BusTracking.Mobile.Models.Driver
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(StatusColor))]
         [NotifyPropertyChangedFor(nameof(StatusLabel))]
+        [NotifyPropertyChangedFor(nameof(CanMarkReached))]
+        [NotifyPropertyChangedFor(nameof(CanMarkDeparted))]
+        [NotifyPropertyChangedFor(nameof(ReachedOpacity))]
+        [NotifyPropertyChangedFor(nameof(DepartedOpacity))]
         private string _status = "Pending"; // Pending | Reached | Departed
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(CanMarkReached))]
+        [NotifyPropertyChangedFor(nameof(ReachedOpacity))]
+        private bool _isPreviousCompleted = true; // Set by ViewModel to enforce stop-by-stop sequence
+
+        public bool CanMarkReached => Status == "Pending" && IsPreviousCompleted;
+
+        public bool CanMarkDeparted => Status == "Reached";
+
+        public double ReachedOpacity => CanMarkReached ? 1.0 : 0.35;
+
+        public double DepartedOpacity => CanMarkDeparted ? 1.0 : 0.35;
 
         public DateTime? ReachedAt { get; set; }
         public DateTime? DepartedAt { get; set; }

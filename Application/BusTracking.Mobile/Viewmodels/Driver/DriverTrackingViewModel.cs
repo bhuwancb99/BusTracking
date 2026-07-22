@@ -81,17 +81,18 @@ namespace BusTracking.Mobile.Viewmodels.Driver
                     }
 
                     Stops = new ObservableCollection<DriverTripStop>(stopsList);
+                    UpdateSequentialStopStates();
                     IsEmpty = Stops.Count == 0;
                     SelectedStop = Stops.FirstOrDefault(s => s.Status != "Departed")
                                 ?? Stops.FirstOrDefault();
 
                     UpdateMapStops();
 
-                    DriverStudentStatus.StatusChangedCallback = (student) =>
+                    DriverStudentStatus.StatusChangedCallback = (student, previousStatus) =>
                     {
                         MainThread.BeginInvokeOnMainThread(async () =>
                         {
-                            await ChangeStudentStatusAsync(student);
+                            await ChangeStudentStatusAsync(student, previousStatus);
                         });
                     };
                 }
@@ -255,6 +256,23 @@ namespace BusTracking.Mobile.Viewmodels.Driver
             });
         }
 
+        private void UpdateSequentialStopStates()
+        {
+            if (Stops == null || Stops.Count == 0) return;
+
+            for (int i = 0; i < Stops.Count; i++)
+            {
+                if (i == 0)
+                {
+                    Stops[i].IsPreviousCompleted = true;
+                }
+                else
+                {
+                    Stops[i].IsPreviousCompleted = Stops[i - 1].Status == "Departed";
+                }
+            }
+        }
+
         // ── Mark stop Reached (Step-by-step rule) ─────────────────────────
         [RelayCommand]
         private async Task MarkReachedAsync(DriverTripStop stop)
@@ -275,6 +293,7 @@ namespace BusTracking.Mobile.Viewmodels.Driver
                 {
                     stop.Status = "Reached";
                     stop.ReachedAt = DateTime.UtcNow;
+                    UpdateSequentialStopStates();
                     UpdateMapStops();
                     await ShowToastAsync($"Reached '{stop.StopName}'");
                 }
@@ -305,6 +324,7 @@ namespace BusTracking.Mobile.Viewmodels.Driver
                 {
                     stop.Status = "Departed";
                     stop.DepartedAt = DateTime.UtcNow;
+                    UpdateSequentialStopStates();
                     UpdateMapStops();
                     await ShowToastAsync($"Departed '{stop.StopName}'");
                 }
@@ -316,14 +336,14 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         }
 
         // ── Update student boarding ───────────────────────────────────────
-        [RelayCommand]
-        private async Task ChangeStudentStatusAsync(DriverStudentStatus student)
+        private async Task ChangeStudentStatusAsync(DriverStudentStatus student, string? previousStatus = null)
         {
             if (student is null || string.IsNullOrEmpty(student.BoardingStatus)) return;
 
             var targetStop = Stops.FirstOrDefault(s => s.Students.Any(st => st.StudentId == student.StudentId));
             if (targetStop != null && targetStop.Status != "Reached")
             {
+                student.RevertStatusSilently(previousStatus);
                 SetError($"Student boarding status can only be updated when stop '{targetStop.StopName}' is Reached.");
                 return;
             }
@@ -349,6 +369,7 @@ namespace BusTracking.Mobile.Viewmodels.Driver
                 }
                 else
                 {
+                    student.RevertStatusSilently(previousStatus);
                     SetError(r.Message);
                 }
             });
@@ -360,8 +381,9 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         {
             var (student, status) = args;
             if (student is null || string.IsNullOrEmpty(status)) return;
+            var oldStatus = student.BoardingStatus;
             student.BoardingStatus = status;
-            await ChangeStudentStatusAsync(student);
+            await ChangeStudentStatusAsync(student, oldStatus);
         }
 
         // ── End trip ──────────────────────────────────────────────────────
