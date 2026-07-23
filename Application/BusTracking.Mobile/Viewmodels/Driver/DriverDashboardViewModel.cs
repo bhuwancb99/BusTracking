@@ -25,10 +25,15 @@ namespace BusTracking.Mobile.Viewmodels.Driver
             var user = await Auth.GetCurrentUserAsync();
             WelcomeText = $"Hi, {user?.FullName?.Split(' ')?.FirstOrDefault() ?? "Driver"}";
             TodayDate = DateTime.Now.ToString("dddd, dd MMMM yyyy");
+            await CheckNotificationPermissionAsync(requestIfFirstTime: true);
             await RefreshCommand.ExecuteAsync(null);
         }
 
-        public override Task RefreshOnReturnAsync() => RefreshCommand.ExecuteAsync(null);
+        public override async Task RefreshOnReturnAsync()
+        {
+            await CheckNotificationPermissionAsync(requestIfFirstTime: false);
+            await RefreshCommand.ExecuteAsync(null);
+        }
 
         [RelayCommand]
         private async Task RefreshAsync()

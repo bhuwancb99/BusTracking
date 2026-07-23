@@ -16,6 +16,7 @@ namespace BusTracking.Mobile.Services
         // Events the ViewModels subscribe to
         public event Action<decimal, decimal, decimal?, decimal?, string>? OnLocationReceived;
         public event Action<int>? OnTripEnded;
+        public event Action<int, string, string, string, string, string, string>? OnTripStartedAlert;
         public event Action<string?>? OnConnectionStateChanged;
 
         // ──────────────────────────────────────────────────────────────────
@@ -57,6 +58,11 @@ namespace BusTracking.Mobile.Services
 
             _hub.On<int>("TripEnded",
                 tripId => OnTripEnded?.Invoke(tripId));
+
+            _hub.On<int, string, string, string, string, string, string>(
+                "TripStartedAlert",
+                (tripId, driverName, driverPhotoUrl, busName, routeName, fromStop, toStop) =>
+                    OnTripStartedAlert?.Invoke(tripId, driverName, driverPhotoUrl, busName, routeName, fromStop, toStop));
 
             _hub.Reconnecting += ex => { OnConnectionStateChanged?.Invoke("Reconnecting\u2026"); return Task.CompletedTask; };
             _hub.Reconnected += _ => { OnConnectionStateChanged?.Invoke(null); return Task.CompletedTask; };

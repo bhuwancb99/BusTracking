@@ -47,10 +47,11 @@
 		<key>NSLocationAlwaysUsageDescription</key>
 		<string>Bus location is tracked in the background so parents can see the bus even when you lock your screen.</string>
 
-		<!-- Background modes — "location" keeps CLLocationManager running when screen locks -->
+		<!-- Background modes — location & push notifications -->
 		<key>UIBackgroundModes</key>
 		<array>
 			<string>location</string>
+			<string>remote-notification</string>
 		</array>
 	</dict>
 </plist>

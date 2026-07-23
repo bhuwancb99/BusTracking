@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="BusTracking.Mobile.Views.Common.TripStartAlertPopupPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="#99000000">
+
+    <Grid
+        Padding="20"
+        HorizontalOptions="Center"
+        VerticalOptions="Center">
+
+        <!--  Call-Style Alert Card  -->
+        <Border
+            Padding="24"
+            BackgroundColor="{AppThemeBinding Light=White,
+                                              Dark={StaticResource CardBgDark}}"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                     Dark={StaticResource BorderColorDark}}"
+            StrokeShape="RoundRectangle 24"
+            StrokeThickness="1"
+            WidthRequest="340">
+
+            <Border.Shadow>
+                <Shadow
+                    Brush="#40000000"
+                    Radius="16"
+                    Offset="0,4" />
+            </Border.Shadow>
+
+            <VerticalStackLayout Spacing="16">
+
+                <!--  Top Header Badge  -->
+                <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="13"
+                            Text="LIVE TRIP ALERT"
+                            TextColor="{StaticResource Primary}" />
+                        <Label
+                            FontSize="11"
+                            Text="Bus Service Notification"
+                            TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                    </VerticalStackLayout>
+
+                    <Border
+                        Grid.Column="1"
+                        Padding="8,4"
+                        BackgroundColor="{StaticResource SuccessLight}"
+                        StrokeShape="RoundRectangle 10"
+                        StrokeThickness="0">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="11"
+                            Text="TRIP STARTED"
+                            TextColor="{StaticResource SuccessDark}" />
+                    </Border>
+                </Grid>
+
+                <BoxView BackgroundColor="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}" HeightRequest="1" />
+
+                <!--  Driver Profile & Bus Card  -->
+                <Grid
+                    ColumnDefinitions="*,Auto"
+                    ColumnSpacing="12"
+                    VerticalOptions="Center">
+                    <VerticalStackLayout
+                        Grid.Column="0"
+                        Spacing="4"
+                        VerticalOptions="Center">
+                        <Label
+                            x:Name="LblDriverName"
+                            FontAttributes="Bold"
+                            FontSize="18"
+                            Text="Driver"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+
+                        <Label
+                            x:Name="LblBusInfo"
+                            FontSize="13"
+                            Text="Assigned Bus"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                    </VerticalStackLayout>
+
+                    <!--  Driver Avatar Circle  -->
+                    <Border
+                        Grid.Column="1"
+                        Padding="0"
+                        HeightRequest="64"
+                        Stroke="{StaticResource Primary}"
+                        StrokeShape="RoundRectangle 32"
+                        StrokeThickness="2"
+                        VerticalOptions="Center"
+                        WidthRequest="64">
+                        <Image
+                            x:Name="ImgDriverPhoto"
+                            Aspect="AspectFill"
+                            HeightRequest="64"
+                            Source="driver_avatar.png"
+                            WidthRequest="64" />
+                    </Border>
+                </Grid>
+
+                <!--  Route From - To Description Card  -->
+                <Border
+                    Padding="14"
+                    BackgroundColor="{AppThemeBinding Light=#F8FAFC,
+                                                      Dark=#1E293B}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 14"
+                    StrokeThickness="1">
+
+                    <VerticalStackLayout Spacing="8">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            Text="ROUTE DETAILS"
+                            TextColor="{StaticResource Primary}" />
+
+                        <Label
+                            x:Name="LblRouteName"
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            Text="Route Name"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+
+                        <Grid
+                            ColumnDefinitions="*,Auto,*"
+                            ColumnSpacing="6"
+                            VerticalOptions="Center">
+                            <Label
+                                x:Name="LblFromStop"
+                                FontSize="12"
+                                HorizontalOptions="Start"
+                                Text="Start Point"
+                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                            Dark={StaticResource TextSecondaryDark}}" />
+
+                            <Label
+                                Grid.Column="1"
+                                FontSize="14"
+                                Text="➔"
+                                TextColor="{StaticResource Primary}" />
+
+                            <Label
+                                x:Name="LblToStop"
+                                Grid.Column="2"
+                                FontSize="12"
+                                HorizontalOptions="End"
+                                Text="End Point"
+                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                            Dark={StaticResource TextSecondaryDark}}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Bottom Close & Stop Ringing Button  -->
+                <Button
+                    BackgroundColor="{StaticResource Danger}"
+                    Clicked="OnCloseButtonClicked"
+                    CornerRadius="14"
+                    FontAttributes="Bold"
+                    FontSize="15"
+                    HeightRequest="50"
+                    Text="✖ Close &amp; Stop Ringing"
+                    TextColor="White" />
+
+            </VerticalStackLayout>
+
+        </Border>
+
+    </Grid>
+
+</ContentPage>

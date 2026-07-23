@@ -16,6 +16,7 @@ public static class Constants
     public const string ApiBaseUrl = "https://api.bustracking.com";
 #endif
 
+    public const string DeviceToken = "/api/notifications/device-token";
 
     // ── Auth  →  AuthController  [Route("api/[controller]")] ─────────────
     public static class Auth

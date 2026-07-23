@@ -17,6 +17,13 @@ namespace BusTracking.Mobile.Viewmodels.Parent
             var user = await Auth.GetCurrentUserAsync();
             WelcomeText = $"Welcome back, {user?.FullName?.Split(' ')?.FirstOrDefault() ?? ""} 👋";
             TodayLabel = DateTime.Today.ToString("dddd, dd MMMM yyyy");
+            await CheckNotificationPermissionAsync(requestIfFirstTime: true);
+            await RefreshCommand.ExecuteAsync(null);
+        }
+
+        public override async Task RefreshOnReturnAsync()
+        {
+            await CheckNotificationPermissionAsync(requestIfFirstTime: false);
             await RefreshCommand.ExecuteAsync(null);
         }
 

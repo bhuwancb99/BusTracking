@@ -124,7 +124,7 @@
                         <Image
                             HeightRequest="20"
                             HorizontalOptions="Center"
-                            Source="map_pin.svg"
+                            Source="map_pin.png"
                             VerticalOptions="Center"
                             WidthRequest="20" />
                     </Border>
@@ -209,7 +209,7 @@
                 <Image
                     Grid.Column="2"
                     HeightRequest="20"
-                    Source="chevron_up.svg"
+                    Source="chevron_up.png"
                     VerticalOptions="Center"
                     WidthRequest="20" />
             </Grid>
@@ -277,7 +277,7 @@
                             <Image
                                 HeightRequest="16"
                                 HorizontalOptions="Center"
-                                Source="close.svg"
+                                Source="close.png"
                                 VerticalOptions="Center"
                                 WidthRequest="16" />
                         </Border>
@@ -400,7 +400,7 @@
                                                                 VerticalOptions="Center">
                                                                 <Image
                                                                     HeightRequest="15"
-                                                                    Source="reached.svg"
+                                                                    Source="reached.png"
                                                                     VerticalOptions="Center"
                                                                     WidthRequest="15" />
                                                                 <Label
@@ -430,7 +430,7 @@
                                                                 VerticalOptions="Center">
                                                                 <Image
                                                                     HeightRequest="15"
-                                                                    Source="departed.svg"
+                                                                    Source="departed.png"
                                                                     VerticalOptions="Center"
                                                                     WidthRequest="15" />
                                                                 <Label

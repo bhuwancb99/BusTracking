@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
 	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true">
+
+		<!-- Remove plugin-provided generated service to prevent startup crash -->
+		<service
+			android:name="crc64d2dcc2805d51c0a8.MyFirebaseMessagingService"
+			tools:node="remove" />
 
 		<!--
 		    Google Maps API key for native Android Maps SDK (if used).
@@ -20,6 +25,20 @@
 			android:exported="false"
 			android:foregroundServiceType="location" />
 
+		<!-- Firebase Cloud Messaging Receivers -->
+		<receiver
+			android:name="com.google.firebase.iid.FirebaseInstanceIdInternalReceiver"
+			android:exported="false" />
+		<receiver
+			android:name="com.google.firebase.iid.FirebaseInstanceIdReceiver"
+			android:exported="true"
+			android:permission="com.google.android.c2dm.permission.SEND">
+			<intent-filter>
+				<action android:name="com.google.android.c2dm.intent.RECEIVE" />
+				<action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+				<category android:name="${applicationId}" />
+			</intent-filter>
+		</receiver>
 	</application>
 
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -35,6 +54,12 @@
 	<!-- Foreground Service — required to show the persistent notification -->
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 	<uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+
+	<!-- Permissions for Push Notifications and Call-Style Ringing Alert -->
+	<uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+	<uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
+	<uses-permission android:name="android.permission.VIBRATE" />
+	<uses-permission android:name="android.permission.WAKE_LOCK" />
 
 	<!-- Needed for Picking photo/video -->
 	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />

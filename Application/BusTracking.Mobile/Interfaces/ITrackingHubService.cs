@@ -25,6 +25,7 @@ namespace BusTracking.Mobile.Interfaces
         // ── Events raised on the consumer (ViewModel) ───────────────────────
         event Action<decimal, decimal, decimal?, decimal?, string> OnLocationReceived;
         event Action<int> OnTripEnded;
+        event Action<int, string, string, string, string, string, string>? OnTripStartedAlert;
         event Action<string?> OnConnectionStateChanged;
     }
 }

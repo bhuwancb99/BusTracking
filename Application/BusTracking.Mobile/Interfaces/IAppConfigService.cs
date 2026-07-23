@@ -12,6 +12,10 @@ namespace BusTracking.Mobile.Interfaces
         /// <returns></returns>
         Task<bool> IsMobileImageUpdateEnabledAsync();
         /// <summary>
+        /// Returns true when IsAllowPushNotification = "1" in AppConfig.
+        /// </summary>
+        Task<bool> IsAllowPushNotificationAsync();
+        /// <summary>
         /// Returns the WebsiteImageUrl config value (base URL for images when mobile upload is disabled).
         /// </summary>
         /// <returns></returns>

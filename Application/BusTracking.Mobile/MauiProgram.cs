@@ -13,6 +13,35 @@ namespace BusTracking.Mobile
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                })
+                .ConfigureLifecycleEvents(events =>
+                {
+#if ANDROID
+                    events.AddAndroid(android => android.OnCreate((activity, state) =>
+                    {
+                        try
+                        {
+                            Plugin.Firebase.Bundled.Platforms.Android.CrossFirebase.Initialize(activity, () => Platform.CurrentActivity ?? activity, CreateCrossFirebaseSettings());
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[CrossFirebase.Initialize] Exception: {ex.Message}");
+                        }
+                    }));
+#elif IOS
+                    events.AddiOS(iOS => iOS.FinishedLaunching((app, options) => {
+                        try
+                        {
+                            Plugin.Firebase.Bundled.Platforms.iOS.CrossFirebase.Initialize(CreateCrossFirebaseSettings());
+                            Plugin.Firebase.CloudMessaging.FirebaseCloudMessagingImplementation.Initialize();
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[CrossFirebase.Initialize iOS] Exception: {ex.Message}");
+                        }
+                        return true;
+                    }));
+#endif
                 });
 
 #if DEBUG
@@ -125,6 +154,9 @@ namespace BusTracking.Mobile
                 BusTracking.Mobile.Platforms.iOS.BackgroundLocationService>();
 #endif
             s.AddSingleton<ITrackingHubService, TrackingHubService>();
+            s.AddSingleton<IRingtoneService, RingtoneService>();
+            s.AddSingleton<INotificationPermissionService, NotificationPermissionService>();
+            s.AddSingleton<IPushTokenService, PushTokenService>();
             s.AddSingleton<AppShell>();
             s.AddSingleton<LocalDatabase>();
             s.AddSingleton<ICacheService, CacheService>();
@@ -426,6 +458,20 @@ namespace BusTracking.Mobile
 #endif
             });
             #endregion
+        }
+
+        private static Plugin.Firebase.Bundled.Shared.CrossFirebaseSettings CreateCrossFirebaseSettings()
+        {
+            return new Plugin.Firebase.Bundled.Shared.CrossFirebaseSettings(
+                isAnalyticsEnabled: false,
+                isAuthEnabled: false,
+                isCloudMessagingEnabled: true,
+                isDynamicLinksEnabled: false,
+                isFirestoreEnabled: false,
+                isFunctionsEnabled: false,
+                isRemoteConfigEnabled: false,
+                isStorageEnabled: false,
+                isCrashlyticsEnabled: false);
         }
     }
 }

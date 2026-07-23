@@ -18,6 +18,13 @@ namespace BusTracking.Mobile.Viewmodels.Student
         {
             var user = await Auth.GetCurrentUserAsync();
             WelcomeText = $"Hi, {user?.FullName?.Split(' ')?.FirstOrDefault() ?? ""}";
+            await CheckNotificationPermissionAsync(requestIfFirstTime: true);
+            await RefreshCommand.ExecuteAsync(null);
+        }
+
+        public override async Task RefreshOnReturnAsync()
+        {
+            await CheckNotificationPermissionAsync(requestIfFirstTime: false);
             await RefreshCommand.ExecuteAsync(null);
         }
 

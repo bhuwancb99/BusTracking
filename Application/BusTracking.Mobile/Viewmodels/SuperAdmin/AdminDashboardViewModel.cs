@@ -16,6 +16,13 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             var user = await Auth.GetCurrentUserAsync();
             WelcomeText = $"Welcome back, {user?.FullName ?? "Admin"}";
             TodayDate = DateTime.Now.ToString("dddd, dd MMMM yyyy");
+            await CheckNotificationPermissionAsync(requestIfFirstTime: true);
+            await RefreshCommand.ExecuteAsync(null);
+        }
+
+        public override async Task RefreshOnReturnAsync()
+        {
+            await CheckNotificationPermissionAsync(requestIfFirstTime: false);
             await RefreshCommand.ExecuteAsync(null);
         }
 

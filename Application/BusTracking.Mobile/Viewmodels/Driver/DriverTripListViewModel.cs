@@ -46,7 +46,12 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         [RelayCommand]
         private async Task OpenTripAsync(DriverTripItem trip)
         {
-            if (trip.Status == "InProgress")
+            if (trip is null) return;
+
+            var status = trip.Status?.Trim() ?? "";
+
+            if (string.Equals(status, "InProgress", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(status, "In Progress", StringComparison.OrdinalIgnoreCase))
             {
                 // Already started — go straight to tracking page
                 await Nav.GoToAsync("DriverTracking",
@@ -54,21 +59,34 @@ namespace BusTracking.Mobile.Viewmodels.Driver
                 return;
             }
 
-            if (trip.Status == "Scheduled")
+            if (string.Equals(status, "Scheduled", StringComparison.OrdinalIgnoreCase))
             {
-                // Confirm then start the trip — merged from removed StartTripAsync
                 if (!await ConfirmAsync("Start Trip", $"Start the {trip.TripType} trip for {trip.TripDate}?"))
                     return;
+
                 await RunAsync(async () =>
                 {
                     var r = await _driverTrip.StartTripAsync(trip.TripId);
                     if (r.Success)
                     {
+                        trip.Status = "InProgress";
                         await ShowToastAsync("Trip started.");
                         await Nav.GoToAsync("DriverTracking",
                             new Dictionary<string, object> { ["TripId"] = trip.TripId });
                     }
-                    else SetError(r.Message);
+                    else
+                    {
+                        if (r.Message != null && r.Message.Contains("already", StringComparison.OrdinalIgnoreCase))
+                        {
+                            trip.Status = "InProgress";
+                            await Nav.GoToAsync("DriverTracking",
+                                new Dictionary<string, object> { ["TripId"] = trip.TripId });
+                        }
+                        else
+                        {
+                            SetError(r.Message);
+                        }
+                    }
                 });
                 return;
             }

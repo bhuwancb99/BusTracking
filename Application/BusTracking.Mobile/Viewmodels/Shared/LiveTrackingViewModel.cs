@@ -1,3 +1,10 @@
+using System.Collections.ObjectModel;
+using BusTracking.Mobile.Interfaces;
+using BusTracking.Mobile.Models.Student;
+using BusTracking.Mobile.Models.Tracking;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+
 namespace BusTracking.Mobile.Viewmodels.Shared
 {
     /// <summary>
@@ -5,12 +12,11 @@ namespace BusTracking.Mobile.Viewmodels.Shared
     ///
     ///   Role          Navigate with          How it loads
     ///   ──────────    ─────────────────      ──────────────────────────────────
-    ///   Student       StudentId              ITripService.GetLocationAsync via
-    ///                                        IStudentService.GetTrackingAsync
+    ///   Student       StudentId              ITripService / IStudentService.GetTrackingAsync
     ///   Parent        StudentId              IParentService.TrackChildBusAsync
-    ///   Driver        TripId                 ITripService.GetLocationAsync
-    ///   Coordinator   TripId                 ITripService.GetLocationAsync
-    ///   SuperAdmin    TripId                 ITripService.GetLocationAsync
+    ///   Driver        TripId                 ITripService.GetLocationAsync & GetByIdAsync
+    ///   Coordinator   TripId                 ITripService.GetLocationAsync & GetByIdAsync
+    ///   SuperAdmin    TripId                 ITripService.GetLocationAsync & GetByIdAsync
     ///
     /// The page is reached by:
     ///   await Shell.Current.GoToAsync($"LiveTracking?TripId={id}");
@@ -25,7 +31,9 @@ namespace BusTracking.Mobile.Viewmodels.Shared
         private readonly IStudentService _students;
         private readonly IParentService _parents;
 
-        // ── Query params (only one will be set per role) ──────────────────
+        private CancellationTokenSource? _pollingCts;
+
+        // ── Query params ──────────────────────────────────────────────────
         [ObservableProperty] private int _tripId;
         [ObservableProperty] private int _studentId;
 
@@ -70,18 +78,35 @@ namespace BusTracking.Mobile.Viewmodels.Shared
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
                     ConnectionStatus = status ?? "● Live";
-                    IsLive = status is null;
+                    IsLive = status is null || status.Contains("Live", StringComparison.OrdinalIgnoreCase);
                 });
+        }
+
+        partial void OnTripIdChanged(int value)
+        {
+            if (value > 0)
+            {
+                _ = LoadInitialDataAsync();
+            }
+        }
+
+        partial void OnStudentIdChanged(int value)
+        {
+            if (value > 0)
+            {
+                _ = LoadInitialDataAsync();
+            }
         }
 
         public override async Task InitializeAsync()
         {
-            await LoadInitialDataAsync();
-            if (TripId > 0)
-                await ConnectAndWatchAsync(TripId);
+            if (TripId > 0 || StudentId > 0)
+            {
+                await LoadInitialDataAsync();
+            }
         }
 
-        // ── Load initial bus info + stops by role ─────────────────────────
+        // ── Load initial bus info + stops + position for ALL roles ─────────
         private async Task LoadInitialDataAsync()
         {
             await RunAsync(async () =>
@@ -90,14 +115,63 @@ namespace BusTracking.Mobile.Viewmodels.Shared
 
                 if (StudentId > 0)
                 {
-                    // Parent or Student — use TrackChildBusAsync / GetTrackingAsync
-                    data = StudentId > 0 && Auth.CurrentRole == "Parent"
+                    // Parent or Student role
+                    data = Auth.CurrentRole == "Parent"
                         ? await _parents.TrackChildBusAsync(StudentId)
                         : await _students.GetTrackingAsync();
+
+                    if (data != null)
+                    {
+                        BusName = data.Bus?.BusName ?? "School Bus";
+                        BusNumber = data.Bus?.BusNumber ?? "";
+                        DriverName = data.Driver?.DriverName ?? "";
+                        if (data.Trip != null && data.Trip.TripId > 0)
+                        {
+                            TripId = data.Trip.TripId;
+                        }
+                        if (data.Stops != null)
+                        {
+                            Stops = new ObservableCollection<StopStatus>(data.Stops);
+                        }
+
+                        // Draw stops on map
+                        if (data.Stops != null && data.Stops.Any())
+                        {
+                            var json = System.Text.Json.JsonSerializer.Serialize(
+                                data.Stops.Select(s => new
+                                {
+                                    lat = s.Latitude,
+                                    lng = s.Longitude,
+                                    label = s.StopName,
+                                    order = s.StopOrder,
+                                    status = s.Status
+                                }));
+                            SendToMap?.Invoke($"window.setRouteStops({json})");
+                        }
+
+                        // Show last known bus position immediately
+                        if (data.Location is not null)
+                        {
+                            SendToMap?.Invoke(
+                                $"window.moveBus({data.Location.Latitude:F6}, {data.Location.Longitude:F6}, 0)");
+                            SpeedLabel = data.Location.SpeedDisplay;
+                            LastUpdateLabel = $"Updated {data.Location.RecordedAt:HH:mm:ss}";
+                            IsLive = true;
+                            ConnectionStatus = "● Live";
+                        }
+                    }
                 }
                 else if (TripId > 0)
                 {
-                    // Driver, Coordinator, SuperAdmin — load from ITripService
+                    // Driver, Coordinator, SuperAdmin
+                    var trip = await _trips.GetByIdAsync(TripId);
+                    if (trip != null)
+                    {
+                        BusName = trip.RouteName ?? "School Bus";
+                        BusNumber = trip.BusNumber ?? "";
+                        DriverName = trip.DriverName ?? "";
+                    }
+
                     var loc = await _trips.GetLocationAsync(TripId);
                     if (loc is not null)
                     {
@@ -105,56 +179,86 @@ namespace BusTracking.Mobile.Viewmodels.Shared
                             $"window.moveBus({loc.Latitude:F6}, {loc.Longitude:F6}, 0)");
                         SpeedLabel = loc.SpeedDisplay;
                         LastUpdateLabel = $"Updated {loc.RecordedAt:HH:mm:ss}";
+                        IsLive = true;
+                        ConnectionStatus = "● Live";
                     }
-                    return; // stops not loaded here — Driver has DriverTrackingPage for that
                 }
 
-                if (data is null) return;
-
-                BusName = data.Bus?.BusName ?? "";
-                BusNumber = data.Bus?.BusNumber ?? "";
-                TripId = data.Trip?.TripId ?? 0;
-                Stops = new ObservableCollection<StopStatus>(data.Stops);
-
-                // Draw stops on map
-                if (data.Stops.Any())
-                {
-                    var json = System.Text.Json.JsonSerializer.Serialize(
-                        data.Stops.Select(s => new
-                        {
-                            lat = s.Latitude,
-                            lng = s.Longitude,
-                            label = s.StopName,
-                            order = s.StopOrder,
-                            status = s.Status
-                        }));
-                    SendToMap?.Invoke($"window.setRouteStops({json})");
-                }
-
-                // Show last known bus position immediately
-                if (data.Location is not null)
-                {
-                    SendToMap?.Invoke(
-                        $"window.moveBus({data.Location.Latitude:F6}, {data.Location.Longitude:F6}, 0)");
-                    SpeedLabel = data.Location.SpeedDisplay;
-                }
-
-                // Connect SignalR now that we have the TripId
+                // Connect SignalR & Start Polling Timer for active trip
                 if (TripId > 0)
+                {
                     await ConnectAndWatchAsync(TripId);
+                    StartPolling(TripId);
+                }
             });
         }
 
         // ── SignalR: connect and join trip group ──────────────────────────
         private async Task ConnectAndWatchAsync(int tripId)
         {
-            var user = await Auth.GetCurrentUserAsync();
-            if (user is null) return;
-            await _hub.ConnectAsync(user.Token);
-            await _hub.WatchTripAsync(tripId);
+            try
+            {
+                var user = await Auth.GetCurrentUserAsync();
+                if (user is null) return;
+                await _hub.ConnectAsync(user.Token);
+                await _hub.WatchTripAsync(tripId);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[LiveTrackingViewModel] ConnectAndWatchAsync error: {ex.Message}");
+            }
         }
 
-        // ── Receive real-time location push ───────────────────────────────
+        // ── Periodic Polling Fallback (3s interval) ──────────────────────
+        private void StartPolling(int tripId)
+        {
+            StopPolling();
+            _pollingCts = new CancellationTokenSource();
+            var token = _pollingCts.Token;
+
+            Task.Run(async () =>
+            {
+                while (!token.IsCancellationRequested)
+                {
+                    try
+                    {
+                        await Task.Delay(3000, token);
+                        if (token.IsCancellationRequested) break;
+
+                        var loc = await _trips.GetLocationAsync(tripId);
+                        if (loc is not null && !token.IsCancellationRequested)
+                        {
+                            MainThread.BeginInvokeOnMainThread(() =>
+                            {
+                                SpeedLabel = loc.SpeedDisplay;
+                                LastUpdateLabel = $"Updated {loc.RecordedAt:HH:mm:ss}";
+                                IsLive = true;
+                                ConnectionStatus = "● Live";
+                                SendToMap?.Invoke($"window.moveBus({loc.Latitude:F6}, {loc.Longitude:F6}, 0)");
+                            });
+                        }
+                    }
+                    catch (OperationCanceledException) { break; }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[LiveTrackingViewModel] Polling exception: {ex.Message}");
+                    }
+                }
+            }, token);
+        }
+
+        private void StopPolling()
+        {
+            try
+            {
+                _pollingCts?.Cancel();
+                _pollingCts?.Dispose();
+                _pollingCts = null;
+            }
+            catch { }
+        }
+
+        // ── Receive real-time location push via SignalR ───────────────────
         private void OnBusLocationReceived(
             decimal lat, decimal lng,
             decimal? speed, decimal? heading, string time)
@@ -179,6 +283,7 @@ namespace BusTracking.Mobile.Viewmodels.Shared
                 TripEnded = true;
                 ConnectionStatus = "Trip Ended";
                 IsLive = false;
+                StopPolling();
                 SendToMap?.Invoke("window.onTripEnded()");
             });
         }
@@ -186,6 +291,7 @@ namespace BusTracking.Mobile.Viewmodels.Shared
         // ── Called from code-behind OnDisappearing ────────────────────────
         public void Cleanup()
         {
+            StopPolling();
             _hub.OnLocationReceived -= OnBusLocationReceived;
             _hub.OnTripEnded -= OnTripEnded;
             if (TripId > 0)

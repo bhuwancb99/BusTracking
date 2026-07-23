@@ -82,7 +82,7 @@ public abstract partial class BaseViewModel : ObservableObject
             }
             else if (title.Contains("Delete", StringComparison.OrdinalIgnoreCase) || title.Contains("Remove", StringComparison.OrdinalIgnoreCase))
             {
-                iconSource = "delete.svg";
+                iconSource = "delete.png";
                 acceptColor = Color.FromArgb("#ba1a1a");
             }
             else
@@ -109,4 +109,52 @@ public abstract partial class BaseViewModel : ObservableObject
 
     /// <summary>Check if user has permission. SuperAdmin always returns true.</summary>
     protected bool Can(string permissionKey) => Auth.HasPermission(permissionKey);
+
+    [ObservableProperty] private bool _isNotificationPermissionDenied;
+
+    [RelayCommand]
+    public void OpenNotificationSettings()
+    {
+        var notifService = Microsoft.Maui.IPlatformApplication.Current?.Services.GetService<BusTracking.Mobile.Interfaces.INotificationPermissionService>();
+        notifService?.OpenAppSettings();
+    }
+
+    public async Task CheckNotificationPermissionAsync(bool requestIfFirstTime = false)
+    {
+        try
+        {
+            var notifService = Microsoft.Maui.IPlatformApplication.Current?.Services.GetService<BusTracking.Mobile.Interfaces.INotificationPermissionService>();
+            if (notifService == null) return;
+
+            if (requestIfFirstTime)
+            {
+                var granted = await notifService.RequestNotificationPermissionAsync();
+                IsNotificationPermissionDenied = !granted;
+                if (granted) _ = RegisterPushTokenAsync();
+            }
+            else
+            {
+                var granted = await notifService.IsNotificationPermissionGrantedAsync();
+                IsNotificationPermissionDenied = !granted;
+                if (granted) _ = RegisterPushTokenAsync();
+            }
+        }
+        catch
+        {
+            IsNotificationPermissionDenied = false;
+        }
+    }
+
+    public async Task RegisterPushTokenAsync()
+    {
+        try
+        {
+            var tokenService = Microsoft.Maui.IPlatformApplication.Current?.Services.GetService<BusTracking.Mobile.Interfaces.IPushTokenService>();
+            if (tokenService != null)
+            {
+                await tokenService.RegisterDeviceTokenAsync();
+            }
+        }
+        catch { }
+    }
 }

@@ -39,7 +39,13 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             // that _currentUser is fully loaded — this makes the stat cards and
             // menu items show/hide correctly based on the coordinator's actual permissions.
             NotifyPermissionsChanged();
+            await CheckNotificationPermissionAsync(requestIfFirstTime: true);
+            await RefreshCommand.ExecuteAsync(null);
+        }
 
+        public override async Task RefreshOnReturnAsync()
+        {
+            await CheckNotificationPermissionAsync(requestIfFirstTime: false);
             await RefreshCommand.ExecuteAsync(null);
         }
 

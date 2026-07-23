@@ -56,6 +56,15 @@ namespace BusTracking.Mobile.Services
         }
 
         /// <summary>
+        /// Returns true when IsAllowPushNotification = "1" in AppConfig.
+        /// </summary>
+        public async Task<bool> IsAllowPushNotificationAsync()
+        {
+            var v = await GetValueAsync("IsAllowPushNotification");
+            return v == "1";
+        }
+
+        /// <summary>
         /// Returns the base URL stored in WebsiteImageUrl config key.
         /// Used to construct full image URLs when IsMobileUpdateImage = 0.
         /// E.g. "https://website.com" + "/media/images/driver/u_5.jpg"

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
     x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminDashboardPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
@@ -32,6 +32,74 @@
     <RefreshView Command="{Binding RefreshCommand}" IsRefreshing="{Binding IsRefreshing}">
         <ScrollView>
             <VerticalStackLayout Padding="16,20,16,40" Spacing="0">
+
+                <!--  Notification Permission Warning Card  -->
+                <Border
+                    Margin="0,0,0,16"
+                    Padding="14,12"
+                    BackgroundColor="{AppThemeBinding Light=#FEF2F2,
+                                                      Dark=#2C1414}"
+                    IsVisible="{Binding IsNotificationPermissionDenied}"
+                    Stroke="{AppThemeBinding Light=#FCA5A5,
+                                             Dark=#7F1D1D}"
+                    StrokeShape="RoundRectangle 14"
+                    StrokeThickness="1">
+
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenNotificationSettingsCommand}" />
+                    </Border.GestureRecognizers>
+
+                    <Grid
+                        ColumnDefinitions="Auto,*,Auto"
+                        ColumnSpacing="12"
+                        VerticalOptions="Center">
+                        <Border
+                            Grid.Column="0"
+                            BackgroundColor="{AppThemeBinding Light=#FEE2E2,
+                                                              Dark=#450A0A}"
+                            HeightRequest="36"
+                            StrokeShape="RoundRectangle 18"
+                            StrokeThickness="0"
+                            WidthRequest="36">
+                            <Image
+                                HeightRequest="20"
+                                HorizontalOptions="Center"
+                                Source="notification_warning.png"
+                                VerticalOptions="Center"
+                                WidthRequest="20" />
+                        </Border>
+
+                        <VerticalStackLayout
+                            Grid.Column="1"
+                            Spacing="2"
+                            VerticalOptions="Center">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="13"
+                                Text="Notification Permission Disabled"
+                                TextColor="{AppThemeBinding Light=#991B1B,
+                                                            Dark=#FCA5A5}" />
+                            <Label
+                                FontSize="11"
+                                Text="Enable notifications to receive live bus start &amp; student pickup alerts."
+                                TextColor="{AppThemeBinding Light=#B91C1C,
+                                                            Dark=#F87171}" />
+                        </VerticalStackLayout>
+
+                        <Button
+                            Grid.Column="2"
+                            Padding="12,0"
+                            BackgroundColor="#EF4444"
+                            Command="{Binding OpenNotificationSettingsCommand}"
+                            CornerRadius="10"
+                            FontAttributes="Bold"
+                            FontSize="11"
+                            HeightRequest="34"
+                            Text="Enable ➔"
+                            TextColor="White"
+                            VerticalOptions="Center" />
+                    </Grid>
+                </Border>
 
                 <Label Style="{StaticResource HeadingLabel}" Text="{Binding WelcomeText}" />
                 <Label

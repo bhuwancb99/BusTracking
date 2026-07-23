@@ -268,7 +268,7 @@
                 <Image
                     Grid.Column="2"
                     HeightRequest="20"
-                    Source="chevron_up.svg"
+                    Source="chevron_up.png"
                     VerticalOptions="Center"
                     WidthRequest="20" />
             </Grid>
@@ -336,7 +336,7 @@
                             <Image
                                 HeightRequest="16"
                                 HorizontalOptions="Center"
-                                Source="close.svg"
+                                Source="close.png"
                                 VerticalOptions="Center"
                                 WidthRequest="16" />
                         </Border>
