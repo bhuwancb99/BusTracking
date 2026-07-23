@@ -9,7 +9,7 @@
 
 	<ItemGroup>
 		<ProjectReference Include="..\BusTracking.Common\BusTracking.Common.csproj" />
-		<PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
+		<PackageReference Include="AutoMapper" Version="16.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.10" />
@@ -18,6 +18,10 @@
 	<ItemGroup>
 	  <Folder Include="Helpers\" />
 	  <Folder Include="Filters\" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="firebase-service-account.json" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
 
 </Project>

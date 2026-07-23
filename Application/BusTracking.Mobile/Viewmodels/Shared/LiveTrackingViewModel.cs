@@ -1,10 +1,3 @@
-using System.Collections.ObjectModel;
-using BusTracking.Mobile.Interfaces;
-using BusTracking.Mobile.Models.Student;
-using BusTracking.Mobile.Models.Tracking;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-
 namespace BusTracking.Mobile.Viewmodels.Shared
 {
     /// <summary>

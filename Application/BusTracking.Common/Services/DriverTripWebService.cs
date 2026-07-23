@@ -3,8 +3,12 @@ namespace BusTracking.Common.Services
     public class DriverTripWebService : IDriverTripWebService
     {
         private readonly AppDbContext _db;
-        public DriverTripWebService(AppDbContext db) => _db = db;
-
+        private readonly IFcmPushNotificationService? _fcm;
+        public DriverTripWebService(AppDbContext db, IFcmPushNotificationService? fcm = null)
+        {
+            _db = db;
+            _fcm = fcm;
+        }
         // ── My Trip ────────────────────────────────────────────────────────
         public async Task<ApiResponse<DriverMyTripDto>> GetMyTripAsync(int driverUserId)
         {
@@ -12,10 +16,8 @@ namespace BusTracking.Common.Services
                 .Include(d => d.Bus).ThenInclude(b => b!.Route)
                 .Include(d => d.User).ThenInclude(u => u!.School).ThenInclude(s => s!.TimeZone)
                 .FirstOrDefaultAsync(d => d.UserId == driverUserId);
-
             if (driver?.Bus is null)
                 return ApiResponse<DriverMyTripDto>.Fail("No bus assigned to this driver.");
-
             var dto = new DriverMyTripDto
             {
                 BusId = driver.Bus.BusId,
@@ -29,12 +31,10 @@ namespace BusTracking.Common.Services
                           ?? driver.User?.School?.TimeZone?.WindowsTimeZoneId
                           ?? "India Standard Time";
             var schoolToday = TimeZoneHelper.GetToday(timeZoneId);
-
             // Auto-close lingering InProgress trips from previous days
             var yesterdayInProgress = await _db.BusTrips
                 .Where(t => t.BusId == driver.BusId && t.Status == TripStatus.InProgress && t.TripDate < schoolToday)
                 .ToListAsync();
-
             if (yesterdayInProgress.Count > 0)
             {
                 foreach (var oldTrip in yesterdayInProgress)
@@ -54,7 +54,6 @@ namespace BusTracking.Common.Services
                 .FirstOrDefaultAsync(t => t.BusId == driver.BusId
                                        && t.TripDate == schoolToday
                                        && t.Status != TripStatus.Cancelled);
-
             if (trip is not null)
             {
                 dto.Trip = new DriverTripSummary
@@ -67,7 +66,6 @@ namespace BusTracking.Common.Services
                     EndedAt = trip.EndedAt
                 };
             }
-
             return ApiResponse<DriverMyTripDto>.Ok(dto);
         }
 
@@ -77,22 +75,18 @@ namespace BusTracking.Common.Services
             var trip = await _db.BusTrips
                 .Include(t => t.Route).ThenInclude(r => r!.Stops)
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
-
             if (trip is null || trip.DriverId != driverUserId)
                 return ApiResponse<bool>.Fail("Trip not found.");
             if (trip.Status != TripStatus.Scheduled)
                 return ApiResponse<bool>.Fail("Trip cannot be started in its current status.");
-
             var timeZoneId = _db.Users
                 .Include(u => u.School)
                 .Where(u => u.UserId == driverUserId)
                 .Select(u => u.School != null ? u.School.TimeZoneInfoId : null)
                 .FirstOrDefault() ?? "India Standard Time";
-
             var now = TimeZoneHelper.GetNow(timeZoneId);
             trip.Status = TripStatus.InProgress;
             trip.StartedAt = now;
-
             // 1. Remove old live location history for this trip
             var oldLocations = await _db.BusLiveLocations
                 .IgnoreQueryFilters()
@@ -102,13 +96,11 @@ namespace BusTracking.Common.Services
             {
                 _db.BusLiveLocations.RemoveRange(oldLocations);
             }
-
             // 2. Seed initial position at Stop #1 (Start Point)
             var firstStop = trip.Route?.Stops
                 .Where(s => s.IsActive && s.Latitude.HasValue && s.Longitude.HasValue && s.Latitude != 0 && s.Longitude != 0)
                 .OrderBy(s => s.StopOrder)
                 .FirstOrDefault();
-
             if (firstStop?.Latitude != null && firstStop?.Longitude != null)
             {
                 _db.BusLiveLocations.Add(new BusLiveLocation
@@ -122,8 +114,11 @@ namespace BusTracking.Common.Services
                     RecordedAt = now
                 });
             }
-
             await _db.SaveChangesAsync();
+            if (_fcm != null)
+            {
+                _ = Task.Run(() => _fcm.SendTripStartedPushAsync(tripId, driverUserId));
+            }
             return ApiResponse<bool>.Ok(true, "Trip started successfully.");
         }
 
@@ -134,13 +129,11 @@ namespace BusTracking.Common.Services
                 return ApiResponse<bool>.Fail("Trip not found.");
             if (trip.Status != TripStatus.InProgress)
                 return ApiResponse<bool>.Fail("Trip is not currently in progress.");
-
             var timeZoneId = _db.Users
                 .Include(u => u.School)
                 .Where(u => u.UserId == driverUserId)
                 .Select(u => u.School != null ? u.School.TimeZoneInfoId : null)
                 .FirstOrDefault() ?? "India Standard Time";
-
             trip.Status = TripStatus.Completed;
             trip.EndedAt = TimeZoneHelper.GetNow(timeZoneId);
             await _db.SaveChangesAsync();
@@ -154,15 +147,12 @@ namespace BusTracking.Common.Services
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
             if (trip is null)
                 return ApiResponse<List<StudentTripStatusDto>>.Fail("Trip not found.");
-
             var students = await _db.Students
                 .Include(s => s.User).Include(s => s.Stop)
                 .Where(s => s.BusId == trip.BusId && s.User.IsActive)
                 .ToListAsync();
-
             var statuses = await _db.StudentTripStatuses
                 .Where(x => x.TripId == tripId).ToListAsync();
-
             var timeZoneId = _db.Users
                 .Include(u => u.School)
                 .Where(u => u.UserId == trip.DriverId)
@@ -174,7 +164,6 @@ namespace BusTracking.Common.Services
             var unavail = await _db.StudentAvailabilities
                 .Where(a => studentIds.Contains(a.StudentId) && today >= a.FromDate && today <= a.ToDate)
                 .Select(a => a.StudentId).ToListAsync();
-
             var result = students
                 .OrderBy(s => s.Stop?.StopOrder ?? 999)
                 .ThenBy(s => s.User.FullName)
@@ -192,7 +181,6 @@ namespace BusTracking.Common.Services
                         IsUnavailable = unavail.Contains(s.StudentId)
                     };
                 }).ToList();
-
             return ApiResponse<List<StudentTripStatusDto>>.Ok(result);
         }
 
@@ -202,14 +190,11 @@ namespace BusTracking.Common.Services
             var trip = await _db.BusTrips
                 .Include(t => t.Bus).ThenInclude(b => b!.Route).ThenInclude(r => r!.Stops)
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
-
             if (trip?.Bus?.Route is null)
                 return ApiResponse<List<TripStopEventDto>>.Fail("Trip or route not found.");
-
             var events = await _db.TripStopEvents
                 .Where(e => e.TripId == tripId).ToListAsync();
             var eventsByStop = events.ToDictionary(e => e.StopId);
-
             var stops = trip.Bus.Route.Stops
                 .OrderBy(s => s.StopOrder)
                 .Select(s =>
@@ -228,10 +213,8 @@ namespace BusTracking.Common.Services
                         Longitude = (double?)s.Longitude
                     };
                 }).ToList();
-
             return ApiResponse<List<TripStopEventDto>>.Ok(stops);
         }
-
         // ── Stop events ────────────────────────────────────────────────────
         public async Task<ApiResponse<bool>> ReachStopAsync(int tripId, int stopId)
         {
@@ -239,7 +222,6 @@ namespace BusTracking.Common.Services
             var trip = await _db.BusTrips
                 .Include(t => t.Bus).ThenInclude(b => b!.Route).ThenInclude(r => r!.Stops)
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
-
             if (trip?.Bus?.Route is not null)
             {
                 var orderedStops = trip.Bus.Route.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).ToList();
@@ -261,16 +243,13 @@ namespace BusTracking.Common.Services
                     }
                 }
             }
-
             var ev = await _db.TripStopEvents.FirstOrDefaultAsync(e => e.TripId == tripId && e.StopId == stopId);
-
             var timeZoneId = _db.BusTrips
-                .Include(t => t.Driver).ThenInclude(d => d!.School)
+                 .Include(t => t.Driver).ThenInclude(d => d!.School)
                 .Where(t => t.TripId == tripId)
                 .Select(t => t.Driver.School != null ? t.Driver.School.TimeZoneInfoId : null)
                 .FirstOrDefault() ?? "India Standard Time";
             var now = TimeZoneHelper.GetNow(timeZoneId);
-
             if (ev is null)
                 _db.TripStopEvents.Add(new TripStopEvent
                 {
@@ -284,7 +263,6 @@ namespace BusTracking.Common.Services
                 ev.ReachedAt = now;
                 ev.Status = TripStopStatus.Reached;
             }
-
             await _db.SaveChangesAsync();
             return ApiResponse<bool>.Ok(true, "Stop marked as reached.");
         }
@@ -294,7 +272,6 @@ namespace BusTracking.Common.Services
             var ev = await _db.TripStopEvents.FirstOrDefaultAsync(e => e.TripId == tripId && e.StopId == stopId);
             if (ev is null || ev.Status != TripStopStatus.Reached)
                 return ApiResponse<bool>.Fail("Stop must be marked as Reached before marking as Departed.");
-
             // Check all students at this stop have updated boarding status
             var stop = await _db.Stops.FirstOrDefaultAsync(s => s.StopId == stopId);
             if (stop != null)
@@ -311,18 +288,16 @@ namespace BusTracking.Common.Services
             }
 
             var timeZoneId = _db.BusTrips
-                .Include(t => t.Driver).ThenInclude(d => d!.School)
-                .Where(t => t.TripId == tripId)
-                .Select(t => t.Driver.School != null ? t.Driver.School.TimeZoneInfoId : null)
-                .FirstOrDefault() ?? "India Standard Time";
+               .Include(t => t.Driver).ThenInclude(d => d!.School)
+               .Where(t => t.TripId == tripId)
+               .Select(t => t.Driver.School != null ? t.Driver.School.TimeZoneInfoId : null)
+               .FirstOrDefault() ?? "India Standard Time";
             var now = TimeZoneHelper.GetNow(timeZoneId);
-
             ev.DepartedAt = now;
             ev.Status = TripStopStatus.Departed;
             await _db.SaveChangesAsync();
             return ApiResponse<bool>.Ok(true, "Stop marked as departed.");
         }
-
         // ── Boarding status ────────────────────────────────────────────────
         public async Task<ApiResponse<bool>> UpdateBoardingAsync(int tripId, int studentId, int stopId, string status)
         {
@@ -337,9 +312,14 @@ namespace BusTracking.Common.Services
             else { existing.BoardingStatus = bs; existing.UpdatedAt = DateTime.UtcNow; }
 
             await _db.SaveChangesAsync();
+
+            if (bs == BoardingStatus.PickedUp && _fcm != null)
+            {
+                _ = _fcm.SendStudentPickedUpPushAsync(tripId, studentId, stopId);
+            }
+
             return ApiResponse<bool>.Ok(true, "Boarding status updated.");
         }
-
         // ── Location ───────────────────────────────────────────────────────
         public async Task<ApiResponse<BusLocationDto?>> GetLatestLocationAsync(int tripId)
         {
@@ -360,7 +340,6 @@ namespace BusTracking.Common.Services
                 .ToListAsync();
             return ApiResponse<List<BusLocationDto>>.Ok(list);
         }
-
         public async Task<ApiResponse<bool>> InsertLocationPingAsync(int tripId, int busId, decimal lat, decimal lng, decimal? speed, decimal? heading)
         {
             _db.BusLiveLocations.Add(new BusLiveLocation

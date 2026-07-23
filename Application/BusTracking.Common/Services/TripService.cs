@@ -3,7 +3,13 @@ namespace BusTracking.Common.Services
     public class TripService : ITripService
     {
         private readonly AppDbContext _db;
-        public TripService(AppDbContext db) => _db = db;
+        private readonly IFcmPushNotificationService _fcm;
+
+        public TripService(AppDbContext db, IFcmPushNotificationService fcm)
+        {
+            _db = db;
+            _fcm = fcm;
+        }
 
         public async Task<ApiResponse<PagedResult<TripListDto>>> GetAllAsync(int page, string? busId, string? status = null, string? date = null)
         {
@@ -59,9 +65,9 @@ namespace BusTracking.Common.Services
             if (trip is null) return ApiResponse<List<StudentTripStatusDto>>.Fail("Trip not found.");
 
             var students = await _db.Students
-                .IgnoreQueryFilters()
-                .Include(s => s.User).Include(s => s.Stop)
-                .Where(s => s.BusId == trip.BusId && s.User.IsActive).ToListAsync();
+              .IgnoreQueryFilters()
+              .Include(s => s.User).Include(s => s.Stop)
+              .Where(s => s.BusId == trip.BusId && s.User.IsActive).ToListAsync();
 
             var statuses = await _db.StudentTripStatuses
                 .IgnoreQueryFilters()
@@ -86,7 +92,7 @@ namespace BusTracking.Common.Services
                         StopName = s.Stop?.StopName ?? "–",
                         StopOrder = s.Stop?.StopOrder ?? 0,
                         BoardingStatus = sts?.BoardingStatus.ToString()
-                                         ?? (avail != null ? "OnLeave" : "Pending"),
+                                             ?? (avail != null ? "OnLeave" : "Pending"),
                         IsUnavailable = avail != null
                     };
                 }).ToList();
@@ -177,7 +183,6 @@ namespace BusTracking.Common.Services
                     return ApiResponse<TripListDto>.Fail("No active driver is assigned to this bus.");
                 driverId = assignedDriver.UserId;
             }
-
             var trip = new BusTrip
             {
                 BusId = dto.BusId,
@@ -272,6 +277,7 @@ namespace BusTracking.Common.Services
             }
 
             await _db.SaveChangesAsync();
+            _ = _fcm.SendTripStartedPushAsync(tripId, trip.DriverId);
             return ApiResponse<bool>.Ok(true, "Trip started.");
         }
 
@@ -466,6 +472,10 @@ namespace BusTracking.Common.Services
                 s.UpdatedAt = DateTime.UtcNow;
             }
             await _db.SaveChangesAsync();
+            if (bs == BoardingStatus.PickedUp)
+            {
+                _ = _fcm.SendStudentPickedUpPushAsync(tripId, studentId, stopId);
+            }
             return ApiResponse<bool>.Ok(true, "Boarding status updated.");
         }
 

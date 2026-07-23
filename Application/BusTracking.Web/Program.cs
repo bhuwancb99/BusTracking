@@ -1,7 +1,26 @@
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCommonServices(builder.Configuration);
-builder.Services.AddControllersWithViews(options => 
+
+// Initialize FirebaseAdmin App for push notifications if service account key exists
+var firebaseKeyPath = Path.Combine(builder.Environment.ContentRootPath, "firebase-service-account.json");
+if (File.Exists(firebaseKeyPath) && FirebaseAdmin.FirebaseApp.DefaultInstance == null)
+{
+    try
+    {
+        FirebaseAdmin.FirebaseApp.Create(new FirebaseAdmin.AppOptions
+        {
+#pragma warning disable CS0618
+            Credential = Google.Apis.Auth.OAuth2.GoogleCredential.FromFile(firebaseKeyPath)
+#pragma warning restore CS0618
+        });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[FirebaseAdmin] Init Exception: {ex.Message}");
+    }
+}
+builder.Services.AddControllersWithViews(options =>
 {
     options.Filters.Add<BusTracking.Web.Filters.TenantActiveValidationFilter>();
 });

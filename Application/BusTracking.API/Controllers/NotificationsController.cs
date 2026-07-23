@@ -1,4 +1,4 @@
-﻿namespace BusTracking.API.Controllers
+namespace BusTracking.API.Controllers
 {
     [Authorize, Route("api/[controller]")]
     public class NotificationsController : ApiBaseController
@@ -37,6 +37,7 @@
 
             // Deactivate old tokens for same user
             await db.DeviceTokens
+                .IgnoreQueryFilters()
                 .Where(d => d.UserId == CurrentUserId && d.Token == req.Token)
                 .ExecuteUpdateAsync(s => s.SetProperty(d => d.IsActive, false));
 
