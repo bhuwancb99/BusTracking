@@ -117,7 +117,7 @@ namespace BusTracking.Mobile.Viewmodels.Shared
                     {
                         BusName = data.Bus?.BusName ?? "School Bus";
                         BusNumber = data.Bus?.BusNumber ?? "";
-                        DriverName = data.Driver?.DriverName ?? "";
+                        DriverName = data.Trip?.DriverName ?? "";
                         if (data.Trip != null && data.Trip.TripId > 0)
                         {
                             TripId = data.Trip.TripId;

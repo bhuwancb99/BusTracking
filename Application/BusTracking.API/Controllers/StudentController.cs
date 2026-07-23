@@ -122,6 +122,7 @@ namespace BusTracking.API.Controllers
 
             var today = DateOnly.FromDateTime(DateTime.UtcNow);
             var trip = await _db.BusTrips
+                .Include(t => t.Driver)
                 .FirstOrDefaultAsync(t => t.BusId == student.BusId
                                        && t.TripDate == today
                                        && t.Status == TripStatus.InProgress);
@@ -163,7 +164,12 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<object>.Ok(new
             {
                 IsLive = true,
-                Trip = new { trip.TripId, TripType = trip.TripType.ToString() },
+                Trip = new { 
+                    trip.TripId, 
+                    TripType = trip.TripType.ToString(), 
+                    Status = trip.Status.ToString(),
+                    DriverName = trip.Driver?.FullName ?? "Bus Driver"
+                },
                 Bus = new { student.Bus!.BusName, student.Bus.BusNumber },
                 Location = loc,
                 BoardingStatus = boarding?.BoardingStatus.ToString() ?? "Pending",
