@@ -122,16 +122,25 @@ namespace BusTracking.Mobile.Viewmodels.Common
         {
             if (string.IsNullOrWhiteSpace(storedUrl)) return null;
 
-            string imagePath;
-            try { imagePath = new Uri(storedUrl).AbsolutePath; }
-            catch { imagePath = storedUrl.StartsWith('/') ? storedUrl : "/" + storedUrl; }
+            if (storedUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                storedUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                return storedUrl;
+            }
+
+            string imagePath = storedUrl.StartsWith('/') ? storedUrl : "/" + storedUrl;
 
             if (_mobileImageEnabled)
+            {
                 return Constants.ApiBaseUrl.TrimEnd('/') + imagePath;
-
-            var websiteBase = await _appConfig.GetWebsiteImageUrlAsync();
-            if (string.IsNullOrWhiteSpace(websiteBase)) return null;
-            return websiteBase.TrimEnd('/') + imagePath;
+            }
+            else
+            {
+                var websiteBase = await _appConfig.GetWebsiteImageUrlAsync();
+                return string.IsNullOrWhiteSpace(websiteBase)
+                    ? Constants.ApiBaseUrl.TrimEnd('/') + imagePath
+                    : websiteBase.TrimEnd('/') + imagePath;
+            }
         }
 
         private void UpdateHasPhoto()

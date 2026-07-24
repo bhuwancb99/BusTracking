@@ -85,7 +85,7 @@ namespace BusTracking.Common.Services
 
                 var msg = new MulticastMessage
                 {
-                    Tokens = tokens,
+                    Fids = tokens,
                     Notification = new FirebaseAdmin.Messaging.Notification { Title = title, Body = body },
                     Data = new Dictionary<string, string>
                     {
@@ -132,20 +132,19 @@ namespace BusTracking.Common.Services
                     .Include(t => t.Driver)
                     .FirstOrDefaultAsync(t => t.TripId == tripId);
 
-                if (trip?.Bus is null) return;
+                if (trip is null) return;
 
-                var studentUserIds = await db.Students
+                int? routeId = trip.RouteId > 0 ? trip.RouteId : trip.Bus?.RouteId;
+
+                var routeStudents = await db.Students
                     .IgnoreQueryFilters()
                     .Include(s => s.User)
-                    .Where(s => s.BusId == trip.BusId && s.User.IsActive)
-                    .Select(s => s.UserId)
+                    .Include(s => s.Stop)
+                    .Where(s => (s.BusId == trip.BusId || (routeId != null && s.Stop != null && s.Stop.RouteId == routeId)) && s.User.IsActive)
                     .ToListAsync();
 
-                var busStudentIds = await db.Students
-                    .IgnoreQueryFilters()
-                    .Where(s => s.BusId == trip.BusId)
-                    .Select(s => s.StudentId)
-                    .ToListAsync();
+                var studentUserIds = routeStudents.Select(s => s.UserId).ToList();
+                var busStudentIds = routeStudents.Select(s => s.StudentId).ToList();
 
                 var parentUserIds = await db.ParentStudents
                     .IgnoreQueryFilters()
@@ -158,8 +157,8 @@ namespace BusTracking.Common.Services
                 if (targetUserIds.Count == 0) return;
 
                 var driverName = trip.Driver?.FullName ?? "Bus Driver";
-                var busName = trip.Bus.BusName;
-                var routeName = trip.Bus.Route?.RouteName ?? "Bus Route";
+                var busName = trip.Bus?.BusName ?? "School Bus";
+                var routeName = trip.Bus?.Route?.RouteName ?? "Bus Route";
 
                 var title = "🚌 Bus Trip Started!";
                 var body = $"Driver {driverName} has started the trip on route '{routeName}'. Bus: {busName}.";
@@ -194,7 +193,7 @@ namespace BusTracking.Common.Services
 
                 var msg = new MulticastMessage
                 {
-                    Tokens = tokens,
+                    Fids = tokens,
                     Notification = new FirebaseAdmin.Messaging.Notification { Title = title, Body = body },
                     Data = new Dictionary<string, string>
                     {

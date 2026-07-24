@@ -301,7 +301,8 @@ namespace BusTracking.Common.Services
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
 
             if (trip is null) return ApiResponse<bool>.Fail("Trip not found.");
-            if (trip.Status != TripStatus.Scheduled) return ApiResponse<bool>.Fail("Trip is not in Scheduled status.");
+            if (trip.Status != TripStatus.Scheduled && trip.Status != TripStatus.InProgress) 
+                return ApiResponse<bool>.Fail("Trip is not in Scheduled or InProgress status.");
 
             trip.Status = TripStatus.InProgress;
             trip.StartedAt = DateTime.UtcNow;
