@@ -9,10 +9,16 @@ namespace BusTracking.Mobile.Viewmodels.Parent
         [ObservableProperty] private ObservableCollection<LinkedStudent> _students = [];
         [ObservableProperty] private LinkedStudent? _selectedStudent;
         [ObservableProperty] private TrackingData? _tracking;
-        [ObservableProperty] private string _statusLabel = "Loading\u2026";
+        [ObservableProperty] private string _statusLabel = "Loading…";
         [ObservableProperty] private double _busLatitude;
         [ObservableProperty] private double _busLongitude;
         [ObservableProperty] private bool _isLive;
+        [ObservableProperty] private bool _isSheetExpanded;
+
+        public Action<string>? SendToMap { get; set; }
+
+        [RelayCommand]
+        private void ToggleSheet() => IsSheetExpanded = !IsSheetExpanded;
 
         public ParentTrackingViewModel(IAuthService auth, INavigationService nav, IParentService parents)
             : base(auth, nav)
@@ -43,8 +49,7 @@ namespace BusTracking.Mobile.Viewmodels.Parent
             var list = new List<LinkedStudent>();
             if (raw is JsonElement je && je.ValueKind == JsonValueKind.Object)
             {
-                JsonElement el;
-                bool found = je.TryGetProperty("children", out el)
+                bool found = je.TryGetProperty("children", out var el)
                           || je.TryGetProperty("students", out el)
                           || je.TryGetProperty("Students", out el);
 
@@ -78,7 +83,7 @@ namespace BusTracking.Mobile.Viewmodels.Parent
             IsLive = false;
             BusLatitude = 0;
             BusLongitude = 0;
-            StatusLabel = $"Loading {value.FullName}\u2026";
+            StatusLabel = $"Loading {value.FullName}…";
 
             StartPolling();
         }
@@ -87,7 +92,7 @@ namespace BusTracking.Mobile.Viewmodels.Parent
         private void StartPolling()
         {
             _ = PollAsync();          // fire immediately
-            _pollTimer = new System.Timers.Timer(10_000);
+            _pollTimer = new System.Timers.Timer(5_000);
             _pollTimer.Elapsed += async (_, _) => await PollAsync();
             _pollTimer.Start();
         }
@@ -107,11 +112,26 @@ namespace BusTracking.Mobile.Viewmodels.Parent
                 {
                     BusLatitude = (double)data.Location.Latitude;
                     BusLongitude = (double)data.Location.Longitude;
-                    StatusLabel = $"{data.Bus?.BusNumber} \u2014 Moving";
+                    StatusLabel = $"{data.Bus?.BusNumber} — Moving";
+                    SendToMap?.Invoke($"window.moveBus({data.Location.Latitude:F6}, {data.Location.Longitude:F6}, 0)");
                 }
                 else
                 {
                     StatusLabel = data?.Message ?? "No active trip";
+                }
+
+                if (data?.Stops != null && data.Stops.Any())
+                {
+                    var json = JsonSerializer.Serialize(
+                        data.Stops.Select(s => new
+                        {
+                            lat = s.Latitude,
+                            lng = s.Longitude,
+                            label = s.StopName,
+                            order = s.StopOrder,
+                            status = s.Status
+                        }));
+                    SendToMap?.Invoke($"window.setRouteStops({json})");
                 }
             });
         }

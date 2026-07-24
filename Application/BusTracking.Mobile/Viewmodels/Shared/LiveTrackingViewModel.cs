@@ -7,9 +7,9 @@ namespace BusTracking.Mobile.Viewmodels.Shared
     ///   ──────────    ─────────────────      ──────────────────────────────────
     ///   Student       StudentId              ITripService / IStudentService.GetTrackingAsync
     ///   Parent        StudentId              IParentService.TrackChildBusAsync
-    ///   Driver        TripId                 ITripService.GetLocationAsync & GetByIdAsync
-    ///   Coordinator   TripId                 ITripService.GetLocationAsync & GetByIdAsync
-    ///   SuperAdmin    TripId                 ITripService.GetLocationAsync & GetByIdAsync
+    ///   Driver        TripId                 ITripService.GetLocationAsync GetByIdAsync
+    ///   Coordinator   TripId                 ITripService.GetLocationAsync GetByIdAsync
+    ///   SuperAdmin    TripId                 ITripService.GetLocationAsync GetByIdAsync
     ///
     /// The page is reached by:
     ///   await Shell.Current.GoToAsync($"LiveTracking?TripId={id}");
@@ -163,6 +163,33 @@ namespace BusTracking.Mobile.Viewmodels.Shared
                         BusName = trip.RouteName ?? "School Bus";
                         BusNumber = trip.BusNumber ?? "";
                         DriverName = trip.DriverName ?? "";
+                    }
+
+                    var studentsRes = await _trips.GetTripStudentsAsync(TripId);
+                    if (studentsRes.Success && studentsRes.Data != null && studentsRes.Data.Any())
+                    {
+                        var stopList = studentsRes.Data.Select(s => new StopStatus
+                        {
+                            StopId = s.StopId,
+                            StopName = string.IsNullOrWhiteSpace(s.StudentName) ? s.StopName : $"{s.StopName} ({s.StudentName})",
+                            StopOrder = s.StopOrder,
+                            Status = s.BoardingStatus ?? "Pending",
+                            Latitude = (decimal)s.Latitude,
+                            Longitude = (decimal)s.Longitude
+                        }).ToList();
+
+                        Stops = new ObservableCollection<StopStatus>(stopList);
+
+                        var json = System.Text.Json.JsonSerializer.Serialize(
+                            studentsRes.Data.Select(s => new
+                            {
+                                lat = s.Latitude,
+                                lng = s.Longitude,
+                                label = string.IsNullOrWhiteSpace(s.StudentName) ? s.StopName : $"{s.StopName} - {s.StudentName}",
+                                order = s.StopOrder,
+                                status = s.BoardingStatus ?? "Pending"
+                            }));
+                        SendToMap?.Invoke($"window.setRouteStops({json})");
                     }
 
                     var loc = await _trips.GetLocationAsync(TripId);

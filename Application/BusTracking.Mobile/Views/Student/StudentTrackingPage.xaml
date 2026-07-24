@@ -5,12 +5,15 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     xmlns:models="clr-namespace:BusTracking.Mobile.Models"
+    xmlns:sfBottomSheet="clr-namespace:Syncfusion.Maui.Toolkit.BottomSheet;assembly=Syncfusion.Maui.Toolkit"
+    xmlns:tracking="clr-namespace:BusTracking.Mobile.Models.Tracking"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Student"
     Title="Track My Bus"
     x:DataType="vm:StudentTrackingViewModel"
     x:TypeArguments="vm:StudentTrackingViewModel"
-    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}">
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
@@ -24,27 +27,33 @@
                 HorizontalOptions="Center"
                 HorizontalTextAlignment="Center"
                 Text="Track My Bus"
-                TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}"
                 VerticalOptions="Center" />
         </Grid>
     </Shell.TitleView>
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto">
+    <!--  Full-screen layout: Top status bar + Map fills middle + BottomSheet for Route Stops  -->
+    <Grid RowDefinitions="Auto,*,Auto">
 
-        <!--  Live status bar  -->
+        <!--  Row 0 - Live status bar  -->
         <Border
             Grid.Row="0"
-            Margin="12,12,12,4"
+            Margin="12,12,12,6"
             BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                               Dark={StaticResource CardBgDark}}"
             Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                      Dark={StaticResource BorderColorDark}}"
             StrokeShape="RoundRectangle 16"
             StrokeThickness="1">
-            <Grid Padding="14,12" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+            <Grid
+                Padding="14,12"
+                ColumnDefinitions="Auto,*,Auto"
+                ColumnSpacing="12">
                 <Border
                     Grid.Column="0"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg}, Dark={StaticResource StatTripBgDark}}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg},
+                                                      Dark={StaticResource StatTripBgDark}}"
                     HeightRequest="42"
                     StrokeShape="RoundRectangle 8"
                     StrokeThickness="0"
@@ -70,11 +79,13 @@
                         FontAttributes="Bold"
                         FontSize="15"
                         Text="{Binding StatusText}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
                     <Label
                         FontSize="12"
                         Text="{Binding SpeedText}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary}, Dark={StaticResource TextSecondaryDark}}" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>
                 <Border
                     Grid.Column="2"
@@ -118,225 +129,205 @@
             </Grid>
         </Border>
 
-        <!--  Map placeholder  -->
+        <!--  Row 1 - Full Height Interactive Map  -->
         <Border
             Grid.Row="1"
-            Margin="12,4"
-            BackgroundColor="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-            HeightRequest="220"
-            StrokeShape="RoundRectangle 16"
+            Margin="12,2"
+            BackgroundColor="{AppThemeBinding Light={StaticResource BorderColor},
+                                              Dark={StaticResource BorderColorDark}}"
+            StrokeShape="RoundRectangle 20"
             StrokeThickness="0">
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Command="{Binding OpenLiveMapCommand}" />
             </Border.GestureRecognizers>
             <Grid>
-                <VerticalStackLayout
-                    HorizontalOptions="Center"
-                    Spacing="8"
-                    VerticalOptions="Center">
-                    <Border
-                        BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg}, Dark={StaticResource StatTripBgDark}}"
-                        HeightRequest="72"
-                        HorizontalOptions="Center"
-                        StrokeShape="RoundRectangle 36"
-                        StrokeThickness="0"
-                        WidthRequest="72">
-                        <Image
-                            HeightRequest="36"
-                            HorizontalOptions="Center"
-                            Source="map_pin.png"
-                            VerticalOptions="Center"
-                            WidthRequest="36">
-                            <Image.Behaviors>
-                                <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
-                            </Image.Behaviors>
-                        </Image>
-                    </Border>
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="14"
-                        HorizontalOptions="Center"
-                        Text="Live Map"
-                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                    Dark={StaticResource TextSecondaryDark}}" />
-                    <Label
-                        FontSize="11"
-                        HorizontalOptions="Center"
-                        Text="Bus location updates every 10 seconds"
-                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                    Dark={StaticResource TextSecondaryDark}}" />
-                </VerticalStackLayout>
-                <!--  Bus marker overlay  -->
-                <Border
-                    Padding="10"
-                    BackgroundColor="{StaticResource Primary}"
-                    HorizontalOptions="Center"
-                    IsVisible="{Binding IsLive}"
-                    Stroke="White"
-                    StrokeShape="RoundRectangle 24"
-                    StrokeThickness="2"
-                    VerticalOptions="Center"
-                    HeightRequest="48"
-                    WidthRequest="48">
-                    <Image
-                        HeightRequest="20"
-                        Source="bus.png"
-                        WidthRequest="20"
-                        HorizontalOptions="Center"
-                        VerticalOptions="Center">
-                        <Image.Behaviors>
-                            <mct:IconTintColorBehavior TintColor="White" />
-                        </Image.Behaviors>
-                    </Image>
-                </Border>
+                <WebView
+                    x:Name="MapWebView"
+                    HorizontalOptions="Fill"
+                    VerticalOptions="Fill" />
             </Grid>
         </Border>
 
-        <!--  Stop timeline  -->
+        <!--  Row 2 - Bottom Bar handle to expand Route Stops  -->
         <Border
             Grid.Row="2"
-            Margin="12,4"
-            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
-            StrokeShape="RoundRectangle 16"
-            StrokeThickness="0">
-            <ScrollView>
-                <VerticalStackLayout Padding="16" Spacing="0">
-                    <Label
-                        Margin="0,0,0,12"
-                        FontAttributes="Bold"
-                        FontSize="15"
-                        Text="Route Stops"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
-
-                    <CollectionView ItemsSource="{Binding Stops}" SelectionMode="None">
-                        <CollectionView.EmptyView>
-                            <Label
-                                Margin="0,12"
-                                FontSize="13"
-                                HorizontalOptions="Center"
-                                Text="No stop data yet"
-                                TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
-                        </CollectionView.EmptyView>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="models:Tracking.StopStatus">
-                                <Grid
-                                    Margin="0,0,0,4"
-                                    ColumnDefinitions="Auto,12,*"
-                                    RowDefinitions="Auto,Auto">
-
-                                    <!--  Timeline dot  -->
-                                    <Border
-                                        Grid.Row="0"
-                                        Grid.RowSpan="2"
-                                        Grid.Column="0"
-                                        BackgroundColor="{Binding StatusColor}"
-                                        HeightRequest="28"
-                                        HorizontalOptions="Center"
-                                        StrokeShape="RoundRectangle 8"
-                                        StrokeThickness="0"
-                                        VerticalOptions="Start"
-                                        WidthRequest="28">
-                                        <Label
-                                            FontAttributes="Bold"
-                                            FontSize="11"
-                                            HorizontalOptions="Center"
-                                            Text="{Binding StopOrder}"
-                                            TextColor="White"
-                                            VerticalOptions="Center" />
-                                    </Border>
-
-                                    <!--  Connector line  -->
-                                    <BoxView
-                                        Grid.Row="1"
-                                        Grid.Column="0"
-                                        BackgroundColor="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-                                        HeightRequest="14"
-                                        HorizontalOptions="Center"
-                                        WidthRequest="2" />
-
-                                    <!--  Stop info  -->
-                                    <Label
-                                        Grid.Row="0"
-                                        Grid.Column="2"
-                                        Margin="0,2,0,0"
-                                        FontAttributes="Bold"
-                                        FontSize="14"
-                                        Text="{Binding StopName}"
-                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
-                                    <Label
-                                        Grid.Row="1"
-                                        Grid.Column="2"
-                                        FontSize="11"
-                                        Text="{Binding Status}"
-                                        TextColor="{Binding StatusColor}" />
-
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </VerticalStackLayout>
-            </ScrollView>
-        </Border>
-
-        <!--  Bottom info bar  -->
-        <Border
-            Grid.Row="3"
             Margin="12,4,12,12"
-            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg}, Dark={StaticResource CardBgDark}}"
-            Stroke="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource BorderColorDark}}"
-            StrokeShape="RoundRectangle 8"
-            StrokeThickness="1">
-            <Grid Padding="16,12" ColumnDefinitions="*,*,*">
-                <VerticalStackLayout
+            Padding="16,12"
+            BackgroundColor="{AppThemeBinding Light=White,
+                                              Dark={StaticResource CardBgDark}}"
+            StrokeShape="RoundRectangle 16"
+            StrokeThickness="0"
+            VerticalOptions="End">
+            <Border.Shadow>
+                <Shadow
+                    Brush="#30000000"
+                    Radius="12"
+                    Offset="0,-2" />
+            </Border.Shadow>
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ToggleSheetCommand}" />
+                </Grid.GestureRecognizers>
+                <Label
                     Grid.Column="0"
-                    HorizontalOptions="Center"
-                    Spacing="2">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="13"
-                        HorizontalOptions="Center"
-                        Text="{Binding BusLat, StringFormat='{0:F4}'}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
-                    <Label
-                        FontSize="10"
-                        HorizontalOptions="Center"
-                        Text="Latitude"
-                        TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
-                </VerticalStackLayout>
-                <VerticalStackLayout
+                    FontAttributes="Bold"
+                    FontSize="15"
+                    Text="Route Stops"
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                Dark={StaticResource TextPrimaryDark}}"
+                    VerticalOptions="Center" />
+                <Border
                     Grid.Column="1"
-                    HorizontalOptions="Center"
-                    Spacing="2">
+                    Padding="10,4"
+                    BackgroundColor="{StaticResource PrimaryLight}"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="0"
+                    VerticalOptions="Center">
                     <Label
                         FontAttributes="Bold"
-                        FontSize="13"
-                        HorizontalOptions="Center"
-                        Text="{Binding BusLng, StringFormat='{0:F4}'}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
-                    <Label
-                        FontSize="10"
-                        HorizontalOptions="Center"
-                        Text="Longitude"
-                        TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
-                </VerticalStackLayout>
-                <VerticalStackLayout
+                        FontSize="11"
+                        Text="{Binding Stops.Count, StringFormat='Stops: {0}'}"
+                        TextColor="{StaticResource Primary}" />
+                </Border>
+                <Image
                     Grid.Column="2"
-                    HorizontalOptions="Center"
-                    Spacing="2">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="13"
-                        HorizontalOptions="Center"
-                        Text="{Binding SpeedText}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark={StaticResource TextPrimaryDark}}" />
-                    <Label
-                        FontSize="10"
-                        HorizontalOptions="Center"
-                        Text="Speed"
-                        TextColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
-                </VerticalStackLayout>
+                    HeightRequest="20"
+                    Source="chevron_up.png"
+                    VerticalOptions="Center"
+                    WidthRequest="20" />
             </Grid>
         </Border>
+
+        <!--  SYNCFUSION BOTTOM SHEET for Route Stops  -->
+        <sfBottomSheet:SfBottomSheet
+            x:Name="StopsBottomSheet"
+            Grid.RowSpan="3"
+            Background="{AppThemeBinding Light=White,
+                                         Dark={StaticResource CardBgDark}}"
+            CornerRadius="24"
+            FullExpandedRatio="0.85"
+            HalfExpandedRatio="0.60"
+            IsModal="False"
+            IsOpen="{Binding IsSheetExpanded, Mode=TwoWay}">
+            <sfBottomSheet:SfBottomSheet.BottomSheetContent>
+                <Grid BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource CardBgDark}}" RowDefinitions="Auto,*">
+
+                    <!--  Top Header with Title, Badge & Close (X) Button  -->
+                    <Grid
+                        Grid.Row="0"
+                        Padding="16,14"
+                        BackgroundColor="{AppThemeBinding Light=White,
+                                                          Dark={StaticResource CardBgDark}}"
+                        ColumnDefinitions="*,Auto,Auto"
+                        ColumnSpacing="10">
+                        <Label
+                            Grid.Column="0"
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            Text="Route Stops"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}"
+                            VerticalOptions="Center" />
+
+                        <Border
+                            Grid.Column="1"
+                            Padding="10,4"
+                            BackgroundColor="{StaticResource PrimaryLight}"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="0"
+                            VerticalOptions="Center">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                Text="{Binding Stops.Count, StringFormat='Stops: {0}'}"
+                                TextColor="{StaticResource Primary}" />
+                        </Border>
+
+                        <Border
+                            Grid.Column="2"
+                            Padding="6"
+                            BackgroundColor="{AppThemeBinding Light=#F1F5F9,
+                                                              Dark=#1E293B}"
+                            HeightRequest="32"
+                            StrokeShape="RoundRectangle 16"
+                            StrokeThickness="0"
+                            VerticalOptions="Center"
+                            WidthRequest="32">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding ToggleSheetCommand}" />
+                            </Border.GestureRecognizers>
+                            <Image
+                                HeightRequest="16"
+                                HorizontalOptions="Center"
+                                Source="close.png"
+                                VerticalOptions="Center"
+                                WidthRequest="16" />
+                        </Border>
+                    </Grid>
+
+                    <!--  Scrollable Route Stops Timeline  -->
+                    <ScrollView Grid.Row="1" Padding="16,4,16,16">
+                        <VerticalStackLayout Spacing="12">
+                            <CollectionView ItemsSource="{Binding Stops}">
+                                <CollectionView.EmptyView>
+                                    <Label
+                                        Margin="0,12"
+                                        FontSize="13"
+                                        HorizontalOptions="Center"
+                                        Text="No stop data available for this trip."
+                                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                    Dark={StaticResource TextSecondaryDark}}" />
+                                </CollectionView.EmptyView>
+                                <CollectionView.ItemsLayout>
+                                    <LinearItemsLayout ItemSpacing="0" Orientation="Vertical" />
+                                </CollectionView.ItemsLayout>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="tracking:StopStatus">
+                                        <Grid Padding="14,10" ColumnDefinitions="28,12,*,Auto">
+                                            <Border
+                                                Grid.Column="0"
+                                                BackgroundColor="{Binding StatusColor}"
+                                                HeightRequest="28"
+                                                StrokeShape="RoundRectangle 8"
+                                                StrokeThickness="0"
+                                                WidthRequest="28">
+                                                <Label
+                                                    FontAttributes="Bold"
+                                                    FontSize="11"
+                                                    HorizontalOptions="Center"
+                                                    Text="{Binding StopOrder}"
+                                                    TextColor="White"
+                                                    VerticalOptions="Center" />
+                                            </Border>
+                                            <Label
+                                                Grid.Column="2"
+                                                FontAttributes="Bold"
+                                                FontSize="13"
+                                                Text="{Binding StopName}"
+                                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                            Dark={StaticResource TextPrimaryDark}}"
+                                                VerticalOptions="Center" />
+                                            <Border
+                                                Grid.Column="3"
+                                                Padding="8,3"
+                                                BackgroundColor="{Binding StatusColor}"
+                                                StrokeShape="RoundRectangle 8"
+                                                StrokeThickness="0"
+                                                VerticalOptions="Center">
+                                                <Label
+                                                    FontSize="10"
+                                                    Text="{Binding Status}"
+                                                    TextColor="White" />
+                                            </Border>
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </ScrollView>
+                </Grid>
+            </sfBottomSheet:SfBottomSheet.BottomSheetContent>
+        </sfBottomSheet:SfBottomSheet>
 
     </Grid>
 

@@ -10,5 +10,6 @@ namespace BusTracking.Mobile.Interfaces
         Task<ApiResponse<object>> CancelAsync(int id);
         Task<ApiResponse<object>> DeleteAsync(int id);
         Task<BusLocation?> GetLocationAsync(int tripId);
+        Task<ApiResponse<List<StudentTripStatusDto>>> GetTripStudentsAsync(int tripId);
     }
 }

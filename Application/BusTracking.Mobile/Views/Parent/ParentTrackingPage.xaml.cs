@@ -1,7 +1,66 @@
-namespace BusTracking.Mobile.Views.Parent;
+#pragma warning disable CA1416
 
-public partial class ParentTrackingPage : ViewBase<ParentTrackingViewModel>
+namespace BusTracking.Mobile.Views.Parent
 {
-    public ParentTrackingPage(ParentTrackingViewModel vm) : base(vm) => InitializeComponent();
-    protected override void OnDisappearing() { base.OnDisappearing(); ViewModel.StopPolling(); }
+    public partial class ParentTrackingPage : ViewBase<ParentTrackingViewModel>
+    {
+        private readonly IAppConfigService _appConfig;
+        private bool _webViewReady;
+        private readonly List<string> _pendingJs = new();
+        private readonly object _pendingJsLock = new();
+
+        public ParentTrackingPage(ParentTrackingViewModel vm, IAppConfigService appConfig) : base(vm)
+        {
+            InitializeComponent();
+            _appConfig = appConfig;
+
+            vm.SendToMap = js =>
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    if (!_webViewReady)
+                    {
+                        lock (_pendingJsLock) { _pendingJs.Add(js); }
+                        return;
+                    }
+                    try { await MapWebView.EvaluateJavaScriptAsync(js); } catch { }
+                });
+
+            if (MapWebView != null)
+            {
+                MapWebView.Navigated += (s, e) =>
+                {
+                    _webViewReady = true;
+                    List<string> copy;
+                    lock (_pendingJsLock)
+                    {
+                        copy = new List<string>(_pendingJs);
+                        _pendingJs.Clear();
+                    }
+                    foreach (var js in copy)
+                    {
+                        MainThread.BeginInvokeOnMainThread(async () =>
+                        {
+                            try { await MapWebView.EvaluateJavaScriptAsync(js); } catch { }
+                        });
+                    }
+                };
+            }
+        }
+
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            if (MapWebView != null)
+            {
+                var html = await GoogleMapKeyHolder.GetMapHtmlAsync();
+                MapWebView.Source = new HtmlWebViewSource { Html = html };
+            }
+        }
+
+        protected override void OnDisappearing()
+        {
+            base.OnDisappearing();
+            ViewModel.StopPolling();
+        }
+    }
 }

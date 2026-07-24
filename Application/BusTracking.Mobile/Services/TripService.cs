@@ -51,5 +51,11 @@ namespace BusTracking.Mobile.Services
             var r = await _api.GetAsync<BusLocation>(url);
             return r.Data;
         }
+
+        public async Task<ApiResponse<List<StudentTripStatusDto>>> GetTripStudentsAsync(int tripId)
+        {
+            var url = string.Format(IsAdmin ? Constants.Admin.TripStudents : Constants.Coordinator.TripStudents, tripId);
+            return await _api.GetAsync<List<StudentTripStatusDto>>(url);
+        }
     }
 }

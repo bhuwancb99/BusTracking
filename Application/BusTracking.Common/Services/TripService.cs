@@ -61,13 +61,43 @@ namespace BusTracking.Common.Services
             var trip = await _db.BusTrips
                 .IgnoreQueryFilters()
                 .Include(t => t.Bus)
+                .Include(t => t.Route).ThenInclude(r => r!.Stops)
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
             if (trip is null) return ApiResponse<List<StudentTripStatusDto>>.Fail("Trip not found.");
 
+            // 1. Get all stops for this trip from TripStopEvents or Route.Stops
+            var stopEvents = await _db.TripStopEvents
+                .IgnoreQueryFilters()
+                .Include(e => e.Stop)
+                .Where(e => e.TripId == tripId)
+                .OrderBy(e => e.Stop.StopOrder)
+                .ToListAsync();
+
+            List<Stop> routeStops = [];
+            if (stopEvents.Count > 0)
+            {
+                routeStops = stopEvents.Select(e => e.Stop).Where(s => s != null).ToList()!;
+            }
+            else if (trip.Route?.Stops != null && trip.Route.Stops.Any())
+            {
+                routeStops = trip.Route.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).ToList();
+            }
+            else if (trip.BusId != null)
+            {
+                var bus = await _db.Buses.IgnoreQueryFilters().Include(b => b.Route).ThenInclude(r => r!.Stops)
+                    .FirstOrDefaultAsync(b => b.BusId == trip.BusId);
+                if (bus?.Route?.Stops != null)
+                {
+                    routeStops = bus.Route.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).ToList();
+                }
+            }
+
+            // 2. Get students for this bus/route
             var students = await _db.Students
-              .IgnoreQueryFilters()
-              .Include(s => s.User).Include(s => s.Stop)
-              .Where(s => s.BusId == trip.BusId && s.User.IsActive).ToListAsync();
+                .IgnoreQueryFilters()
+                .Include(s => s.User).Include(s => s.Stop)
+                .Where(s => (s.BusId == trip.BusId || (s.Stop != null && routeStops.Select(rs => rs.StopId).Contains(s.StopId ?? 0))) && s.User.IsActive)
+                .ToListAsync();
 
             var statuses = await _db.StudentTripStatuses
                 .IgnoreQueryFilters()
@@ -79,23 +109,53 @@ namespace BusTracking.Common.Services
                 .Where(a => students.Select(s => s.StudentId).Contains(a.StudentId)
                          && today >= a.FromDate && today <= a.ToDate).ToListAsync();
 
-            var result = students.OrderBy(s => s.Stop?.StopOrder ?? 999).ThenBy(s => s.User.FullName)
-                .Select(s =>
+            var result = new List<StudentTripStatusDto>();
+
+            foreach (var stop in routeStops)
+            {
+                var stopStudents = students.Where(s => s.StopId == stop.StopId || (s.Stop != null && s.Stop.StopOrder == stop.StopOrder)).ToList();
+                var evt = stopEvents.FirstOrDefault(e => e.StopId == stop.StopId);
+                var stopStatusStr = evt != null ? evt.Status.ToString() : "Pending";
+
+                if (stopStudents.Count > 0)
                 {
-                    var sts = statuses.FirstOrDefault(x => x.StudentId == s.StudentId);
-                    var avail = avails.FirstOrDefault(a => a.StudentId == s.StudentId);
-                    return new StudentTripStatusDto
+                    foreach (var s in stopStudents)
                     {
-                        StudentId = s.StudentId,
-                        StudentCode = s.StudentCode,
-                        StudentName = s.User.FullName,
-                        StopName = s.Stop?.StopName ?? "–",
-                        StopOrder = s.Stop?.StopOrder ?? 0,
-                        BoardingStatus = sts?.BoardingStatus.ToString()
-                                             ?? (avail != null ? "OnLeave" : "Pending"),
-                        IsUnavailable = avail != null
-                    };
-                }).ToList();
+                        var sts = statuses.FirstOrDefault(x => x.StudentId == s.StudentId);
+                        var avail = avails.FirstOrDefault(a => a.StudentId == s.StudentId);
+                        result.Add(new StudentTripStatusDto
+                        {
+                            StudentId = s.StudentId,
+                            StudentCode = s.StudentCode,
+                            StudentName = s.User.FullName,
+                            StopId = stop.StopId,
+                            StopName = stop.StopName,
+                            StopOrder = stop.StopOrder,
+                            Latitude = (double)stop.Latitude,
+                            Longitude = (double)stop.Longitude,
+                            BoardingStatus = sts?.BoardingStatus.ToString() ?? (avail != null ? "OnLeave" : stopStatusStr),
+                            IsUnavailable = avail != null
+                        });
+                    }
+                }
+                else
+                {
+                    // Add stop entry even if no student assigned
+                    result.Add(new StudentTripStatusDto
+                    {
+                        StudentId = 0,
+                        StudentCode = "",
+                        StudentName = "",
+                        StopId = stop.StopId,
+                        StopName = stop.StopName,
+                        StopOrder = stop.StopOrder,
+                        Latitude = (double)stop.Latitude,
+                        Longitude = (double)stop.Longitude,
+                        BoardingStatus = stopStatusStr,
+                        IsUnavailable = false
+                    });
+                }
+            }
 
             return ApiResponse<List<StudentTripStatusDto>>.Ok(result);
         }

@@ -1,4 +1,4 @@
-namespace BusTracking.Common.DTOs.Trip
+namespace BusTracking.Mobile.Models
 {
     public class StudentTripStatusDto
     {

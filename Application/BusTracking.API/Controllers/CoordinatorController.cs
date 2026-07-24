@@ -159,6 +159,20 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<bool>.Ok(true, "Trip cancelled."));
         }
 
+        [HttpGet("trips/{tripId}/students")]
+        public async Task<IActionResult> TripStudents(int tripId)
+        {
+            var r = await _trip.GetTripStudentsAsync(tripId);
+            return Ok(r);
+        }
+
+        [HttpGet("trips/{tripId}/stops")]
+        public async Task<IActionResult> TripStops(int tripId)
+        {
+            var r = await _trip.GetStopEventsAsync(tripId);
+            return Ok(r);
+        }
+
         [HttpGet("trips/{tripId}/location")]
         public async Task<IActionResult> TripLocation(int tripId)
         {

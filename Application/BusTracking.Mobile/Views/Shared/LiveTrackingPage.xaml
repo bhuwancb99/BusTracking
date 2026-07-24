@@ -8,63 +8,91 @@
     xmlns:tracking="clr-namespace:BusTracking.Mobile.Models.Tracking"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Shared"
+    Title="Live Tracking"
     x:DataType="vm:LiveTrackingViewModel"
-    x:TypeArguments="vm:LiveTrackingViewModel">
+    x:TypeArguments="vm:LiveTrackingViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
 
     <views:ViewBase.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="Transparent" StatusBarStyle="DarkContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
-    <!--  Full-screen layout: Map fills space between header & fixed bottom bar  -->
-    <Grid RowDefinitions="*,Auto">
+    <!--  Shell Title View: "Live Tracking" centered next to back arrow  -->
+    <Shell.TitleView>
+        <Grid HorizontalOptions="Center" VerticalOptions="Center">
+            <Label
+                FontAttributes="Bold"
+                FontSize="17"
+                HorizontalOptions="Center"
+                HorizontalTextAlignment="Center"
+                Text="Live Tracking"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}"
+                VerticalOptions="Center" />
+        </Grid>
+    </Shell.TitleView>
 
-        <!--  ROW 0 — Map occupies full middle area of screen  -->
-        <Grid Grid.Row="0">
-            <!--  Map WebView  -->
-            <WebView
-                x:Name="MapWebView"
-                HorizontalOptions="Fill"
-                Source="tracking_map.html"
-                VerticalOptions="Fill" />
+    <!--  Full-screen layout: Bus info card + Full Height Map + BottomSheet  -->
+    <Grid RowDefinitions="Auto,*,Auto">
 
-            <!--  Top bar: back button + live pill + bus card  -->
-            <Grid
-                Padding="14,50,14,14"
-                RowDefinitions="Auto,Auto"
-                VerticalOptions="Start">
+        <!--  ROW 0 — Bus info card  -->
+        <Border
+            Grid.Row="0"
+            Margin="12,12,12,6"
+            Padding="14,10"
+            BackgroundColor="{AppThemeBinding Light=White,
+                                              Dark={StaticResource CardBgDark}}"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                     Dark={StaticResource BorderColorDark}}"
+            StrokeShape="RoundRectangle 16"
+            StrokeThickness="1">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
 
-                <!--  Row 0: back + live pill  -->
-                <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto">
+                <!--  Bus icon badge  -->
+                <Border
+                    Grid.Column="0"
+                    Padding="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg},
+                                                      Dark={StaticResource StatTripBgDark}}"
+                    HeightRequest="42"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="0"
+                    WidthRequest="42">
+                    <Label
+                        FontSize="20"
+                        HorizontalOptions="Center"
+                        Text="🚌"
+                        VerticalOptions="Center" />
+                </Border>
 
-                    <!--  Back button  -->
+                <!--  Bus name + number  -->
+                <VerticalStackLayout
+                    Grid.Column="1"
+                    Spacing="2"
+                    VerticalOptions="Center">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="15"
+                        Text="{Binding BusName}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
+                    <Label
+                        FontSize="12"
+                        Text="{Binding BusNumber}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                </VerticalStackLayout>
+
+                <!--  Speed + Live Pill  -->
+                <VerticalStackLayout
+                    Grid.Column="2"
+                    HorizontalOptions="End"
+                    Spacing="2"
+                    VerticalOptions="Center">
                     <Border
-                        Grid.Column="0"
-                        Padding="0"
-                        BackgroundColor="White"
-                        HeightRequest="40"
-                        StrokeShape="RoundRectangle 20"
-                        WidthRequest="40">
-                        <Border.Shadow>
-                            <Shadow
-                                Brush="#20000000"
-                                Radius="6"
-                                Offset="0,2" />
-                        </Border.Shadow>
-                        <ImageButton
-                            BackgroundColor="Transparent"
-                            Command="{Binding GoBackCommand}"
-                            HeightRequest="24"
-                            HorizontalOptions="Center"
-                            Source="back.png"
-                            VerticalOptions="Center"
-                            WidthRequest="24" />
-                    </Border>
-
-                    <!--  Live / Reconnecting pill  -->
-                    <Border
-                        Grid.Column="2"
-                        Padding="12,6"
-                        StrokeShape="RoundRectangle 20"
+                        Padding="10,4"
+                        StrokeShape="RoundRectangle 16"
                         StrokeThickness="0">
                         <Border.Triggers>
                             <DataTrigger
@@ -80,89 +108,32 @@
                                 <Setter Property="BackgroundColor" Value="#64748b" />
                             </DataTrigger>
                         </Border.Triggers>
-                        <Border.Shadow>
-                            <Shadow
-                                Brush="#20000000"
-                                Radius="6"
-                                Offset="0,2" />
-                        </Border.Shadow>
                         <Label
                             FontAttributes="Bold"
-                            FontSize="12"
+                            FontSize="11"
                             Text="{Binding ConnectionStatus}"
                             TextColor="White"
                             VerticalOptions="Center" />
                     </Border>
-                </Grid>
 
-                <!--  Row 1: bus info card  -->
-                <Border
-                    Grid.Row="1"
-                    Margin="0,10,0,0"
-                    Padding="14,12"
-                    BackgroundColor="White"
-                    StrokeShape="RoundRectangle 16"
-                    StrokeThickness="0">
-                    <Border.Shadow>
-                        <Shadow
-                            Brush="#25000000"
-                            Radius="10"
-                            Offset="0,3" />
-                    </Border.Shadow>
-                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
-
-                        <!--  Bus icon badge  -->
-                        <Border
-                            Grid.Column="0"
-                            Padding="0"
-                            BackgroundColor="#EEF2FF"
-                            HeightRequest="46"
-                            StrokeShape="RoundRectangle 8"
-                            WidthRequest="46">
-                            <Label
-                                FontSize="22"
-                                HorizontalOptions="Center"
-                                Text="🚌"
-                                VerticalOptions="Center" />
-                        </Border>
-
-                        <!--  Bus name + number  -->
-                        <VerticalStackLayout
-                            Grid.Column="1"
-                            Spacing="2"
-                            VerticalOptions="Center">
-                            <Label
-                                FontAttributes="Bold"
-                                FontSize="15"
-                                Text="{Binding BusName}"
-                                TextColor="#1a1a2e" />
-                            <Label
-                                FontSize="12"
-                                Text="{Binding BusNumber}"
-                                TextColor="#666" />
-                        </VerticalStackLayout>
-
-                        <!--  Speed + last update  -->
-                        <VerticalStackLayout
-                            Grid.Column="2"
-                            HorizontalOptions="End"
-                            Spacing="2"
-                            VerticalOptions="Center">
-                            <Label
-                                FontAttributes="Bold"
-                                FontSize="15"
-                                HorizontalOptions="End"
-                                Text="{Binding SpeedLabel}"
-                                TextColor="#6366f1" />
-                            <Label
-                                FontSize="10"
-                                HorizontalOptions="End"
-                                Text="{Binding LastUpdateLabel}"
-                                TextColor="#aaa" />
-                        </VerticalStackLayout>
-                    </Grid>
-                </Border>
+                    <Label
+                        FontSize="10"
+                        HorizontalOptions="End"
+                        Text="{Binding LastUpdateLabel}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                </VerticalStackLayout>
             </Grid>
+        </Border>
+
+        <!--  ROW 1 — Full Height Interactive Map  -->
+        <Grid Grid.Row="1" Margin="12,2">
+            <!--  Map WebView  -->
+            <WebView
+                x:Name="MapWebView"
+                HorizontalOptions="Fill"
+                Source="tracking_map.html"
+                VerticalOptions="Fill" />
 
             <!--  Trip Ended overlay  -->
             <Border
@@ -190,7 +161,7 @@
                         TextColor="#ccc" />
                     <Button
                         Margin="40,10"
-                        BackgroundColor="#6366f1"
+                        BackgroundColor="{StaticResource Primary}"
                         Command="{Binding GoBackCommand}"
                         CornerRadius="8"
                         FontAttributes="Bold"
@@ -208,7 +179,7 @@
                     HorizontalOptions="Center"
                     Spacing="12"
                     VerticalOptions="Center">
-                    <ActivityIndicator IsRunning="True" Color="#6366f1" />
+                    <ActivityIndicator IsRunning="True" Color="{StaticResource Primary}" />
                     <Label
                         FontSize="14"
                         HorizontalOptions="Center"
@@ -218,26 +189,24 @@
             </Border>
         </Grid>
 
-        <!--  ROW 1 — Fixed Bottom Button Bar (Pinned at bottom of page)  -->
+        <!--  ROW 2 — Fixed Bottom Button Bar (Pinned at bottom of page)  -->
         <Border
-            Grid.Row="1"
+            Grid.Row="2"
+            Margin="12,4,12,12"
             Padding="16,12"
             BackgroundColor="{AppThemeBinding Light=White,
                                               Dark={StaticResource CardBgDark}}"
-            StrokeShape="RoundRectangle 24,24,0,0"
+            StrokeShape="RoundRectangle 16"
             StrokeThickness="0"
             VerticalOptions="End">
             <Border.Shadow>
                 <Shadow
-                    Brush="#40000000"
-                    Radius="16"
-                    Offset="0,-4" />
+                    Brush="#30000000"
+                    Radius="12"
+                    Offset="0,-2" />
             </Border.Shadow>
 
-            <Grid
-                ColumnDefinitions="*,Auto,Auto"
-                ColumnSpacing="10"
-                VerticalOptions="Center">
+            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
                 <Grid.GestureRecognizers>
                     <TapGestureRecognizer Command="{Binding ToggleSheetCommand}" />
                 </Grid.GestureRecognizers>
@@ -274,21 +243,21 @@
             </Grid>
         </Border>
 
-        <!--  SYNCFUSION BOTTOM SHEET (White header background & rounded top corners)  -->
+        <!--  SYNCFUSION BOTTOM SHEET  -->
         <sfBottomSheet:SfBottomSheet
             x:Name="StopsBottomSheet"
-            Grid.RowSpan="2"
+            Grid.RowSpan="3"
             Background="{AppThemeBinding Light=White,
                                          Dark={StaticResource CardBgDark}}"
             CornerRadius="24"
-            FullExpandedRatio="0.88"
-            HalfExpandedRatio="0.65"
+            FullExpandedRatio="0.85"
+            HalfExpandedRatio="0.60"
             IsModal="False"
             IsOpen="{Binding IsSheetExpanded, Mode=TwoWay}">
             <sfBottomSheet:SfBottomSheet.BottomSheetContent>
                 <Grid BackgroundColor="{AppThemeBinding Light=White, Dark={StaticResource CardBgDark}}" RowDefinitions="Auto,*">
 
-                    <!--  Top Header with Title, Badge & Small Close (X) Button  -->
+                    <!--  Top Header with Title, Badge & Close (X) Button  -->
                     <Grid
                         Grid.Row="0"
                         Padding="16,14"
@@ -319,7 +288,6 @@
                                 TextColor="{StaticResource Primary}" />
                         </Border>
 
-                        <!--  Small, clean close button  -->
                         <Border
                             Grid.Column="2"
                             Padding="6"
@@ -383,7 +351,7 @@
                                                     VerticalOptions="Center" />
                                             </Border>
 
-                                            <!--  Stop name  -->
+                                            <!--  Stop name & Student name  -->
                                             <Label
                                                 Grid.Column="2"
                                                 FontAttributes="Bold"

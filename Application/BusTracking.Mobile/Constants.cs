@@ -129,6 +129,7 @@ public static class Constants
         public const string TripStart = "/api/coordinator/trips/{0}/start";
         public const string TripEnd = "/api/coordinator/trips/{0}/end";
         public const string TripCancel = "/api/coordinator/trips/{0}/cancel";
+        public const string TripStudents = "/api/coordinator/trips/{0}/students";
         public const string TripLocation = "/api/coordinator/trips/{0}/location";
         public const string TripLocHist = "/api/coordinator/trips/{0}/location/history";
 

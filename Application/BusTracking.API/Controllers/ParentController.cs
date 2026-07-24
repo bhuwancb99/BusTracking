@@ -19,6 +19,8 @@ namespace BusTracking.API.Controllers
                 .Include(p => p.ParentStudents)
                     .ThenInclude(ps => ps.Student).ThenInclude(s => s.User)
                 .Include(p => p.ParentStudents)
+                    .ThenInclude(ps => ps.Student).ThenInclude(s => s.Standard)
+                .Include(p => p.ParentStudents)
                     .ThenInclude(ps => ps.Student).ThenInclude(s => s.Bus)
                 .Include(p => p.ParentStudents)
                     .ThenInclude(ps => ps.Student).ThenInclude(s => s.Stop)
@@ -33,7 +35,7 @@ namespace BusTracking.API.Controllers
                 ps.Student.UserId,                              // ← needed for photo upload
                 ps.Student.StudentCode,
                 FullName = ps.Student.User.FullName,
-                ps.Student.Standard,
+                StandardName = ps.Student.Standard?.StandardName ?? "N/A",
                 ProfileImageUrl = ps.Student.User.ProfileImageUrl,  // ← NEW
                 Bus = ps.Student.Bus is null ? null : new
                 {
@@ -61,7 +63,7 @@ namespace BusTracking.API.Controllers
         /// </summary>
         [HttpPost("children/{studentId}/photo")]
         [RequestSizeLimit(5_242_880)]
-        public async Task<IActionResult> UpdateChildPhoto(int studentId, IFormFile file)
+        public async Task<IActionResult> UploadPhoto(int studentId, IFormFile file)
         {
             // Verify this student belongs to the logged-in parent
             var parentDetail = await _db.Parents.FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
@@ -77,8 +79,8 @@ namespace BusTracking.API.Controllers
                 .Include(s => s.User)
                 .FirstOrDefaultAsync(s => s.StudentId == studentId);
 
-            if (student is null)
-                return NotFound(ApiResponse<string>.Fail("Student not found."));
+            if (student?.User is null)
+                return NotFound(ApiResponse<string>.Fail("Student user record not found."));
 
             try
             {
@@ -89,7 +91,7 @@ namespace BusTracking.API.Controllers
                 student.User.UpdatedAt = DateTime.UtcNow;
                 await _db.SaveChangesAsync();
 
-                return Ok(ApiResponse<string>.Ok(url, "Child photo updated."));
+                return Ok(ApiResponse<string>.Ok(url, "Child profile photo updated."));
             }
             catch (InvalidOperationException ex)
             {
@@ -98,8 +100,9 @@ namespace BusTracking.API.Controllers
         }
 
         // ── DELETE api/parent/children/{studentId}/photo ──────────────
+        /// <summary>Remove photo for own child.</summary>
         [HttpDelete("children/{studentId}/photo")]
-        public async Task<IActionResult> DeleteChildPhoto(int studentId)
+        public async Task<IActionResult> DeletePhoto(int studentId)
         {
             var parentDetail = await _db.Parents.FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
             if (parentDetail is null) return Forbid();
@@ -111,7 +114,7 @@ namespace BusTracking.API.Controllers
 
             var student = await _db.Students.Include(s => s.User)
                 .FirstOrDefaultAsync(s => s.StudentId == studentId);
-            if (student is null) return NotFound(ApiResponse<bool>.Fail("Student not found."));
+            if (student?.User is null) return NotFound(ApiResponse<bool>.Fail("Student user record not found."));
 
             _img.DeleteFile(student.User.ProfileImageUrl);
             student.User.ProfileImageUrl = null;
@@ -163,18 +166,37 @@ namespace BusTracking.API.Controllers
             var boarding = await _db.StudentTripStatuses
                 .FirstOrDefaultAsync(s => s.TripId == trip.TripId && s.StudentId == studentId);
 
+            var stops = await _db.TripStopEvents
+                .Include(e => e.Stop)
+                .Where(e => e.TripId == trip.TripId)
+                .OrderBy(e => e.Stop.StopOrder)
+                .Select(e => new
+                {
+                    e.Stop.StopId,
+                    e.Stop.StopName,
+                    e.Stop.StopOrder,
+                    e.Stop.Latitude,
+                    e.Stop.Longitude,
+                    Status = e.Status.ToString(),
+                    e.ReachedAt,
+                    e.DepartedAt
+                })
+                .ToListAsync();
+
             return Ok(ApiResponse<object>.Ok(new
             {
                 IsLive = true,
-                Trip = new { 
-                    trip.TripId, 
-                    TripType = trip.TripType.ToString(), 
+                Trip = new
+                {
+                    trip.TripId,
+                    TripType = trip.TripType.ToString(),
                     Status = trip.Status.ToString(),
                     DriverName = trip.Driver?.FullName ?? "Bus Driver"
                 },
                 Bus = new { student.Bus!.BusName, student.Bus.BusNumber },
                 Location = loc,
-                BoardingStatus = boarding?.BoardingStatus.ToString() ?? "Pending"
+                BoardingStatus = boarding?.BoardingStatus.ToString() ?? "Pending",
+                Stops = stops
             }));
         }
 

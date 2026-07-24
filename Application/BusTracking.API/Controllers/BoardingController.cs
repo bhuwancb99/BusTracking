@@ -4,7 +4,13 @@ namespace BusTracking.API.Controllers
     public class BoardingController : ApiBaseController
     {
         private readonly AppDbContext _db;
-        public BoardingController(AppDbContext db) => _db = db;
+        private readonly IFcmPushNotificationService _fcm;
+
+        public BoardingController(AppDbContext db, IFcmPushNotificationService fcm)
+        {
+            _db = db;
+            _fcm = fcm;
+        }
 
         public class UpdateBoardingRequest
         {
@@ -48,6 +54,12 @@ namespace BusTracking.API.Controllers
             }
 
             await _db.SaveChangesAsync();
+
+            if (status == BoardingStatus.PickedUp)
+            {
+                _ = _fcm.SendStudentPickedUpPushAsync(tripId, req.StudentId, req.StopId);
+            }
+
             return Ok(ApiResponse<bool>.Ok(true, $"Status updated to {status}."));
         }
     }

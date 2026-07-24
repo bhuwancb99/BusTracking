@@ -1,3 +1,5 @@
+#pragma warning disable CA1416
+
 namespace BusTracking.Mobile.Views.Shared;
 
 public partial class LiveTrackingPage : ViewBase<LiveTrackingViewModel>

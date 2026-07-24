@@ -68,15 +68,8 @@ namespace BusTracking.API.Controllers
         [HttpPost("{tripId}/start")]
         public async Task<IActionResult> Start(int tripId)
         {
-            var trip = await _db.BusTrips.FindAsync(tripId);
-            if (trip is null || trip.DriverId != CurrentUserId)
-                return NotFound(ApiResponse<bool>.Fail("Trip not found."));
-
-            var now = GetSchoolNow();
-            trip.Status = TripStatus.InProgress;
-            trip.StartedAt = now;
-            await _db.SaveChangesAsync();
-            return Ok(ApiResponse<bool>.Ok(true, "Trip started."));
+            var r = await _trip.StartTripAsync(tripId);
+            return r.Success ? Ok(r) : BadRequest(r);
         }
 
         /// <summary>End a trip</summary>
