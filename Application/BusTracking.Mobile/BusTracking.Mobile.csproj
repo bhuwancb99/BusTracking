@@ -161,6 +161,7 @@
 		<GoogleServicesJson Include="Platforms\Android\google-services.json" />
 		<TrimmerRootAssembly Include="Plugin.Firebase" />
 		<TrimmerRootAssembly Include="Plugin.Firebase.CloudMessaging" />
+		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3.android" Version="2.1.12" />
 	</ItemGroup>
 
 	<ItemGroup Condition="$(TargetFramework.Contains('ios'))">
