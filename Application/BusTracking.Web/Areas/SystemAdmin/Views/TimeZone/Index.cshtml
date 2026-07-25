@@ -86,25 +86,7 @@
 </div>
 
 <!-- Pagination -->
-@if (ViewBag.TotalPages > 1)
-{
-    <nav class="d-flex justify-content-center mt-4">
-        <ul class="pagination gap-1">
-            <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
-                <a class="page-link rounded-3 bg-secondary text-light border-0" href="@Url.Action("Index", "TimeZone", new { area = "SystemAdmin", search = ViewBag.Search, page = ViewBag.CurrentPage - 1 })"><i class="bi bi-chevron-left"></i></a>
-            </li>
-            @for (int i = 1; i <= ViewBag.TotalPages; i++)
-            {
-                <li class="page-item @(ViewBag.CurrentPage == i ? "active" : "")">
-                    <a class="page-link rounded-3 border-0 @(ViewBag.CurrentPage == i ? "bg-primary text-light" : "bg-secondary text-secondary")" href="@Url.Action("Index", "TimeZone", new { area = "SystemAdmin", search = ViewBag.Search, page = i })">@i</a>
-                </li>
-            }
-            <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
-                <a class="page-link rounded-3 bg-secondary text-light border-0" href="@Url.Action("Index", "TimeZone", new { area = "SystemAdmin", search = ViewBag.Search, page = ViewBag.CurrentPage + 1 })"><i class="bi bi-chevron-right"></i></a>
-            </li>
-        </ul>
-    </nav>
-}
+<partial name="_Pagination" />
 
 @section Scripts {
     <script>

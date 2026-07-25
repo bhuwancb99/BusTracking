@@ -1,0 +1,42 @@
+@* ── SystemAdmin Shared _Pagination.cshtml ── *@
+@{
+    int currentPage = ViewBag.CurrentPage ?? 1;
+    int totalPages = ViewBag.TotalPages ?? 1;
+    int totalItems = ViewBag.TotalItems ?? 0;
+    int pageSize = 10;
+    int startItem = totalItems == 0 ? 0 : (currentPage - 1) * pageSize + 1;
+    int endItem = Math.Min(currentPage * pageSize, totalItems);
+    string search = ViewBag.Search as string ?? "";
+    string action = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
+    string controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Home";
+}
+
+@if (totalItems > 0)
+{
+    <div class="premium-card rounded-4 border-0 p-3 mt-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="text-secondary small">
+                Showing @startItem–@endItem of <strong>@totalItems</strong> results
+            </div>
+            @if (totalPages > 1)
+            {
+                <nav>
+                    <ul class="pagination pagination-sm mb-0">
+                        <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action(action, controller, new { area = "SystemAdmin", search = search, page = currentPage - 1 })">&laquo;</a>
+                        </li>
+                        @for (int i = 1; i <= totalPages; i++)
+                        {
+                            <li class="page-item @(currentPage == i ? "active" : "")">
+                                <a class="page-link" href="@Url.Action(action, controller, new { area = "SystemAdmin", search = search, page = i })">@i</a>
+                            </li>
+                        }
+                        <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                            <a class="page-link" href="@Url.Action(action, controller, new { area = "SystemAdmin", search = search, page = currentPage + 1 })">&raquo;</a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+}
