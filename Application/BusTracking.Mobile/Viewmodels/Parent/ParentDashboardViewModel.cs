@@ -15,7 +15,7 @@ namespace BusTracking.Mobile.Viewmodels.Parent
         public override async Task InitializeAsync()
         {
             var user = await Auth.GetCurrentUserAsync();
-            WelcomeText = $"Welcome back, {user?.FullName?.Split(' ')?.FirstOrDefault() ?? ""} 👋";
+            WelcomeText = $"Welcome back, {user?.FullName?.Split(' ')?.FirstOrDefault() ?? ""}";
             TodayLabel = DateTime.Today.ToString("dddd, dd MMMM yyyy");
             await CheckNotificationPermissionAsync(requestIfFirstTime: true);
             await RefreshCommand.ExecuteAsync(null);

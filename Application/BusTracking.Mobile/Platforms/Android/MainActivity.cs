@@ -48,9 +48,14 @@ namespace BusTracking.Mobile
             {
                 if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
                 {
-                    var channelId = $"{PackageName}.general";
+                    var channelId = "busTracking.mobile.general";
                     var notificationManager = (NotificationManager?)GetSystemService(NotificationService);
-                    var channel = new NotificationChannel(channelId, "General", NotificationImportance.Default);
+                    var channel = new NotificationChannel(channelId, "General Notifications", NotificationImportance.High)
+                    {
+                        Description = "Bus tracking trip and student boarding push notifications"
+                    };
+                    channel.EnableVibration(true);
+                    channel.EnableLights(true);
                     notificationManager?.CreateNotificationChannel(channel);
                     FirebaseCloudMessagingImplementation.ChannelId = channelId;
                 }

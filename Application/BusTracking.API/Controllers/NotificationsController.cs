@@ -27,34 +27,85 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
-        // Register device token for push notifications
+        // Register device token for push notifications (physical devices only)
         [HttpPost("device-token")]
         public async Task<IActionResult> RegisterDevice([FromBody] RegisterDeviceRequest req,
             [FromServices] AppDbContext db)
         {
+            if (req.IsVirtual || req.Platform.Equals("Virtual", StringComparison.OrdinalIgnoreCase))
+            {
+                return Ok(ApiResponse<bool>.Ok(true, "Virtual/Emulator device token skipped."));
+            }
+
+            if (string.IsNullOrWhiteSpace(req.Token))
+            {
+                return BadRequest(ApiResponse<bool>.Fail("Token is required."));
+            }
+
             if (!Enum.TryParse<DevicePlatform>(req.Platform, true, out var platform))
-                return BadRequest(ApiResponse<bool>.Fail("Invalid platform."));
+                platform = DevicePlatform.Android;
 
-            // Deactivate old tokens for same user
-            await db.DeviceTokens
+            // Delete any previous record for the same token across ALL users
+            // (Ensures that if User A logs out and User B logs in on the same phone,
+            // the token is reassigned to User B and deleted from User A).
+            var existingTokens = await db.DeviceTokens
                 .IgnoreQueryFilters()
-                .Where(d => d.UserId == CurrentUserId && d.Token == req.Token)
-                .ExecuteUpdateAsync(s => s.SetProperty(d => d.IsActive, false));
+                .Where(d => d.Token == req.Token)
+                .ToListAsync();
 
+            if (existingTokens.Count > 0)
+            {
+                db.DeviceTokens.RemoveRange(existingTokens);
+            }
+
+            var user = await db.Users.IgnoreQueryFilters().FirstOrDefaultAsync(u => u.UserId == CurrentUserId);
             db.DeviceTokens.Add(new DeviceToken
             {
+                SchoolId = user?.SchoolId,
                 UserId = CurrentUserId,
                 Token = req.Token,
-                Platform = platform
+                Platform = platform,
+                IsActive = true,
+                RegisteredAt = DateTime.UtcNow
             });
             await db.SaveChangesAsync();
-            return Ok(ApiResponse<bool>.Ok(true, "Device registered."));
+            return Ok(ApiResponse<bool>.Ok(true, "Device registered successfully."));
+        }
+
+        // Remove device token on logout
+        [HttpPost("device-token/remove")]
+        public async Task<IActionResult> RemoveDevice([FromBody] RemoveDeviceRequest req,
+            [FromServices] AppDbContext db)
+        {
+            if (string.IsNullOrWhiteSpace(req.Token))
+            {
+                return Ok(ApiResponse<bool>.Ok(true, "No token provided."));
+            }
+
+            var existingTokens = await db.DeviceTokens
+                .IgnoreQueryFilters()
+                .Where(d => d.Token == req.Token)
+                .ToListAsync();
+
+            if (existingTokens.Count > 0)
+            {
+                db.DeviceTokens.RemoveRange(existingTokens);
+                await db.SaveChangesAsync();
+            }
+
+            return Ok(ApiResponse<bool>.Ok(true, "Device token removed cleanly."));
         }
 
         public class RegisterDeviceRequest
         {
             public string Token { get; set; } = "";
             public string Platform { get; set; } = "";   // Android | iOS
+            public bool IsVirtual { get; set; } = false;
+        }
+
+        public class RemoveDeviceRequest
+        {
+            public string Token { get; set; } = "";
         }
     }
 }

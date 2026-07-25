@@ -21,6 +21,7 @@ namespace BusTracking.Common.Services
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
                 var isAllow = await db.AppConfigurations
+                    .IgnoreQueryFilters()
                     .Where(c => c.ConfigKey == "IsAllowPushNotification" && c.IsActive)
                     .Select(c => c.ConfigValue)
                     .FirstOrDefaultAsync();
@@ -29,28 +30,37 @@ namespace BusTracking.Common.Services
 
                 var student = await db.Students
                     .IgnoreQueryFilters()
-                    .Include(s => s.User)
                     .Include(s => s.Bus)
                     .Include(s => s.Stop)
                     .FirstOrDefaultAsync(s => s.StudentId == studentId);
 
                 if (student is null) return;
 
-                var parentUserIds = await db.ParentStudents
+                var studentUser = await db.Users
                     .IgnoreQueryFilters()
-                    .Include(ps => ps.Parent)
+                    .FirstOrDefaultAsync(u => u.UserId == student.UserId);
+
+                var parentIdsFromLink = await db.ParentStudents
+                    .IgnoreQueryFilters()
                     .Where(ps => ps.StudentId == studentId)
-                    .Select(ps => ps.Parent.UserId)
+                    .Select(ps => ps.ParentId)
+                    .ToListAsync();
+
+                var parentUserIdsFromParentsTable = await db.Parents
+                    .IgnoreQueryFilters()
+                    .Where(p => parentIdsFromLink.Contains(p.ParentId))
+                    .Select(p => p.UserId)
                     .ToListAsync();
 
                 var targetUserIds = new List<int> { student.UserId };
-                targetUserIds.AddRange(parentUserIds);
+                targetUserIds.AddRange(parentUserIdsFromParentsTable);
+                targetUserIds.AddRange(parentIdsFromLink);
                 targetUserIds = targetUserIds.Distinct().ToList();
 
                 var stopObj = await db.Stops.IgnoreQueryFilters().FirstOrDefaultAsync(st => st.StopId == stopId) ?? student.Stop;
                 var stopName = stopObj?.StopName ?? "assigned stop";
                 var busName = student.Bus?.BusName ?? "School Bus";
-                var studentName = student.User?.FullName ?? "Student";
+                var studentName = studentUser?.FullName ?? "Student";
 
                 var title = "🎒 Student Picked Up!";
                 var body = $"{studentName} has been picked up at '{stopName}' on bus '{busName}'.";
@@ -76,16 +86,17 @@ namespace BusTracking.Common.Services
                 // 2. Dispatch FCM Push Notifications to active device tokens
                 var tokens = await db.DeviceTokens
                     .IgnoreQueryFilters()
-                    .Where(d => d.IsActive && targetUserIds.Contains(d.UserId))
+                    .Where(d => targetUserIds.Contains(d.UserId))
                     .Select(d => d.Token)
                     .Distinct()
                     .ToListAsync();
 
                 if (tokens.Count == 0) return;
 
+#pragma warning disable CS0618 // Type or member is obsolete
                 var msg = new MulticastMessage
                 {
-                    Fids = tokens,
+                    Tokens = tokens,
                     Notification = new FirebaseAdmin.Messaging.Notification { Title = title, Body = body },
                     Data = new Dictionary<string, string>
                     {
@@ -99,6 +110,7 @@ namespace BusTracking.Common.Services
                         ["body"] = body
                     }
                 };
+#pragma warning restore CS0618 // Type or member is obsolete
 
                 if (FirebaseMessaging.DefaultInstance != null)
                 {
@@ -120,6 +132,7 @@ namespace BusTracking.Common.Services
                 var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
                 var isAllow = await db.AppConfigurations
+                    .IgnoreQueryFilters()
                     .Where(c => c.ConfigKey == "IsAllowPushNotification" && c.IsActive)
                     .Select(c => c.ConfigValue)
                     .FirstOrDefaultAsync();
@@ -128,7 +141,7 @@ namespace BusTracking.Common.Services
 
                 var trip = await db.BusTrips
                     .IgnoreQueryFilters()
-                    .Include(t => t.Bus).ThenInclude(b => b!.Route).ThenInclude(r => r!.Stops)
+                    .Include(t => t.Bus).ThenInclude(b => b!.Route)
                     .Include(t => t.Driver)
                     .FirstOrDefaultAsync(t => t.TripId == tripId);
 
@@ -136,24 +149,61 @@ namespace BusTracking.Common.Services
 
                 int? routeId = trip.RouteId > 0 ? trip.RouteId : trip.Bus?.RouteId;
 
-                var routeStudents = await db.Students
+                // 1. Get student IDs from StudentTripStatuses for this trip
+                var tripStudentIds = await db.StudentTripStatuses
                     .IgnoreQueryFilters()
-                    .Include(s => s.User)
-                    .Include(s => s.Stop)
-                    .Where(s => (s.BusId == trip.BusId || (routeId != null && s.Stop != null && s.Stop.RouteId == routeId)) && s.User.IsActive)
+                    .Where(sts => sts.TripId == tripId)
+                    .Select(sts => sts.StudentId)
                     .ToListAsync();
 
-                var studentUserIds = routeStudents.Select(s => s.UserId).ToList();
-                var busStudentIds = routeStudents.Select(s => s.StudentId).ToList();
+                // 2. Get student IDs directly assigned to this bus
+                var busStudentIds = trip.BusId != null
+                    ? await db.Students
+                        .IgnoreQueryFilters()
+                        .Where(s => s.BusId == trip.BusId)
+                        .Select(s => s.StudentId)
+                        .ToListAsync()
+                    : new List<int>();
 
-                var parentUserIds = await db.ParentStudents
+                // 3. Get student IDs assigned to stops on this route
+                var routeStopStudentIds = routeId != null
+                    ? await db.Students
+                        .IgnoreQueryFilters()
+                        .Where(s => s.StopId != null && db.Stops.Any(st => st.StopId == s.StopId && st.RouteId == routeId))
+                        .Select(s => s.StudentId)
+                        .ToListAsync()
+                    : new List<int>();
+
+                var allStudentIds = tripStudentIds
+                    .Concat(busStudentIds)
+                    .Concat(routeStopStudentIds)
+                    .Distinct()
+                    .ToList();
+
+                var studentUserIds = await db.Students
                     .IgnoreQueryFilters()
-                    .Include(ps => ps.Parent)
-                    .Where(ps => busStudentIds.Contains(ps.StudentId))
-                    .Select(ps => ps.Parent.UserId)
+                    .Where(s => allStudentIds.Contains(s.StudentId))
+                    .Select(s => s.UserId)
                     .ToListAsync();
 
-                var targetUserIds = studentUserIds.Concat(parentUserIds).Distinct().ToList();
+                var parentIdsFromLink = await db.ParentStudents
+                    .IgnoreQueryFilters()
+                    .Where(ps => allStudentIds.Contains(ps.StudentId))
+                    .Select(ps => ps.ParentId)
+                    .ToListAsync();
+
+                var parentUserIdsFromParentsTable = await db.Parents
+                    .IgnoreQueryFilters()
+                    .Where(p => parentIdsFromLink.Contains(p.ParentId))
+                    .Select(p => p.UserId)
+                    .ToListAsync();
+
+                var targetUserIds = studentUserIds
+                    .Concat(parentUserIdsFromParentsTable)
+                    .Concat(parentIdsFromLink)
+                    .Distinct()
+                    .ToList();
+
                 if (targetUserIds.Count == 0) return;
 
                 var driverName = trip.Driver?.FullName ?? "Bus Driver";
@@ -184,16 +234,17 @@ namespace BusTracking.Common.Services
                 // 2. Dispatch FCM Push Notifications to active device tokens
                 var tokens = await db.DeviceTokens
                     .IgnoreQueryFilters()
-                    .Where(d => d.IsActive && targetUserIds.Contains(d.UserId))
+                    .Where(d => targetUserIds.Contains(d.UserId))
                     .Select(d => d.Token)
                     .Distinct()
                     .ToListAsync();
 
                 if (tokens.Count == 0) return;
 
+#pragma warning disable CS0618 // Type or member is obsolete
                 var msg = new MulticastMessage
                 {
-                    Fids = tokens,
+                    Tokens = tokens,
                     Notification = new FirebaseAdmin.Messaging.Notification { Title = title, Body = body },
                     Data = new Dictionary<string, string>
                     {
@@ -206,6 +257,7 @@ namespace BusTracking.Common.Services
                         ["body"] = body
                     }
                 };
+#pragma warning restore CS0618 // Type or member is obsolete
 
                 if (FirebaseMessaging.DefaultInstance != null)
                 {

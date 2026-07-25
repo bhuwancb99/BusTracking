@@ -5,15 +5,17 @@ namespace BusTracking.Mobile.Services
         private readonly IApiService _api;
         private readonly LocalDatabase _db;
         private readonly ICacheService _cache;
+        private readonly IPushTokenService _tokenService;
         private SessionUser? _currentUser;
 
         public string CurrentRole => _currentUser?.Role ?? "";
 
-        public AuthService(IApiService api, LocalDatabase db, ICacheService cache)
+        public AuthService(IApiService api, LocalDatabase db, ICacheService cache, IPushTokenService tokenService)
         {
             _api = api;
             _db = db;
             _cache = cache;
+            _tokenService = tokenService;
         }
 
         // ── Login ─────────────────────────────────────────────────────────────
@@ -161,6 +163,12 @@ namespace BusTracking.Mobile.Services
 
         public async Task LogoutAsync()
         {
+            try
+            {
+                await _tokenService.RemoveDeviceTokenAsync();
+            }
+            catch { }
+
             _currentUser = null;
             _api.ClearToken();
             _cache.Clear();

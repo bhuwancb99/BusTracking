@@ -2,11 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools">
 	<application android:allowBackup="true" android:icon="@mipmap/appicon" android:roundIcon="@mipmap/appicon_round" android:supportsRtl="true">
 
-		<!-- Remove plugin-provided generated service to prevent startup crash -->
-		<service
-			android:name="crc64d2dcc2805d51c0a8.MyFirebaseMessagingService"
-			tools:node="remove" />
-
 		<!--
 		    Google Maps API key for native Android Maps SDK (if used).
 		    For WebView-based maps (tracking_map.html), the key is injected
@@ -18,12 +13,29 @@
 			android:name="com.google.android.geo.API_KEY"
 			android:value="" />
 
+		<!-- Firebase Default Notification Channel & Icon -->
+		<meta-data
+			android:name="com.google.firebase.messaging.default_notification_channel_id"
+			android:value="busTracking.mobile.general" />
+		<meta-data
+			android:name="com.google.firebase.messaging.default_notification_icon"
+			android:resource="@mipmap/appicon" />
+
 		<!-- Background GPS foreground service -->
 		<service
 			android:name="busTracking.mobile.platforms.android.LocationForegroundService"
 			android:enabled="true"
 			android:exported="false"
 			android:foregroundServiceType="location" />
+
+		<!-- Firebase Cloud Messaging Service -->
+		<service
+			android:name="crc64d2dcc2805d51c0a8.MyFirebaseMessagingService"
+			android:exported="true">
+			<intent-filter>
+				<action android:name="com.google.firebase.MESSAGING_EVENT" />
+			</intent-filter>
+		</service>
 
 		<!-- Firebase Cloud Messaging Receivers -->
 		<receiver
