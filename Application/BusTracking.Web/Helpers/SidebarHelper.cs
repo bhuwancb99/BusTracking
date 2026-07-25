@@ -29,7 +29,9 @@ public static class SidebarHelper
         new() { Label = "Drivers",          Icon = "bi-person-video2",   Controller = "Driver",         Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Parents",          Icon = "bi-people",          Controller = "Parent",         Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Students",         Icon = "bi-mortarboard",     Controller = "Student",        Action = "Index",   Area = "SuperAdmin" },
-        new() { Label = "Trips",            Icon = "bi-signpost-split",  Controller = "Trip",           Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "Fuel & Mileage",   Icon = "bi-fuel-pump-fill",      Controller = "FuelLog",        Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "Analytics & Reports", Icon = "bi-bar-chart-line-fill", Controller = "Report",       Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "Trips",            Icon = "bi-signpost-split",      Controller = "Trip",           Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Notifications",    Icon = "bi-bell",            Controller = "Notification",   Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Help & Support",   Icon = "bi-headset",         Controller = "Feedback",       Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "System Logs",      Icon = "bi-journal-text",    Controller = "Logger",         Action = "Index",   Area = "SuperAdmin" },
@@ -52,7 +54,7 @@ public static class SidebarHelper
 
         // ── Order mirrors SuperAdmin sidebar exactly ──────────────────
         // Dashboard → App Config → Sub-Admins → Routes → Buses → Bus Types
-        // → Drivers → Parents → Students → Trips → Notifications → Help & Support
+        // → Drivers → Parents → Students → Fuel & Mileage → Analytics & Reports → Trips → Notifications → Help & Support
 
         if (Has("appconfig.view"))
             menu.Add(new() { Label = "App Config", Icon = "bi-sliders", Controller = "AppConfig", Action = "Index", Area = "BusCoordinator" });
@@ -77,6 +79,12 @@ public static class SidebarHelper
 
         if (Has("student.view"))
             menu.Add(new() { Label = "Students", Icon = "bi-mortarboard", Controller = "Student", Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("fuellog.view") || Has("fuellog.manage"))
+            menu.Add(new() { Label = "Fuel & Mileage", Icon = "bi-fuel-pump-fill", Controller = "FuelLog", Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("report.view") || Has("trip.view"))
+            menu.Add(new() { Label = "Analytics & Reports", Icon = "bi-bar-chart-line-fill", Controller = "Report", Action = "Index", Area = "BusCoordinator" });
 
         if (Has("trip.view") || Has("trip.manage"))
             menu.Add(new() { Label = "Trips", Icon = "bi-signpost-split", Controller = "Trip", Action = "Index", Area = "BusCoordinator" });

@@ -32,3 +32,4 @@ global using Microsoft.AspNetCore.Mvc.Rendering;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.FileProviders;
 global using System.Security.Claims;
+global using System.Text;

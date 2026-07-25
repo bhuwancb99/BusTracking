@@ -59,7 +59,7 @@ app.UseMiddleware<BusTracking.Web.Middleware.WebExceptionMiddleware>();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Auth/AccessDenied");
+    app.UseExceptionHandler("/Auth/Error");
     app.UseHsts();
     app.UseHttpsRedirection();
 }

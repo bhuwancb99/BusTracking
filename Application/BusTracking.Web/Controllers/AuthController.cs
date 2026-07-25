@@ -160,4 +160,10 @@ public class AuthController : Controller
         "Student" => Redirect("/Student/Dashboard/Index"),
         _ => RedirectToAction(nameof(Login))
     };
+
+    [HttpGet, Route("Auth/Error")]
+    public IActionResult Error()
+    {
+        return View("~/Views/Shared/Error.cshtml");
+    }
 }

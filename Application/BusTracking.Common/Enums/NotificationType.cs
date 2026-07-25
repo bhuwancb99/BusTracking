@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Enums
+namespace BusTracking.Common.Enums
 {
     public enum NotificationType
     {
@@ -9,6 +9,10 @@
         RouteChanged,
         Broadcast,
         ContentUpdate,
-        ActivityUpdate
+        ActivityUpdate,
+        SOSAlert,
+        OverSpeedAlert,
+        UnscheduledAbsenceAlert,
+        MaintenanceDueAlert
     }
 }

@@ -77,5 +77,10 @@ namespace BusTracking.Mobile.Interfaces
         /// Mark a stop as departed.
         /// </summary>
         Task<ApiResponse<object>> DepartStopAsync(int tripId, int stopId);
+
+        /// <summary>
+        /// Trigger emergency SOS alert.
+        /// </summary>
+        Task<ApiResponse<object>> TriggerSosAsync(int tripId, double lat, double lng);
     }
 }

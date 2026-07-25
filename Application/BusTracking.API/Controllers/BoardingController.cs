@@ -20,6 +20,12 @@ namespace BusTracking.API.Controllers
             public string Status { get; set; } = "";
         }
 
+        public class QuickScanBoardingRequest
+        {
+            public string StudentCode { get; set; } = "";
+            public string BoardingStatus { get; set; } = "PickedUp";
+        }
+
         /// <summary>Driver marks student as PickedUp, NoShow, OnLeave, or Pending</summary>
         [HttpPut]
         public async Task<IActionResult> UpdateBoarding(int tripId, [FromBody] UpdateBoardingRequest req)
@@ -61,6 +67,30 @@ namespace BusTracking.API.Controllers
             }
 
             return Ok(ApiResponse<bool>.Ok(true, $"Status updated to {status}."));
+        }
+
+        /// <summary>Driver scans student QR / StudentCode to mark boarding status instantly</summary>
+        [HttpPost("scan-code")]
+        public async Task<IActionResult> QuickScanBoarding(int tripId, [FromBody] QuickScanBoardingRequest req)
+        {
+            if (string.IsNullOrWhiteSpace(req.StudentCode))
+                return BadRequest(ApiResponse<bool>.Fail("StudentCode is required."));
+
+            var code = req.StudentCode.Trim();
+            var student = await _db.Students
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(s => s.StudentCode == code);
+
+            if (student is null)
+                return NotFound(ApiResponse<bool>.Fail($"Student code '{code}' not found."));
+
+            var stopId = student.StopId ?? 0;
+            return await UpdateBoarding(tripId, new UpdateBoardingRequest
+            {
+                StudentId = student.StudentId,
+                StopId = stopId,
+                BoardingStatus = req.BoardingStatus
+            });
         }
     }
 }

@@ -18,6 +18,12 @@ namespace BusTracking.Common.Entities
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         public int? CreatedBy { get; set; }
 
+        // Compliance & Maintenance Tracking
+        public DateOnly? InsuranceExpiryDate { get; set; }
+        public DateOnly? FitnessExpiryDate { get; set; }
+        public DateOnly? PucExpiryDate { get; set; }
+        public DateOnly? LastServiceDate { get; set; }
+
         [ForeignKey(nameof(RouteId))]
         public BusRoute? Route { get; set; }
 
@@ -28,5 +34,6 @@ namespace BusTracking.Common.Entities
         public DriverDetail? Driver { get; set; }
         public ICollection<BusTrip> Trips { get; set; } = [];
         public ICollection<BusImage> Images { get; set; } = [];
+        public ICollection<BusFuelLog> FuelLogs { get; set; } = [];
     }
 }

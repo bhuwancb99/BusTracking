@@ -239,6 +239,14 @@ public static class Constants
         public const string Dropdown = "/api/bustype/dropdown";
     }
 
+    // ── FuelLog  →  FuelLogController  [Route("api/fuellog")] ──────────────
+    public static class FuelLog
+    {
+        public const string All = "/api/fuellog";
+        public const string ById = "/api/fuellog/{0}";
+        public const string ByBus = "/api/fuellog/bus/{0}";
+    }
+
 
     // ── Local DB ──────────────────────────────────────────────────────────
     public static class Database

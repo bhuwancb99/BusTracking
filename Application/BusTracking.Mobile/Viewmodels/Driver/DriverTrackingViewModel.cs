@@ -19,6 +19,24 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         [RelayCommand]
         private void ToggleSheet() => IsSheetExpanded = !IsSheetExpanded;
 
+        [RelayCommand]
+        private async Task TriggerSosAsync()
+        {
+            var confirm = await ConfirmAsync("🚨 EMERGENCY SOS", "Are you sure you want to broadcast an Emergency SOS alert to Bus Coordinators & School Management?", "YES, SEND SOS", "Cancel");
+            if (!confirm) return;
+
+            await RunAsync(async () =>
+            {
+                var loc = await Geolocation.GetLastKnownLocationAsync() ?? await Geolocation.GetLocationAsync();
+                var lat = loc?.Latitude ?? 0.0;
+                var lng = loc?.Longitude ?? 0.0;
+
+                await _driverTrip.TriggerSosAsync(TripId, lat, lng);
+
+                await ShowAlertAsync("SOS SENT", "Emergency SOS Alert has been broadcasted to School Management and Coordinators.");
+            });
+        }
+
         // JS bridge for Google Maps WebView
         public Action<string>? SendToMap { get; set; }
 

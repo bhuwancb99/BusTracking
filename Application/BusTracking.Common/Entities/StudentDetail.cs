@@ -10,6 +10,11 @@ namespace BusTracking.Common.Entities
         public int? StandardId { get; set; }
         public int? BusId { get; set; }
         public int? StopId { get; set; }
+
+        // Transport Fee Tracking
+        public TransportFeeStatus TransportFeeStatus { get; set; } = TransportFeeStatus.Paid;
+        public DateOnly? FeeExpiryDate { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 

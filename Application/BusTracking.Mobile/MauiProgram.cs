@@ -100,6 +100,7 @@ namespace BusTracking.Mobile
             Routing.RegisterRoute("AdminParentForm", typeof(AdminParentFormPage));
             Routing.RegisterRoute("AdminStudentForm", typeof(AdminStudentFormPage));
             Routing.RegisterRoute("AdminTripForm", typeof(AdminTripFormPage));
+            Routing.RegisterRoute("AdminFuelLogForm", typeof(AdminFuelLogFormPage));
 
             // ── Super Admin — Detail pages ────────────────────────────────────
             Routing.RegisterRoute("AdminBusDetail", typeof(AdminBusDetailPage));
@@ -125,6 +126,7 @@ namespace BusTracking.Mobile
             Routing.RegisterRoute("CoordStandardForm", typeof(CoordStandardFormPage));
             Routing.RegisterRoute("CoordFeedbackDetail", typeof(CoordFeedbackDetailPage));
             Routing.RegisterRoute("CoordNotificationDetail", typeof(CoordNotificationDetailPage));
+            Routing.RegisterRoute("CoordFuelLogForm", typeof(CoordFuelLogFormPage));
 
             // ── Coordinator — Detail pages ────────────────────────────────────
             Routing.RegisterRoute("CoordBusDetail", typeof(CoordBusDetailPage));
@@ -181,6 +183,7 @@ namespace BusTracking.Mobile
             s.AddTransient<ICoordStandardService, CoordStandardService>();
             s.AddTransient<IDriverTripService, DriverTripService>();
             s.AddTransient<IBusTypeService, BusTypeService>();
+            s.AddTransient<IFuelLogService, FuelLogService>();
         }
 
         // ── ViewModels ────────────────────────────────────────────────────────
@@ -279,6 +282,10 @@ namespace BusTracking.Mobile
 
             s.AddTransient<AdminBusTypeListViewModel>();
             s.AddTransient<CoordBusTypeListViewModel>();
+            s.AddTransient<AdminFuelLogListViewModel>();
+            s.AddTransient<AdminFuelLogFormViewModel>();
+            s.AddTransient<CoordFuelLogListViewModel>();
+            s.AddTransient<CoordFuelLogFormViewModel>();
         }
 
         // ── Views (Pages) ─────────────────────────────────────────────────────
@@ -380,6 +387,10 @@ namespace BusTracking.Mobile
 
             s.AddTransient<AdminBusTypeListPage>();
             s.AddTransient<CoordBusTypeListPage>();
+            s.AddTransient<AdminFuelLogListPage>();
+            s.AddTransient<AdminFuelLogFormPage>();
+            s.AddTransient<CoordFuelLogListPage>();
+            s.AddTransient<CoordFuelLogFormPage>();
         }
 
         // ── Control Handlers ──────────────────────────────────────────────────

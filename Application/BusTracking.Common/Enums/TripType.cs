@@ -1,8 +1,10 @@
-﻿namespace BusTracking.Common.Enums
+namespace BusTracking.Common.Enums
 {
     public enum TripType
     {
         Morning,
-        Evening
+        Evening,
+        SpecialEvent,
+        ExamRoute
     }
 }

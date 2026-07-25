@@ -206,5 +206,50 @@ namespace BusTracking.API.Controllers
 
             return Ok(ApiResponse<object>.Ok(stops));
         }
+
+        public class SosAlertRequest
+        {
+            public double Latitude { get; set; }
+            public double Longitude { get; set; }
+            public string Message { get; set; } = "EMERGENCY SOS ALERT!";
+        }
+
+        /// <summary>Driver triggers SOS Emergency Alert</summary>
+        [HttpPost("{tripId}/sos")]
+        public async Task<IActionResult> TriggerSos(int tripId, [FromBody] SosAlertRequest req)
+        {
+            var trip = await _db.BusTrips
+                .Include(t => t.Bus)
+                .Include(t => t.Driver)
+                .FirstOrDefaultAsync(t => t.TripId == tripId);
+
+            if (trip is null)
+                return NotFound(ApiResponse<bool>.Fail("Trip not found."));
+
+            var now = GetSchoolNow();
+            var msgText = $"🚨 EMERGENCY SOS: Driver {trip.Driver?.FullName ?? "Driver"} triggered SOS on Bus {trip.Bus?.BusNumber ?? ""}. Location: {req.Latitude:F5}, {req.Longitude:F5}. {req.Message}";
+
+            // Notify all Coordinators & SuperAdmins
+            var adminUsers = await _db.Users
+                .Where(u => u.RoleId == 1 || u.RoleId == 2)
+                .Select(u => u.UserId)
+                .ToListAsync();
+
+            foreach (var uid in adminUsers)
+            {
+                _db.Notifications.Add(new Notification
+                {
+                    RecipientUserId = uid,
+                    NotificationType = NotificationType.SOSAlert,
+                    Title = "🚨 EMERGENCY SOS ALERT",
+                    Body = msgText,
+                    SentAt = now,
+                    IsRead = false
+                });
+            }
+
+            await _db.SaveChangesAsync();
+            return Ok(ApiResponse<bool>.Ok(true, "SOS Emergency Alert broadcasted successfully."));
+        }
     }
 }

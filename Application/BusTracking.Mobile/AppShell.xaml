@@ -366,6 +366,11 @@
         FlyoutItemIsVisible="False"
         Route="AdminStudentList" />
     <ShellContent
+        Title="Fuel &amp; Mileage"
+        ContentTemplate="{DataTemplate admin:AdminFuelLogListPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminFuelLogList" />
+    <ShellContent
         Title="Trips"
         ContentTemplate="{DataTemplate admin:AdminTripListPage}"
         FlyoutItemIsVisible="False"
@@ -432,6 +437,11 @@
         ContentTemplate="{DataTemplate coord:CoordStudentListPage}"
         FlyoutItemIsVisible="False"
         Route="CoordStudentList" />
+    <ShellContent
+        Title="Fuel &amp; Mileage"
+        ContentTemplate="{DataTemplate coord:CoordFuelLogListPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordFuelLogList" />
     <ShellContent
         Title="Trips"
         ContentTemplate="{DataTemplate coord:CoordTripListPage}"

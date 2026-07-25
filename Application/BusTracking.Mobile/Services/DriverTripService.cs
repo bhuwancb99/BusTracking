@@ -118,5 +118,9 @@ namespace BusTracking.Mobile.Services
         /// <summary>POST /api/trips/{tripId}/stops/{stopId}/depart</summary>
         public Task<ApiResponse<object>> DepartStopAsync(int tripId, int stopId)
             => _api.PostAsync<object>($"api/trips/{tripId}/stops/{stopId}/depart");
+
+        /// <summary>POST /api/trips/{tripId}/sos</summary>
+        public Task<ApiResponse<object>> TriggerSosAsync(int tripId, double lat, double lng)
+            => _api.PostAsync<object>($"api/trips/{tripId}/sos", new { Latitude = lat, Longitude = lng, Message = "DRIVER EMERGENCY SOS ALERT BUTTON PRESSED" });
     }
 }

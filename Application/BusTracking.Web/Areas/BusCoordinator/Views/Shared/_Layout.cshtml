@@ -66,7 +66,7 @@
                     .Where(c => c.Type == "permission")
                     .Select(c => c.Value)
                     .ToHashSet();
-                bool Has(string key) => perms.Contains(key);
+                bool Has(string key) => PermissionHelper.Can(User, key, Context);
 
                 // Dashboard always visible
                 bool showAppConfig = Has("appconfig.view");
@@ -78,6 +78,8 @@
                 bool showDrivers = Has("driver.view");
                 bool showParents = Has("parent.view");
                 bool showStudents = Has("student.view");
+                bool showFuelLog = Has("fuellog.view") || Has("fuellog.manage");
+                bool showReports = Has("report.view") || Has("trip.view");
                 bool showTrips = Has("trip.view") || Has("trip.manage");
                 bool showNotif = Has("notification.manage");
                 bool showSupport = Has("helpsupport.view") || Has("helpsupport.manage");
@@ -177,6 +179,26 @@
                 <li class="sidebar-item @(ctrl == "Student" ? "active" : "")">
                     <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="Student" asp-action="Index">
                         <i class="bi bi-mortarboard"></i><span>Students</span>
+                    </a>
+                </li>
+            }
+
+            @* Fuel Logs *@
+            @if (showFuelLog)
+            {
+                <li class="sidebar-item @(ctrl == "FuelLog" ? "active" : "")">
+                    <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="FuelLog" asp-action="Index">
+                        <i class="bi bi-fuel-pump-fill"></i><span>Fuel & Mileage</span>
+                    </a>
+                </li>
+            }
+
+            @* Analytics & Reports *@
+            @if (showReports)
+            {
+                <li class="sidebar-item @(ctrl == "Report" ? "active" : "")">
+                    <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="Report" asp-action="Index">
+                        <i class="bi bi-bar-chart-line-fill"></i><span>Analytics & Reports</span>
                     </a>
                 </li>
             }

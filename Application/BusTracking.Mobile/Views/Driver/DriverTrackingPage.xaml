@@ -42,18 +42,31 @@
                                             Dark=White}"
                 VerticalOptions="Center" />
 
-            <Button
-                Grid.Column="2"
-                BackgroundColor="{StaticResource Danger}"
-                Command="{Binding EndTripCommand}"
-                CornerRadius="8"
-                FontAttributes="Bold"
-                FontSize="12"
-                HeightRequest="34"
-                Text="End Trip"
-                TextColor="White"
-                VerticalOptions="Center"
-                WidthRequest="80" />
+            <HorizontalStackLayout Grid.Column="2" Spacing="6">
+                <Button
+                    BackgroundColor="#ef4444"
+                    Command="{Binding TriggerSosCommand}"
+                    CornerRadius="8"
+                    FontAttributes="Bold"
+                    FontSize="12"
+                    HeightRequest="34"
+                    Text="🚨 SOS"
+                    TextColor="White"
+                    VerticalOptions="Center"
+                    WidthRequest="65" />
+
+                <Button
+                    BackgroundColor="{StaticResource Danger}"
+                    Command="{Binding EndTripCommand}"
+                    CornerRadius="8"
+                    FontAttributes="Bold"
+                    FontSize="12"
+                    HeightRequest="34"
+                    Text="End Trip"
+                    TextColor="White"
+                    VerticalOptions="Center"
+                    WidthRequest="75" />
+            </HorizontalStackLayout>
         </Grid>
     </Shell.TitleView>
 

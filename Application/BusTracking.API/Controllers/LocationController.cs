@@ -46,6 +46,26 @@ namespace BusTracking.API.Controllers
                 Heading = req.Heading,
                 RecordedAt = now
             });
+
+            // Over-speeding detection (Threshold: 50 km/h)
+            if (req.Speed > 50)
+            {
+                var bus = await _db.Buses.FindAsync(req.BusId);
+                var coordinators = await _db.Users.Where(u => u.RoleId == 2 && u.IsActive).Select(u => u.UserId).ToListAsync();
+                foreach (var cid in coordinators)
+                {
+                    _db.Notifications.Add(new Notification
+                    {
+                        RecipientUserId = cid,
+                        NotificationType = NotificationType.OverSpeedAlert,
+                        Title = "⚠️ OVER-SPEED WARNING",
+                        Body = $"Bus {bus?.BusNumber ?? ""} recorded excessive speed of {req.Speed:F1} km/h (Limit: 50 km/h).",
+                        SentAt = now,
+                        IsRead = false
+                    });
+                }
+            }
+
             await _db.SaveChangesAsync();
 
             // 2. Real-time broadcast to everyone watching this trip

@@ -226,6 +226,7 @@ public partial class AppShell : Shell
         new() { IconSvg = "driver.png",       IconColor = _svgImageColor, Title = "Drivers",          Route = "AdminDriverList"      },
         new() { IconSvg = "parent.png",       IconColor = _svgImageColor, Title = "Parents",          Route = "AdminParentList"      },
         new() { IconSvg = "student.png",      IconColor = _svgImageColor, Title = "Students",         Route = "AdminStudentList"     },
+        new() { IconSvg = "fuel_pump.png",   IconColor = _svgImageColor, Title = "Fuel & Mileage",   Route = "AdminFuelLogList"     },
         new() { IconSvg = "trip.png",         IconColor = _svgImageColor, Title = "Trips",            Route = "AdminTripList"        },
         new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications",    Route = "AdminNotificationList" },
         new() { IconSvg = "help.png",         IconColor = _svgImageColor, Title = "Help & Support",   Route = "AdminFeedbackList"     },
@@ -270,6 +271,8 @@ public partial class AppShell : Shell
             menu.Add(new() { IconSvg = "parent.png", IconColor = _svgImageColor, Title = "Parents", Route = "CoordParentList" });
         if (Has("student.view"))
             menu.Add(new() { IconSvg = "student.png", IconColor = _svgImageColor, Title = "Students", Route = "CoordStudentList" });
+        if (Has("fuellog.view") || Has("fuellog.manage"))
+            menu.Add(new() { IconSvg = "fuel_pump.png", IconColor = _svgImageColor, Title = "Fuel & Mileage", Route = "CoordFuelLogList" });
         if (Has("trip.view") || Has("trip.manage"))
             menu.Add(new() { IconSvg = "trip.png", IconColor = _svgImageColor, Title = "Trips", Route = "CoordTripList" });
         if (Has("notification.manage"))

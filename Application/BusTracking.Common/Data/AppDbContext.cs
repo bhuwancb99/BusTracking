@@ -40,6 +40,7 @@ public class AppDbContext : DbContext
     public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<AppConfiguration> AppConfigurations { get; set; }
     public DbSet<Logger> Loggers { get; set; }
+    public DbSet<BusFuelLog> BusFuelLogs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -76,6 +77,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<AuditLog>().ToTable("AuditLogs");
         modelBuilder.Entity<AppConfiguration>().ToTable("AppConfigurations");
         modelBuilder.Entity<Logger>().ToTable("Logger");
+        modelBuilder.Entity<BusFuelLog>().ToTable("BusFuelLogs");
 
         // ── Unique indexes ────────────────────────────────────────────
         modelBuilder.Entity<School>().HasIndex(s => s.SchoolCode).IsUnique();
@@ -108,6 +110,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<DeviceToken>().Property(d => d.Platform).HasConversion<string>();
         modelBuilder.Entity<TripStopEvent>().Property(t => t.Status).HasConversion<string>();
         modelBuilder.Entity<AppConfiguration>().Property(c => c.Platform).HasConversion<string>();
+        modelBuilder.Entity<StudentDetail>().Property(s => s.TransportFeeStatus).HasConversion<string>();
         modelBuilder.Entity<AppConfiguration>().HasIndex(c => new { c.ConfigKey, c.Platform }).IsUnique();
 
         // ── Prevent cascade cycles & explicit relationship mapping ─────

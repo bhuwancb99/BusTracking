@@ -166,7 +166,10 @@ INSERT INTO Permissions (ModuleName, PermissionKey, Description) VALUES
 ('ManageNotifications', 'notification.manage',      'Enable/disable notifications'),
 ('HelpSupport',         'helpsupport.view',         'View help & support requests'),
 ('HelpSupport',         'helpsupport.manage',       'Manage help & support status'),
-('ManageLogs',          'logs.view',                'View system logs');
+('ManageLogs',          'logs.view',                'View system logs'),
+('ManageFuelLogs',      'fuellog.view',             'View fuel logs'),
+('ManageFuelLogs',      'fuellog.manage',           'Manage fuel logs'),
+('ManageReports',       'report.view',              'View reports & analytics');
 GO
 
 -- ============================================================
@@ -305,6 +308,10 @@ CREATE TABLE Buses (
     RouteId       INT           NULL,
     BusTypeId     INT           NOT NULL,
     Capacity      INT           NULL,
+    InsuranceExpiryDate DATE        NULL,
+    FitnessExpiryDate   DATE        NULL,
+    PucExpiryDate       DATE        NULL,
+    LastServiceDate     DATE        NULL,
     IsActive      BIT           NOT NULL CONSTRAINT DF_Buses_IsActive DEFAULT 1,
     CreatedAt     DATETIME2     NOT NULL CONSTRAINT DF_Buses_CreatedAt DEFAULT GETUTCDATE(),
     UpdatedAt     DATETIME2     NOT NULL CONSTRAINT DF_Buses_UpdatedAt DEFAULT GETUTCDATE(),
@@ -361,6 +368,8 @@ CREATE TABLE Students (
     StandardId    INT           NULL,                                -- Class / Grade
     BusId         INT           NULL,
     StopId        INT           NULL,                                -- assigned pick-up/drop stop
+    TransportFeeStatus NVARCHAR(20) NOT NULL CONSTRAINT DF_Students_TransportFeeStatus DEFAULT 'Paid',
+    FeeExpiryDate DATE          NULL,
     CreatedAt     DATETIME2     NOT NULL CONSTRAINT DF_Students_CreatedAt DEFAULT GETUTCDATE(),
     UpdatedAt     DATETIME2     NOT NULL CONSTRAINT DF_Students_UpdatedAt DEFAULT GETUTCDATE(),
     CONSTRAINT PK_Students PRIMARY KEY (StudentId),
@@ -697,6 +706,31 @@ CREATE TABLE BusImages (
 GO
 
 CREATE INDEX IX_BusImages_BusId ON BusImages(BusId);
+GO
+
+-- ============================================================
+-- 25. BUS FUEL LOGS (Fuel Fills & Mileage Expenditure)
+-- ============================================================
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'BusFuelLogs')
+BEGIN
+    CREATE TABLE BusFuelLogs (
+        SchoolId        INT            NULL,
+        FuelLogId       INT            NOT NULL IDENTITY(1,1),
+        BusId           INT            NOT NULL,
+        DriverId        INT            NULL,
+        OdometerReading DECIMAL(10,2)  NOT NULL,
+        FuelLiters      DECIMAL(10,2)  NOT NULL,
+        TotalCost       DECIMAL(10,2)  NOT NULL,
+        FuelDate        DATE           NOT NULL,
+        Notes           NVARCHAR(500)  NULL,
+        CreatedAt       DATETIME2      NOT NULL CONSTRAINT DF_BusFuelLogs_CreatedAt DEFAULT GETUTCDATE(),
+        CONSTRAINT PK_BusFuelLogs PRIMARY KEY (FuelLogId),
+        CONSTRAINT FK_BusFuelLogs_Buses FOREIGN KEY (BusId) REFERENCES Buses(BusId),
+        CONSTRAINT FK_BusFuelLogs_Users FOREIGN KEY (DriverId) REFERENCES Users(UserId),
+        CONSTRAINT FK_BusFuelLogs_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId)
+    );
+    CREATE INDEX IX_BusFuelLogs_BusId ON BusFuelLogs(BusId);
+END
 GO
 
 -- ── Seed default Mobile config keys ──────────────────────────────────

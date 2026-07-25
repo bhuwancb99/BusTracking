@@ -1,0 +1,66 @@
+@{
+    ViewData["Title"] = "Analytics & Reports";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="fw-bold m-0"><i class="bi bi-bar-chart-line-fill text-primary me-2"></i>Analytics & Reports</h2>
+        <p class="text-secondary small mb-0">Transport efficiency analytics & exportable rosters</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+            <i class="bi bi-bus-front text-primary fs-1 mb-2"></i>
+            <h3 class="fw-bold m-0">@ViewBag.TotalBuses</h3>
+            <span class="text-secondary small">Active Fleet Buses</span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+            <i class="bi bi-mortarboard text-success fs-1 mb-2"></i>
+            <h3 class="fw-bold m-0">@ViewBag.TotalStudents</h3>
+            <span class="text-secondary small">Registered Students</span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+            <i class="bi bi-clock-history text-info fs-1 mb-2"></i>
+            <h3 class="fw-bold m-0">@ViewBag.CompletedTrips / @ViewBag.TotalTrips</h3>
+            <span class="text-secondary small">Completed Trips</span>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+            <i class="bi bi-check-circle-fill text-warning fs-1 mb-2"></i>
+            <h3 class="fw-bold m-0">@ViewBag.OnTimeRate%</h3>
+            <span class="text-secondary small">On-Time Completion Rate</span>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <h5 class="fw-bold mb-3"><i class="bi bi-file-earmark-spreadsheet text-success me-2"></i>Student Transport Roster</h5>
+            <p class="text-secondary small">Download an official roster containing student codes, names, classes, assigned buses, stops, and transport fee statuses.</p>
+            <div class="mt-auto pt-3">
+                <a href="@Url.Action("ExportStudentRoster", "Report", new { area = "SuperAdmin" })" class="btn btn-outline-success rounded-3 w-100">
+                    <i class="bi bi-download me-2"></i>Export Student Roster (CSV)
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+            <h5 class="fw-bold mb-3"><i class="bi bi-file-earmark-text text-primary me-2"></i>Trip Execution Logs</h5>
+            <p class="text-secondary small">Export historical log of all daily morning, evening, event, and exam trips including start/end timestamps and statuses.</p>
+            <div class="mt-auto pt-3">
+                <a href="@Url.Action("ExportTripLogs", "Report", new { area = "SuperAdmin" })" class="btn btn-outline-primary rounded-3 w-100">
+                    <i class="bi bi-download me-2"></i>Export Trip Logs (CSV)
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
