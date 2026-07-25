@@ -53,6 +53,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [RelayCommand] private Task GoToTripsAsync() => Nav.GoToAsync("//AdminTripList");
         [RelayCommand] private Task GoToCoordinatorsAsync() => Nav.GoToAsync("//AdminCoordinatorList");
         [RelayCommand] private Task GoToConfigAsync() => Nav.GoToAsync("//AdminConfigList");
+        [RelayCommand] private Task GoToNotificationAsync() => Nav.GoToAsync("//AdminNotificationList");
 
         // ── Quick Actions (jump directly to Add form) ─────────────────────
         [RelayCommand] private Task QuickAddCoordinatorAsync() => Nav.GoToAsync("AdminCoordinatorForm");

@@ -11,7 +11,6 @@ namespace BusTracking.Mobile.Services
     public class RingtoneService : IRingtoneService
     {
 #if ANDROID
-        private Ringtone? _ringtone;
         private MediaPlayer? _mediaPlayer;
 #elif IOS
         private AVAudioPlayer? _audioPlayer;

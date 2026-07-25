@@ -286,6 +286,7 @@ public partial class AppShell : Shell
         new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",     Route = "Profile"            },
         new() { IconSvg = "tracking.png",     IconColor = _svgImageColor, Title = "Track Bus",      Route = "ParentTracking"     },
         new() { IconSvg = "availability.png", IconColor = _svgImageColor, Title = "Availability",   Route = "ParentAvailability" },
+        new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications",  Route = "ParentNotification" },
         new() { IconSvg = "feedback.png",     IconColor = _svgImageColor, Title = "Help & Support", Route = "ParentFeedback"     },
     ];
 
@@ -295,6 +296,7 @@ public partial class AppShell : Shell
         new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",      Route = "Profile"             },
         new() { IconSvg = "tracking.png",     IconColor = _svgImageColor, Title = "Track My Bus",    Route = "StudentTracking"     },
         new() { IconSvg = "availability.png", IconColor = _svgImageColor, Title = "My Availability", Route = "StudentAvailability" },
+        new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications",   Route = "StudentNotification"   },
     ];
 
     private static List<FlyoutMenuItem> DriverMenu() =>

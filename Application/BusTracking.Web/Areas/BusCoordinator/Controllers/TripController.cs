@@ -129,6 +129,13 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
         }
 
         [HttpGet] public async Task<IActionResult> LatestLocation(int tripId) { var r = await _trip.GetLatestLocationAsync(tripId); return Json(new { success = r.Success, data = r.Data }); }
+        [HttpGet]
+        public async Task<IActionResult> GetStopsAndStudents(int id)
+        {
+            var stops = await _trip.GetStopEventsAsync(id);
+            var students = await _trip.GetTripStudentsAsync(id);
+            return Json(new { success = true, stops = stops.Data ?? [], students = students.Data ?? [] });
+        }
         [HttpGet] public async Task<IActionResult> LocationHistory(int tripId) { var r = await _trip.GetLocationHistoryAsync(tripId); return Json(new { success = r.Success, data = r.Data }); }
         [HttpGet] public async Task<IActionResult> StopsForBus(int busId) { var r = await _route.GetStopsByBusAsync(busId); return Json(r.Data ?? []); }
         [HttpGet] public async Task<IActionResult> SearchDrivers(string? q) { var r = await _driver.GetDropdownAsync(q); return Json(r.Data ?? []); }

@@ -42,7 +42,7 @@ namespace BusTracking.Mobile.Views.Common
             _ringtoneService.StopRingtone();
         }
 
-        private async void OnCloseButtonClicked(object sender, EventArgs e)
+        private async void OnCloseButtonClicked(object? sender, EventArgs e)
         {
             _ringtoneService.StopRingtone();
             await Navigation.PopModalAsync();

@@ -142,12 +142,30 @@ namespace BusTracking.API.Controllers
             if (student?.BusId is null)
                 return NotFound(ApiResponse<object>.Fail("No bus assigned to this student."));
 
-            var today = DateOnly.FromDateTime(DateTime.UtcNow);
             var trip = await _db.BusTrips
+                .IgnoreQueryFilters()
                 .Include(t => t.Driver)
+                .Include(t => t.Route).ThenInclude(r => r!.Stops)
                 .FirstOrDefaultAsync(t => t.BusId == student.BusId
-                                       && t.TripDate == today
                                        && t.Status == TripStatus.InProgress);
+
+            if (trip is null)
+            {
+                var activeTripId = await _db.StudentTripStatuses
+                    .IgnoreQueryFilters()
+                    .Where(sts => sts.StudentId == studentId && sts.Trip.Status == TripStatus.InProgress)
+                    .Select(sts => sts.TripId)
+                    .FirstOrDefaultAsync();
+
+                if (activeTripId > 0)
+                {
+                    trip = await _db.BusTrips
+                        .IgnoreQueryFilters()
+                        .Include(t => t.Driver)
+                        .Include(t => t.Route).ThenInclude(r => r!.Stops)
+                        .FirstOrDefaultAsync(t => t.TripId == activeTripId);
+                }
+            }
 
             if (trip is null)
                 return Ok(ApiResponse<object>.Ok(new
@@ -157,11 +175,29 @@ namespace BusTracking.API.Controllers
                     Bus = new { student.Bus!.BusName, student.Bus.BusNumber }
                 }));
 
-            var loc = await _db.BusLiveLocations
+            var locObj = await _db.BusLiveLocations
+                .IgnoreQueryFilters()
                 .Where(l => l.TripId == trip.TripId)
                 .OrderByDescending(l => l.RecordedAt)
-                .Select(l => new { l.Latitude, l.Longitude, l.Speed, l.Heading, l.RecordedAt })
+                .Select(l => new { Latitude = (double)l.Latitude, Longitude = (double)l.Longitude, Speed = (double?)l.Speed, Heading = (double?)l.Heading, l.RecordedAt })
                 .FirstOrDefaultAsync();
+
+            object? loc = locObj;
+            if (loc is null && trip.Route?.Stops != null)
+            {
+                var firstStop = trip.Route.Stops.Where(s => s.IsActive && s.Latitude.HasValue && s.Longitude.HasValue).OrderBy(s => s.StopOrder).FirstOrDefault();
+                if (firstStop?.Latitude != null && firstStop?.Longitude != null)
+                {
+                    loc = new
+                    {
+                        Latitude = (double)firstStop.Latitude.Value,
+                        Longitude = (double)firstStop.Longitude.Value,
+                        Speed = (double?)0,
+                        Heading = (double?)0,
+                        RecordedAt = DateTime.UtcNow
+                    };
+                }
+            }
 
             var boarding = await _db.StudentTripStatuses
                 .FirstOrDefaultAsync(s => s.TripId == trip.TripId && s.StudentId == studentId);

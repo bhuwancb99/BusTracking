@@ -176,11 +176,30 @@ namespace BusTracking.API.Controllers
         [HttpGet("trips/{tripId}/location")]
         public async Task<IActionResult> TripLocation(int tripId)
         {
-            var loc = await _db.BusLiveLocations
+            var locObj = await _db.BusLiveLocations
+                .IgnoreQueryFilters()
                 .Where(l => l.TripId == tripId)
                 .OrderByDescending(l => l.RecordedAt)
-                .Select(l => new { l.Latitude, l.Longitude, l.Speed, l.Heading, l.RecordedAt })
+                .Select(l => new { Latitude = (double)l.Latitude, Longitude = (double)l.Longitude, Speed = (double?)l.Speed, Heading = (double?)l.Heading, l.RecordedAt })
                 .FirstOrDefaultAsync();
+
+            object? loc = locObj;
+            if (loc is null)
+            {
+                var trip = await _db.BusTrips.IgnoreQueryFilters().Include(t => t.Route).ThenInclude(r => r!.Stops).FirstOrDefaultAsync(t => t.TripId == tripId);
+                var firstStop = trip?.Route?.Stops.Where(s => s.IsActive && s.Latitude.HasValue && s.Longitude.HasValue).OrderBy(s => s.StopOrder).FirstOrDefault();
+                if (firstStop?.Latitude != null && firstStop?.Longitude != null)
+                {
+                    loc = new
+                    {
+                        Latitude = (double)firstStop.Latitude.Value,
+                        Longitude = (double)firstStop.Longitude.Value,
+                        Speed = (double?)0,
+                        Heading = (double?)0,
+                        RecordedAt = DateTime.UtcNow
+                    };
+                }
+            }
 
             if (loc is null) return NotFound(ApiResponse<object>.Fail("No location data yet."));
             return Ok(ApiResponse<object>.Ok(loc));
@@ -190,9 +209,10 @@ namespace BusTracking.API.Controllers
         public async Task<IActionResult> LocationHistory(int tripId)
         {
             var history = await _db.BusLiveLocations
+                .IgnoreQueryFilters()
                 .Where(l => l.TripId == tripId)
                 .OrderBy(l => l.RecordedAt)
-                .Select(l => new { l.Latitude, l.Longitude, l.Speed, l.Heading, l.RecordedAt })
+                .Select(l => new { Latitude = (double)l.Latitude, Longitude = (double)l.Longitude, Speed = (double?)l.Speed, Heading = (double?)l.Heading, l.RecordedAt })
                 .ToListAsync();
 
             return Ok(ApiResponse<object>.Ok(history));
@@ -662,6 +682,7 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
+        [HttpPut("notifications/{id:int}/read")]
         [HttpPost("notifications/{id:int}/read")]
         public async Task<IActionResult> MarkRead(int id)
         {
@@ -670,6 +691,7 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
+        [HttpPut("notifications/read-all")]
         [HttpPost("notifications/read-all")]
         public async Task<IActionResult> MarkAllRead()
         {

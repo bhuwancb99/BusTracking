@@ -17,6 +17,9 @@ public static class Constants
 #endif
 
     public const string DeviceToken = "/api/notifications/device-token";
+    public const string NotificationsPaged = "/api/notifications/paged?page={0}&fromDate={1:yyyy-MM-dd}&toDate={2:yyyy-MM-dd}";
+    public const string NotificationRead = "/api/notifications/{0}/read";
+    public const string NotificationsReadAll = "/api/notifications/read-all";
 
     // ── Auth  →  AuthController  [Route("api/[controller]")] ─────────────
     public static class Auth

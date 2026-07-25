@@ -5,6 +5,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         private readonly IApiService _api;
 
         [ObservableProperty] private ObservableCollection<NotificationItem> _items = [];
+        [ObservableProperty] private bool _hasUnread;
 
         public AdminNotificationListViewModel(IAuthService auth, INavigationService nav, IApiService api)
             : base(auth, nav)
@@ -25,6 +26,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                     Constants.Admin.Notifications);
                 Items = new ObservableCollection<NotificationItem>(r.Data ?? []);
                 IsEmpty = !Items.Any();
+                HasUnread = Items.Any(n => !n.IsRead);
             });
         }
 

@@ -267,11 +267,13 @@ namespace BusTracking.Mobile
             s.AddTransient<ParentTrackingViewModel>();
             s.AddTransient<ParentAvailabilityViewModel>();
             s.AddTransient<ParentFeedbackViewModel>();
+            s.AddTransient<ParentNotificationViewModel>();
 
             // Student
             s.AddTransient<StudentDashboardViewModel>();
             s.AddTransient<StudentTrackingViewModel>();
             s.AddTransient<StudentAvailabilityViewModel>();
+            s.AddTransient<StudentNotificationViewModel>();
 
             s.AddTransient<LiveTrackingViewModel>();
 
@@ -366,11 +368,13 @@ namespace BusTracking.Mobile
             s.AddTransient<ParentTrackingPage>();
             s.AddTransient<ParentAvailabilityPage>();
             s.AddTransient<ParentFeedbackPage>();
+            s.AddTransient<ParentNotificationPage>();
 
             // Student
             s.AddTransient<StudentDashboardPage>();
             s.AddTransient<StudentTrackingPage>();
             s.AddTransient<StudentAvailabilityPage>();
+            s.AddTransient<StudentNotificationPage>();
 
             s.AddTransient<LiveTrackingPage>();
 

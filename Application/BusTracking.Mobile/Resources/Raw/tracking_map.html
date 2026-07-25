@@ -23,6 +23,9 @@
 </head>
 <body>
     <div id="map"></div>
+    <button id="recenterBtn" onclick="recenterMap()" style="position:absolute;top:12px;right:12px;z-index:9999;background:#ffffff;border:1.5px solid #cbd5e1;border-radius:20px;padding:6px 14px;font-weight:600;font-size:12px;box-shadow:0 3px 8px rgba(0,0,0,0.15);cursor:pointer;display:flex;align-items:center;gap:6px;color:#1e293b;">
+        <span style="font-size:14px;">🎯</span> Re-center Bus
+    </button>
 
     <script>
         let map, busMarker, accuracyCircle;
@@ -41,6 +44,7 @@
         let leafletStopMarkers = [];
         let isLeafletFallback = false;
         let lastValidStops = [];
+        let initialBoundsFitted = false;
 
         // Configured Map Mode: "1" = Paid Google Map, "0" = Free Leaflet Map
         const IS_USE_GOOGLE_MAP = "YOUR_IS_USE_GOOGLE_MAP";
@@ -72,6 +76,16 @@
             } catch (e) { }
         }
 
+        function recenterMap() {
+            userPanned = false;
+            if (isLeafletFallback && leafletMap && currentLat && currentLng) {
+                leafletMap.setView([currentLat, currentLng], 16);
+            } else if (map && currentLat && currentLng) {
+                map.setZoom(16);
+                map.panTo({ lat: currentLat, lng: currentLng });
+            }
+        }
+
         // Automatic Google Maps Auth/Quota Failure Callback
         window.gm_authFailure = function () {
             notifyMapError("Google Maps JavaScript 2D daily quota limit reached or API Key authentication failed.");
@@ -94,6 +108,10 @@
             try {
                 leafletMap = L.map('map', { zoomControl: true, attributionControl: false }).setView([20.5937, 78.9629], 5);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(leafletMap);
+
+                leafletMap.on('dragstart zoomstart touchstart', function () {
+                    userPanned = true;
+                });
 
                 const busIconHtml = (heading) => `
                         <div style="background:#fbbc04;border:2.5px solid #ffffff;border-radius:50%;width:34px;height:34px;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.4);transform:rotate(${heading || 0}deg)">
@@ -146,8 +164,6 @@
 
             // Reset live traveled polyline on new route load to prevent extra lines across map
             if (leafletLivePolyline) leafletLivePolyline.setLatLngs([]);
-            currentLat = null;
-            currentLng = null;
 
             const bounds = L.latLngBounds();
             validStops.forEach(stop => {
@@ -169,27 +185,32 @@
                 leafletStopMarkers.push(m);
             });
 
-            // Position bus at Stop #1 initially
-            const firstStop = validStops[0];
-            const startLat = Number(firstStop.lat);
-            const startLng = Number(firstStop.lng);
-            currentLat = startLat;
-            currentLng = startLng;
-            if (leafletBusMarker) {
-                leafletBusMarker.setLatLng([startLat, startLng]);
+            // Position bus at Stop #1 initially if current location not set
+            if (!currentLat || !currentLng) {
+                const firstStop = validStops[0];
+                const startLat = Number(firstStop.lat);
+                const startLng = Number(firstStop.lng);
+                currentLat = startLat;
+                currentLng = startLng;
+                if (leafletBusMarker) {
+                    leafletBusMarker.setLatLng([startLat, startLng]);
+                }
             }
 
-            // Force Leaflet to recalculate container size and fit bounds to the route!
-            [50, 200, 500].forEach(delay => {
-                setTimeout(() => {
-                    if (leafletMap) {
-                        leafletMap.invalidateSize();
-                        if (bounds.isValid()) {
-                            leafletMap.fitBounds(bounds, { padding: [50, 50] });
+            // Only fit bounds on INITIAL route load — preserve user manual zoom and pan state!
+            if (!initialBoundsFitted && !userPanned) {
+                [50, 200, 500].forEach(delay => {
+                    setTimeout(() => {
+                        if (leafletMap && !userPanned) {
+                            leafletMap.invalidateSize();
+                            if (bounds.isValid()) {
+                                leafletMap.fitBounds(bounds, { padding: [50, 50] });
+                                initialBoundsFitted = true;
+                            }
                         }
-                    }
-                }, delay);
-            });
+                    }, delay);
+                });
+            }
 
             // Fetch road polylines from OSRM strictly adhering to stop order sequence
             if (validStops.length >= 2) {
@@ -356,7 +377,9 @@
 
                 currentLat = lat;
                 currentLng = lng;
-                leafletMap.panTo(latlng);
+                if (!userPanned) {
+                    leafletMap.panTo(latlng);
+                }
                 return;
             }
 

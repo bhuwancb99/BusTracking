@@ -72,6 +72,9 @@ namespace BusTracking.Mobile.Viewmodels.Driver
         private Task ViewTripsAsync() => Nav.GoToAsync("DriverTripList");
 
         [RelayCommand]
+        private Task GoToNotificationAsync() => Nav.GoToAsync("//DriverNotification");
+
+        [RelayCommand]
         private async Task StartActiveTripAsync()
         {
             if (ActiveTrip is null) return;

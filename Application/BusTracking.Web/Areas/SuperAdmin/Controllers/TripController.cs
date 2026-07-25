@@ -141,6 +141,14 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> GetStopsAndStudents(int id)
+        {
+            var stops = await _trip.GetStopEventsAsync(id);
+            var students = await _trip.GetTripStudentsAsync(id);
+            return Json(new { success = true, stops = stops.Data ?? [], students = students.Data ?? [] });
+        }
+
+        [HttpGet]
         public async Task<IActionResult> LocationHistory(int tripId)
         {
             var r = await _trip.GetLocationHistoryAsync(tripId);

@@ -59,8 +59,8 @@ namespace BusTracking.API.Controllers
             var dto = new DriverProfileModel
             {
                 UserId = user.UserId,
-                FullName = user.FullName,
-                Email = user.Email,
+                FullName = user.FullName ?? "",
+                Email = user.Email ?? "",
                 PhoneNumber = user.PhoneNumber,
                 ProfileImageUrl = user.ProfileImageUrl,
                 LicenseNumber = user.DriverDetail?.LicenseNumber,

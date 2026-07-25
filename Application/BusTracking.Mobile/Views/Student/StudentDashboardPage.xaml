@@ -17,16 +17,36 @@
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
-        <Grid HorizontalOptions="Center" VerticalOptions="Center">
+        <Grid Padding="0,0,10,0" ColumnDefinitions="*,Auto">
             <Label
+                Grid.Column="0"
                 FontAttributes="Bold"
                 FontSize="18"
-                HorizontalOptions="Center"
-                HorizontalTextAlignment="Center"
                 Text="Student Portal"
                 TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                             Dark=White}"
                 VerticalOptions="Center" />
+            <Grid
+                Grid.Column="1"
+                HeightRequest="32"
+                HorizontalOptions="End"
+                VerticalOptions="Center"
+                WidthRequest="32">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding GoToNotificationCommand}" />
+                </Grid.GestureRecognizers>
+                <Image
+                    Aspect="AspectFit"
+                    HeightRequest="22"
+                    HorizontalOptions="Center"
+                    Source="notification.png"
+                    VerticalOptions="Center"
+                    WidthRequest="22">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextPrimary}, Dark=White}" />
+                    </Image.Behaviors>
+                </Image>
+            </Grid>
         </Grid>
     </Shell.TitleView>
 

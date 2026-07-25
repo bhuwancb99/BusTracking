@@ -739,6 +739,7 @@ namespace BusTracking.API.Controllers
         }
 
         [HttpPut("notifications/{id}/read")]
+        [HttpPost("notifications/{id}/read")]
         public async Task<IActionResult> MarkRead(int id)
         {
             var r = await _notif.MarkAsReadAsync(id, CurrentUserId);
@@ -746,6 +747,7 @@ namespace BusTracking.API.Controllers
         }
 
         [HttpPut("notifications/read-all")]
+        [HttpPost("notifications/read-all")]
         public async Task<IActionResult> MarkAllRead()
         {
             var r = await _notif.MarkAllAsReadAsync(CurrentUserId);

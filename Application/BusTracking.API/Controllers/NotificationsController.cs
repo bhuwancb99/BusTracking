@@ -13,6 +13,16 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPaged(
+            [FromQuery] int page = 1,
+            [FromQuery] DateTime? fromDate = null,
+            [FromQuery] DateTime? toDate = null)
+        {
+            var r = await _notif.GetUserNotificationsPagedAsync(CurrentUserId, page, fromDate, toDate);
+            return Ok(r);
+        }
+
         [HttpPut("{id}/read")]
         public async Task<IActionResult> MarkRead(int id)
         {

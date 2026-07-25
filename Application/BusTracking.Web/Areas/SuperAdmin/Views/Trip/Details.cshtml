@@ -16,6 +16,10 @@
         _ => "background:#f1f3f4;color:#5f6368"
     };
 }
+<style>
+    .spin-anim { animation: spin 0.6s linear infinite; }
+    @@keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
 
 <!-- ── Header ─────────────────────────────────────────────────────── -->
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
@@ -78,16 +82,21 @@
                     <span class="badge bg-primary-subtle text-primary ms-2">@stops.Count stops</span>
                     <span class="badge bg-info-subtle text-info ms-1">@students.Count students</span>
                 </span>
-                @if (stops.Any())
-                {
-                    var originStop = stops.OrderBy(s => s.StopOrder).FirstOrDefault();
-                    var destStop = stops.OrderBy(s => s.StopOrder).LastOrDefault();
-                    <span class="small text-muted">
-                        <span class="badge bg-danger-subtle text-danger"><i class="bi bi-geo-alt-fill me-1"></i>From: @originStop?.StopName</span>
-                        <i class="bi bi-arrow-right mx-1"></i>
-                        <span class="badge bg-success-subtle text-success"><i class="bi bi-flag-fill me-1"></i>To: @destStop?.StopName</span>
-                    </span>
-                }
+                <div class="d-flex align-items-center gap-2">
+                    <button id="btnRefreshStops" type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm" onclick="refreshStopsAndStudents()" title="Refresh Stops & Boarding Status">
+                        <i class="bi bi-arrow-clockwise me-1" id="refreshIcon"></i>Refresh
+                    </button>
+                    @if (stops.Any())
+                    {
+                        var originStop = stops.OrderBy(s => s.StopOrder).FirstOrDefault();
+                        var destStop = stops.OrderBy(s => s.StopOrder).LastOrDefault();
+                        <span class="small text-muted d-none d-md-inline">
+                            <span class="badge bg-danger-subtle text-danger"><i class="bi bi-geo-alt-fill me-1"></i>From: @originStop?.StopName</span>
+                            <i class="bi bi-arrow-right mx-1"></i>
+                            <span class="badge bg-success-subtle text-success"><i class="bi bi-flag-fill me-1"></i>To: @destStop?.StopName</span>
+                        </span>
+                    }
+                </div>
             </div>
             <div class="card-body p-4" style="max-height:750px;overflow-y:auto">
                 @if (!stops.Any())
@@ -488,6 +497,10 @@
         drawRoadRoute();
 
         let firstLocationSet = false;
+        let userPanned = false;
+        if (map) {
+            map.on('dragstart zoomstart', function () { userPanned = true; });
+        }
 
         function updateBusPos(lat, lng, speed, heading, recordedAt) {
             if (!lat || !lng) return;
@@ -496,16 +509,56 @@
             updateRemainingRoutePolyline(Number(lat), Number(lng));
 
             if (!firstLocationSet) { map.setView(latlng, 15); firstLocationSet = true; }
-            else map.panTo(latlng);
+            else if (!userPanned) map.panTo(latlng);
 
             updateInfoBar(lat, lng, speed, heading, recordedAt);
             document.getElementById('mapPlaceholder')?.remove();
+        }
+
+        async function refreshStopsAndStudents() {
+            const icon = document.getElementById('refreshIcon');
+            if (icon) icon.classList.add('spin-anim');
+            try {
+                const area = window.location.pathname.startsWith('/BusCoordinator') ? 'BusCoordinator' : 'SuperAdmin';
+                const res = await fetch(`/${area}/Trip/GetStopsAndStudents?id=${TRIP_ID}`);
+                const data = await res.json();
+                if (!data.success) return;
+
+                const stops = data.stops || [];
+                const students = data.students || [];
+
+                stops.forEach(s => {
+                    const row = document.querySelector(`.stop-row[data-stop-id="${s.stopId}"]`);
+                    if (!row) return;
+
+                    const badge = row.querySelector('.stop-status-badge');
+                    if (badge) {
+                        badge.textContent = s.status;
+                        badge.style.background = s.status === 'Departed' ? '#e6f4ea' : s.status === 'Reached' ? '#e8f0fe' : '#f1f3f4';
+                        badge.style.color = s.status === 'Departed' ? '#1e8e3e' : s.status === 'Reached' ? '#1a73e8' : '#5f6368';
+                    }
+                });
+
+                students.forEach(st => {
+                    const btn = document.getElementById(`sbtn-${st.studentId}`);
+                    if (btn) {
+                        btn.innerHTML = `<i class="bi ${st.boardingStatus === 'PickedUp' ? 'bi-check-circle-fill' : st.boardingStatus === 'NoShow' ? 'bi-x-circle-fill' : st.boardingStatus === 'OnLeave' ? 'bi-calendar-x-fill' : 'bi-dash-circle'} me-1"></i>${st.boardingStatus || 'Pending'}`;
+                        btn.style.background = st.boardingStatus === 'PickedUp' ? '#e6f4ea' : st.boardingStatus === 'NoShow' ? '#fce8e6' : st.boardingStatus === 'OnLeave' ? '#fff3e0' : '#f1f3f4';
+                        btn.style.color = st.boardingStatus === 'PickedUp' ? '#1e8e3e' : st.boardingStatus === 'NoShow' ? '#c5221f' : st.boardingStatus === 'OnLeave' ? '#e65100' : '#5f6368';
+                    }
+                });
+            } catch (e) {
+                console.warn("Stops refresh failed:", e);
+            } finally {
+                if (icon) setTimeout(() => icon.classList.remove('spin-anim'), 600);
+            }
         }
 
         if (IS_LIVE) {
             loadHistory().then(() => {
                 fetchLocation();
                 setInterval(fetchLocation, 2500);
+                setInterval(refreshStopsAndStudents, 5000);
             });
 
             // SignalR real-time client connecting to API hub configured in AppConfig

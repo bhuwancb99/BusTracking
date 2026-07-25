@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.Student.StudentNotificationPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:models="clr-namespace:BusTracking.Mobile.Models.Notification"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Student"
+    x:DataType="vm:StudentNotificationViewModel"
+    x:TypeArguments="vm:StudentNotificationViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
+
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
+    </views:ViewBase.Behaviors>
+
+    <Shell.TitleView>
+        <Grid Padding="0,0,10,0" ColumnDefinitions="*,Auto">
+            <Label
+                Grid.Column="0"
+                FontAttributes="Bold"
+                FontSize="18"
+                Text="Notifications"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}"
+                VerticalOptions="Center" />
+            <Label
+                Grid.Column="1"
+                FontAttributes="Bold"
+                FontSize="12"
+                IsVisible="{Binding HasUnread}"
+                Text="Mark all read"
+                TextColor="#2563eb"
+                VerticalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding MarkAllReadCommand}" />
+                </Label.GestureRecognizers>
+            </Label>
+        </Grid>
+    </Shell.TitleView>
+
+    <Grid RowDefinitions="Auto,Auto,*">
+
+        <!--  Error Banner  -->
+        <Border
+            Grid.Row="0"
+            Margin="12,8"
+            IsVisible="{Binding HasError}"
+            Style="{StaticResource ErrorBannerBorder}">
+            <Label
+                FontSize="13"
+                Text="{Binding ErrorMessage}"
+                TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
+                                            Dark={StaticResource ErrorTextDark}}" />
+        </Border>
+
+        <!--  Top Header Date Range Filter  -->
+        <Border
+            Grid.Row="1"
+            Margin="12,6"
+            Padding="12,8"
+            BackgroundColor="{AppThemeBinding Light=White,
+                                              Dark=#1e293b}"
+            Stroke="#cbd5e1"
+            StrokeShape="RoundRectangle 10">
+            <Grid
+                ColumnDefinitions="*,*,Auto"
+                ColumnSpacing="8"
+                VerticalOptions="Center">
+                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="10"
+                        Text="From"
+                        TextColor="#64748b" />
+                    <DatePicker
+                        Date="{Binding FromDate, Mode=TwoWay}"
+                        FontSize="12"
+                        Format="yyyy-MM-dd"
+                        HeightRequest="36" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="10"
+                        Text="To"
+                        TextColor="#64748b" />
+                    <DatePicker
+                        Date="{Binding ToDate, Mode=TwoWay}"
+                        FontSize="12"
+                        Format="yyyy-MM-dd"
+                        HeightRequest="36" />
+                </VerticalStackLayout>
+                <ImageButton
+                    Grid.Column="2"
+                    Padding="8"
+                    BackgroundColor="{StaticResource Primary}"
+                    Command="{Binding FilterCommand}"
+                    CornerRadius="8"
+                    HeightRequest="36"
+                    Source="search.png"
+                    VerticalOptions="End"
+                    WidthRequest="36">
+                    <ImageButton.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="White" />
+                    </ImageButton.Behaviors>
+                </ImageButton>
+            </Grid>
+        </Border>
+
+        <!--  Empty State  -->
+        <VerticalStackLayout
+            Grid.Row="2"
+            HorizontalOptions="Center"
+            IsVisible="{Binding IsEmpty}"
+            Spacing="10"
+            VerticalOptions="Center">
+            <Label
+                FontAttributes="Bold"
+                FontSize="16"
+                HorizontalOptions="Center"
+                Text="No Notifications"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}" />
+            <Label
+                FontSize="13"
+                HorizontalOptions="Center"
+                Text="No notifications found for selected date range."
+                TextColor="#64748b" />
+        </VerticalStackLayout>
+
+        <!--  Notifications List  -->
+        <RefreshView
+            Grid.Row="2"
+            Command="{Binding RefreshCommand}"
+            IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView
+                ItemsSource="{Binding Items}"
+                RemainingItemsThreshold="3"
+                RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
+                SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:NotificationItem">
+                        <Border
+                            Margin="12,4"
+                            Padding="12"
+                            BackgroundColor="{Binding BgColor}"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                     Dark={StaticResource BorderColorDark}}"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:StudentNotificationViewModel}}, Path=MarkReadCommand}" CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                                <Border
+                                    Grid.Column="0"
+                                    BackgroundColor="{AppThemeBinding Light=#f1f5f9,
+                                                                      Dark=#334155}"
+                                    HeightRequest="40"
+                                    StrokeShape="RoundRectangle 20"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Start"
+                                    WidthRequest="40">
+                                    <Image
+                                        HeightRequest="20"
+                                        HorizontalOptions="Center"
+                                        Source="notification.png"
+                                        VerticalOptions="Center"
+                                        WidthRequest="20">
+                                        <Image.Behaviors>
+                                            <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                        </Image.Behaviors>
+                                    </Image>
+                                </Border>
+
+                                <VerticalStackLayout
+                                    Grid.Column="1"
+                                    Spacing="4"
+                                    VerticalOptions="Center">
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label
+                                            Grid.Column="0"
+                                            FontAttributes="Bold"
+                                            FontSize="14"
+                                            Text="{Binding Title}"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                        Dark=White}" />
+                                        <Label
+                                            Grid.Column="1"
+                                            Padding="6,2"
+                                            BackgroundColor="#2563eb"
+                                            FontAttributes="Bold"
+                                            FontSize="9"
+                                            IsVisible="{Binding IsUnread}"
+                                            Text="NEW"
+                                            TextColor="White" />
+                                    </Grid>
+                                    <Label
+                                        FontSize="12"
+                                        LineBreakMode="TailTruncation"
+                                        MaxLines="3"
+                                        Text="{Binding Body}"
+                                        TextColor="{AppThemeBinding Light=#475569,
+                                                                    Dark=#cbd5e1}" />
+                                    <Label
+                                        FontSize="10"
+                                        Text="{Binding SentAtDisplay}"
+                                        TextColor="#94a3b8" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</views:ViewBase>

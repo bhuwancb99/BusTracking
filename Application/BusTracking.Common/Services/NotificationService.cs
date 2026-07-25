@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Services
+namespace BusTracking.Common.Services
 {
     public class NotificationService : INotificationService
     {
@@ -21,6 +21,50 @@
                 }).ToListAsync();
 
             return ApiResponse<List<NotificationDto>>.Ok(items);
+        }
+
+        public async Task<ApiResponse<PagedResult<NotificationDto>>> GetUserNotificationsPagedAsync(
+            int userId,
+            int page = 1,
+            DateTime? fromDate = null,
+            DateTime? toDate = null)
+        {
+            page = PaginationHelper.Clamp(page);
+            var pageSize = await PaginationHelper.GetListPageSizeAsync(_db);
+
+            var today = DateTime.UtcNow.Date;
+            var fDate = (fromDate ?? today).Date;
+            var tDate = (toDate ?? today).Date.AddDays(1).AddTicks(-1);
+
+            var query = _db.Notifications
+                .IgnoreQueryFilters()
+                .Where(n => n.RecipientUserId == userId && n.SentAt >= fDate && n.SentAt <= tDate);
+
+            var total = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(n => n.SentAt)
+                .ThenByDescending(n => n.NotificationId)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(n => new NotificationDto
+                {
+                    NotificationId = n.NotificationId,
+                    Title = n.Title,
+                    Body = n.Body,
+                    NotificationType = n.NotificationType.ToString(),
+                    IsRead = n.IsRead,
+                    SentAt = n.SentAt
+                })
+                .ToListAsync();
+
+            return ApiResponse<PagedResult<NotificationDto>>.Ok(new PagedResult<NotificationDto>
+            {
+                Items = items,
+                TotalCount = total,
+                PageNumber = page,
+                PageSize = pageSize
+            });
         }
 
         public async Task<ApiResponse<bool>> MarkAsReadAsync(int notificationId, int userId)

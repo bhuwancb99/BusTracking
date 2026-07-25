@@ -246,15 +246,35 @@ namespace BusTracking.Mobile.Viewmodels.Shared
                         if (token.IsCancellationRequested) break;
 
                         var loc = await _trips.GetLocationAsync(tripId);
-                        if (loc is not null && !token.IsCancellationRequested)
+                        var studentsRes = await _trips.GetTripStudentsAsync(tripId);
+
+                        if (!token.IsCancellationRequested)
                         {
                             MainThread.BeginInvokeOnMainThread(() =>
                             {
-                                SpeedLabel = loc.SpeedDisplay;
-                                LastUpdateLabel = $"Updated {loc.RecordedAt:HH:mm:ss}";
-                                IsLive = true;
-                                ConnectionStatus = "● Live";
-                                SendToMap?.Invoke($"window.moveBus({loc.Latitude:F6}, {loc.Longitude:F6}, 0)");
+                                if (loc is not null)
+                                {
+                                    SpeedLabel = loc.SpeedDisplay;
+                                    LastUpdateLabel = $"Updated {loc.RecordedAt:HH:mm:ss}";
+                                    IsLive = true;
+                                    ConnectionStatus = "● Live";
+                                    SendToMap?.Invoke($"window.moveBus({loc.Latitude:F6}, {loc.Longitude:F6}, 0)");
+                                }
+
+                                if (studentsRes?.Success == true && studentsRes.Data != null && studentsRes.Data.Any())
+                                {
+                                    var stopList = studentsRes.Data.Select(s => new StopStatus
+                                    {
+                                        StopId = s.StopId,
+                                        StopName = string.IsNullOrWhiteSpace(s.StudentName) ? s.StopName : $"{s.StopName} ({s.StudentName})",
+                                        StopOrder = s.StopOrder,
+                                        Status = s.BoardingStatus ?? "Pending",
+                                        Latitude = (decimal)s.Latitude,
+                                        Longitude = (decimal)s.Longitude
+                                    }).ToList();
+
+                                    Stops = new ObservableCollection<StopStatus>(stopList);
+                                }
                             });
                         }
                     }

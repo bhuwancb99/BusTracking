@@ -97,6 +97,14 @@ namespace BusTracking.Web.Areas.Parent.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> GetStopsAndStudents(int tripId)
+        {
+            var stops = await _tripService.GetStopEventsAsync(tripId);
+            var students = await _tripService.GetTripStudentsAsync(tripId);
+            return Json(new { success = true, stops = stops.Data ?? [], students = students.Data ?? [] });
+        }
+
+        [HttpGet]
         public async Task<IActionResult> LocationHistory(int tripId)
         {
             var r = await _tripService.GetLocationHistoryAsync(tripId);

@@ -481,6 +481,11 @@
         ContentTemplate="{DataTemplate parent:ParentFeedbackPage}"
         FlyoutItemIsVisible="False"
         Route="ParentFeedback" />
+    <ShellContent
+        Title="Notifications"
+        ContentTemplate="{DataTemplate parent:ParentNotificationPage}"
+        FlyoutItemIsVisible="False"
+        Route="ParentNotification" />
 
     <!--  Student  -->
     <ShellContent
@@ -498,6 +503,11 @@
         ContentTemplate="{DataTemplate student:StudentAvailabilityPage}"
         FlyoutItemIsVisible="False"
         Route="StudentAvailability" />
+    <ShellContent
+        Title="Notifications"
+        ContentTemplate="{DataTemplate student:StudentNotificationPage}"
+        FlyoutItemIsVisible="False"
+        Route="StudentNotification" />
 
     <!--  Common (Profile) — reachable from all role menus  -->
     <ShellContent

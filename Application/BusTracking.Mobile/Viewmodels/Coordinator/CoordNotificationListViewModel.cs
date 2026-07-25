@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
+namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordNotificationListViewModel : BaseViewModel
     {
@@ -6,6 +6,7 @@
 
         [ObservableProperty] private ObservableCollection<NotificationItem> _items = [];
         [ObservableProperty] private bool _canLoadMore;
+        [ObservableProperty] private bool _hasUnread;
 
         public CoordNotificationListViewModel(IAuthService auth, INavigationService nav, IApiService api)
             : base(auth, nav) { _api = api; Title = "Notifications"; }
@@ -22,6 +23,7 @@
                     Constants.Coordinator.CoordNotifications);
                 Items = new ObservableCollection<NotificationItem>(r.Data ?? []);
                 IsEmpty = !Items.Any();
+                HasUnread = Items.Any(n => !n.IsRead);
                 CanLoadMore = false;
             });
         }

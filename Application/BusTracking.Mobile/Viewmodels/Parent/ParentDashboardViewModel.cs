@@ -82,6 +82,9 @@ namespace BusTracking.Mobile.Viewmodels.Parent
         private Task GoToFeedbackAsync() => Shell.Current.GoToAsync("//ParentFeedback");
 
         [RelayCommand]
+        private Task GoToNotificationAsync() => Nav.GoToAsync("//ParentNotification");
+
+        [RelayCommand]
         private async Task LogoutAsync()
         {
             if (!await ConfirmAsync("Logout", "Are you sure?")) return;

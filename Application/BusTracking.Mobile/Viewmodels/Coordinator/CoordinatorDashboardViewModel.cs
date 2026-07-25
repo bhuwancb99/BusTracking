@@ -92,6 +92,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [RelayCommand] private Task GoToParentsAsync() => Nav.GoToAsync("//CoordParentList");
         [RelayCommand] private Task GoToStudentsAsync() => Nav.GoToAsync("//CoordStudentList");
         [RelayCommand] private Task GoToTripsAsync() => Nav.GoToAsync("//CoordTripList");
+        [RelayCommand] private Task GoToNotificationAsync() => Nav.GoToAsync("//CoordNotificationList");
 
         [RelayCommand] private Task QuickAddDriverAsync() => Nav.GoToAsync("CoordDriverForm");
         [RelayCommand] private Task QuickAddStudentAsync() => Nav.GoToAsync("CoordStudentForm");

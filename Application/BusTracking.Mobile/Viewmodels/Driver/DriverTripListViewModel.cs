@@ -84,7 +84,7 @@ namespace BusTracking.Mobile.Viewmodels.Driver
                         }
                         else
                         {
-                            SetError(r.Message);
+                            SetError(r.Message ?? "Failed to start trip.");
                         }
                     }
                 });
