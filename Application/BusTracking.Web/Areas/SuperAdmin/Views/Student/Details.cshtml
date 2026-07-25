@@ -25,21 +25,18 @@
 
                         <!-- ── Profile photo widget ── -->
                         <div class="position-relative d-inline-block mb-3" id="imgWidget_@Model.UserId">
-                            @if (!string.IsNullOrEmpty(thumbUrl))
+                            @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
                             {
-                                <img id="imgWidget_@(Model.UserId)_preview"
-                                     src="@thumbUrl"
-                                     alt="@Model.FullName"
+                                <img id="imgWidget_@(Model.UserId)_preview" src="@Model.ProfileImageUrl" alt="@Model.FullName"
                                      class="rounded-circle border shadow"
-                                     style="width:80px;height:80px;object-fit:cover;" />
+                                     style="width:80px;height:80px;object-fit:cover;"
+                                     onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
                             }
                             else
                             {
-                                <div id="imgWidget_@(Model.UserId)_preview"
-                                     class="rounded-circle border shadow bg-info-subtle text-info d-flex align-items-center justify-content-center mx-auto"
-                                     style="width:80px;height:80px;font-size:1.8rem;font-weight:700;">
-                                    @Model.FullName.ToInitials()
-                                </div>
+                                <img id="imgWidget_@(Model.UserId)_preview" src="/images/default-avatar.svg" alt="@Model.FullName"
+                                     class="rounded-circle border shadow"
+                                     style="width:80px;height:80px;object-fit:cover;" />
                             }
                             <label for="imgInput_@Model.UserId"
                                    class="position-absolute bottom-0 end-0 btn btn-sm btn-primary rounded-circle p-1"

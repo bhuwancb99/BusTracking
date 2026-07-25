@@ -29,7 +29,8 @@ namespace BusTracking.Common.Services
                     BusNumber = u.DriverDetail != null && u.DriverDetail.Bus != null ? u.DriverDetail.Bus.BusNumber : null,
                     LicenseNumber = u.DriverDetail != null ? u.DriverDetail.LicenseNumber : null,
                     LicenseExpiry = u.DriverDetail != null && u.DriverDetail.LicenseExpiry != null ? u.DriverDetail.LicenseExpiry.Value.ToString("yyyy-MM-dd") : null,
-                    IsActive = u.IsActive
+                    IsActive = u.IsActive,
+                    ProfileImageUrl = u.ProfileImageUrl
                 }).ToListAsync();
             return ApiResponse<PagedResult<DriverListDto>>.Ok(new PagedResult<DriverListDto> { Items = items, TotalCount = total, PageNumber = page, PageSize = pageSize });
         }

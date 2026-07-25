@@ -89,8 +89,59 @@ public class ImageService : IImageService
 
     private static async Task SaveFileAsync(IFormFile file, string fullPath)
     {
-        using var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
-        await file.CopyToAsync(stream);
+        try
+        {
+            using var inputStream = file.OpenReadStream();
+            using var originalBitmap = SKBitmap.Decode(inputStream);
+
+            if (originalBitmap is null)
+            {
+                using var fallbackStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
+                await file.CopyToAsync(fallbackStream);
+                return;
+            }
+
+            // Max dimensions for high quality, low file size (max 800px)
+            const int maxDimension = 800;
+            int newWidth = originalBitmap.Width;
+            int newHeight = originalBitmap.Height;
+
+            if (newWidth > maxDimension || newHeight > maxDimension)
+            {
+                if (newWidth > newHeight)
+                {
+                    newHeight = (int)((float)newHeight * maxDimension / newWidth);
+                    newWidth = maxDimension;
+                }
+                else
+                {
+                    newWidth = (int)((float)newWidth * maxDimension / newHeight);
+                    newHeight = maxDimension;
+                }
+            }
+
+            using var resizedBitmap = originalBitmap.Resize(new SKImageInfo(newWidth, newHeight), SKSamplingOptions.Default);
+            using var image = SKImage.FromBitmap(resizedBitmap ?? originalBitmap);
+
+            var ext = Path.GetExtension(fullPath).ToLower();
+            SKEncodedImageFormat format = ext switch
+            {
+                ".png" => SKEncodedImageFormat.Png,
+                ".webp" => SKEncodedImageFormat.Webp,
+                _ => SKEncodedImageFormat.Jpeg
+            };
+
+            // Quality 80 = high visual sharpness + small file size (~30KB-80KB)
+            using var data = image.Encode(format, 80);
+            using var outputStream = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
+            data.SaveTo(outputStream);
+        }
+        catch
+        {
+            // Fallback to raw copy if decoding fails
+            using var stream = new FileStream(fullPath, FileMode.Create, FileAccess.Write);
+            await file.CopyToAsync(stream);
+        }
     }
 
     private static string GetSafeExtension(string fileName)

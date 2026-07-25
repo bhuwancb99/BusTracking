@@ -57,13 +57,11 @@
                             <td class="text-center">
                                 @if (!string.IsNullOrEmpty(school.SchoolLogo))
                                 {
-                                    <img src="@school.SchoolLogo" alt="Logo" class="rounded-3 border border-secondary" style="width: 45px; height: 45px; object-fit: cover;" />
+                                    <img src="@school.SchoolLogo" alt="Logo" class="rounded-circle border border-secondary shadow-sm" style="width: 45px; height: 45px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
                                 }
                                 else
                                 {
-                                    <div class="rounded-3 d-flex align-items-center justify-content-center border border-secondary bg-dark text-secondary" style="width: 45px; height: 45px; font-weight: bold; font-size: 0.75rem;">
-                                        SCH
-                                    </div>
+                                    <img src="/images/default-avatar.svg" alt="Logo" class="rounded-circle border border-secondary shadow-sm" style="width: 45px; height: 45px; object-fit: cover;" />
                                 }
                             </td>
                             <td class="fw-semibold text-primary">@school.SchoolCode</td>

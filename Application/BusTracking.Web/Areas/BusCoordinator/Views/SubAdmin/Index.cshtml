@@ -102,12 +102,24 @@
                         bool isSelf = u.UserId == (int)(ViewBag.CurrentUserId ?? 0);
                         <tr @(isSelf ? "class=table-light" : "")>
                             <td class="text-muted small">@(i++)</td>
-                            <td class="fw-semibold">
-                                @u.FullName
-                                @if (isSelf)
-                                {
-                                    <span class="badge bg-warning-subtle text-warning ms-1" style="font-size:.7rem">You</span>
-                                }
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    @if (!string.IsNullOrWhiteSpace(u.ProfileImageUrl))
+                                    {
+                                        <img src="@u.ProfileImageUrl" alt="@u.FullName" class="rounded-circle border" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
+                                    }
+                                    else
+                                    {
+                                        <img src="/images/default-avatar.svg" alt="@u.FullName" class="rounded-circle border" style="width: 32px; height: 32px; object-fit: cover;" />
+                                    }
+                                    <span class="fw-semibold">
+                                        @u.FullName
+                                        @if (isSelf)
+                                        {
+                                            <span class="badge bg-warning-subtle text-warning ms-1" style="font-size:.7rem">You</span>
+                                        }
+                                    </span>
+                                </div>
                             </td>
                             <td class="text-muted small">@u.Email</td>
                             <td class="text-muted small">@u.PhoneNumber</td>

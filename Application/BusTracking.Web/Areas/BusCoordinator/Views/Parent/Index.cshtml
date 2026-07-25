@@ -88,7 +88,19 @@
                     {
                         <tr>
                             <td class="ps-3 text-muted small">@i</td>
-                            <td class="fw-semibold">@p.FullName</td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    @if (!string.IsNullOrWhiteSpace(p.ProfileImageUrl))
+                                    {
+                                        <img src="@p.ProfileImageUrl" alt="@p.FullName" class="rounded-circle border" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
+                                    }
+                                    else
+                                    {
+                                        <img src="/images/default-avatar.svg" alt="@p.FullName" class="rounded-circle border" style="width: 32px; height: 32px; object-fit: cover;" />
+                                    }
+                                    <span class="fw-semibold">@p.FullName</span>
+                                </div>
+                            </td>
                             <td class="text-muted small">@p.Email</td>
                             <td class="small">@(p.PhoneNumber ?? "–")</td>
                             <td style="max-width:200px">

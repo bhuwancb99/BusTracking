@@ -32,7 +32,8 @@ namespace BusTracking.Common.Services
                     BusNumber = s.Bus != null ? s.Bus.BusNumber : null,
                     StopId = s.StopId,
                     StopName = s.Stop != null ? s.Stop.StopName : null,
-                    IsActive = s.User.IsActive
+                    IsActive = s.User.IsActive,
+                    ProfileImageUrl = s.User.ProfileImageUrl
                 }).ToListAsync();
             return ApiResponse<PagedResult<StudentListDto>>.Ok(new PagedResult<StudentListDto>
             {

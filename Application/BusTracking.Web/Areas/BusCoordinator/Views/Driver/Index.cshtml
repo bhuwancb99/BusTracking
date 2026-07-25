@@ -76,7 +76,14 @@
                             <td class="ps-3 text-muted small">@i</td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    <div class="avatar-sm bg-success-subtle text-success">@d.FullName.ToInitials()</div>
+                                    @if (!string.IsNullOrWhiteSpace(d.ProfileImageUrl))
+                                    {
+                                        <img src="@d.ProfileImageUrl" alt="@d.FullName" class="rounded-circle border" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
+                                    }
+                                    else
+                                    {
+                                        <img src="/images/default-avatar.svg" alt="@d.FullName" class="rounded-circle border" style="width: 32px; height: 32px; object-fit: cover;" />
+                                    }
                                     <span class="fw-semibold">@d.FullName</span>
                                 </div>
                             </td>

@@ -31,6 +31,7 @@ namespace BusTracking.Common.Services
                     Email = p.User.Email,
                     PhoneNumber = p.User.PhoneNumber,
                     IsActive = p.User.IsActive,
+                    ProfileImageUrl = p.User.ProfileImageUrl,
                     Students = p.ParentStudents.Select(ps => new LinkedStudentDto
                     {
                         StudentId = ps.Student.StudentId,

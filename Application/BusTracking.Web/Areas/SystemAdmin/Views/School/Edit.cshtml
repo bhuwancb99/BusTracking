@@ -53,7 +53,7 @@
                                 <span class="text-muted small">PNG, JPG or WebP (max. 5MB)</span>
                             </div>
                             <div id="logoPreview" class="mt-2 @(string.IsNullOrEmpty(Model.SchoolLogo) ? "d-none" : "")">
-                                <img src="@Model.SchoolLogo" class="rounded border border-secondary" style="height: 50px; max-width: 100%; object-fit: contain;" />
+                                <img src="@Model.SchoolLogo" class="rounded-circle border border-secondary shadow-sm" style="width: 60px; height: 60px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
                                 @if (!string.IsNullOrEmpty(Model.SchoolLogo))
                                 {
                                     <div class="text-secondary small mt-1">Current Active Logo</div>
