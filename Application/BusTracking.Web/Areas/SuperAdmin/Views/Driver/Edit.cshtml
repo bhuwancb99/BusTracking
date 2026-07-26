@@ -112,43 +112,6 @@
         if (vs && vs.querySelector('li,span:not(:empty)')) vs.style.display='';
         document.getElementById('editForm').addEventListener('submit',()=>{ if(vs) vs.style.display=''; });
 
-        let t;
-        document.getElementById('busSearch').addEventListener('input', function() {
-            clearTimeout(t);
-            const q = this.value.trim();
-            if (q.length < 1) { hideSug(); return; }
-            t = setTimeout(() => fetchBuses(q), 250);
-        });
-        document.addEventListener('click', e => { if (!e.target.closest('#busSearch,#busSuggestions')) hideSug(); });
-
-        async function fetchBuses(q) {
-            const res  = await fetch(`/SuperAdmin/Driver/SearchBuses?q=${encodeURIComponent(q)}`);
-            const data = await res.json();
-            const box  = document.getElementById('busSuggestions');
-            box.innerHTML = '';
-            if (!data.length) { hideSug(); return; }
-            data.forEach(b => {
-                const item = document.createElement('a');
-                item.className = 'dropdown-item'; item.href='#';
-                item.textContent = b.display;
-                item.addEventListener('click', e => { e.preventDefault(); selectBus(b); });
-                box.appendChild(item);
-            });
-            box.classList.add('show');
-        }
-        function selectBus(b) {
-            document.getElementById('busIdInput').value = b.busId;
-            document.getElementById('busSearch').value  = b.display;
-            document.getElementById('busSelected').innerHTML = `<span class="badge bg-primary-subtle text-primary"><i class="bi bi-bus-front me-1"></i>${b.display}</span>`;
-            hideSug();
-        }
-        function hideSug() { document.getElementById('busSuggestions').classList.remove('show'); }
-        function clearBus() {
-            document.getElementById('busIdInput').value = '';
-            document.getElementById('busSearch').value  = '';
-            document.getElementById('busSelected').innerHTML = '<span class="text-muted small">No bus assigned</span>';
-        }
-
         function confirmResetPassword() {
             if (!confirm('Reset password for this driver? A new password will be generated and shown once.')) return;
             doResetPassword();

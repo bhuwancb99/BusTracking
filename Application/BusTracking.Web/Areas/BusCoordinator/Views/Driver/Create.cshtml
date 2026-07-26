@@ -80,38 +80,7 @@
             if (vs) vs.style.display = '';
         });
 
-        // Bus autocomplete
-        let busTimer;
-        document.getElementById('busSearch').addEventListener('input', function() {
-            clearTimeout(busTimer);
-            const q = this.value.trim();
-            if (q.length < 1) { hideSug(); return; }
-            busTimer = setTimeout(() => fetchBuses(q), 250);
-        });
-        document.addEventListener('click', e => { if (!e.target.closest('#busSearch,#busSuggestions')) hideSug(); });
-
-        async function fetchBuses(q) {
-            const res  = await fetch(`/BusCoordinator/Driver/SearchBuses?q=${encodeURIComponent(q)}`);
-            const data = await res.json();
-            const box  = document.getElementById('busSuggestions');
-            box.innerHTML = '';
-            if (!data.length) { hideSug(); return; }
-            data.forEach(b => {
-                const item = document.createElement('a');
-                item.className = 'dropdown-item'; item.href = '#';
-                item.textContent = b.display;
-                item.addEventListener('click', e => { e.preventDefault(); selectBus(b); });
-                box.appendChild(item);
-            });
-            box.classList.add('show');
-        }
-        function selectBus(b) {
-            document.getElementById('busIdInput').value = b.busId;
-            document.getElementById('busSearch').value  = b.display;
-            document.getElementById('busSelected').innerHTML = `<span class="badge bg-primary-subtle text-primary"><i class="bi bi-bus-front me-1"></i>${b.display}</span>`;
-            hideSug();
-        }
-        function hideSug() { document.getElementById('busSuggestions').classList.remove('show'); }
+        function togglePwd() { const inp = document.getElementById('pwdInput'); const icon = document.getElementById('eyeIcon'); inp.type = inp.type === 'password' ? 'text' : 'password'; icon.className = inp.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash'; }
             const res = await fetch(`/Auth/CheckUsername?userName=${encodeURIComponent(val)}`);
             const data = await res.json();
             if (!data.success) {

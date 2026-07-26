@@ -29,6 +29,32 @@ namespace BusTracking.Common.Services
                     IsActive = u.IsActive,
                     ProfileImageUrl = u.ProfileImageUrl
                 }).ToListAsync();
+
+            var driverUserIds = items.Select(x => x.UserId).ToList();
+            var driverBusMappings = await _db.BusDriverMappings
+                .Where(bm => driverUserIds.Contains(bm.DriverUserId))
+                .Include(bm => bm.Bus)
+                .ToListAsync();
+
+            var busGrouped = driverBusMappings
+                .GroupBy(bm => bm.DriverUserId)
+                .ToDictionary(
+                    g => g.Key,
+                    g => (
+                        BusNumber: string.Join(", ", g.Select(x => x.Bus.BusNumber)),
+                        BusName: string.Join(", ", g.Select(x => x.Bus.BusName))
+                    )
+                );
+
+            foreach (var item in items)
+            {
+                if (busGrouped.TryGetValue(item.UserId, out var bInfo))
+                {
+                    item.BusNumber = bInfo.BusNumber;
+                    item.BusName = bInfo.BusName;
+                }
+            }
+
             return ApiResponse<PagedResult<DriverListDto>>.Ok(new PagedResult<DriverListDto> { Items = items, TotalCount = total, PageNumber = page, PageSize = pageSize });
         }
 
@@ -38,11 +64,22 @@ namespace BusTracking.Common.Services
         {
             var u = await _db.Users.Include(x => x.DriverDetail).FirstOrDefaultAsync(x => x.UserId == userId);
             if (u is null) return ApiResponse<DriverListDto>.Fail("Not found.");
+
+            var assignedBuses = await _db.BusDriverMappings
+                .Where(bm => bm.DriverUserId == userId)
+                .Include(bm => bm.Bus)
+                .Select(bm => bm.Bus)
+                .ToListAsync();
+
+            var busNumber = assignedBuses.Any() ? string.Join(", ", assignedBuses.Select(b => b.BusNumber)) : null;
+            var busName = assignedBuses.Any() ? string.Join(", ", assignedBuses.Select(b => b.BusName)) : null;
+
             return ApiResponse<DriverListDto>.Ok(new DriverListDto
             {
                 UserId = u.UserId, FullName = u.FullName, UserName = u.UserName, Email = u.Email,
                 PhoneNumber = u.PhoneNumber, LicenseNumber = u.DriverDetail?.LicenseNumber,
-                LicenseExpiry = u.DriverDetail?.LicenseExpiry?.ToString("yyyy-MM-dd"), IsActive = u.IsActive, ProfileImageUrl = u.ProfileImageUrl
+                LicenseExpiry = u.DriverDetail?.LicenseExpiry?.ToString("yyyy-MM-dd"), IsActive = u.IsActive, ProfileImageUrl = u.ProfileImageUrl,
+                BusNumber = busNumber, BusName = busName
             });
         }
 
