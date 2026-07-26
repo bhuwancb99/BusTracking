@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
+namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordBusFormViewModel : BaseViewModel, IQueryAttributable
     {
@@ -13,6 +13,12 @@
         [ObservableProperty] private string _busNumber = "";
         [ObservableProperty] private int? _capacity;
         [ObservableProperty] private bool _isActive = true;
+
+        // Compliance & Maintenance Tracking
+        [ObservableProperty] private DateTime? _insuranceExpiryDate;
+        [ObservableProperty] private DateTime? _fitnessExpiryDate;
+        [ObservableProperty] private DateTime? _pucExpiryDate;
+        [ObservableProperty] private DateTime? _lastServiceDate;
 
         [ObservableProperty] private List<BusTypeItem> _busTypeOptions = [];
         [ObservableProperty] private List<RouteItem> _routeOptions = [];
@@ -46,6 +52,12 @@
                     if (bus is null) return;
                     BusName = bus.BusName; BusNumber = bus.BusNumber;
                     Capacity = bus.Capacity; IsActive = bus.IsActive;
+
+                    if (DateTime.TryParse(bus.InsuranceExpiryDate, out var ins)) InsuranceExpiryDate = ins;
+                    if (DateTime.TryParse(bus.FitnessExpiryDate, out var fit)) FitnessExpiryDate = fit;
+                    if (DateTime.TryParse(bus.PucExpiryDate, out var puc)) PucExpiryDate = puc;
+                    if (DateTime.TryParse(bus.LastServiceDate, out var srv)) LastServiceDate = srv;
+
                     SelectedBusType = BusTypeOptions.FirstOrDefault(t => t.Id == bus.BusTypeId);
                     SelectedRoute = RouteOptions.FirstOrDefault(r => r.RouteId == bus.RouteId);
                     SelectedDriver = DriverOptions.FirstOrDefault(d => d.UserId == bus.DriverUserId);
@@ -64,25 +76,35 @@
 
             await RunAsync(async () =>
             {
+                var req = new UpdateBusRequest
+                {
+                    BusName = BusName,
+                    BusNumber = BusNumber,
+                    BusTypeId = SelectedBusType.Id,
+                    RouteId = SelectedRoute?.RouteId,
+                    Capacity = Capacity,
+                    DriverUserId = SelectedDriver?.UserId,
+                    InsuranceExpiryDate = InsuranceExpiryDate?.ToString("yyyy-MM-dd"),
+                    FitnessExpiryDate = FitnessExpiryDate?.ToString("yyyy-MM-dd"),
+                    PucExpiryDate = PucExpiryDate?.ToString("yyyy-MM-dd"),
+                    LastServiceDate = LastServiceDate?.ToString("yyyy-MM-dd"),
+                    IsActive = IsActive
+                };
+
                 ApiResponse<object> r = IsEditMode
-                    ? await _buses.UpdateAsync(BusId!.Value, new UpdateBusRequest
-                    {
-                        BusName = BusName,
-                        BusNumber = BusNumber,
-                        BusTypeId = SelectedBusType.Id,
-                        RouteId = SelectedRoute?.RouteId,
-                        Capacity = Capacity,
-                        DriverUserId = SelectedDriver?.UserId,
-                        IsActive = IsActive
-                    })
+                    ? await _buses.UpdateAsync(BusId!.Value, req)
                     : await _buses.CreateAsync(new CreateBusRequest
                     {
                         BusName = BusName,
                         BusNumber = BusNumber,
                         BusTypeId = SelectedBusType.Id,
-                        RouteId = SelectedRoute?.RouteId,
+                        RouteId = req.RouteId,
                         Capacity = Capacity,
-                        DriverUserId = SelectedDriver?.UserId,
+                        DriverUserId = req.DriverUserId,
+                        InsuranceExpiryDate = req.InsuranceExpiryDate,
+                        FitnessExpiryDate = req.FitnessExpiryDate,
+                        PucExpiryDate = req.PucExpiryDate,
+                        LastServiceDate = req.LastServiceDate,
                         IsActive = IsActive
                     });
 

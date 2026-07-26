@@ -36,7 +36,11 @@ namespace BusTracking.Common.Services
                     DriverPhone = b.Driver != null ? b.Driver.User.PhoneNumber : null,
                     Capacity = b.Capacity,
                     StudentCount = b.Students.Count,
-                    IsActive = b.IsActive
+                    IsActive = b.IsActive,
+                    InsuranceExpiryDate = b.InsuranceExpiryDate,
+                    FitnessExpiryDate = b.FitnessExpiryDate,
+                    PucExpiryDate = b.PucExpiryDate,
+                    LastServiceDate = b.LastServiceDate
                 }).ToListAsync();
             return ApiResponse<PagedResult<BusListDto>>.Ok(new PagedResult<BusListDto>
             {
@@ -77,6 +81,10 @@ namespace BusTracking.Common.Services
                 Capacity = b.Capacity,
                 StudentCount = b.Students.Count,
                 IsActive = b.IsActive,
+                InsuranceExpiryDate = b.InsuranceExpiryDate,
+                FitnessExpiryDate = b.FitnessExpiryDate,
+                PucExpiryDate = b.PucExpiryDate,
+                LastServiceDate = b.LastServiceDate,
                 PrimaryImageUrl = b.Images.FirstOrDefault(i => i.IsPrimary)?.ImageUrl
                                   ?? b.Images.FirstOrDefault()?.ImageUrl,
                 Images = b.Images.Select(i => new BusImageDto
@@ -104,6 +112,10 @@ namespace BusTracking.Common.Services
                 RouteId = dto.RouteId,
                 BusTypeId = dto.BusTypeId,
                 Capacity = dto.Capacity,
+                InsuranceExpiryDate = dto.InsuranceExpiryDate,
+                FitnessExpiryDate = dto.FitnessExpiryDate,
+                PucExpiryDate = dto.PucExpiryDate,
+                LastServiceDate = dto.LastServiceDate,
                 CreatedBy = createdBy
             };
             _db.Buses.Add(bus); await _db.SaveChangesAsync();
@@ -130,6 +142,10 @@ namespace BusTracking.Common.Services
             bus.RouteId = dto.RouteId;
             bus.BusTypeId = dto.BusTypeId;
             bus.Capacity = dto.Capacity;
+            bus.InsuranceExpiryDate = dto.InsuranceExpiryDate;
+            bus.FitnessExpiryDate = dto.FitnessExpiryDate;
+            bus.PucExpiryDate = dto.PucExpiryDate;
+            bus.LastServiceDate = dto.LastServiceDate;
             bus.IsActive = dto.IsActive;
             bus.UpdatedAt = DateTime.UtcNow;
             // Handle driver assignment change

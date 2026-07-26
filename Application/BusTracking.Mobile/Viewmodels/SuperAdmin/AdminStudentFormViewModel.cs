@@ -23,10 +23,14 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [ObservableProperty] private BusItem? _selectedBus;
         [ObservableProperty] private StopItem? _selectedStop;
 
+        // Transport Fee Tracking
+        [ObservableProperty] private List<string> _feeStatusOptions = ["Paid", "Pending", "Expired"];
+        [ObservableProperty] private string _selectedFeeStatus = "Paid";
+        [ObservableProperty] private DateTime? _feeExpiryDate;
 
         // ── Username live-check ───────────────────────────────────────────────
         [ObservableProperty] private string _usernameMessage = "";
-        [ObservableProperty] private Color  _usernameMessageColor = Colors.Transparent;
+        [ObservableProperty] private Color _usernameMessageColor = Colors.Transparent;
         private CancellationTokenSource? _usernameCts;
 
         // Suppresses username check while page is loading data
@@ -34,7 +38,6 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 
         partial void OnUserNameChanged(string value)
         {
-            // Skip check entirely while InitializeAsync is populating fields
             if (_isLoadingData) return;
 
             _usernameCts?.Cancel();
@@ -109,10 +112,13 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                     StudentCode = s.StudentCode ?? "";
                     SelectedStandard = StandardOptions.FirstOrDefault(st => st.StandardId == s.StandardId);
                     IsActive = s.IsActive;
+
+                    SelectedFeeStatus = string.IsNullOrWhiteSpace(s.TransportFeeStatus) ? "Paid" : s.TransportFeeStatus;
+                    if (DateTime.TryParse(s.FeeExpiryDate, out var feeExp)) FeeExpiryDate = feeExp;
+
                     SelectedBus = BusOptions.FirstOrDefault(b => b.BusId == s.BusId);
                     if (s.BusId.HasValue)
                     {
-                        // Load stops for selected bus's route
                         var bus = SelectedBus;
                         if (bus?.RouteId.HasValue == true)
                         {
@@ -127,7 +133,6 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 
         partial void OnSelectedBusChanged(BusItem? value)
         {
-            // Reload stops when bus selection changes
             if (value?.RouteId.HasValue == true)
                 _ = LoadStopsAsync(value.RouteId.Value);
             else
@@ -159,10 +164,12 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                         Email = Email.Length > 0 ? Email : null,
                         NewPassword = NewPassword.Length > 0 ? NewPassword : null,
                         PhoneNumber = PhoneNumber.Length > 0 ? PhoneNumber : null,
-                        StudentCode = StudentCode, // keep student code unchanged on edit or pass if required
+                        StudentCode = StudentCode,
                         StandardId = SelectedStandard?.StandardId,
                         BusId = SelectedBus?.BusId,
                         StopId = SelectedStop?.StopId,
+                        TransportFeeStatus = SelectedFeeStatus,
+                        FeeExpiryDate = FeeExpiryDate?.ToString("yyyy-MM-dd"),
                         IsActive = IsActive
                     });
                 else
@@ -173,14 +180,16 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                         Email = Email.Length > 0 ? Email : null,
                         Password = Password,
                         PhoneNumber = PhoneNumber.Length > 0 ? PhoneNumber : null,
-                        StudentCode = string.Empty, // generated or empty, let's keep it empty or if it needs to match StudentCode property
+                        StudentCode = StudentCode,
                         StandardId = SelectedStandard?.StandardId,
                         BusId = SelectedBus?.BusId,
                         StopId = SelectedStop?.StopId,
+                        TransportFeeStatus = SelectedFeeStatus,
+                        FeeExpiryDate = FeeExpiryDate?.ToString("yyyy-MM-dd"),
                         IsActive = IsActive
                     });
 
-                                if (r.Success)
+                if (r.Success)
                 {
                     if (IsEditMode)
                     {

@@ -265,7 +265,7 @@
                                 </VerticalStackLayout>
                                 <VerticalStackLayout
                                     Grid.Column="2"
-                                    Spacing="8"
+                                    Spacing="4"
                                     VerticalOptions="Center">
                                     <Border
                                         Padding="8,3"
@@ -277,6 +277,17 @@
                                             FontSize="10"
                                             Text="{Binding StatusLabel}"
                                             TextColor="{Binding StatusTextColor}" />
+                                    </Border>
+                                    <Border
+                                        Padding="8,3"
+                                        BackgroundColor="{Binding FeeStatusBgColor}"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 20">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="10"
+                                            Text="{Binding TransportFeeStatus, StringFormat='Fee: {0}'}"
+                                            TextColor="{Binding FeeStatusTextColor}" />
                                     </Border>
                                 </VerticalStackLayout>
                             </Grid>

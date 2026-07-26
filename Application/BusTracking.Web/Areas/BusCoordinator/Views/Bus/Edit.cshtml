@@ -84,6 +84,28 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- ── Compliance & Maintenance Dates ── -->
+                    <h6 class="fw-semibold text-muted mt-4 mb-2"><i class="bi bi-shield-check me-1"></i>Compliance & Maintenance Dates</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="InsuranceExpiryDate" class="form-label fw-semibold">Insurance Expiry Date</label>
+                            <input asp-for="InsuranceExpiryDate" type="date" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="FitnessExpiryDate" class="form-label fw-semibold">Fitness Certificate Expiry</label>
+                            <input asp-for="FitnessExpiryDate" type="date" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PucExpiryDate" class="form-label fw-semibold">PUC Expiry Date</label>
+                            <input asp-for="PucExpiryDate" type="date" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LastServiceDate" class="form-label fw-semibold">Last Service / Maintenance Date</label>
+                            <input asp-for="LastServiceDate" type="date" class="form-control" />
+                        </div>
+                    </div>
+
                     <div class="d-flex gap-2 mt-4">
                         <button type="submit" class="btn btn-warning px-4"><i class="bi bi-check2 me-1"></i>Update Bus</button>
                         <a asp-area="BusCoordinator" asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>

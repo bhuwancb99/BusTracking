@@ -12,5 +12,9 @@ namespace BusTracking.Common.DTOs.Student
         public int? BusId { get; set; }
         public int? StopId { get; set; }
         public bool IsActive { get; set; } = true;
+
+        // Transport Fee Tracking
+        public TransportFeeStatus TransportFeeStatus { get; set; } = TransportFeeStatus.Paid;
+        public DateOnly? FeeExpiryDate { get; set; }
     }
 }

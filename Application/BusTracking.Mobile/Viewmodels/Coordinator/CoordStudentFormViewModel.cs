@@ -23,10 +23,14 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [ObservableProperty] private BusItem? _selectedBus;
         [ObservableProperty] private StopItem? _selectedStop;
 
+        // Transport Fee Tracking
+        [ObservableProperty] private List<string> _feeStatusOptions = ["Paid", "Pending", "Expired"];
+        [ObservableProperty] private string _selectedFeeStatus = "Paid";
+        [ObservableProperty] private DateTime? _feeExpiryDate;
 
         // ── Username live-check ───────────────────────────────────────────────
         [ObservableProperty] private string _usernameMessage = "";
-        [ObservableProperty] private Color  _usernameMessageColor = Colors.Transparent;
+        [ObservableProperty] private Color _usernameMessageColor = Colors.Transparent;
         private CancellationTokenSource? _usernameCts;
 
         // Suppresses username check while page is loading data
@@ -34,7 +38,6 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         partial void OnUserNameChanged(string value)
         {
-            // Skip check entirely while InitializeAsync is populating fields
             if (_isLoadingData) return;
 
             _usernameCts?.Cancel();
@@ -108,6 +111,10 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                     StudentCode = s.StudentCode;
                     SelectedStandard = StandardOptions.FirstOrDefault(st => st.StandardId == s.StandardId);
                     IsActive = s.IsActive;
+
+                    SelectedFeeStatus = string.IsNullOrWhiteSpace(s.TransportFeeStatus) ? "Paid" : s.TransportFeeStatus;
+                    if (DateTime.TryParse(s.FeeExpiryDate, out var feeExp)) FeeExpiryDate = feeExp;
+
                     SelectedBus = BusOptions.FirstOrDefault(b => b.BusId == s.BusId);
                     if (SelectedBus?.RouteId.HasValue == true)
                     {
@@ -153,6 +160,8 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                         StandardId = SelectedStandard?.StandardId,
                         BusId = SelectedBus?.BusId,
                         StopId = SelectedStop?.StopId,
+                        TransportFeeStatus = SelectedFeeStatus,
+                        FeeExpiryDate = FeeExpiryDate?.ToString("yyyy-MM-dd"),
                         IsActive = IsActive
                     })
                     : await _students.CreateAsync(new CreateStudentRequest
@@ -162,14 +171,16 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                         Email = Email.Length > 0 ? Email : null,
                         Password = Password,
                         PhoneNumber = PhoneNumber.Length > 0 ? PhoneNumber : null,
-                        StudentCode = string.Empty,
+                        StudentCode = StudentCode,
                         StandardId = SelectedStandard?.StandardId,
                         BusId = SelectedBus?.BusId,
                         StopId = SelectedStop?.StopId,
+                        TransportFeeStatus = SelectedFeeStatus,
+                        FeeExpiryDate = FeeExpiryDate?.ToString("yyyy-MM-dd"),
                         IsActive = IsActive
                     });
 
-                                if (r.Success)
+                if (r.Success)
                 {
                     if (IsEditMode)
                     {

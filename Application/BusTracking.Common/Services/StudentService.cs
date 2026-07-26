@@ -33,7 +33,9 @@ namespace BusTracking.Common.Services
                     StopId = s.StopId,
                     StopName = s.Stop != null ? s.Stop.StopName : null,
                     IsActive = s.User.IsActive,
-                    ProfileImageUrl = s.User.ProfileImageUrl
+                    ProfileImageUrl = s.User.ProfileImageUrl,
+                    TransportFeeStatus = s.TransportFeeStatus,
+                    FeeExpiryDate = s.FeeExpiryDate
                 }).ToListAsync();
             return ApiResponse<PagedResult<StudentListDto>>.Ok(new PagedResult<StudentListDto>
             {
@@ -66,7 +68,9 @@ namespace BusTracking.Common.Services
                 StopId = s.StopId,
                 StopName = s.Stop?.StopName,
                 IsActive = s.User.IsActive,
-                ProfileImageUrl = s.User.ProfileImageUrl
+                ProfileImageUrl = s.User.ProfileImageUrl,
+                TransportFeeStatus = s.TransportFeeStatus,
+                FeeExpiryDate = s.FeeExpiryDate
             });
         }
         public async Task<ApiResponse<CreatedUserResultDto>> CreateAsync(CreateStudentDto dto, int createdBy)
@@ -96,7 +100,9 @@ namespace BusTracking.Common.Services
                 StudentCode = dto.StudentCode,
                 StandardId = dto.StandardId,
                 BusId = dto.BusId,
-                StopId = dto.StopId
+                StopId = dto.StopId,
+                TransportFeeStatus = dto.TransportFeeStatus,
+                FeeExpiryDate = dto.FeeExpiryDate
             });
             await _db.SaveChangesAsync();
             if (dto.SendEmail && !string.IsNullOrWhiteSpace(dto.Email)) await _email.SendAsync(dto.Email!, "Your Student Account", $"<p>Hi {dto.FullName},</p><p>Username: <b>{dto.UserName}</b><br/>Password: <b>{password}</b></p>");
@@ -134,6 +140,8 @@ namespace BusTracking.Common.Services
             s.StandardId = dto.StandardId;
             s.BusId = dto.BusId;
             s.StopId = dto.StopId;
+            s.TransportFeeStatus = dto.TransportFeeStatus;
+            s.FeeExpiryDate = dto.FeeExpiryDate;
             s.UpdatedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Updated.");
         }

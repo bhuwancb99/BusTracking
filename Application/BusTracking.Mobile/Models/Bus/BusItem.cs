@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Models.Bus
+namespace BusTracking.Mobile.Models.Bus
 {
     public class BusItem
     {
@@ -15,6 +15,12 @@
         public int? Capacity { get; set; }
         public int StudentCount { get; set; }
         public bool IsActive { get; set; }
+
+        // Compliance & Maintenance Tracking
+        public string? InsuranceExpiryDate { get; set; }
+        public string? FitnessExpiryDate { get; set; }
+        public string? PucExpiryDate { get; set; }
+        public string? LastServiceDate { get; set; }
 
         public string StatusLabel => IsActive ? "Active" : "Inactive";
         public Color StatusColor => IsActive ? Colors.Green : Colors.Red;

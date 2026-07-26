@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Models.Bus
+namespace BusTracking.Mobile.Models.Bus
 {
     public class CreateBusRequest
     {
@@ -9,5 +9,11 @@
         public int? Capacity { get; set; }
         public int? DriverUserId { get; set; }
         public bool IsActive { get; set; } = true;
+
+        // Compliance & Maintenance Tracking
+        public string? InsuranceExpiryDate { get; set; }
+        public string? FitnessExpiryDate { get; set; }
+        public string? PucExpiryDate { get; set; }
+        public string? LastServiceDate { get; set; }
     }
 }

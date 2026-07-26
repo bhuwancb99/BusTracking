@@ -15,6 +15,13 @@ namespace BusTracking.Common.DTOs.Bus
         public int? Capacity { get; set; }
         public int StudentCount { get; set; }
         public bool IsActive { get; set; }
+
+        // Compliance & Maintenance Tracking
+        public DateOnly? InsuranceExpiryDate { get; set; }
+        public DateOnly? FitnessExpiryDate { get; set; }
+        public DateOnly? PucExpiryDate { get; set; }
+        public DateOnly? LastServiceDate { get; set; }
+
         public string? PrimaryImageUrl { get; set; }
         public List<BusImageDto> Images { get; set; } = [];
     }

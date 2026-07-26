@@ -83,6 +83,8 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
                 StandardId = r.Data.StandardId,
                 BusId = r.Data.BusId,
                 StopId = r.Data.StopId,
+                TransportFeeStatus = r.Data.TransportFeeStatus,
+                FeeExpiryDate = r.Data.FeeExpiryDate,
                 IsActive = r.Data.IsActive
             });
         }

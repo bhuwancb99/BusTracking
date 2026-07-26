@@ -77,6 +77,10 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
                 BusTypeId = r.Data.BusTypeId,
                 Capacity = r.Data.Capacity,
                 DriverUserId = r.Data.DriverUserId,
+                InsuranceExpiryDate = r.Data.InsuranceExpiryDate,
+                FitnessExpiryDate = r.Data.FitnessExpiryDate,
+                PucExpiryDate = r.Data.PucExpiryDate,
+                LastServiceDate = r.Data.LastServiceDate,
                 IsActive = r.Data.IsActive
             });
         }

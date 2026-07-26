@@ -79,6 +79,31 @@
 
                     </div>
 
+                    <!-- ── Compliance & Maintenance Dates ── -->
+                    <h6 class="fw-semibold text-muted mt-4 mb-2"><i class="bi bi-shield-check me-1"></i>Compliance & Maintenance Dates</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="InsuranceExpiryDate" class="form-label fw-semibold">Insurance Expiry Date</label>
+                            <input asp-for="InsuranceExpiryDate" type="date" class="form-control" />
+                            <span asp-validation-for="InsuranceExpiryDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="FitnessExpiryDate" class="form-label fw-semibold">Fitness Certificate Expiry</label>
+                            <input asp-for="FitnessExpiryDate" type="date" class="form-control" />
+                            <span asp-validation-for="FitnessExpiryDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="PucExpiryDate" class="form-label fw-semibold">PUC Expiry Date</label>
+                            <input asp-for="PucExpiryDate" type="date" class="form-control" />
+                            <span asp-validation-for="PucExpiryDate" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="LastServiceDate" class="form-label fw-semibold">Last Service / Maintenance Date</label>
+                            <input asp-for="LastServiceDate" type="date" class="form-control" />
+                            <span asp-validation-for="LastServiceDate" class="text-danger small"></span>
+                        </div>
+                    </div>
+
                     <div class="alert alert-info border-0 py-2 mt-3 small">
                         <i class="bi bi-lightbulb me-1"></i>
                         <strong>Important:</strong> Assigning a Route to the bus enables stop selection when

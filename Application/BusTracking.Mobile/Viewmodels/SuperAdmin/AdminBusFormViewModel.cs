@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.SuperAdmin
+namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 {
     public partial class AdminBusFormViewModel : BaseViewModel, IQueryAttributable
     {
@@ -15,6 +15,12 @@
         [ObservableProperty] private int? _driverUserId;
         [ObservableProperty] private int? _capacity;
         [ObservableProperty] private bool _isActive = true;
+
+        // Compliance & Maintenance Tracking
+        [ObservableProperty] private DateTime? _insuranceExpiryDate;
+        [ObservableProperty] private DateTime? _fitnessExpiryDate;
+        [ObservableProperty] private DateTime? _pucExpiryDate;
+        [ObservableProperty] private DateTime? _lastServiceDate;
 
         [ObservableProperty] private List<BusTypeItem> _busTypeOptions = [];
         [ObservableProperty] private List<RouteItem> _routeOptions = [];
@@ -51,6 +57,12 @@
                     BusNumber = bus.BusNumber;
                     Capacity = bus.Capacity;
                     IsActive = bus.IsActive;
+
+                    if (DateTime.TryParse(bus.InsuranceExpiryDate, out var ins)) InsuranceExpiryDate = ins;
+                    if (DateTime.TryParse(bus.FitnessExpiryDate, out var fit)) FitnessExpiryDate = fit;
+                    if (DateTime.TryParse(bus.PucExpiryDate, out var puc)) PucExpiryDate = puc;
+                    if (DateTime.TryParse(bus.LastServiceDate, out var srv)) LastServiceDate = srv;
+
                     SelectedBusType = BusTypeOptions.FirstOrDefault(t => t.Id == bus.BusTypeId);
                     SelectedRoute = RouteOptions.FirstOrDefault(r => r.RouteId == bus.RouteId);
                     SelectedDriver = DriverOptions.FirstOrDefault(d => d.UserId == bus.DriverUserId);
@@ -77,6 +89,10 @@
                     RouteId = SelectedRoute?.RouteId,
                     Capacity = Capacity,
                     DriverUserId = SelectedDriver?.UserId,
+                    InsuranceExpiryDate = InsuranceExpiryDate?.ToString("yyyy-MM-dd"),
+                    FitnessExpiryDate = FitnessExpiryDate?.ToString("yyyy-MM-dd"),
+                    PucExpiryDate = PucExpiryDate?.ToString("yyyy-MM-dd"),
+                    LastServiceDate = LastServiceDate?.ToString("yyyy-MM-dd"),
                     IsActive = IsActive
                 };
 
@@ -90,6 +106,10 @@
                         RouteId = req.RouteId,
                         Capacity = Capacity,
                         DriverUserId = req.DriverUserId,
+                        InsuranceExpiryDate = req.InsuranceExpiryDate,
+                        FitnessExpiryDate = req.FitnessExpiryDate,
+                        PucExpiryDate = req.PucExpiryDate,
+                        LastServiceDate = req.LastServiceDate,
                         IsActive = IsActive
                     });
 

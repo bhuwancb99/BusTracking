@@ -81,6 +81,23 @@
 
                     </div>
 
+                    <!-- ── Transport Fee Tracking ── -->
+                    <h6 class="fw-semibold text-muted mt-4 mb-2"><i class="bi bi-cash-coin me-1"></i>Transport Fee</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="TransportFeeStatus" class="form-label fw-semibold">Fee Status</label>
+                            <select asp-for="TransportFeeStatus" class="form-select">
+                                <option value="Paid">Paid</option>
+                                <option value="Pending">Pending</option>
+                                <option value="Expired">Expired</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="FeeExpiryDate" class="form-label fw-semibold">Fee Expiry Date</label>
+                            <input asp-for="FeeExpiryDate" type="date" class="form-control" />
+                        </div>
+                    </div>
+
                     <div class="form-check form-switch mt-3">
                         <input asp-for="SendEmail" class="form-check-input" type="checkbox" role="switch" id="sendEmailChk" />
                         <label class="form-check-label" for="sendEmailChk">

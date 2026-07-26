@@ -11,5 +11,11 @@ namespace BusTracking.Common.DTOs.Bus
 
         public int? Capacity { get; set; }
         public int? DriverUserId { get; set; }   // optional assign on create
+
+        // Compliance & Maintenance Tracking
+        public DateOnly? InsuranceExpiryDate { get; set; }
+        public DateOnly? FitnessExpiryDate { get; set; }
+        public DateOnly? PucExpiryDate { get; set; }
+        public DateOnly? LastServiceDate { get; set; }
     }
 }

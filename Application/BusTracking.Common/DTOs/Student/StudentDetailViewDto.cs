@@ -18,6 +18,9 @@ namespace BusTracking.Common.DTOs.Student
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
         public List<string> ParentNames { get; set; } = [];
-    }
 
+        // Transport Fee Tracking
+        public TransportFeeStatus TransportFeeStatus { get; set; } = TransportFeeStatus.Paid;
+        public DateOnly? FeeExpiryDate { get; set; }
+    }
 }

@@ -89,6 +89,38 @@
             </div>
         </div>
 
+        <!-- Transport Fee Tracking -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
+                    <i class="bi bi-cash-coin me-2 text-primary"></i>Transport Fee
+                </div>
+                <div class="card-body p-4">
+                    <table class="table table-borderless small mb-0">
+                        <tr>
+                            <th class="text-muted w-40">Fee Status</th>
+                            <td>
+                                @{
+                                    var feeBadgeClass = Model.TransportFeeStatus switch
+                                    {
+                                        BusTracking.Common.Enums.TransportFeeStatus.Paid => "bg-success-subtle text-success",
+                                        BusTracking.Common.Enums.TransportFeeStatus.Pending => "bg-warning-subtle text-warning",
+                                        BusTracking.Common.Enums.TransportFeeStatus.Expired => "bg-danger-subtle text-danger",
+                                        _ => "bg-secondary-subtle text-secondary"
+                                    };
+                                }
+                                <span class="badge @feeBadgeClass">@Model.TransportFeeStatus</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Fee Expiry</th>
+                            <td>@(Model.FeeExpiryDate?.ToString("yyyy-MM-dd") ?? "—")</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
         <div class="col-lg-7">
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">

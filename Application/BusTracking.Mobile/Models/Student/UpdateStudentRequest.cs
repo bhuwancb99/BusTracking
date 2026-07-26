@@ -13,5 +13,9 @@ namespace BusTracking.Mobile.Models.Student
         public int? StopId { get; set; }
         public List<string> StudentCodes { get; set; } = [];
         public bool IsActive { get; set; } = true;
+
+        // Transport Fee Tracking
+        public string TransportFeeStatus { get; set; } = "Paid";
+        public string? FeeExpiryDate { get; set; }
     }
 }

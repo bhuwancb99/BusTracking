@@ -308,6 +308,55 @@
                 </VerticalStackLayout>
             </Border>
 
+            <!--  Transport Fee Tracking  -->
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 8"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="12">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        Text="Transport Fee Tracking"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
+
+                    <!--  Transport Fee Status Picker  -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label
+                            FontSize="12"
+                            Text="Fee Status"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                        <Picker
+                            Title="Select status…"
+                            BackgroundColor="Transparent"
+                            ItemsSource="{Binding FeeStatusOptions}"
+                            SelectedItem="{Binding SelectedFeeStatus}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                    </VerticalStackLayout>
+
+                    <!--  Fee Expiry Date  -->
+                    <VerticalStackLayout Spacing="4">
+                        <Label
+                            FontSize="12"
+                            Text="Fee Expiry Date"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                        <DatePicker
+                            BackgroundColor="Transparent"
+                            Date="{Binding FeeExpiryDate}"
+                            Format="yyyy-MM-dd"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
             <!--  Active  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},

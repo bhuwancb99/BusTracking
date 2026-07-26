@@ -40,6 +40,31 @@
                 </div>
             </div>
 
+            <!-- ── Compliance & Maintenance ── -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-shield-check me-2 text-primary"></i>Compliance & Maintenance</div>
+                <div class="card-body p-4">
+                    <table class="table table-borderless small mb-0">
+                        <tr>
+                            <th class="text-muted w-40">Insurance Expiry</th>
+                            <td>@(Model.InsuranceExpiryDate?.ToString("yyyy-MM-dd") ?? "—")</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Fitness Expiry</th>
+                            <td>@(Model.FitnessExpiryDate?.ToString("yyyy-MM-dd") ?? "—")</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">PUC Expiry</th>
+                            <td>@(Model.PucExpiryDate?.ToString("yyyy-MM-dd") ?? "—")</td>
+                        </tr>
+                        <tr>
+                            <th class="text-muted">Last Service</th>
+                            <td>@(Model.LastServiceDate?.ToString("yyyy-MM-dd") ?? "—")</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
             <!-- ── Bus Photos ── -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white border-0 pt-3 px-4 pb-3">
