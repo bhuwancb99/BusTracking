@@ -12,28 +12,34 @@ namespace BusTracking.Common.Services
         // ── My Trip ────────────────────────────────────────────────────────
         public async Task<ApiResponse<DriverMyTripDto>> GetMyTripAsync(int driverUserId)
         {
-            var driver = await _db.DriverDetails
-                .Include(d => d.Bus).ThenInclude(b => b!.Route)
-                .Include(d => d.User).ThenInclude(u => u!.School).ThenInclude(s => s!.TimeZone)
-                .FirstOrDefaultAsync(d => d.UserId == driverUserId);
-            if (driver?.Bus is null)
+            var mapping = await _db.BusDriverMappings
+                .Include(dm => dm.Bus)
+                    .ThenInclude(b => b.RouteMappings)
+                        .ThenInclude(rm => rm.Route)
+                .FirstOrDefaultAsync(dm => dm.DriverUserId == driverUserId);
+
+            if (mapping?.Bus is null)
                 return ApiResponse<DriverMyTripDto>.Fail("No bus assigned to this driver.");
+
+            var firstRoute = mapping.Bus.RouteMappings.FirstOrDefault()?.Route;
+
             var dto = new DriverMyTripDto
             {
-                BusId = driver.Bus.BusId,
-                BusName = driver.Bus.BusName,
-                BusNumber = driver.Bus.BusNumber,
-                RouteId = driver.Bus.Route?.RouteId,
-                RouteName = driver.Bus.Route?.RouteName ?? "No route assigned"
+                BusId = mapping.Bus.BusId,
+                BusName = mapping.Bus.BusName,
+                BusNumber = mapping.Bus.BusNumber,
+                RouteId = firstRoute?.RouteId,
+                RouteName = firstRoute?.RouteName ?? "No route assigned"
             };
 
-            var timeZoneId = driver.User?.School?.TimeZoneInfoId
-                          ?? driver.User?.School?.TimeZone?.WindowsTimeZoneId
+            var user = await _db.Users.Include(u => u.School).ThenInclude(s => s!.TimeZone).FirstOrDefaultAsync(u => u.UserId == driverUserId);
+            var timeZoneId = user?.School?.TimeZoneInfoId
+                          ?? user?.School?.TimeZone?.WindowsTimeZoneId
                           ?? "India Standard Time";
             var schoolToday = TimeZoneHelper.GetToday(timeZoneId);
             // Auto-close lingering InProgress trips from previous days
             var yesterdayInProgress = await _db.BusTrips
-                .Where(t => t.BusId == driver.BusId && t.Status == TripStatus.InProgress && t.TripDate < schoolToday)
+                .Where(t => t.BusId == mapping.Bus.BusId && t.Status == TripStatus.InProgress && t.TripDate < schoolToday)
                 .ToListAsync();
             if (yesterdayInProgress.Count > 0)
             {
@@ -47,11 +53,11 @@ namespace BusTracking.Common.Services
 
             // Fetch today's trip
             var trip = await _db.BusTrips
-                .FirstOrDefaultAsync(t => t.BusId == driver.BusId
+                .FirstOrDefaultAsync(t => t.BusId == mapping.Bus.BusId
                                        && t.TripDate == schoolToday
                                        && t.Status == TripStatus.InProgress)
                     ?? await _db.BusTrips
-                .FirstOrDefaultAsync(t => t.BusId == driver.BusId
+                .FirstOrDefaultAsync(t => t.BusId == mapping.Bus.BusId
                                        && t.TripDate == schoolToday
                                        && t.Status != TripStatus.Cancelled);
             if (trip is not null)
@@ -188,14 +194,14 @@ namespace BusTracking.Common.Services
         public async Task<ApiResponse<List<TripStopEventDto>>> GetTripStopsAsync(int tripId)
         {
             var trip = await _db.BusTrips
-                .Include(t => t.Bus).ThenInclude(b => b!.Route).ThenInclude(r => r!.Stops)
+                .Include(t => t.Route).ThenInclude(r => r!.Stops)
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
-            if (trip?.Bus?.Route is null)
+            if (trip?.Route is null)
                 return ApiResponse<List<TripStopEventDto>>.Fail("Trip or route not found.");
             var events = await _db.TripStopEvents
                 .Where(e => e.TripId == tripId).ToListAsync();
             var eventsByStop = events.ToDictionary(e => e.StopId);
-            var stops = trip.Bus.Route.Stops
+            var stops = trip.Route.Stops
                 .OrderBy(s => s.StopOrder)
                 .Select(s =>
                 {
@@ -220,11 +226,11 @@ namespace BusTracking.Common.Services
         {
             // Sequential check: previous stops must be Departed
             var trip = await _db.BusTrips
-                .Include(t => t.Bus).ThenInclude(b => b!.Route).ThenInclude(r => r!.Stops)
+                .Include(t => t.Route).ThenInclude(r => r!.Stops)
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
-            if (trip?.Bus?.Route is not null)
+            if (trip?.Route is not null)
             {
-                var orderedStops = trip.Bus.Route.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).ToList();
+                var orderedStops = trip.Route.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).ToList();
                 var currentStop = orderedStops.FirstOrDefault(s => s.StopId == stopId);
                 if (currentStop is not null)
                 {

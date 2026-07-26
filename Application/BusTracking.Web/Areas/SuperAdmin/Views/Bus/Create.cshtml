@@ -46,35 +46,28 @@
                             <span asp-validation-for="BusTypeId" class="text-danger small"></span>
                         </div>
 
-                        <!-- ── Route dropdown (required for stop assignment) ── -->
+                        <!-- ── Multi-Route selection ── -->
                         <div class="col-md-4">
-                            <label asp-for="RouteId" class="form-label fw-semibold">
-                                Assign Route <span class="text-danger">*</span>
-                                <small class="text-muted fw-normal ms-1">(required for stop assignment)</small>
+                            <label asp-for="RouteIds" class="form-label fw-semibold">
+                                Assign Routes <span class="text-danger">*</span>
+                                <small class="text-muted fw-normal ms-1">(Hold Ctrl/Cmd to select multiple)</small>
                             </label>
-                            <select asp-for="RouteId" class="form-select" id="routeSelect"
+                            <select asp-for="RouteIds" class="form-select" multiple style="min-height: 110px;"
                                     asp-items="@(ViewBag.Routes as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])">
-                                <option value="">-- Select a Route --</option>
                             </select>
-                            <span asp-validation-for="RouteId" class="text-danger small"></span>
-                            <div id="routeStopsPreview" class="mt-2 d-none">
-                                <small class="text-muted">
-                                    <i class="bi bi-info-circle me-1"></i>
-                                    Route selected — students can be assigned to stops on this route.
-                                </small>
-                            </div>
+                            <span asp-validation-for="RouteIds" class="text-danger small"></span>
                         </div>
 
-                        <!-- ── Driver autocomplete ── -->
+                        <!-- ── Multi-Driver selection ── -->
                         <div class="col-md-4">
-                            <label class="form-label fw-semibold">Assign Driver (optional)</label>
-                            <div class="position-relative">
-                                <input type="text" id="driverSearch" class="form-control"
-                                       placeholder="Type driver name…" autocomplete="off" />
-                                <input type="hidden" asp-for="DriverUserId" id="driverIdInput" />
-                                <div id="driverSuggestions" class="dropdown-menu w-100 shadow-sm"></div>
-                            </div>
-                            <div id="driverSelected" class="mt-1 small text-muted"></div>
+                            <label asp-for="DriverUserIds" class="form-label fw-semibold">
+                                Assign Drivers <span class="text-muted fw-normal">(Optional)</span>
+                                <small class="text-muted fw-normal ms-1">(Hold Ctrl/Cmd to select multiple)</small>
+                            </label>
+                            <select asp-for="DriverUserIds" class="form-select" multiple style="min-height: 110px;"
+                                    asp-items="@(ViewBag.Drivers as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])">
+                            </select>
+                            <span asp-validation-for="DriverUserIds" class="text-danger small"></span>
                         </div>
 
                     </div>
@@ -126,14 +119,14 @@
     <partial name="_ValidationScriptsPartial" />
     <script>
         // Show route selected hint
-        document.getElementById('routeSelect').addEventListener('change', function () {
+        document.getElementById('routeSelect').addEventListener('change', function() {
             const preview = document.getElementById('routeStopsPreview');
             preview.classList.toggle('d-none', !this.value);
         });
 
         // Driver autocomplete
         let t;
-        document.getElementById('driverSearch').addEventListener('input', function () {
+        document.getElementById('driverSearch').addEventListener('input', function() {
             clearTimeout(t); const q = this.value.trim();
             if (q.length < 1) { hideSug(); return; }
             t = setTimeout(() => fetchDrivers(q), 250);
@@ -143,7 +136,7 @@
         });
         async function fetchDrivers(q) {
             const data = await (await fetch(`/SuperAdmin/Bus/SearchDrivers?q=${encodeURIComponent(q)}`)).json();
-            const box  = document.getElementById('driverSuggestions');
+            const box = document.getElementById('driverSuggestions');
             box.innerHTML = '';
             data.forEach(d => {
                 const a = document.createElement('a');
@@ -155,11 +148,11 @@
         }
         function selectDriver(d) {
             document.getElementById('driverIdInput').value = d.userId;
-            document.getElementById('driverSearch').value  = d.display;
+            document.getElementById('driverSearch').value = d.display;
             document.getElementById('driverSelected').innerHTML =
                 `<span class="badge bg-success-subtle text-success">
-                     <i class="bi bi-person-video2 me-1"></i>${d.display}
-                 </span>`;
+                             <i class="bi bi-person-video2 me-1"></i>${d.display}
+                         </span>`;
             hideSug();
         }
         function hideSug() { document.getElementById('driverSuggestions').classList.remove('show'); }

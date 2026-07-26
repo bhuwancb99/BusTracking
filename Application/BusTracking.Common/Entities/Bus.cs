@@ -7,8 +7,6 @@ namespace BusTracking.Common.Entities
         [Key] public int BusId { get; set; }
         [Required, MaxLength(100)] public string BusName { get; set; } = "";
         [Required, MaxLength(50)] public string BusNumber { get; set; } = "";
-        public int? RouteId { get; set; }
-
         [Required]
         public int BusTypeId { get; set; }
 
@@ -24,16 +22,14 @@ namespace BusTracking.Common.Entities
         public DateOnly? PucExpiryDate { get; set; }
         public DateOnly? LastServiceDate { get; set; }
 
-        [ForeignKey(nameof(RouteId))]
-        public BusRoute? Route { get; set; }
-
         [ForeignKey(nameof(BusTypeId))]
         public BusTypeMaster? BusType { get; set; }
 
         public ICollection<StudentDetail> Students { get; set; } = [];
-        public DriverDetail? Driver { get; set; }
         public ICollection<BusTrip> Trips { get; set; } = [];
         public ICollection<BusImage> Images { get; set; } = [];
         public ICollection<BusFuelLog> FuelLogs { get; set; } = [];
+        public ICollection<BusRouteMapping> RouteMappings { get; set; } = [];
+        public ICollection<BusDriverMapping> DriverMappings { get; set; } = [];
     }
 }

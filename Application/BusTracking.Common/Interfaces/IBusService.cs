@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Interfaces
+namespace BusTracking.Common.Interfaces
 {
     public interface IBusService
     {
@@ -13,5 +13,7 @@
         Task<ApiResponse<bool>> AssignStudentAsync(int busId, int studentId);
         Task<ApiResponse<bool>> RemoveStudentAsync(int busId, int studentId);
         Task<ApiResponse<List<BusDropdownDto>>> GetDropdownAsync(string? search);
+        Task<ApiResponse<List<RouteListDto>>> GetRoutesForBusAsync(int busId);
+        Task<ApiResponse<List<DriverDropdownDto>>> GetDriversForBusAsync(int busId);
     }
 }

@@ -49,12 +49,22 @@ namespace BusTracking.API.Controllers
         {
             var user = await _db.Users
                 .Include(u => u.DriverDetail)
-                    .ThenInclude(d => d!.Bus)
-                        .ThenInclude(b => b!.Route)
                 .FirstOrDefaultAsync(u => u.UserId == CurrentUserId);
 
             if (user is null)
                 return NotFound(ApiResponse<DriverProfileModel>.Fail("Driver not found."));
+
+            var assignedBuses = await _db.BusDriverMappings
+                .Where(dm => dm.DriverUserId == CurrentUserId)
+                .Include(dm => dm.Bus)
+                    .ThenInclude(b => b.RouteMappings)
+                        .ThenInclude(rm => rm.Route)
+                .Select(dm => dm.Bus)
+                .ToListAsync();
+
+            var busName = assignedBuses.Any() ? string.Join(", ", assignedBuses.Select(b => b.BusName)) : null;
+            var busNumber = assignedBuses.Any() ? string.Join(", ", assignedBuses.Select(b => b.BusNumber)) : null;
+            var routeName = assignedBuses.Any() ? string.Join(", ", assignedBuses.SelectMany(b => b.RouteMappings.Select(rm => rm.Route.RouteName))) : null;
 
             var dto = new DriverProfileModel
             {
@@ -65,10 +75,9 @@ namespace BusTracking.API.Controllers
                 ProfileImageUrl = user.ProfileImageUrl,
                 LicenseNumber = user.DriverDetail?.LicenseNumber,
                 LicenseExpiry = user.DriverDetail?.LicenseExpiry?.ToString("yyyy-MM-dd"),
-                BusId = user.DriverDetail?.BusId,
-                BusName = user.DriverDetail?.Bus?.BusName,
-                BusNumber = user.DriverDetail?.Bus?.BusNumber,
-                RouteName = user.DriverDetail?.Bus?.Route?.RouteName,
+                BusName = busName,
+                BusNumber = busNumber,
+                RouteName = routeName,
                 IsActive = user.IsActive,
                 CreatedAt = user.CreatedAt
             };

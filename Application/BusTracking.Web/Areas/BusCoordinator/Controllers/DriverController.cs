@@ -55,8 +55,6 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             var r = await _driver.GetByIdAsync(id);
             if (!r.Success) return NotFound();
             ViewBag.DriverId = id;
-            if (r.Data!.BusId.HasValue && r.Data.BusName != null)
-                ViewBag.BusDisplay = $"{r.Data.BusName} ({r.Data.BusNumber})";
             return View(new UpdateDriverDto
             {
                 FullName      = r.Data!.FullName,
@@ -65,7 +63,6 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
                 PhoneNumber   = r.Data.PhoneNumber,
                 LicenseNumber = r.Data.LicenseNumber,
                 LicenseExpiry = r.Data.LicenseExpiry,
-                BusId         = r.Data.BusId,
                 IsActive      = r.Data.IsActive
             });
         }

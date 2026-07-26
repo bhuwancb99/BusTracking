@@ -9,7 +9,6 @@ namespace BusTracking.Common.DTOs.Driver
         public string? Password { get; set; }
         public string? LicenseNumber { get; set; }
         public string? LicenseExpiry { get; set; }
-        public int? BusId { get; set; }
         public bool SendEmail { get; set; } = false;
     }
 }

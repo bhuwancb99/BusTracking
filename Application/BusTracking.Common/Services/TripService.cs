@@ -82,13 +82,13 @@ namespace BusTracking.Common.Services
             {
                 routeStops = trip.Route.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).ToList();
             }
-            else if (trip.BusId != null)
+            else
             {
-                var bus = await _db.Buses.IgnoreQueryFilters().Include(b => b.Route).ThenInclude(r => r!.Stops)
-                    .FirstOrDefaultAsync(b => b.BusId == trip.BusId);
-                if (bus?.Route?.Stops != null)
+                var route = await _db.Routes.IgnoreQueryFilters().Include(r => r.Stops)
+                    .FirstOrDefaultAsync(r => r.RouteId == trip.RouteId);
+                if (route?.Stops != null)
                 {
-                    routeStops = bus.Route.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).ToList();
+                    routeStops = route.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).ToList();
                 }
             }
 
@@ -235,13 +235,13 @@ namespace BusTracking.Common.Services
             var driverId = dto.DriverId;
             if (driverId <= 0)
             {
-                var assignedDriver = await _db.DriverDetails
+                var assignedDriver = await _db.BusDriverMappings
                     .IgnoreQueryFilters()
-                    .Include(d => d.User)
-                    .FirstOrDefaultAsync(d => d.BusId == dto.BusId && d.User.IsActive);
+                    .Include(dm => dm.DriverUser)
+                    .FirstOrDefaultAsync(dm => dm.BusId == dto.BusId && dm.DriverUser.IsActive);
                 if (assignedDriver == null)
                     return ApiResponse<TripListDto>.Fail("No active driver is assigned to this bus.");
-                driverId = assignedDriver.UserId;
+                driverId = assignedDriver.DriverUserId;
             }
             var trip = new BusTrip
             {
@@ -425,13 +425,13 @@ namespace BusTracking.Common.Services
         {
             var trip = await _db.BusTrips
                 .IgnoreQueryFilters()
-                .Include(t => t.Bus).ThenInclude(b => b!.Route).ThenInclude(r => r!.Stops)
+                .Include(t => t.Route).ThenInclude(r => r!.Stops)
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
 
-            if (trip?.Bus?.Route is null)
+            if (trip?.Route is null)
                 return ApiResponse<bool>.Fail("Trip or route not found.");
 
-            var orderedStops = trip.Bus.Route.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).ToList();
+            var orderedStops = trip.Route.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).ToList();
             var currentStop = orderedStops.FirstOrDefault(s => s.StopId == stopId);
             if (currentStop is null) return ApiResponse<bool>.Fail("Stop not found.");
 

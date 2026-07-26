@@ -42,16 +42,28 @@
                             </select>
                             <span asp-validation-for="BusTypeId" class="text-danger small"></span>
                         </div>
+                        <!-- ── Multi-Route selection ── -->
                         <div class="col-md-4">
-                            <label asp-for="RouteId" class="form-label fw-semibold">
-                                Assign Route <span class="text-danger">*</span>
-                                <small class="text-muted fw-normal">(required for stops)</small>
+                            <label asp-for="RouteIds" class="form-label fw-semibold">
+                                Assign Routes <span class="text-danger">*</span>
+                                <small class="text-muted fw-normal ms-1">(Hold Ctrl/Cmd to select multiple)</small>
                             </label>
-                            <select asp-for="RouteId" class="form-select"
+                            <select asp-for="RouteIds" class="form-select" multiple style="min-height: 110px;"
                                     asp-items="@(ViewBag.Routes as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])">
-                                <option value="">-- Select Route --</option>
                             </select>
-                            <span asp-validation-for="RouteId" class="text-danger small"></span>
+                            <span asp-validation-for="RouteIds" class="text-danger small"></span>
+                        </div>
+
+                        <!-- ── Multi-Driver selection ── -->
+                        <div class="col-md-4">
+                            <label asp-for="DriverUserIds" class="form-label fw-semibold">
+                                Assign Drivers <span class="text-muted fw-normal">(Optional)</span>
+                                <small class="text-muted fw-normal ms-1">(Hold Ctrl/Cmd to select multiple)</small>
+                            </label>
+                            <select asp-for="DriverUserIds" class="form-select" multiple style="min-height: 110px;"
+                                    asp-items="@(ViewBag.Drivers as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])">
+                            </select>
+                            <span asp-validation-for="DriverUserIds" class="text-danger small"></span>
                         </div>
                     </div>
 

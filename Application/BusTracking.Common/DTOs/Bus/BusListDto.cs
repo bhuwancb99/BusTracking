@@ -6,12 +6,14 @@ namespace BusTracking.Common.DTOs.Bus
         public string BusName { get; set; } = "";
         public string BusNumber { get; set; } = "";
         public string? RouteName { get; set; }
-        public int? RouteId { get; set; }
+        public List<int> RouteIds { get; set; } = [];
+        public List<string> RouteNames { get; set; } = [];
         public int BusTypeId { get; set; }
         public string? BusTypeName { get; set; }
-        public int? DriverUserId { get; set; }
         public string? DriverName { get; set; }
         public string? DriverPhone { get; set; }
+        public List<int> DriverUserIds { get; set; } = [];
+        public List<string> DriverNames { get; set; } = [];
         public int? Capacity { get; set; }
         public int StudentCount { get; set; }
         public bool IsActive { get; set; }

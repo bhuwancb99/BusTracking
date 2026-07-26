@@ -9,7 +9,6 @@ namespace BusTracking.Common.DTOs.Driver
         public string? PhoneNumber { get; set; }
         public string? LicenseNumber { get; set; }
         public string? LicenseExpiry { get; set; }   // "yyyy-MM-dd"
-        public int? BusId { get; set; }
         public string? BusName { get; set; }
         public string? BusNumber { get; set; }
         public string? RouteName { get; set; }

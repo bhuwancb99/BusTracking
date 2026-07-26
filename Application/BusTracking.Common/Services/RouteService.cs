@@ -205,9 +205,9 @@ namespace BusTracking.Common.Services
 
         public async Task<ApiResponse<List<StopDto>>> GetStopsByBusAsync(int busId)
         {
-            var bus = await _db.Buses.Include(b => b.Route).FirstOrDefaultAsync(b => b.BusId == busId);
-            if (bus?.RouteId == null) return ApiResponse<List<StopDto>>.Ok([]);
-            return await GetStopsByRouteAsync(bus.RouteId.Value);
+            var routeId = await _db.BusRouteMappings.Where(rm => rm.BusId == busId).Select(rm => rm.RouteId).FirstOrDefaultAsync();
+            if (routeId == 0) return ApiResponse<List<StopDto>>.Ok([]);
+            return await GetStopsByRouteAsync(routeId);
         }
     }
 }

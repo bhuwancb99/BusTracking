@@ -6,12 +6,14 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
         private readonly IBusService _bus;
         private readonly IRouteService _route;
         private readonly IBusTypeService _busType;
+        private readonly IDriverService _driver;
         private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
-        public BusController(IBusService b, IRouteService r, IBusTypeService busType)
+        public BusController(IBusService b, IRouteService r, IBusTypeService busType, IDriverService driver)
         {
             _bus = b;
             _route = r;
             _busType = busType;
+            _driver = driver;
         }
 
         public async Task<IActionResult> Index(int page = 1, string? search = null, string? status = "Active")
@@ -37,6 +39,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
         {
             if (!PermissionHelper.Can(User, "bus.add")) return Forbid();
             await LoadRoutes();
+            await LoadDrivers();
             await LoadBusTypes();
             return View(new CreateBusDto());
         }
@@ -48,6 +51,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             if (!ModelState.IsValid)
             {
                 await LoadRoutes();
+                await LoadDrivers();
                 await LoadBusTypes(m.BusTypeId);
                 return View(m);
             }
@@ -56,6 +60,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             {
                 ModelState.AddModelError("", r.Message);
                 await LoadRoutes();
+                await LoadDrivers();
                 await LoadBusTypes(m.BusTypeId);
                 return View(m);
             }
@@ -70,15 +75,17 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             var r = await _bus.GetByIdAsync(id);
             if (!r.Success) return NotFound();
             ViewBag.BusId = id;
-            await LoadRoutes(r.Data!.RouteId);
-            await LoadBusTypes(r.Data.BusTypeId);
+            await LoadRoutes();
+            await LoadDrivers();
+            await LoadBusTypes(r.Data!.BusTypeId);
             return View(new UpdateBusDto
             {
                 BusName = r.Data.BusName,
                 BusNumber = r.Data.BusNumber,
-                RouteId = r.Data.RouteId,
+                RouteIds = r.Data.RouteIds,
                 BusTypeId = r.Data.BusTypeId,
                 Capacity = r.Data.Capacity,
+                DriverUserIds = r.Data.DriverUserIds,
                 InsuranceExpiryDate = r.Data.InsuranceExpiryDate,
                 FitnessExpiryDate = r.Data.FitnessExpiryDate,
                 PucExpiryDate = r.Data.PucExpiryDate,
@@ -94,7 +101,8 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.BusId = id;
-                await LoadRoutes(m.RouteId);
+                await LoadRoutes();
+                await LoadDrivers();
                 await LoadBusTypes(m.BusTypeId);
                 return View(m);
             }
@@ -103,7 +111,8 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             {
                 ModelState.AddModelError("", r.Message);
                 ViewBag.BusId = id;
-                await LoadRoutes(m.RouteId);
+                await LoadRoutes();
+                await LoadDrivers();
                 await LoadBusTypes(m.BusTypeId);
                 return View(m);
             }
@@ -129,15 +138,25 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             return Json(new { r.Success, r.Message });
         }
 
-        private async Task LoadRoutes(int? selectedId = null)
+        private async Task LoadRoutes()
         {
             var routes = await _route.GetDropdownAsync();
             ViewBag.Routes = routes
                 .Select(r => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
                 {
                     Value = r.RouteId.ToString(),
-                    Text = $"{r.RouteName} ({r.RouteCode})",
-                    Selected = r.RouteId == selectedId
+                    Text = $"{r.RouteName} ({r.RouteCode})"
+                }).ToList();
+        }
+
+        private async Task LoadDrivers()
+        {
+            var drivers = await _driver.GetDropdownAsync(null);
+            ViewBag.Drivers = (drivers.Data ?? [])
+                .Select(d => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = d.UserId.ToString(),
+                    Text = d.Display
                 }).ToList();
         }
 

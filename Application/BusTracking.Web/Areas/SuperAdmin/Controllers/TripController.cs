@@ -163,6 +163,27 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> GetRoutesForBus(int busId)
+        {
+            var r = await _bus.GetRoutesForBusAsync(busId);
+            return Json(r.Data ?? []);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDriversForBus(int busId)
+        {
+            var r = await _bus.GetDriversForBusAsync(busId);
+            return Json(r.Data ?? []);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> StopsForRoute(int routeId)
+        {
+            var r = await _route.GetStopsByRouteAsync(routeId);
+            return Json(r.Data ?? []);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> SearchDrivers(string? q)
         {
             var r = await _driver.GetDropdownAsync(q);

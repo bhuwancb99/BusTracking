@@ -34,6 +34,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
         public async Task<IActionResult> Create()
         {
             await LoadRoutesDropdown();
+            await LoadDriversDropdown();
             await LoadBusTypesDropdown();
             return View(new CreateBusDto());
         }
@@ -44,6 +45,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             if (!ModelState.IsValid)
             {
                 await LoadRoutesDropdown();
+                await LoadDriversDropdown();
                 await LoadBusTypesDropdown(m.BusTypeId);
                 return View(m);
             }
@@ -52,6 +54,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             {
                 ModelState.AddModelError("", r.Message);
                 await LoadRoutesDropdown();
+                await LoadDriversDropdown();
                 await LoadBusTypesDropdown(m.BusTypeId);
                 return View(m);
             }
@@ -65,18 +68,17 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             var r = await _bus.GetByIdAsync(id);
             if (!r.Success)
                 return NotFound(); ViewBag.BusId = id;
-            await LoadRoutesDropdown(r.Data!.RouteId);
-            await LoadBusTypesDropdown(r.Data.BusTypeId);
-            if (r.Data.DriverUserId.HasValue && r.Data.DriverName != null)
-                ViewBag.DriverDisplay = $"{r.Data.DriverName} ({r.Data.DriverPhone ?? "–"})";
+            await LoadRoutesDropdown();
+            await LoadDriversDropdown();
+            await LoadBusTypesDropdown(r.Data!.BusTypeId);
             return View(new UpdateBusDto
             {
                 BusName = r.Data!.BusName,
                 BusNumber = r.Data.BusNumber,
-                RouteId = r.Data.RouteId,
+                RouteIds = r.Data.RouteIds,
                 BusTypeId = r.Data.BusTypeId,
                 Capacity = r.Data.Capacity,
-                DriverUserId = r.Data.DriverUserId,
+                DriverUserIds = r.Data.DriverUserIds,
                 InsuranceExpiryDate = r.Data.InsuranceExpiryDate,
                 FitnessExpiryDate = r.Data.FitnessExpiryDate,
                 PucExpiryDate = r.Data.PucExpiryDate,
@@ -91,7 +93,8 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.BusId = id;
-                await LoadRoutesDropdown(m.RouteId);
+                await LoadRoutesDropdown();
+                await LoadDriversDropdown();
                 await LoadBusTypesDropdown(m.BusTypeId);
                 return View(m);
             }
@@ -100,7 +103,8 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             {
                 ModelState.AddModelError("", r.Message);
                 ViewBag.BusId = id;
-                await LoadRoutesDropdown(m.RouteId);
+                await LoadRoutesDropdown();
+                await LoadDriversDropdown();
                 await LoadBusTypesDropdown(m.BusTypeId);
                 return View(m);
             }
@@ -108,15 +112,25 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task LoadRoutesDropdown(int? selectedId = null)
+        private async Task LoadRoutesDropdown()
         {
             var routes = await _route.GetDropdownAsync();
             ViewBag.Routes = routes
                 .Select(r => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
                 {
                     Value = r.RouteId.ToString(),
-                    Text = $"{r.RouteName} ({r.RouteCode})",
-                    Selected = r.RouteId == selectedId
+                    Text = $"{r.RouteName} ({r.RouteCode})"
+                }).ToList();
+        }
+
+        private async Task LoadDriversDropdown()
+        {
+            var drivers = await _driver.GetDropdownAsync(null);
+            ViewBag.Drivers = (drivers.Data ?? [])
+                .Select(d => new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem
+                {
+                    Value = d.UserId.ToString(),
+                    Text = d.Display
                 }).ToList();
         }
 

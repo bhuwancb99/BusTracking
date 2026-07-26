@@ -28,6 +28,14 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             });
         }
 
+        partial void OnSelectedBusChanged(BusItem? value)
+        {
+            if (value != null && value.RouteId.HasValue && RouteOptions.Count > 0)
+            {
+                SelectedRoute = RouteOptions.FirstOrDefault(r => r.RouteId == value.RouteId);
+            }
+        }
+
         [RelayCommand]
         private async Task SaveAsync()
         {

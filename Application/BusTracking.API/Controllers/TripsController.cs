@@ -16,41 +16,44 @@ namespace BusTracking.API.Controllers
         [HttpGet("my-trip")]
         public async Task<IActionResult> GetMyTrip()
         {
-            var driver = await _db.DriverDetails
-                .Include(d => d.Bus).ThenInclude(b => b!.Route)
-                .Include(d => d.User).ThenInclude(u => u!.School).ThenInclude(s => s!.TimeZone)
-                .FirstOrDefaultAsync(d => d.UserId == CurrentUserId);
+            var mapping = await _db.BusDriverMappings
+                .Include(dm => dm.Bus)
+                .FirstOrDefaultAsync(dm => dm.DriverUserId == CurrentUserId);
 
-            if (driver?.Bus is null)
+            if (mapping?.Bus is null)
                 return NotFound(ApiResponse<object>.Fail("No bus assigned."));
 
-            var schoolToday = TimeZoneHelper.GetSchoolTodayDate(driver.User?.School);
+            var user = await _db.Users.Include(u => u.School).ThenInclude(s => s!.TimeZone).FirstOrDefaultAsync(u => u.UserId == CurrentUserId);
+            var schoolToday = TimeZoneHelper.GetSchoolTodayDate(user?.School);
             var todayUtc = DateOnly.FromDateTime(GetSchoolNow());
 
+            var busId = mapping.Bus.BusId;
             var trip = await _db.BusTrips
-                .FirstOrDefaultAsync(t => t.BusId == driver.BusId && t.Status == TripStatus.InProgress)
+                .Include(t => t.Route)
+                .FirstOrDefaultAsync(t => t.BusId == busId && t.Status == TripStatus.InProgress)
                     ?? await _db.BusTrips
-                .FirstOrDefaultAsync(t => t.BusId == driver.BusId
+                .Include(t => t.Route)
+                .FirstOrDefaultAsync(t => t.BusId == busId
                                        && (t.TripDate == schoolToday || t.TripDate == todayUtc)
                                        && t.Status != TripStatus.Cancelled);
 
             var totalStudents = await _db.Students
                 .Include(s => s.User)
                 .Include(s => s.Stop)
-                .CountAsync(s => s.User.IsActive && (s.BusId == driver.BusId || (driver.Bus.RouteId != null && s.Stop != null && s.Stop.RouteId == driver.Bus.RouteId)));
+                .CountAsync(s => s.User.IsActive && s.BusId == busId);
 
             return Ok(ApiResponse<object>.Ok(new
             {
                 Bus = new
                 {
-                    driver.Bus.BusId,
-                    driver.Bus.BusName,
-                    driver.Bus.BusNumber
+                    mapping.Bus.BusId,
+                    mapping.Bus.BusName,
+                    mapping.Bus.BusNumber
                 },
-                Route = driver.Bus.Route is null ? null : new
+                Route = trip?.Route is null ? null : new
                 {
-                    driver.Bus.Route.RouteId,
-                    driver.Bus.Route.RouteName
+                    trip.Route.RouteId,
+                    trip.Route.RouteName
                 },
                 TotalStudents = totalStudents,
                 Trip = trip is null ? null : new
@@ -100,13 +103,13 @@ namespace BusTracking.API.Controllers
         public async Task<IActionResult> ReachStop(int tripId, int stopId)
         {
             var trip = await _db.BusTrips
-                .Include(t => t.Bus).ThenInclude(b => b!.Route).ThenInclude(r => r!.Stops)
+                .Include(t => t.Route).ThenInclude(r => r!.Stops)
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
 
-            if (trip?.Bus?.Route is null)
+            if (trip?.Route is null)
                 return NotFound(ApiResponse<bool>.Fail("Trip or route not found."));
 
-            var orderedStops = trip.Bus.Route.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).ToList();
+            var orderedStops = trip.Route.Stops.Where(s => s.IsActive).OrderBy(s => s.StopOrder).ToList();
             var currentStop = orderedStops.FirstOrDefault(s => s.StopId == stopId);
             if (currentStop is null) return NotFound(ApiResponse<bool>.Fail("Stop not found."));
 
@@ -180,17 +183,17 @@ namespace BusTracking.API.Controllers
         public async Task<IActionResult> GetStops(int tripId)
         {
             var trip = await _db.BusTrips
-                .Include(t => t.Bus).ThenInclude(b => b!.Route).ThenInclude(r => r!.Stops)
+                .Include(t => t.Route).ThenInclude(r => r!.Stops)
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
 
-            if (trip?.Bus?.Route is null)
+            if (trip?.Route is null)
                 return NotFound(ApiResponse<object>.Fail("Trip or route not found."));
 
             var events = await _db.TripStopEvents
                 .Where(e => e.TripId == tripId)
                 .ToDictionaryAsync(e => e.StopId);
 
-            var stops = trip.Bus.Route.Stops
+            var stops = trip.Route.Stops
                 .OrderBy(s => s.StopOrder)
                 .Select(s => new
                 {

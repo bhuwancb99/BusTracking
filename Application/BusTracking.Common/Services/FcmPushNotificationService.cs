@@ -141,13 +141,13 @@ namespace BusTracking.Common.Services
 
                 var trip = await db.BusTrips
                     .IgnoreQueryFilters()
-                    .Include(t => t.Bus).ThenInclude(b => b!.Route)
+                    .Include(t => t.Route)
                     .Include(t => t.Driver)
                     .FirstOrDefaultAsync(t => t.TripId == tripId);
 
                 if (trip is null) return;
 
-                int? routeId = trip.RouteId > 0 ? trip.RouteId : trip.Bus?.RouteId;
+                int? routeId = trip.RouteId;
 
                 // 1. Get student IDs from StudentTripStatuses for this trip
                 var tripStudentIds = await db.StudentTripStatuses
@@ -208,7 +208,7 @@ namespace BusTracking.Common.Services
 
                 var driverName = trip.Driver?.FullName ?? "Bus Driver";
                 var busName = trip.Bus?.BusName ?? "School Bus";
-                var routeName = trip.Bus?.Route?.RouteName ?? "Bus Route";
+                var routeName = trip.Route?.RouteName ?? "Bus Route";
 
                 var title = "🚌 Bus Trip Started!";
                 var body = $"Driver {driverName} has started the trip on route '{routeName}'. Bus: {busName}.";

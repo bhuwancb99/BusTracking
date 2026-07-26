@@ -233,8 +233,8 @@ namespace BusTracking.API.Controllers
         public async Task<IActionResult> BusDetail(int busId)
         {
             var b = await _db.Buses
-                .Include(x => x.Route).ThenInclude(r => r!.Stops)
-                .Include(x => x.Driver).ThenInclude(d => d!.User)
+                .Include(x => x.RouteMappings).ThenInclude(rm => rm.Route)
+                .Include(x => x.DriverMappings).ThenInclude(dm => dm.DriverUser)
                 .Include(x => x.Students).ThenInclude(s => s.User)
                 .FirstOrDefaultAsync(x => x.BusId == busId);
 
@@ -247,8 +247,8 @@ namespace BusTracking.API.Controllers
                 b.BusNumber,
                 b.Capacity,
                 b.IsActive,
-                Route = b.Route is null ? null : new { b.Route.RouteId, b.Route.RouteName },
-                Driver = b.Driver is null ? null : new { b.Driver.UserId, b.Driver.User.FullName, b.Driver.User.PhoneNumber },
+                Routes = b.RouteMappings.Select(rm => new { rm.Route.RouteId, rm.Route.RouteName }),
+                Drivers = b.DriverMappings.Select(dm => new { dm.DriverUser.UserId, dm.DriverUser.FullName, dm.DriverUser.PhoneNumber }),
                 StudentCount = b.Students.Count
             }));
         }
@@ -405,7 +405,7 @@ namespace BusTracking.API.Controllers
         {
             var s = await _db.Students
                 .Include(s => s.User)
-                .Include(s => s.Bus).ThenInclude(b => b!.Route)
+                .Include(s => s.Bus).ThenInclude(b => b!.RouteMappings).ThenInclude(rm => rm.Route)
                 .Include(s => s.ParentStudents).ThenInclude(ps => ps.Parent).ThenInclude(p => p.User)
                 .FirstOrDefaultAsync(s => s.StudentId == id);
 
@@ -422,7 +422,7 @@ namespace BusTracking.API.Controllers
                 s.Standard,
                 s.User.IsActive,
                 Bus = s.Bus is null ? null : new { s.Bus.BusId, s.Bus.BusName, s.Bus.BusNumber },
-                Route = s.Bus?.Route is null ? null : new { s.Bus.Route.RouteId, s.Bus.Route.RouteName },
+                Routes = s.Bus?.RouteMappings.Select(rm => new { rm.Route.RouteId, rm.Route.RouteName }) ?? [],
                 Parents = s.ParentStudents.Select(ps => new
                 {
                     ps.Parent.UserId,

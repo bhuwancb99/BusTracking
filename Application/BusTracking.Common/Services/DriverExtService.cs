@@ -12,10 +12,17 @@ namespace BusTracking.Common.Services
         {
             var u = await _db.Users
                 .Include(x => x.DriverDetail)
-                    .ThenInclude(d => d!.Bus)
-                        .ThenInclude(b => b!.Route)
                 .FirstOrDefaultAsync(x => x.UserId == userId);
             if (u is null) return ApiResponse<DriverDetailViewDto>.Fail("Driver not found.");
+
+            var assignedBuses = await _db.BusDriverMappings
+                .Where(dm => dm.DriverUserId == userId)
+                .Include(dm => dm.Bus)
+                .Select(dm => dm.Bus)
+                .ToListAsync();
+
+            var busName = assignedBuses.Any() ? string.Join(", ", assignedBuses.Select(b => b.BusName)) : null;
+            var busNumber = assignedBuses.Any() ? string.Join(", ", assignedBuses.Select(b => b.BusNumber)) : null;
 
             return ApiResponse<DriverDetailViewDto>.Ok(new DriverDetailViewDto
             {
@@ -26,10 +33,8 @@ namespace BusTracking.Common.Services
                 PhoneNumber = u.PhoneNumber,
                 LicenseNumber = u.DriverDetail?.LicenseNumber,
                 LicenseExpiry = u.DriverDetail?.LicenseExpiry?.ToString("yyyy-MM-dd"),
-                BusId = u.DriverDetail?.BusId,
-                BusName = u.DriverDetail?.Bus?.BusName,
-                BusNumber = u.DriverDetail?.Bus?.BusNumber,
-                RouteName = u.DriverDetail?.Bus?.Route?.RouteName,
+                BusName = busName,
+                BusNumber = busNumber,
                 IsActive = u.IsActive,
                 CreatedAt = u.CreatedAt
             });
@@ -64,8 +69,7 @@ namespace BusTracking.Common.Services
             {
                 UserId = user.UserId,
                 LicenseNumber = dto.LicenseNumber,
-                LicenseExpiry = dto.LicenseExpiry is not null ? DateOnly.Parse(dto.LicenseExpiry) : null,
-                BusId = dto.BusId
+                LicenseExpiry = dto.LicenseExpiry is not null ? DateOnly.Parse(dto.LicenseExpiry) : null
             });
             await _db.SaveChangesAsync();
 
@@ -120,7 +124,6 @@ namespace BusTracking.Common.Services
             {
                 user.DriverDetail.LicenseNumber = dto.LicenseNumber;
                 user.DriverDetail.LicenseExpiry = dto.LicenseExpiry is not null ? DateOnly.Parse(dto.LicenseExpiry) : null;
-                user.DriverDetail.BusId = dto.BusId;
                 user.DriverDetail.UpdatedAt = DateTime.UtcNow;
             }
             await _db.SaveChangesAsync();

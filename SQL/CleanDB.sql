@@ -40,6 +40,8 @@ BEGIN TRY
     IF OBJECT_ID('Students', 'U') IS NOT NULL DELETE FROM Students;
     IF OBJECT_ID('StandardMasters', 'U') IS NOT NULL DELETE FROM StandardMasters;
     IF OBJECT_ID('DriverDetails', 'U') IS NOT NULL DELETE FROM DriverDetails;
+    IF OBJECT_ID('BusRouteMappings', 'U') IS NOT NULL DELETE FROM BusRouteMappings;
+    IF OBJECT_ID('BusDriverMappings', 'U') IS NOT NULL DELETE FROM BusDriverMappings;
     IF OBJECT_ID('BusImages', 'U') IS NOT NULL DELETE FROM BusImages;
     IF OBJECT_ID('Buses', 'U') IS NOT NULL DELETE FROM Buses;
     IF OBJECT_ID('BusTypeMasters', 'U') IS NOT NULL DELETE FROM BusTypeMasters;
@@ -128,6 +130,8 @@ IF OBJECT_ID('Parents', 'U') IS NOT NULL DROP TABLE Parents;
 IF OBJECT_ID('Students', 'U') IS NOT NULL DROP TABLE Students;
 IF OBJECT_ID('StandardMasters', 'U') IS NOT NULL DROP TABLE StandardMasters;
 IF OBJECT_ID('DriverDetails', 'U') IS NOT NULL DROP TABLE DriverDetails;
+IF OBJECT_ID('BusRouteMappings', 'U') IS NOT NULL DROP TABLE BusRouteMappings;
+IF OBJECT_ID('BusDriverMappings', 'U') IS NOT NULL DROP TABLE BusDriverMappings;
 IF OBJECT_ID('BusImages', 'U') IS NOT NULL DROP TABLE BusImages;
 IF OBJECT_ID('Buses', 'U') IS NOT NULL DROP TABLE Buses;
 IF OBJECT_ID('BusTypeMasters', 'U') IS NOT NULL DROP TABLE BusTypeMasters;

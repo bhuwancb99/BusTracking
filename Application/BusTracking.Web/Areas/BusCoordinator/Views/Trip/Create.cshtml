@@ -158,50 +158,93 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        // When bus changes — auto-fill route + driver + show preview
+        const areaPrefix = '/BusCoordinator/Trip';
+
+        async function loadStopsForRoute(routeId) {
+            const stopsBox = document.getElementById('stopsPreviewList');
+            if (!routeId) {
+                document.getElementById('stopsPreview').style.display = 'none';
+                stopsBox.innerHTML = '';
+                return;
+            }
+            try {
+                const res = await fetch(`${areaPrefix}/StopsForRoute?routeId=${routeId}`);
+                const stops = await res.json();
+                stopsBox.innerHTML = '';
+                if (stops && stops.length > 0) {
+                    stops.forEach(s => {
+                        stopsBox.innerHTML +=
+                            `<span class="badge rounded-pill px-3 py-2"
+                                   style="background:#e8f0fe;color:#1a73e8;font-size:.8rem">
+                                 <i class="bi bi-geo-alt me-1"></i>
+                                 #${s.stopOrder} ${s.stopName}
+                             </span>`;
+                    });
+                    document.getElementById('stopsPreview').style.display = 'block';
+                } else {
+                    document.getElementById('stopsPreview').style.display = 'none';
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
         document.getElementById('busSelect').addEventListener('change', async function () {
             const busId = this.value;
+            const driverSelect = document.getElementById('driverSelect');
+            const routeSelect = document.getElementById('routeSelect');
+
             if (!busId) {
                 document.getElementById('busInfoPreview').classList.add('d-none');
                 document.getElementById('stopsPreview').style.display = 'none';
-                document.getElementById('studentsPreview').style.display = 'none';
                 return;
             }
 
-            // Load stops
-            const stops = await (await fetch(`/BusCoordinator/Trip/StopsForBus?busId=${busId}`)).json();
-            const stopsBox = document.getElementById('stopsPreviewList');
-            stopsBox.innerHTML = '';
-            if (stops.length) {
-                stops.forEach(s => {
-                    stopsBox.innerHTML +=
-                        `<span class="badge rounded-pill px-3 py-2"
-                               style="background:#e8f0fe;color:#1a73e8;font-size:.8rem">
-                             <i class="bi bi-geo-alt me-1"></i>
-                             #${s.stopOrder} ${s.stopName}
-                         </span>`;
-                });
-                document.getElementById('stopsPreview').style.display = 'block';
+            // 1. Fetch assigned drivers for bus
+            try {
+                const driverRes = await fetch(`${areaPrefix}/GetDriversForBus?busId=${busId}`);
+                const drivers = await driverRes.json();
+                driverSelect.innerHTML = '<option value="">-- Select a Driver --</option>';
+                if (drivers && drivers.length > 0) {
+                    drivers.forEach((d, idx) => {
+                        const opt = document.createElement('option');
+                        opt.value = d.userId;
+                        opt.textContent = d.display;
+                        driverSelect.appendChild(opt);
+                    });
+                    // Auto-select first driver if available
+                    driverSelect.selectedIndex = 1;
+                }
+            } catch (err) { console.error(err); }
 
-                // Auto-select route from first stop's routeId
-                // The bus already has RouteId — select it in dropdown
-                const sel = document.getElementById('routeSelect');
-                // We'll get the route from selected bus option text
-                // Better: fetch bus details to get RouteId
-                try {
-                    const buses = @Html.Raw(System.Text.Json.JsonSerializer.Serialize((ViewBag.Buses as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? []).Select(b => new { value = b.Value, text = b.Text })));
-                } catch {}
-            } else {
-                document.getElementById('stopsPreview').style.display = 'none';
-                busTrack.showToast('⚠ This bus has no route assigned. Assign a route to the bus first.', 'warning');
-            }
+            // 2. Fetch assigned routes for bus
+            try {
+                const routeRes = await fetch(`${areaPrefix}/GetRoutesForBus?busId=${busId}`);
+                const routes = await routeRes.json();
+                routeSelect.innerHTML = '<option value="">-- Select a Route --</option>';
+                if (routes && routes.length > 0) {
+                    routes.forEach(r => {
+                        const opt = document.createElement('option');
+                        opt.value = r.routeId;
+                        opt.textContent = `${r.routeName} (${r.routeCode})`;
+                        routeSelect.appendChild(opt);
+                    });
+                    // Auto-select first route if available
+                    routeSelect.selectedIndex = 1;
+                    loadStopsForRoute(routeSelect.value);
+                } else {
+                    loadStopsForRoute(null);
+                }
+            } catch (err) { console.error(err); }
 
-            // Show bus info badge
             const opt = this.options[this.selectedIndex];
             document.getElementById('busInfoBox').innerHTML =
-                `<span><i class="bi bi-bus-front text-primary me-1"></i><strong>${opt.text}</strong></span>
-                 <span class="text-muted">${stops.length} stop${stops.length!==1?'s':''} on route</span>`;
+                `<span><i class="bi bi-bus-front text-primary me-1"></i><strong>${opt.text}</strong></span>`;
             document.getElementById('busInfoPreview').classList.remove('d-none');
+        });
+
+        document.getElementById('routeSelect').addEventListener('change', function () {
+            loadStopsForRoute(this.value);
         });
     </script>
 }

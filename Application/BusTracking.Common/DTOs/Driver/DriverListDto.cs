@@ -7,7 +7,6 @@ namespace BusTracking.Common.DTOs.Driver
         public string UserName { get; set; } = "";
         public string? Email { get; set; }
         public string? PhoneNumber { get; set; }
-        public int? BusId { get; set; }
         public string? BusName { get; set; }
         public string? BusNumber { get; set; }
         public string? LicenseNumber { get; set; }

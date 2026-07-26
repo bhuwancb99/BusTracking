@@ -41,6 +41,8 @@ public class AppDbContext : DbContext
     public DbSet<AppConfiguration> AppConfigurations { get; set; }
     public DbSet<Logger> Loggers { get; set; }
     public DbSet<BusFuelLog> BusFuelLogs { get; set; }
+    public DbSet<BusRouteMapping> BusRouteMappings { get; set; }
+    public DbSet<BusDriverMapping> BusDriverMappings { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -78,6 +80,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<AppConfiguration>().ToTable("AppConfigurations");
         modelBuilder.Entity<Logger>().ToTable("Logger");
         modelBuilder.Entity<BusFuelLog>().ToTable("BusFuelLogs");
+        modelBuilder.Entity<BusRouteMapping>().ToTable("BusRouteMappings");
+        modelBuilder.Entity<BusDriverMapping>().ToTable("BusDriverMappings");
 
         // ── Unique indexes ────────────────────────────────────────────
         modelBuilder.Entity<School>().HasIndex(s => s.SchoolCode).IsUnique();
@@ -135,9 +139,20 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<StudentAvailability>()
             .HasOne(a => a.Student).WithMany(s => s.Availabilities)
             .HasForeignKey(a => a.StudentId).OnDelete(DeleteBehavior.Restrict);
-        modelBuilder.Entity<DriverDetail>()
-            .HasOne(d => d.Bus).WithOne(b => b.Driver)
-            .HasForeignKey<DriverDetail>(d => d.BusId).OnDelete(DeleteBehavior.SetNull);
+
+        // BusRouteMapping & BusDriverMapping
+        modelBuilder.Entity<BusRouteMapping>()
+            .HasOne(rm => rm.Bus).WithMany(b => b.RouteMappings)
+            .HasForeignKey(rm => rm.BusId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<BusRouteMapping>()
+            .HasOne(rm => rm.Route).WithMany(r => r.RouteMappings)
+            .HasForeignKey(rm => rm.RouteId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<BusDriverMapping>()
+            .HasOne(dm => dm.Bus).WithMany(b => b.DriverMappings)
+            .HasForeignKey(dm => dm.BusId).OnDelete(DeleteBehavior.Cascade);
+        modelBuilder.Entity<BusDriverMapping>()
+            .HasOne(dm => dm.DriverUser).WithMany()
+            .HasForeignKey(dm => dm.DriverUserId).OnDelete(DeleteBehavior.Cascade);
 
         // BusImage → Bus (cascade delete)
         modelBuilder.Entity<BusImage>()
@@ -173,14 +188,14 @@ public class AppDbContext : DbContext
             {
                 var parameter = Expression.Parameter(entityType.ClrType, "e");
                 var schoolIdProperty = Expression.Property(parameter, nameof(IMultiTenant.SchoolId));
-                
+
                 var dbContextExpression = Expression.Constant(this);
                 var currentSchoolIdProperty = Expression.Property(dbContextExpression, nameof(CurrentSchoolId));
-                
+
                 var equalsExpression = Expression.Equal(schoolIdProperty, currentSchoolIdProperty);
                 var isNullExpression = Expression.Equal(currentSchoolIdProperty, Expression.Constant(null, typeof(int?)));
                 var combinedExpression = Expression.OrElse(equalsExpression, isNullExpression);
-                
+
                 var lambda = Expression.Lambda(combinedExpression, parameter);
                 modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
             }

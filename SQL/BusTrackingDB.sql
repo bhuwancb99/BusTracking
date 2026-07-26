@@ -305,7 +305,6 @@ CREATE TABLE Buses (
     BusId         INT           NOT NULL IDENTITY(1,1),
     BusName       NVARCHAR(100) NOT NULL,
     BusNumber     NVARCHAR(50)  NOT NULL,
-    RouteId       INT           NULL,
     BusTypeId     INT           NOT NULL,
     Capacity      INT           NULL,
     InsuranceExpiryDate DATE        NULL,
@@ -317,7 +316,6 @@ CREATE TABLE Buses (
     UpdatedAt     DATETIME2     NOT NULL CONSTRAINT DF_Buses_UpdatedAt DEFAULT GETUTCDATE(),
     CreatedBy     INT           NULL,
     CONSTRAINT PK_Buses PRIMARY KEY (BusId),
-    CONSTRAINT FK_Buses_Routes FOREIGN KEY (RouteId) REFERENCES Routes(RouteId),
     CONSTRAINT FK_Buses_BusTypeMasters FOREIGN KEY (BusTypeId) REFERENCES BusTypeMasters(Id),
     CONSTRAINT FK_Buses_Users FOREIGN KEY (CreatedBy) REFERENCES Users(UserId),
     CONSTRAINT UQ_Buses_BusNumber UNIQUE (BusNumber),
@@ -333,12 +331,10 @@ CREATE TABLE DriverDetails (
     UserId          INT           NOT NULL,
     LicenseNumber   NVARCHAR(100) NULL,
     LicenseExpiry   DATE          NULL,
-    BusId           INT           NULL,                              -- currently assigned bus
     CreatedAt       DATETIME2     NOT NULL CONSTRAINT DF_DriverDetails_CreatedAt DEFAULT GETUTCDATE(),
     UpdatedAt       DATETIME2     NOT NULL CONSTRAINT DF_DriverDetails_UpdatedAt DEFAULT GETUTCDATE(),
     CONSTRAINT PK_DriverDetails PRIMARY KEY (DriverDetailId),
     CONSTRAINT FK_DriverDetails_Users FOREIGN KEY (UserId) REFERENCES Users(UserId),
-    CONSTRAINT FK_DriverDetails_Buses FOREIGN KEY (BusId) REFERENCES Buses(BusId),
     CONSTRAINT UQ_DriverDetails_UserId UNIQUE (UserId),
     CONSTRAINT FK_DriverDetails_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId));
 GO
@@ -457,6 +453,33 @@ CREATE TABLE BusTrips (
     CONSTRAINT CK_TripType   CHECK (TripType IN ('Morning','Evening','SpecialEvent','ExamRoute')),
     CONSTRAINT CK_TripStatus CHECK (Status   IN ('Scheduled','InProgress','Completed','Cancelled')),
     CONSTRAINT FK_BusTrips_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId));
+GO
+
+-- ============================================================
+-- 14b. BUS ROUTE & DRIVER MAPPINGS (multi-route and multi-driver)
+-- ============================================================
+CREATE TABLE BusRouteMappings (
+    SchoolId            INT       NULL,
+    BusRouteMappingId   INT       NOT NULL IDENTITY(1,1),
+    BusId               INT       NOT NULL,
+    RouteId             INT       NOT NULL,
+    CreatedAt           DATETIME2 NOT NULL CONSTRAINT DF_BusRouteMappings_CreatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_BusRouteMappings PRIMARY KEY (BusRouteMappingId),
+    CONSTRAINT FK_BusRouteMappings_Buses FOREIGN KEY (BusId) REFERENCES Buses(BusId),
+    CONSTRAINT FK_BusRouteMappings_Routes FOREIGN KEY (RouteId) REFERENCES Routes(RouteId),
+    CONSTRAINT FK_BusRouteMappings_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId));
+GO
+
+CREATE TABLE BusDriverMappings (
+    SchoolId            INT       NULL,
+    BusDriverMappingId  INT       NOT NULL IDENTITY(1,1),
+    BusId               INT       NOT NULL,
+    DriverUserId        INT       NOT NULL,
+    CreatedAt           DATETIME2 NOT NULL CONSTRAINT DF_BusDriverMappings_CreatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_BusDriverMappings PRIMARY KEY (BusDriverMappingId),
+    CONSTRAINT FK_BusDriverMappings_Buses FOREIGN KEY (BusId) REFERENCES Buses(BusId),
+    CONSTRAINT FK_BusDriverMappings_Users FOREIGN KEY (DriverUserId) REFERENCES Users(UserId),
+    CONSTRAINT FK_BusDriverMappings_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId));
 GO
 
 -- ============================================================

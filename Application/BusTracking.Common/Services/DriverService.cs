@@ -8,7 +8,7 @@ namespace BusTracking.Common.Services
         public async Task<ApiResponse<PagedResult<DriverListDto>>> GetAllAsync(int page, string? search, string? status)
         {
             var roleId = await _db.Roles.Where(r => r.RoleName == "Driver").Select(r => r.RoleId).FirstAsync();
-            var q = _db.Users.Include(u => u.DriverDetail).ThenInclude(d => d!.Bus).Where(u => u.RoleId == roleId);
+            var q = _db.Users.Include(u => u.DriverDetail).Where(u => u.RoleId == roleId);
             if (!string.IsNullOrWhiteSpace(search)) q = q.Where(u => u.FullName.Contains(search) || u.UserName.Contains(search) || (u.Email != null && u.Email.Contains(search)));
             if (status == "Active") q = q.Where(u => u.IsActive);
             else if (status == "Inactive") q = q.Where(u => !u.IsActive);
@@ -24,9 +24,6 @@ namespace BusTracking.Common.Services
                     UserName = u.UserName,
                     Email = u.Email,
                     PhoneNumber = u.PhoneNumber,
-                    BusId = u.DriverDetail != null ? u.DriverDetail.BusId : null,
-                    BusName = u.DriverDetail != null && u.DriverDetail.Bus != null ? u.DriverDetail.Bus.BusName : null,
-                    BusNumber = u.DriverDetail != null && u.DriverDetail.Bus != null ? u.DriverDetail.Bus.BusNumber : null,
                     LicenseNumber = u.DriverDetail != null ? u.DriverDetail.LicenseNumber : null,
                     LicenseExpiry = u.DriverDetail != null && u.DriverDetail.LicenseExpiry != null ? u.DriverDetail.LicenseExpiry.Value.ToString("yyyy-MM-dd") : null,
                     IsActive = u.IsActive,
@@ -39,13 +36,12 @@ namespace BusTracking.Common.Services
 
         public async Task<ApiResponse<DriverListDto>> GetByIdAsync(int userId)
         {
-            var u = await _db.Users.Include(x => x.DriverDetail).ThenInclude(d => d!.Bus).FirstOrDefaultAsync(x => x.UserId == userId);
+            var u = await _db.Users.Include(x => x.DriverDetail).FirstOrDefaultAsync(x => x.UserId == userId);
             if (u is null) return ApiResponse<DriverListDto>.Fail("Not found.");
             return ApiResponse<DriverListDto>.Ok(new DriverListDto
             {
                 UserId = u.UserId, FullName = u.FullName, UserName = u.UserName, Email = u.Email,
-                PhoneNumber = u.PhoneNumber, BusId = u.DriverDetail?.BusId, BusName = u.DriverDetail?.Bus?.BusName,
-                BusNumber = u.DriverDetail?.Bus?.BusNumber, LicenseNumber = u.DriverDetail?.LicenseNumber,
+                PhoneNumber = u.PhoneNumber, LicenseNumber = u.DriverDetail?.LicenseNumber,
                 LicenseExpiry = u.DriverDetail?.LicenseExpiry?.ToString("yyyy-MM-dd"), IsActive = u.IsActive, ProfileImageUrl = u.ProfileImageUrl
             });
         }
@@ -70,7 +66,7 @@ namespace BusTracking.Common.Services
             _db.DriverDetails.Add(new DriverDetail
             {
                 UserId = user.UserId, LicenseNumber = dto.LicenseNumber,
-                LicenseExpiry = dto.LicenseExpiry is not null ? DateOnly.Parse(dto.LicenseExpiry) : null, BusId = dto.BusId
+                LicenseExpiry = dto.LicenseExpiry is not null ? DateOnly.Parse(dto.LicenseExpiry) : null
             });
             await _db.SaveChangesAsync();
             if (dto.SendEmail && !string.IsNullOrWhiteSpace(dto.Email))
@@ -95,7 +91,7 @@ namespace BusTracking.Common.Services
             if (!string.IsNullOrWhiteSpace(dto.NewPassword))
             { var (hash, salt) = _pwd.HashPassword(dto.NewPassword); u.PasswordHash = hash; u.PasswordSalt = salt; }
             if (u.DriverDetail is not null)
-            { u.DriverDetail.LicenseNumber = dto.LicenseNumber; u.DriverDetail.LicenseExpiry = dto.LicenseExpiry is not null ? DateOnly.Parse(dto.LicenseExpiry) : null; u.DriverDetail.BusId = dto.BusId; u.DriverDetail.UpdatedAt = DateTime.UtcNow; }
+            { u.DriverDetail.LicenseNumber = dto.LicenseNumber; u.DriverDetail.LicenseExpiry = dto.LicenseExpiry is not null ? DateOnly.Parse(dto.LicenseExpiry) : null; u.DriverDetail.UpdatedAt = DateTime.UtcNow; }
             await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Updated.");
         }
 
@@ -107,10 +103,15 @@ namespace BusTracking.Common.Services
 
         public async Task<ApiResponse<bool>> AssignBusAsync(AssignBusToDriverDto dto)
         {
-            var d = await _db.DriverDetails.FirstOrDefaultAsync(x => x.UserId == dto.DriverUserId); if (d is null) return ApiResponse<bool>.Fail("Driver not found.");
-            var prev = await _db.DriverDetails.FirstOrDefaultAsync(x => x.BusId == dto.BusId && x.UserId != dto.DriverUserId);
-            if (prev is not null) { prev.BusId = null; prev.UpdatedAt = DateTime.UtcNow; }
-            d.BusId = dto.BusId; d.UpdatedAt = DateTime.UtcNow; await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Bus assigned.");
+            if (dto.BusId.HasValue)
+            {
+                if (!await _db.BusDriverMappings.AnyAsync(dm => dm.BusId == dto.BusId.Value && dm.DriverUserId == dto.DriverUserId))
+                {
+                    _db.BusDriverMappings.Add(new BusDriverMapping { BusId = dto.BusId.Value, DriverUserId = dto.DriverUserId });
+                    await _db.SaveChangesAsync();
+                }
+            }
+            return ApiResponse<bool>.Ok(true, "Bus assigned.");
         }
 
         public async Task<ApiResponse<List<DriverDropdownDto>>> GetDropdownAsync(string? search)
@@ -118,7 +119,7 @@ namespace BusTracking.Common.Services
             var roleId = await _db.Roles.Where(r => r.RoleName == "Driver").Select(r => r.RoleId).FirstAsync();
             var q = _db.Users.Where(u => u.RoleId == roleId && u.IsActive);
             if (!string.IsNullOrWhiteSpace(search)) q = q.Where(u => u.FullName.Contains(search) || u.UserName.Contains(search));
-            var list = await q.OrderBy(u => u.FullName).Take(20).Select(u => new DriverDropdownDto
+            var list = await q.OrderBy(u => u.FullName).Select(u => new DriverDropdownDto
             { UserId = u.UserId, Display = u.FullName + " (" + u.UserName + ")" }).ToListAsync();
             return ApiResponse<List<DriverDropdownDto>>.Ok(list);
         }

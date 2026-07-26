@@ -16,6 +16,6 @@ namespace BusTracking.Common.Entities
         public int? CreatedBy { get; set; }
 
         public ICollection<Stop> Stops { get; set; } = [];
-        public ICollection<Bus> Buses { get; set; } = [];
+        public ICollection<BusRouteMapping> RouteMappings { get; set; } = [];
     }
 }
