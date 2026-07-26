@@ -444,7 +444,7 @@ CREATE TABLE BusTrips (
     BusId       INT           NOT NULL,
     DriverId    INT           NOT NULL,
     RouteId     INT           NOT NULL,
-    TripType    NVARCHAR(20)  NOT NULL,                              -- Morning | Evening
+    TripType    NVARCHAR(20)  NOT NULL,                              -- Morning | Evening | SpecialEvent | ExamRoute
     TripDate    DATE          NOT NULL,
     StartedAt   DATETIME2     NULL,
     EndedAt     DATETIME2     NULL,
@@ -454,7 +454,7 @@ CREATE TABLE BusTrips (
     CONSTRAINT FK_BusTrips_Buses FOREIGN KEY (BusId) REFERENCES Buses(BusId),
     CONSTRAINT FK_BusTrips_Users FOREIGN KEY (DriverId) REFERENCES Users(UserId),
     CONSTRAINT FK_BusTrips_Routes FOREIGN KEY (RouteId) REFERENCES Routes(RouteId),
-    CONSTRAINT CK_TripType   CHECK (TripType IN ('Morning','Evening')),
+    CONSTRAINT CK_TripType   CHECK (TripType IN ('Morning','Evening','SpecialEvent','ExamRoute')),
     CONSTRAINT CK_TripStatus CHECK (Status   IN ('Scheduled','InProgress','Completed','Cancelled')),
     CONSTRAINT FK_BusTrips_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId));
 GO

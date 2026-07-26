@@ -24,25 +24,25 @@
                 }
 
                 <div class="row g-3">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label asp-for="FullName" class="form-label">Full Name</label>
                         <input asp-for="FullName" class="form-control" required />
                         <span asp-validation-for="FullName" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label asp-for="UserName" class="form-label">Username (Unique)</label>
                         <input asp-for="UserName" class="form-control" id="UserNameInput" required autocomplete="off" />
                         <span asp-validation-for="UserName" class="text-danger small"></span>
                         <div id="usernameCheckMsg" class="small mt-1"></div>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label for="password" class="form-label">Password</label>
                         <input type="password" id="password" name="password" class="form-control" required />
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label asp-for="SchoolId" class="form-label">Assign School</label>
                         <select asp-for="SchoolId" asp-items="ViewBag.Schools" class="form-select" required>
                             <option value="">-- Select School --</option>
@@ -50,19 +50,19 @@
                         <span asp-validation-for="SchoolId" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label asp-for="Email" class="form-label">Email Address (Optional)</label>
                         <input asp-for="Email" type="email" class="form-control" />
                         <span asp-validation-for="Email" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label asp-for="PhoneNumber" class="form-label">Phone Number (Optional)</label>
                         <input asp-for="PhoneNumber" class="form-control" />
                         <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label for="profileImage" class="form-label fw-semibold">Profile Image (Optional)</label>
                         <div class="premium-file-upload border border-dashed rounded-3 p-3 text-center position-relative bg-light-subtle" style="cursor: pointer; border-style: dashed !important; border-color: #3d5af1 !important; transition: background-color 0.2s;">
                             <input type="file" id="profileImage" name="profileImage" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer;" accept="image/*" onchange="previewFile(this, 'profilePreview', 'profileFileName')" />

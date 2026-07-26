@@ -111,11 +111,12 @@
                         HeightRequest="60"
                         StrokeShape="RoundRectangle 16"
                         WidthRequest="60">
-                        <Label
-                            FontSize="26"
+                        <Image
+                            HeightRequest="32"
                             HorizontalOptions="Center"
-                            Text="{Binding Trip.TripTypeIcon}"
-                            VerticalOptions="Center" />
+                            Source="{Binding Trip.TripTypeIcon}"
+                            VerticalOptions="Center"
+                            WidthRequest="32" />
                     </Border>
                     <VerticalStackLayout
                         Grid.Column="1"

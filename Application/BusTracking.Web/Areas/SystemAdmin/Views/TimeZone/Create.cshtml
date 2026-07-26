@@ -30,31 +30,31 @@
                         <span asp-validation-for="TimeZoneName" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label asp-for="IanaTimeZoneId" class="form-label">IANA TimeZone ID</label>
                         <input asp-for="IanaTimeZoneId" class="form-control" placeholder="e.g. Asia/Kolkata" required />
                         <span asp-validation-for="IanaTimeZoneId" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label asp-for="WindowsTimeZoneId" class="form-label">Windows TimeZone ID</label>
                         <input asp-for="WindowsTimeZoneId" class="form-control" placeholder="e.g. India Standard Time" required />
                         <span asp-validation-for="WindowsTimeZoneId" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label asp-for="UtcOffset" class="form-label">UTC Offset</label>
                         <input asp-for="UtcOffset" class="form-control" placeholder="e.g. +05:30" required />
                         <span asp-validation-for="UtcOffset" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label asp-for="DisplayOrder" class="form-label">Display Order</label>
                         <input asp-for="DisplayOrder" type="number" class="form-control" required />
                         <span asp-validation-for="DisplayOrder" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6 mt-3">
+                    <div class="col-md-4 mt-3">
                         <label class="form-label d-block">Status</label>
                         <div class="form-check form-switch pt-1">
                             <input class="form-check-input" type="checkbox" asp-for="IsActive" id="IsActiveSwitch" style="cursor: pointer; width: 45px; height: 22px;">

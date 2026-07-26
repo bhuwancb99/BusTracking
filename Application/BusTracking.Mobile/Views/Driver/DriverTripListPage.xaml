@@ -33,9 +33,7 @@
 
         <!--  Header & Search Bar  -->
         <VerticalStackLayout Grid.Row="0" Spacing="0">
-            <Border
-                Margin="12,12,12,6"
-                Style="{StaticResource SearchBarBorder}">
+            <Border Margin="12,12,12,6" Style="{StaticResource SearchBarBorder}">
                 <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
                     <Image
                         Grid.Column="0"
@@ -167,19 +165,19 @@
                                         Grid.Column="1"
                                         Spacing="4"
                                         VerticalOptions="Center">
-                                        <Label
-                                            FontAttributes="Bold"
-                                            FontSize="15"
-                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                                        Dark={StaticResource TextPrimaryDark}}">
-                                            <Label.FormattedText>
-                                                <FormattedString>
-                                                    <Span Text="{Binding TripTypeIcon}" />
-                                                    <Span Text=" " />
-                                                    <Span FontAttributes="Bold" Text="{Binding TripType}" />
-                                                </FormattedString>
-                                            </Label.FormattedText>
-                                        </Label>
+                                        <HorizontalStackLayout Spacing="6">
+                                            <Image
+                                                HeightRequest="18"
+                                                Source="{Binding TripTypeIcon}"
+                                                VerticalOptions="Center"
+                                                WidthRequest="18" />
+                                            <Label
+                                                FontAttributes="Bold"
+                                                FontSize="15"
+                                                Text="{Binding TripType}"
+                                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                            Dark={StaticResource TextPrimaryDark}}" />
+                                        </HorizontalStackLayout>
                                         <Label
                                             FontSize="12"
                                             Text="{Binding TripDate}"

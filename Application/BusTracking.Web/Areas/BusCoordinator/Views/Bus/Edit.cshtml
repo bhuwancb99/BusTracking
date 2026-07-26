@@ -5,8 +5,8 @@
     if (!PermissionHelper.Can(User, "bus.edit")) { Context.Response.Redirect("/BusCoordinator/Bus"); return; }
 }
 
-<div class="row justify-content-center">
-    <div class="col-lg-7">
+<div class="row">
+    <div class="col-lg-12">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
                 <i class="bi bi-pencil me-2 text-warning"></i>Edit Bus
@@ -19,22 +19,22 @@
                 <form asp-area="BusCoordinator" asp-action="Edit" asp-route-id="@ViewBag.BusId" method="post">
                     @Html.AntiForgeryToken()
                     <div class="row g-3">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="BusName" class="form-label fw-semibold">Bus Name <span class="text-danger">*</span></label>
                             <input asp-for="BusName" class="form-control" />
                             <span asp-validation-for="BusName" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="BusNumber" class="form-label fw-semibold">Bus Number <span class="text-danger">*</span></label>
                             <input asp-for="BusNumber" class="form-control" />
                             <span asp-validation-for="BusNumber" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="Capacity" class="form-label fw-semibold">Capacity</label>
                             <input asp-for="Capacity" type="number" min="1" class="form-control" />
                         </div>
                         <!-- ── Bus Type dropdown ── -->
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="BusTypeId" class="form-label fw-semibold">Bus Type <span class="text-danger">*</span></label>
                             <select asp-for="BusTypeId" class="form-select"
                                     asp-items="@(ViewBag.BusTypes as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])">
@@ -42,7 +42,7 @@
                             </select>
                             <span asp-validation-for="BusTypeId" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="RouteId" class="form-label fw-semibold">
                                 Assign Route <span class="text-danger">*</span>
                             </label>
@@ -64,7 +64,7 @@
                                 </small>
                             }
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label fw-semibold">Status</label>
                             <div class="d-flex gap-3 mt-1">
                                 <div class="form-check">
@@ -88,19 +88,19 @@
                     <!-- ── Compliance & Maintenance Dates ── -->
                     <h6 class="fw-semibold text-muted mt-4 mb-2"><i class="bi bi-shield-check me-1"></i>Compliance & Maintenance Dates</h6>
                     <div class="row g-3">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="InsuranceExpiryDate" class="form-label fw-semibold">Insurance Expiry Date</label>
                             <input asp-for="InsuranceExpiryDate" type="date" class="form-control" />
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="FitnessExpiryDate" class="form-label fw-semibold">Fitness Certificate Expiry</label>
                             <input asp-for="FitnessExpiryDate" type="date" class="form-control" />
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="PucExpiryDate" class="form-label fw-semibold">PUC Expiry Date</label>
                             <input asp-for="PucExpiryDate" type="date" class="form-control" />
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="LastServiceDate" class="form-label fw-semibold">Last Service / Maintenance Date</label>
                             <input asp-for="LastServiceDate" type="date" class="form-control" />
                         </div>

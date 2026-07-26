@@ -24,25 +24,25 @@
                 }
 
                 <div class="row g-3">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label asp-for="SchoolName" class="form-label">School Name</label>
                         <input asp-for="SchoolName" class="form-control" required />
                         <span asp-validation-for="SchoolName" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label asp-for="SchoolCode" class="form-label">School Code (Unique)</label>
                         <input asp-for="SchoolCode" class="form-control" placeholder="e.g. SCH-01" required />
                         <span asp-validation-for="SchoolCode" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label asp-for="PrincipalName" class="form-label">Principal Name</label>
                         <input asp-for="PrincipalName" class="form-control" required />
                         <span asp-validation-for="PrincipalName" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label for="logoFile" class="form-label fw-semibold">School Logo</label>
                         <div class="premium-file-upload border border-dashed rounded-3 p-3 text-center position-relative bg-light-subtle" style="cursor: pointer; border-style: dashed !important; border-color: #3d5af1 !important; transition: background-color 0.2s;">
                             <input type="file" id="logoFile" name="logoFile" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer;" accept="image/*" onchange="previewFile(this, 'logoPreview', 'logoFileName')" />
@@ -57,25 +57,25 @@
                         </div>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label asp-for="ContactNumber" class="form-label">Contact Number</label>
                         <input asp-for="ContactNumber" class="form-control" required />
                         <span asp-validation-for="ContactNumber" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label asp-for="EmailAddress" class="form-label">Email Address</label>
                         <input asp-for="EmailAddress" type="email" class="form-control" required />
                         <span asp-validation-for="EmailAddress" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label asp-for="Website" class="form-label">Website (Optional)</label>
                         <input asp-for="Website" type="url" class="form-control" placeholder="https://example.com" />
                         <span asp-validation-for="Website" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label asp-for="TimeZoneId" class="form-label fw-bold">School Time Zone</label>
                         <select asp-for="TimeZoneId" asp-items="(List<SelectListItem>)ViewBag.TimeZones" class="form-select">
                             <option value="">-- Select Time Zone --</option>

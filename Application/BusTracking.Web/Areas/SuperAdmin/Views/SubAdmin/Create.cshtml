@@ -3,7 +3,7 @@
     ViewData["Title"] = "Add Coordinator";
 }
 
-<div class="row justify-content-center">
+<div class="row">
     <div class="col-lg-9">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-person-badge me-2 text-warning"></i>Add Bus Coordinator</div>
@@ -15,12 +15,12 @@
                 <form asp-area="SuperAdmin" asp-action="Create" method="post" id="createForm">
                     @Html.AntiForgeryToken()
                     <div class="row g-3 mb-4">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="FullName" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
                             <input asp-for="FullName" class="form-control" placeholder="Coordinator full name" />
                             <span asp-validation-for="FullName" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="UserName" class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input asp-for="UserName" class="form-control" placeholder="unique_username" id="usernameInput" autocomplete="off" />
@@ -28,16 +28,16 @@
                             <span asp-validation-for="UserName" class="text-danger small"></span>
                             <div id="usernameMsg" class="small mt-1"></div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="Email" class="form-label fw-semibold">Email <span class="text-muted fw-normal">(Optional)</span></label>
                             <input asp-for="Email" type="email" class="form-control" placeholder="coordinator@email.com" />
                             <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number</label>
                             <input asp-for="PhoneNumber" class="form-control" placeholder="+91 98765 43210" />
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="Password" class="form-label fw-semibold">Password <span class="text-muted fw-normal">(leave blank to auto-generate)</span></label>
                             <div class="input-group">
                                 <input asp-for="Password" type="password" class="form-control" placeholder="Set password or leave blank" id="pwdInput" autocomplete="new-password" />
@@ -60,7 +60,7 @@
                             @foreach (var group in permGroups)
                             {
                                 var modKey = group.Key.Replace(" ", "_").Replace("&", "");
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="border rounded p-3">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="fw-semibold small text-uppercase text-muted">@group.Key.Replace("Manage", "")</span>

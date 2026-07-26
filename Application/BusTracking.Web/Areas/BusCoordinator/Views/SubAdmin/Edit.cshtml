@@ -4,7 +4,7 @@
     ViewData["Title"] = "Edit Sub-Admin";
 }
 
-<div class="row justify-content-center">
+<div class="row">
     <div class="col-lg-10">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
@@ -19,12 +19,12 @@
                       asp-route-id="@ViewBag.SubAdminId" method="post" id="editForm">
                     @Html.AntiForgeryToken()
                     <div class="row g-3 mb-4">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="FullName" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
                             <input asp-for="FullName" class="form-control" />
                             <span asp-validation-for="FullName" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="UserName" class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input asp-for="UserName" class="form-control" id="usernameInput" autocomplete="off" />
@@ -32,14 +32,14 @@
                             <span asp-validation-for="UserName" class="text-danger small"></span>
                             <div id="usernameMsg" class="small mt-1"></div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="NewPassword" class="form-label fw-semibold">New Password <span class="text-danger fst-italic ms-1" style="font-size:0.82rem;">(leave blank to keep current)</span></label>
                             <div class="input-group">
                                 <input asp-for="NewPassword" type="password" class="form-control" placeholder="Enter new password" id="pwdInputNew" autocomplete="new-password" />
                                 <button type="button" class="btn btn-outline-secondary" onclick="toggleNewPwd()"><i class="bi bi-eye" id="eyeIconNew"></i></button>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number</label>
                             <input asp-for="PhoneNumber" class="form-control" />
                         </div>
@@ -78,7 +78,7 @@
                             @foreach (var group in permGroups)
                             {
                                 var modKey = group.Key.Replace(" ", "_").Replace("&", "");
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="border rounded p-3">
                                         <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="fw-semibold small text-uppercase text-muted">

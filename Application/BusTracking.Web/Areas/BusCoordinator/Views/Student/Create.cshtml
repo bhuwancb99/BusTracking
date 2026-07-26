@@ -3,8 +3,8 @@
     ViewData["Title"] = "Add Student";
 }
 
-<div class="row justify-content-center">
-    <div class="col-lg-8">
+<div class="row">
+    <div class="col-lg-12">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
                 <i class="bi bi-mortarboard me-2 text-info"></i>Add New Student
@@ -18,12 +18,12 @@
                     @Html.AntiForgeryToken()
                     <div class="row g-3">
 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="FullName" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
                             <input asp-for="FullName" class="form-control" placeholder="Student full name" />
                             <span asp-validation-for="FullName" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="UserName" class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
                             <div class="input-group">
                                 <input asp-for="UserName" class="form-control" placeholder="unique_username" id="usernameInput" autocomplete="off" />
@@ -32,19 +32,19 @@
                             <div id="usernameMsg" class="small mt-1"></div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="Email" class="form-label fw-semibold">Email <span class="text-muted fw-normal">(Optional)</span></label>
                             <input asp-for="Email" type="email" class="form-control" placeholder="student@email.com" />
                             <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="StudentCode" class="form-label fw-semibold">Student Code <span class="text-danger">*</span></label>
                             <input asp-for="StudentCode" class="form-control" placeholder="e.g. STD-001" />
                             <span asp-validation-for="StudentCode" class="text-danger small"></span>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="StandardId" class="form-label fw-semibold">Class / Standard</label>
                             <select asp-for="StandardId" class="form-select" asp-items="ViewBag.Standards">
                                 <option value="">-- Select Class --</option>
@@ -52,7 +52,7 @@
                         </div>
 
                         <!-- ── Bus autocomplete ── -->
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label fw-semibold">Assign Bus (optional)</label>
                             <div class="position-relative">
                                 <input type="text" id="busSearch" class="form-control"
@@ -66,7 +66,7 @@
                         </div>
 
                         <!-- ── Stop dropdown — enabled after bus selected ── -->
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="StopId" class="form-label fw-semibold">
                                 Assign Stop
                                 <small class="text-muted fw-normal ms-1">(select bus first)</small>
@@ -84,7 +84,7 @@
                     <!-- ── Transport Fee Tracking ── -->
                     <h6 class="fw-semibold text-muted mt-4 mb-2"><i class="bi bi-cash-coin me-1"></i>Transport Fee</h6>
                     <div class="row g-3">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="TransportFeeStatus" class="form-label fw-semibold">Fee Status</label>
                             <select asp-for="TransportFeeStatus" class="form-select">
                                 <option value="Paid">Paid</option>
@@ -92,7 +92,7 @@
                                 <option value="Expired">Expired</option>
                             </select>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="FeeExpiryDate" class="form-label fw-semibold">Fee Expiry Date</label>
                             <input asp-for="FeeExpiryDate" type="date" class="form-control" />
                         </div>

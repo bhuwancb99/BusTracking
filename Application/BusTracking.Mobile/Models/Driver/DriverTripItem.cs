@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Models.Driver
+namespace BusTracking.Mobile.Models.Driver
 {
     public class DriverTripItem
     {
@@ -19,7 +19,14 @@
             "Cancelled" => Colors.Red,
             _ => Colors.Orange
         };
-        public string TripTypeIcon => TripType == "Morning" ? "🌅" : "🌆";
+        public string TripTypeIcon => TripType switch
+        {
+            "Morning" => "trip_morning.png",
+            "Evening" => "trip_evening.png",
+            "SpecialEvent" => "trip_special_event.png",
+            "ExamRoute" => "trip_exam_route.png",
+            _ => "trip_default.png"
+        };
         public bool CanStart => Status == "Scheduled";
         public bool CanEnd => Status == "InProgress";
         public bool CanCancel => Status is "Scheduled" or "InProgress";

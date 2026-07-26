@@ -13,7 +13,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [ObservableProperty] private string? _tripType;
         [ObservableProperty] private DateTime _tripDate = DateTime.Today;
 
-        public List<string> TripTypes => ["Morning", "Evening"];
+        public List<string> TripTypes => ["Morning", "Evening", "SpecialEvent", "ExamRoute"];
 
         public CoordTripFormViewModel(IAuthService auth, INavigationService nav,
             ITripService trips, IBusService buses, IRouteService routes)

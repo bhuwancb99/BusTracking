@@ -3,7 +3,7 @@ namespace BusTracking.Common.DTOs.Driver
     public class DriverTripSummary
     {
         public int TripId { get; set; }
-        public string TripType { get; set; } = "";   // "Morning" | "Evening"
+        public string TripType { get; set; } = "";   // "Morning" | "Evening" | "SpecialEvent" | "ExamRoute"
         public string TripDate { get; set; } = "";   // "yyyy-MM-dd"
         public string Status { get; set; } = "";   // "Scheduled" | "InProgress" | "Completed"
         public DateTime? StartedAt { get; set; }

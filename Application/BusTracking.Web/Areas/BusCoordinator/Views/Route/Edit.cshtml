@@ -5,8 +5,8 @@
     ViewData["Title"] = "Edit Route"; ViewData["Breadcrumb"] = "Routes / Edit";
     if (!PermissionHelper.Can(User, "route.edit")) { Context.Response.Redirect("/BusCoordinator/Route"); return; }
 }
-<div class="row justify-content-center">
-    <div class="col-lg-7">
+<div class="row">
+    <div class="col-lg-12">
         <div class="card border-0 shadow-sm">
             <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-pencil me-2 text-warning"></i>Edit Route</div>
             <div class="card-body p-4">
@@ -27,11 +27,11 @@
                             <input asp-for="RouteCode" class="form-control" />
                             <span asp-validation-for="RouteCode" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="MorningTime" class="form-label fw-semibold">Morning Departure</label>
                             <input asp-for="MorningTime" type="time" class="form-control" />
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label asp-for="EveningTime" class="form-label fw-semibold">Evening Departure</label>
                             <input asp-for="EveningTime" type="time" class="form-control" />
                         </div>
