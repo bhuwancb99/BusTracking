@@ -194,46 +194,30 @@
             const driverSelect = document.getElementById('driverSelect');
             const routeSelect = document.getElementById('routeSelect');
 
+            driverSelect.innerHTML = '<option value="">-- Select a Driver --</option>';
+            routeSelect.innerHTML = '<option value="">-- Select a Route --</option>';
+            routeSelect.disabled = true;
+            loadStopsForRoute(null);
+
             if (!busId) {
                 document.getElementById('busInfoPreview').classList.add('d-none');
-                document.getElementById('stopsPreview').style.display = 'none';
                 return;
             }
 
-            // 1. Fetch assigned drivers for bus
+            // Fetch drivers for selected bus
             try {
                 const driverRes = await fetch(`${areaPrefix}/GetDriversForBus?busId=${busId}`);
                 const drivers = await driverRes.json();
-                driverSelect.innerHTML = '<option value="">-- Select a Driver --</option>';
                 if (drivers && drivers.length > 0) {
-                    drivers.forEach((d, idx) => {
+                    drivers.forEach(d => {
                         const opt = document.createElement('option');
                         opt.value = d.userId;
                         opt.textContent = d.display;
                         driverSelect.appendChild(opt);
                     });
-                    // Auto-select first driver if available
+                    // Auto-select first driver and trigger change
                     driverSelect.selectedIndex = 1;
-                }
-            } catch (err) { console.error(err); }
-
-            // 2. Fetch assigned routes for bus
-            try {
-                const routeRes = await fetch(`${areaPrefix}/GetRoutesForBus?busId=${busId}`);
-                const routes = await routeRes.json();
-                routeSelect.innerHTML = '<option value="">-- Select a Route --</option>';
-                if (routes && routes.length > 0) {
-                    routes.forEach(r => {
-                        const opt = document.createElement('option');
-                        opt.value = r.routeId;
-                        opt.textContent = `${r.routeName} (${r.routeCode})`;
-                        routeSelect.appendChild(opt);
-                    });
-                    // Auto-select first route if available
-                    routeSelect.selectedIndex = 1;
-                    loadStopsForRoute(routeSelect.value);
-                } else {
-                    loadStopsForRoute(null);
+                    driverSelect.dispatchEvent(new Event('change'));
                 }
             } catch (err) { console.error(err); }
 
@@ -241,6 +225,38 @@
             document.getElementById('busInfoBox').innerHTML =
                 `<span><i class="bi bi-bus-front text-primary me-1"></i><strong>${opt.text}</strong></span>`;
             document.getElementById('busInfoPreview').classList.remove('d-none');
+        });
+
+        document.getElementById('driverSelect').addEventListener('change', async function() {
+            const driverId = this.value;
+            const busId = document.getElementById('busSelect').value;
+            const routeSelect = document.getElementById('routeSelect');
+
+            routeSelect.innerHTML = '<option value="">-- Select a Route --</option>';
+            loadStopsForRoute(null);
+
+            if (!busId || !driverId) {
+                routeSelect.disabled = true;
+                return;
+            }
+
+            routeSelect.disabled = false;
+
+            // Fetch assigned routes for the bus
+            try {
+                const routeRes = await fetch(`${areaPrefix}/GetRoutesForBus?busId=${busId}`);
+                const routes = await routeRes.json();
+                if (routes && routes.length > 0) {
+                    routes.forEach(r => {
+                        const opt = document.createElement('option');
+                        opt.value = r.routeId;
+                        opt.textContent = `${r.routeName} (${r.routeCode})`;
+                        routeSelect.appendChild(opt);
+                    });
+                    routeSelect.selectedIndex = 1;
+                    loadStopsForRoute(routeSelect.value);
+                }
+            } catch (err) { console.error(err); }
         });
 
         document.getElementById('routeSelect').addEventListener('change', function() {
