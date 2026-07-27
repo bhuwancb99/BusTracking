@@ -243,11 +243,15 @@
         <!--  Shared Calendar Popups  -->
         <common:CalendarPickerPopup
             Title="Select From Date"
+            Grid.Row="0"
+            Grid.RowSpan="3"
             IsOpen="{Binding IsFromDateCalendarOpen, Mode=TwoWay}"
             SelectedDate="{Binding FromDate, Mode=TwoWay}" />
 
         <common:CalendarPickerPopup
             Title="Select To Date"
+            Grid.Row="0"
+            Grid.RowSpan="3"
             IsOpen="{Binding IsToDateCalendarOpen, Mode=TwoWay}"
             SelectedDate="{Binding ToDate, Mode=TwoWay}" />
     </Grid>

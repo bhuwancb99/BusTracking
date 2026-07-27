@@ -1,6 +1,6 @@
-namespace BusTracking.Web.Areas.SuperAdmin.Controllers
+namespace BusTracking.Web.Areas.BusCoordinator.Controllers
 {
-    [Area("SuperAdmin"), Authorize(Roles = "SuperAdmin")]
+    [Area("BusCoordinator"), Authorize(Roles = "BusCoordinator")]
     public class BroadcastController : Controller
     {
         private readonly AppDbContext _db;
@@ -17,8 +17,13 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             _fcmPushService = fcmPushService;
         }
 
+        private bool HasPermission() =>
+            PermissionHelper.Can(User, "broadcast.manage", HttpContext);
+
         public async Task<IActionResult> Index()
         {
+            if (!HasPermission()) return Forbid();
+
             var model = new BroadcastModel
             {
                 Roles = await GetRolesSelectListAsync()
@@ -29,6 +34,8 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUsersByRole(int roleId)
         {
+            if (!HasPermission()) return Forbid();
+
             var schoolId = _currentUser.SchoolId;
 
             var query = _db.Users
@@ -58,6 +65,8 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Send(BroadcastModel model)
         {
+            if (!HasPermission()) return Forbid();
+
             model.Roles = await GetRolesSelectListAsync();
 
             if (model.SelectedUserIds == null || !model.SelectedUserIds.Any())

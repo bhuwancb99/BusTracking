@@ -1,6 +1,6 @@
 @model BusTracking.Common.Models.BroadcastModel
 @{
-    Layout = "~/Areas/SuperAdmin/Views/Shared/_Layout.cshtml";
+    Layout = "~/Areas/BusCoordinator/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Broadcast Message";
     ViewData["Breadcrumb"] = "Broadcast Message";
 }
@@ -26,7 +26,7 @@
         </div>
     }
 
-    <form asp-area="SuperAdmin" asp-controller="Broadcast" asp-action="Send" method="post" id="broadcastForm">
+    <form asp-area="BusCoordinator" asp-controller="Broadcast" asp-action="Send" method="post" id="broadcastForm">
         @Html.AntiForgeryToken()
 
         <div class="row g-4">
@@ -191,13 +191,13 @@
             // 2. Fetch Users via AJAX
             function fetchUsersByRole(roleId) {
                 usersContainer.innerHTML = `
-                                                    <div class="text-center py-5 text-muted">
-                                                        <div class="spinner-border text-primary mb-2" role="status"></div>
-                                                        <div class="fw-semibold small">Loading users for selected role...</div>
-                                                    </div>`;
+                            <div class="text-center py-5 text-muted">
+                                <div class="spinner-border text-primary mb-2" role="status"></div>
+                                <div class="fw-semibold small">Loading users for selected role...</div>
+                            </div>`;
                 usersHeader.classList.add('d-none');
 
-                fetch(`/SuperAdmin/Broadcast/GetUsersByRole?roleId=${roleId}`)
+                fetch(`/BusCoordinator/Broadcast/GetUsersByRole?roleId=${roleId}`)
                     .then(response => response.json())
                     .then(data => {
                         currentUsersList = data || [];
@@ -227,17 +227,17 @@
                     col.setAttribute('data-name', (user.fullName + ' ' + user.userName).toLowerCase());
 
                     col.innerHTML = `
-                                                        <label class="d-flex align-items-center p-2 rounded-3 border bg-light-subtle h-100 cursor-pointer user-select-none hover-shadow">
-                                                            <input type="checkbox" name="SelectedUserIds" value="${user.userId}" class="form-check-input me-3 user-checkbox" style="transform: scale(1.15);" />
-                                                            <div class="flex-grow-1 overflow-hidden">
-                                                                <div class="fw-bold text-dark text-truncate">${escapeHtml(user.fullName)}</div>
-                                                                <div class="text-muted extra-small">
-                                                                    <span class="badge bg-secondary-subtle text-secondary me-1">&#64;${escapeHtml(user.userName)}</span>
-                                                                    ${user.phoneNumber ? `<span class="me-1"><i class="bi bi-telephone text-muted"></i> ${escapeHtml(user.phoneNumber)}</span>` : ''}
-                                                                    ${user.email ? `<span><i class="bi bi-envelope text-muted"></i> ${escapeHtml(user.email)}</span>` : ''}
-                                                                </div>
-                                                            </div>
-                                                        </label>`;
+                                <label class="d-flex align-items-center p-2 rounded-3 border bg-light-subtle h-100 cursor-pointer user-select-none hover-shadow">
+                                    <input type="checkbox" name="SelectedUserIds" value="${user.userId}" class="form-check-input me-3 user-checkbox" style="transform: scale(1.15);" />
+                                    <div class="flex-grow-1 overflow-hidden">
+                                        <div class="fw-bold text-dark text-truncate">${escapeHtml(user.fullName)}</div>
+                                        <div class="text-muted extra-small">
+                                            <span class="badge bg-secondary-subtle text-secondary me-1">&#64;${escapeHtml(user.userName)}</span>
+                                            ${user.phoneNumber ? `<span class="me-1"><i class="bi bi-telephone text-muted"></i> ${escapeHtml(user.phoneNumber)}</span>` : ''}
+                                            ${user.email ? `<span><i class="bi bi-envelope text-muted"></i> ${escapeHtml(user.email)}</span>` : ''}
+                                        </div>
+                                    </div>
+                                </label>`;
                     rowDiv.appendChild(col);
                 });
 
@@ -255,10 +255,10 @@
             function resetUsersContainer(message) {
                 usersHeader.classList.add('d-none');
                 usersContainer.innerHTML = `
-                                                    <div class="text-center py-5 text-muted">
-                                                        <i class="bi bi-person-lines-fill fs-1 d-block mb-2 text-secondary opacity-50"></i>
-                                                        <span class="fw-semibold">${message}</span>
-                                                    </div>`;
+                            <div class="text-center py-5 text-muted">
+                                <i class="bi bi-person-lines-fill fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                                <span class="fw-semibold">${message}</span>
+                            </div>`;
                 updateSelectedCount();
             }
 

@@ -347,6 +347,8 @@
         <!--  Shared Calendar Popup  -->
         <common:CalendarPickerPopup
             Title="Filter Trips by Date"
+            Grid.Row="0"
+            Grid.RowSpan="3"
             IsOpen="{Binding IsDateCalendarOpen, Mode=TwoWay}"
             SelectedDate="{Binding SelectedDate, Mode=TwoWay}" />
     </Grid>

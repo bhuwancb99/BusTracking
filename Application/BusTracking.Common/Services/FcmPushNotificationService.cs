@@ -270,5 +270,69 @@ namespace BusTracking.Common.Services
                 _logger.LogError(ex, $"[FCM] Error sending TripStarted push for Trip #{tripId}: {ex.Message}");
             }
         }
+
+        public async Task SendBroadcastPushAsync(List<int> recipientUserIds, string title, string body, string notificationType)
+        {
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                var isAllow = await db.AppConfigurations
+                    .IgnoreQueryFilters()
+                    .Where(c => c.ConfigKey == "IsAllowPushNotification" && c.IsActive)
+                    .Select(c => c.ConfigValue)
+                    .FirstOrDefaultAsync();
+
+                if (isAllow == "0") return;
+
+                if (recipientUserIds == null || recipientUserIds.Count == 0) return;
+
+                var tokens = await db.DeviceTokens
+                    .IgnoreQueryFilters()
+                    .Where(d => recipientUserIds.Contains(d.UserId))
+                    .Select(d => d.Token)
+                    .Distinct()
+                    .ToListAsync();
+
+                if (tokens.Count == 0)
+                {
+                    _logger.LogInformation($"[FCM] No device tokens found for recipient user IDs.");
+                    return;
+                }
+
+#pragma warning disable CS0618 // Type or member is obsolete
+                var msg = new MulticastMessage
+                {
+                    Tokens = tokens,
+                    Notification = new FirebaseAdmin.Messaging.Notification
+                    {
+                        Title = title,
+                        Body = body
+                    },
+                    Data = new Dictionary<string, string>
+                    {
+                        ["type"] = string.IsNullOrWhiteSpace(notificationType) ? "BROADCAST" : notificationType.ToUpperInvariant(),
+                        ["title"] = title,
+                        ["body"] = body
+                    }
+                };
+#pragma warning restore CS0618 // Type or member is obsolete
+
+                if (FirebaseMessaging.DefaultInstance != null)
+                {
+                    var response = await FirebaseMessaging.DefaultInstance.SendEachForMulticastAsync(msg);
+                    _logger.LogInformation($"[FCM] Sent Broadcast push to {response.SuccessCount}/{tokens.Count} devices.");
+                }
+                else
+                {
+                    _logger.LogWarning($"[FCM] FirebaseMessaging.DefaultInstance is null. FCM push not dispatched.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"[FCM] Error sending Broadcast push: {ex.Message}");
+            }
+        }
     }
 }

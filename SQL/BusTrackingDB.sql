@@ -164,6 +164,7 @@ INSERT INTO Permissions (ModuleName, PermissionKey, Description) VALUES
 ('ManageTrips',         'trip.manage',              'Manage trips (start/stop/track)'),
 ('ManageStudents',      'student.assignbus',        'Assign bus to student'),
 ('ManageNotifications', 'notification.manage',      'Enable/disable notifications'),
+('BroadcastMessage',    'broadcast.manage',         'Can compose and send broadcast notifications to user roles and specific members'),
 ('HelpSupport',         'helpsupport.view',         'View help & support requests'),
 ('HelpSupport',         'helpsupport.manage',       'Manage help & support status'),
 ('ManageLogs',          'logs.view',                'View system logs'),

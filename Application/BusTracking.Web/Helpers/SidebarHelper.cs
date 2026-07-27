@@ -90,7 +90,10 @@ public static class SidebarHelper
         if (Has("trip.view") || Has("trip.manage"))
             menu.Add(new() { Label = "Trips", Icon = "bi-signpost-split", Controller = "Trip", Action = "Index", Area = "BusCoordinator" });
 
-        if (Has("notification.manage"))
+        if (Has("broadcast.manage"))
+            menu.Add(new() { Label = "Broadcast Message", Icon = "bi-megaphone-fill", Controller = "Broadcast", Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("notification.manage") || Has("notification.view"))
             menu.Add(new() { Label = "Notifications", Icon = "bi-bell", Controller = "Notification", Action = "Index", Area = "BusCoordinator" });
 
         if (Has("helpsupport.view") || Has("helpsupport.manage"))
