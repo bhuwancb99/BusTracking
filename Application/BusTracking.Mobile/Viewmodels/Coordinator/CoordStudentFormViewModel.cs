@@ -163,7 +163,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                         StandardId = SelectedStandard?.StandardId,
                         BusId = SelectedBus?.BusId,
                         StopId = SelectedStop?.StopId,
-                        TransportFeeStatus = SelectedFeeStatus,
+                        TransportFeeStatus = SelectedFeeStatus ?? "Pending",
                         FeeExpiryDate = FeeExpiryDate?.ToString("yyyy-MM-dd"),
                         IsActive = IsActive
                     })
@@ -178,7 +178,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                         StandardId = SelectedStandard?.StandardId,
                         BusId = SelectedBus?.BusId,
                         StopId = SelectedStop?.StopId,
-                        TransportFeeStatus = SelectedFeeStatus,
+                        TransportFeeStatus = SelectedFeeStatus ?? "Pending",
                         FeeExpiryDate = FeeExpiryDate?.ToString("yyyy-MM-dd"),
                         IsActive = IsActive
                     });
