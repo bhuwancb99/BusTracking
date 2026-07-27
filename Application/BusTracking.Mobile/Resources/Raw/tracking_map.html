@@ -172,16 +172,25 @@
 
                 const isStart = stop.order === 1 || stop === validStops[0];
                 const isEnd = stop === validStops[validStops.length - 1] && validStops.length > 1;
+                const isChildStop = stop.isChildStop === true;
 
-                const color = isStart ? '#16a34a' : isEnd ? '#dc2626' : (stop.status === 'Departed' ? '#22c55e' : stop.status === 'Reached' ? '#f59e0b' : '#2563eb');
+                const color = isChildStop ? '#7c3aed' : isStart ? '#16a34a' : isEnd ? '#dc2626' : (stop.status === 'Departed' ? '#22c55e' : stop.status === 'Reached' ? '#f59e0b' : '#2563eb');
+                const badgeText = isChildStop ? '🎒' : stop.order;
                 const stopIcon = L.divIcon({
-                    html: `<div style="background:${color};color:#fff;border:2px solid #fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;box-shadow:0 2px 6px rgba(0,0,0,.3)">${stop.order}</div>`,
-                    iconSize: [28, 28], iconAnchor: [14, 14], className: ''
+                    html: `<div style="background:${color};color:#fff;border:${isChildStop ? '3px solid #fef08a' : '2px solid #fff'};border-radius:50%;width:${isChildStop ? '34px' : '28px'};height:${isChildStop ? '34px' : '28px'};display:flex;align-items:center;justify-content:center;font-weight:700;font-size:${isChildStop ? '14px' : '12px'};box-shadow:0 3px 10px rgba(0,0,0,.4)">${badgeText}</div>`,
+                    iconSize: isChildStop ? [34, 34] : [28, 28], iconAnchor: isChildStop ? [17, 17] : [14, 14], className: ''
                 });
 
-                const m = L.marker(latlng, { icon: stopIcon, title: `Stop #${stop.order}: ${stop.label}` })
-                    .bindPopup(`<b>Stop #${stop.order}</b><br>${stop.label}<br><span style="color:${color}">${stop.status || ''}</span>`)
+                const popupHtml = isChildStop
+                    ? `<div style="font-size:13px;font-weight:bold;color:#7c3aed">🎒 ${stop.childName ? stop.childName + "'s " : ""}Pickup Stop</div><div style="font-size:12px;font-weight:bold">Stop #${stop.order}: ${stop.label}</div><div style="font-size:11px;color:#666">${stop.status || ''}</div>`
+                    : `<b>Stop #${stop.order}</b><br>${stop.label}<br><span style="color:${color}">${stop.status || ''}</span>`;
+
+                const m = L.marker(latlng, { icon: stopIcon, title: isChildStop ? `🎒 ${stop.childName || 'Child'} Pickup Stop: ${stop.label}` : `Stop #${stop.order}: ${stop.label}` })
+                    .bindPopup(popupHtml)
                     .addTo(leafletMap);
+                if (isChildStop) {
+                    m.openPopup();
+                }
                 leafletStopMarkers.push(m);
             });
 
@@ -448,9 +457,25 @@
 
                 const isStart = stop.order === minOrder;
                 const isEnd = stop.order === maxOrder && maxOrder !== minOrder;
+                const isChildStop = stop.isChildStop === true;
 
                 let marker;
-                if (isStart) {
+                if (isChildStop) {
+                    marker = new google.maps.Marker({
+                        map, position: pos,
+                        title: `🎒 ${stop.childName || 'Child'} Pickup Stop · ${stop.label}`,
+                        icon: {
+                            path: google.maps.SymbolPath.CIRCLE,
+                            scale: 14,
+                            fillColor: '#7c3aed',
+                            fillOpacity: 1,
+                            strokeColor: '#fef08a',
+                            strokeWeight: 3.5
+                        },
+                        label: { text: '🎒', color: '#ffffff', fontSize: '13px', fontWeight: 'bold' },
+                        zIndex: 100
+                    });
+                } else if (isStart) {
                     marker = new google.maps.Marker({
                         map, position: pos,
                         title: `Start · ${stop.label}`,
@@ -485,11 +510,18 @@
                     });
                 }
 
-                const infoWin = new google.maps.InfoWindow({
-                    content: `<div style="font-size:13px;font-weight:bold">${isStart ? '🟢 Start · ' : isEnd ? '🏁 End · ' : ''}${stop.label}</div>
-                                <div style="font-size:11px;color:#666">Stop ${stop.order} · ${stop.status}</div>`
-                });
+                const popupHtml = isChildStop
+                    ? `<div style="font-size:13px;font-weight:bold;color:#7c3aed">🎒 ${stop.childName ? stop.childName + "'s " : ""}Pickup Stop</div>
+                       <div style="font-size:12px;font-weight:bold">Stop ${stop.order} · ${stop.label}</div>
+                       <div style="font-size:11px;color:#666">Status: ${stop.status}</div>`
+                    : `<div style="font-size:13px;font-weight:bold">${isStart ? '🟢 Start · ' : isEnd ? '🏁 End · ' : ''}${stop.label}</div>
+                       <div style="font-size:11px;color:#666">Stop ${stop.order} · ${stop.status}</div>`;
+
+                const infoWin = new google.maps.InfoWindow({ content: popupHtml });
                 marker.addListener('click', () => infoWin.open(map, marker));
+                if (isChildStop) {
+                    infoWin.open(map, marker);
+                }
                 stopMarkers.push(marker);
             });
 

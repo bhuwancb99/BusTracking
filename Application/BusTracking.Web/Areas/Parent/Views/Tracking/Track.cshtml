@@ -34,6 +34,50 @@
     </div>
 </div>
 
+<!-- ── Student Info Strip Card (3 Rows) ────────────────────────── -->
+@if (selectedStudent != null)
+{
+    var busDisp = selectedStudent.Bus != null
+        ? $"{selectedStudent.Bus.BusName} ({selectedStudent.Bus.BusNumber})"
+        : "No bus assigned";
+    var fullName = selectedStudent.User?.FullName ?? "Student";
+    var initials = string.IsNullOrEmpty(fullName) ? "?" : string.Concat(fullName.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(x => x[0]));
+
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body p-3">
+            <div class="d-flex align-items-center gap-3">
+                <!-- Col 0: Avatar Circle -->
+                <div class="rounded-circle bg-primary-subtle text-primary fw-bold d-flex align-items-center justify-content-center flex-shrink-0" style="width:48px;height:48px;font-size:1.1rem">
+                    @initials
+                </div>
+
+                <!-- Col 1: 3-Row Content -->
+                <div class="flex-grow-1">
+                    <!-- Row 1: Name Left + Bus Name & Number Pill Right -->
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1">
+                        <h6 class="fw-bold mb-0 text-dark" style="font-size:1rem">@fullName</h6>
+                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-1 fw-bold rounded-pill" style="font-size:.78rem">
+                            <i class="bi bi-bus-front me-1"></i>@busDisp
+                        </span>
+                    </div>
+
+                    <!-- Row 2: Class Left and Student Code Right -->
+                    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-1 text-secondary small">
+                        <span>Class: <strong>@(selectedStudent.Standard?.StandardName ?? "N/A")</strong></span>
+                        <span class="fw-bold text-muted">@selectedStudent.StudentCode</span>
+                    </div>
+
+                    <!-- Row 3: Assigned Pickup Stop Details -->
+                    <div class="d-flex align-items-center text-primary fw-semibold small">
+                        <i class="bi bi-geo-alt-fill me-1"></i>
+                        <span>Stop: <strong>@(selectedStudent.Stop?.StopName ?? "Not assigned")</strong></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @if (trip == null)
 {
     <div class="card border-0 shadow-sm text-center py-5">
@@ -91,15 +135,25 @@ else
                         {
                             var color = stop.Status == "Departed" ? "#1e8e3e" : stop.Status == "Reached" ? "#1a73e8" : "#dadce0";
                             var icon = stop.Status == "Departed" ? "bi-check-circle-fill" : stop.Status == "Reached" ? "bi-geo-alt-fill" : "bi-circle";
+                            var isMyChildStop = selectedStudent?.StopId == stop.StopId || (selectedStudent?.Stop?.StopName != null && selectedStudent.Stop.StopName.Equals(stop.StopName, StringComparison.OrdinalIgnoreCase));
 
                             <div class="d-flex gap-3 mb-3 align-items-start stop-row" data-stop-id="@stop.StopId">
                                 <div class="flex-shrink-0 mt-1">
                                     <i class="bi @icon" style="color:@color;font-size:1.1rem"></i>
                                 </div>
-                                <div class="flex-grow-1 bg-light p-3 rounded-3 border">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="fw-semibold small">@stop.StopName</span>
-                                        <span class="badge rounded-pill px-2 stop-status-badge" style="font-size:.7rem;@(stop.Status == "Departed" ? "background:#e6f4ea;color:#1e8e3e" : stop.Status == "Reached" ? "background:#e8f0fe;color:#1a73e8" : "background:#f1f3f4;color:#5f6368")">
+                                <div class="flex-grow-1 p-3 rounded-3 border @(isMyChildStop ? "bg-purple-subtle border-purple" : "bg-light")" style="@(isMyChildStop ? "background-color:#f3e8ff;border-color:#d8b4fe;" : "")">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <span class="fw-semibold small text-dark d-block">@stop.StopName</span>
+                                            @if (isMyChildStop)
+                                            {
+                                                <div class="d-flex align-items-center gap-1 mt-1" style="color:#7c3aed;font-size:.75rem;font-weight:700">
+                                                    <i class="bi bi-backpack-fill me-1" style="font-size:.85rem"></i>
+                                                    <span>Your child pickup stop</span>
+                                                </div>
+                                            }
+                                        </div>
+                                        <span class="badge rounded-pill px-2 stop-status-badge ms-2" style="font-size:.7rem;@(stop.Status == "Departed" ? "background:#e6f4ea;color:#1e8e3e" : stop.Status == "Reached" ? "background:#e8f0fe;color:#1a73e8" : "background:#f1f3f4;color:#5f6368")">
                                             @stop.Status
                                         </span>
                                     </div>
@@ -188,11 +242,12 @@ else
             const IS_LIVE = @(isLive ? "true" : "false");
 
             const STOPS = [
-                            @foreach (var stop in stops.OrderBy(s => s.StopOrder))
+                @foreach (var stop in stops.OrderBy(s => s.StopOrder))
                 {
-                    @:{ id: @stop.StopId, name: "@JavaScriptEncoder.Default.Encode(stop.StopName)", order: @stop.StopOrder, status: "@stop.Status", lat: @(stop.Latitude ?? 0), lng: @(stop.Longitude ?? 0) },
+                    var isChild = selectedStudent?.StopId == stop.StopId || (selectedStudent?.Stop?.StopName != null && selectedStudent.Stop.StopName.Equals(stop.StopName, StringComparison.OrdinalIgnoreCase));
+                    @:{ id: @stop.StopId, name: "@JavaScriptEncoder.Default.Encode(stop.StopName)", order: @stop.StopOrder, status: "@stop.Status", lat: @(stop.Latitude ?? 0), lng: @(stop.Longitude ?? 0), isChildStop: @(isChild ? "true" : "false") },
                 }
-                        ];
+            ];
 
             const map = L.map('tripMap').setView([20.5937, 78.9629], 5);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -213,14 +268,31 @@ else
             validStops.forEach(s => {
                 const stopLatLng = [s.lat, s.lng];
                 bounds.extend(stopLatLng);
-                const color = s.status === 'Departed' ? '#1e8e3e' : s.status === 'Reached' ? '#1a73e8' : '#9aa0a6';
-                const stopIcon = L.divIcon({
-                    html: `<div style="background:${color};color:#fff;border:2px solid #fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;box-shadow:0 2px 6px rgba(0,0,0,.3)">${s.order}</div>`,
-                    iconSize: [26, 26], iconAnchor: [13, 13], className: ''
-                });
-                L.marker(stopLatLng, { icon: stopIcon, title: `Stop #${s.order}: ${s.name}` })
-                    .bindPopup(`<b>Stop #${s.order}</b><br>${s.name}<br><span style="color:${color}">${s.status}</span>`)
-                    .addTo(map);
+
+                if (s.isChildStop) {
+                    const childIcon = L.divIcon({
+                        html: `<div style="background:linear-gradient(135deg, #7c3aed 0%, #4c1d95 100%);color:#fef08a;border:3px solid #f59e0b;border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:16px;box-shadow:0 4px 12px rgba(124,58,237,.5)">🎒</div>`,
+                        iconSize: [36, 36], iconAnchor: [18, 18], className: ''
+                    });
+                    const childMarker = L.marker(stopLatLng, { icon: childIcon, zIndexOffset: 1500, title: `🎒 Pickup Stop: ${s.name}` }).addTo(map);
+                    childMarker.bindPopup(`
+                        <div style="font-family:sans-serif;padding:4px">
+                            <div style="color:#7c3aed;font-weight:700;font-size:13px">🎒 Child Pickup Stop</div>
+                            <div style="font-weight:bold;font-size:13px;margin-top:2px">Stop #${s.order}: ${s.name}</div>
+                            <div style="font-size:11px;color:#6b7280;margin-top:2px">Status: ${s.status}</div>
+                        </div>
+                    `);
+                    childMarker.openPopup();
+                } else {
+                    const color = s.status === 'Departed' ? '#1e8e3e' : s.status === 'Reached' ? '#1a73e8' : '#9aa0a6';
+                    const stopIcon = L.divIcon({
+                        html: `<div style="background:${color};color:#fff;border:2px solid #fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;box-shadow:0 2px 6px rgba(0,0,0,.3)">${s.order}</div>`,
+                        iconSize: [26, 26], iconAnchor: [13, 13], className: ''
+                    });
+                    L.marker(stopLatLng, { icon: stopIcon, title: `Stop #${s.order}: ${s.name}` })
+                        .bindPopup(`<b>Stop #${s.order}</b><br>${s.name}<br><span style="color:${color}">${s.status}</span>`)
+                        .addTo(map);
+                }
             });
 
             // Position bus at Stop #1 initially so bus is immediately visible on map
@@ -404,8 +476,15 @@ else
 }
 
 <style>
-    .spin-anim { animation: spin 0.6s linear infinite; }
-    @@keyframes spin { 100% { transform: rotate(360deg); } }
+    .spin-anim {
+        animation: spin 0.6s linear infinite;
+    }
+
+    @@keyframes spin {
+        100% {
+            transform: rotate(360deg);
+        }
+    }
 
     @@keyframes livePulse {
         0%, 100% {

@@ -114,7 +114,10 @@ namespace BusTracking.API.Controllers
         public async Task<IActionResult> TrackBus()
         {
             var student = await _db.Students
+                .Include(s => s.User)
+                .Include(s => s.Standard)
                 .Include(s => s.Bus)
+                .Include(s => s.Stop)
                 .FirstOrDefaultAsync(s => s.UserId == CurrentUserId);
 
             if (student?.BusId is null)
@@ -150,7 +153,19 @@ namespace BusTracking.API.Controllers
                 {
                     IsLive = false,
                     Message = "No active trip right now.",
-                    Bus = new { student.Bus!.BusName, student.Bus.BusNumber }
+                    Student = new
+                    {
+                        student.StudentId,
+                        student.StudentCode,
+                        FullName = student.User?.FullName ?? "",
+                        StandardName = student.Standard?.StandardName ?? "N/A",
+                        BusName = student.Bus!.BusName,
+                        BusNumber = student.Bus.BusNumber,
+                        StopId = student.StopId,
+                        StopName = student.Stop?.StopName
+                    },
+                    Bus = new { student.Bus!.BusName, student.Bus.BusNumber },
+                    StudentStop = student.Stop is null ? null : new { student.Stop.StopId, student.Stop.StopName }
                 }));
 
             var locObj = await _db.BusLiveLocations
@@ -200,13 +215,26 @@ namespace BusTracking.API.Controllers
             return Ok(ApiResponse<object>.Ok(new
             {
                 IsLive = true,
-                Trip = new { 
-                    trip.TripId, 
-                    TripType = trip.TripType.ToString(), 
+                Student = new
+                {
+                    student.StudentId,
+                    student.StudentCode,
+                    FullName = student.User?.FullName ?? "",
+                    StandardName = student.Standard?.StandardName ?? "N/A",
+                    BusName = student.Bus!.BusName,
+                    BusNumber = student.Bus.BusNumber,
+                    StopId = student.StopId,
+                    StopName = student.Stop?.StopName
+                },
+                Trip = new
+                {
+                    trip.TripId,
+                    TripType = trip.TripType.ToString(),
                     Status = trip.Status.ToString(),
                     DriverName = trip.Driver?.FullName ?? "Bus Driver"
                 },
                 Bus = new { student.Bus!.BusName, student.Bus.BusNumber },
+                StudentStop = student.Stop is null ? null : new { student.Stop.StopId, student.Stop.StopName },
                 Location = loc,
                 BoardingStatus = boarding?.BoardingStatus.ToString() ?? "Pending",
                 Stops = stops

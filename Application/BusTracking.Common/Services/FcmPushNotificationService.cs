@@ -13,7 +13,10 @@ namespace BusTracking.Common.Services
             _logger = logger;
         }
 
-        public async Task SendStudentPickedUpPushAsync(int tripId, int studentId, int stopId)
+        public Task SendStudentPickedUpPushAsync(int tripId, int studentId, int stopId)
+            => SendStudentBoardingStatusPushAsync(tripId, studentId, stopId, BoardingStatus.PickedUp);
+
+        public async Task SendStudentBoardingStatusPushAsync(int tripId, int studentId, int stopId, BoardingStatus status)
         {
             try
             {
@@ -62,8 +65,42 @@ namespace BusTracking.Common.Services
                 var busName = student.Bus?.BusName ?? "School Bus";
                 var studentName = studentUser?.FullName ?? "Student";
 
-                var title = "🎒 Student Picked Up!";
-                var body = $"{studentName} has been picked up at '{stopName}' on bus '{busName}'.";
+                string title;
+                string body;
+                NotificationType notifType;
+                string fcmType;
+
+                switch (status)
+                {
+                    case BoardingStatus.PickedUp:
+                        title = "🎒 Student Picked Up!";
+                        body = $"{studentName} has been picked up at '{stopName}' on bus '{busName}'.";
+                        notifType = NotificationType.StudentPickedUp;
+                        fcmType = "STUDENT_PICKED_UP";
+                        break;
+
+                    case BoardingStatus.NoShow:
+                        title = "⚠️ Student No-Show!";
+                        body = $"{studentName} was marked as No-Show at '{stopName}' on bus '{busName}'.";
+                        notifType = NotificationType.NoShow;
+                        fcmType = "STUDENT_NO_SHOW";
+                        break;
+
+                    case BoardingStatus.OnLeave:
+                        title = "🏖️ Student On Leave";
+                        body = $"{studentName} has been marked On-Leave for the bus trip.";
+                        notifType = NotificationType.Broadcast;
+                        fcmType = "STUDENT_ON_LEAVE";
+                        break;
+
+                    case BoardingStatus.Pending:
+                    default:
+                        title = "ℹ️ Student Status Updated";
+                        body = $"{studentName}'s boarding status has been set to '{status}'.";
+                        notifType = NotificationType.Broadcast;
+                        fcmType = "STUDENT_STATUS_UPDATED";
+                        break;
+                }
 
                 // 1. Save in-app notification records in DB for all target users
                 foreach (var userId in targetUserIds)
@@ -74,7 +111,7 @@ namespace BusTracking.Common.Services
                         RecipientUserId = userId,
                         Title = title,
                         Body = body,
-                        NotificationType = NotificationType.StudentPickedUp,
+                        NotificationType = notifType,
                         ReferenceId = tripId,
                         ReferenceType = "Trip",
                         IsRead = false,
@@ -100,12 +137,13 @@ namespace BusTracking.Common.Services
                     Notification = new FirebaseAdmin.Messaging.Notification { Title = title, Body = body },
                     Data = new Dictionary<string, string>
                     {
-                        ["type"] = "STUDENT_PICKED_UP",
+                        ["type"] = fcmType,
                         ["tripId"] = tripId.ToString(),
                         ["studentId"] = studentId.ToString(),
                         ["studentName"] = studentName,
                         ["stopName"] = stopName,
                         ["busName"] = busName,
+                        ["status"] = status.ToString(),
                         ["title"] = title,
                         ["body"] = body
                     }
@@ -115,12 +153,12 @@ namespace BusTracking.Common.Services
                 if (FirebaseMessaging.DefaultInstance != null)
                 {
                     var response = await FirebaseMessaging.DefaultInstance.SendEachForMulticastAsync(msg);
-                    _logger.LogInformation($"[FCM] Sent PickedUp push to {response.SuccessCount}/{tokens.Count} devices for Student #{studentId}.");
+                    _logger.LogInformation($"[FCM] Sent {status} push to {response.SuccessCount}/{tokens.Count} devices for Student #{studentId}.");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"[FCM] Error sending PickedUp push for Student #{studentId}: {ex.Message}");
+                _logger.LogError(ex, $"[FCM] Error sending {status} push for Student #{studentId}: {ex.Message}");
             }
         }
 

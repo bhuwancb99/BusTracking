@@ -201,78 +201,115 @@
             </Grid>
         </Border>
 
-        <!--  Row 1 - Selected student info strip  -->
+        <!--  Row 1 - Selected student info strip (3 Rows)  -->
         <Border
             Grid.Row="1"
             Margin="12,6,12,0"
+            Padding="14,10"
             BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                               Dark={StaticResource CardBgDark}}"
             Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                      Dark={StaticResource BorderColorDark}}"
-            StrokeShape="RoundRectangle 8"
+            StrokeShape="RoundRectangle 12"
             StrokeThickness="1">
-            <Grid
-                Padding="14,8"
-                ColumnDefinitions="Auto,*,Auto,Auto"
-                ColumnSpacing="10">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
 
+                <!--  Avatar Col 0  -->
                 <Border
                     Grid.Column="0"
                     BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
                                                       Dark={StaticResource StatBusBgDark}}"
-                    HeightRequest="32"
-                    StrokeShape="RoundRectangle 16"
+                    HeightRequest="42"
+                    StrokeShape="RoundRectangle 21"
                     StrokeThickness="0"
                     VerticalOptions="Center"
-                    WidthRequest="32">
+                    WidthRequest="42">
                     <Label
                         FontAttributes="Bold"
-                        FontSize="12"
+                        FontSize="15"
                         HorizontalOptions="Center"
                         Text="{Binding SelectedStudent.Initials, FallbackValue='?'}"
                         TextColor="{StaticResource Primary}"
                         VerticalOptions="Center" />
                 </Border>
 
+                <!--  3 Rows Stack Col 1  -->
                 <VerticalStackLayout
                     Grid.Column="1"
-                    Spacing="1"
+                    Spacing="4"
                     VerticalOptions="Center">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="13"
-                        Text="{Binding SelectedStudent.FullName, FallbackValue='No student'}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
-                    <Label
-                        FontSize="11"
-                        Text="{Binding SelectedStudent.StandardName, StringFormat='Class: {0}', FallbackValue='-'}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                    Dark={StaticResource TextSecondaryDark}}" />
+
+                    <!--  Row 1: Name Left + Bus Name and Number Pill Right  -->
+                    <Grid
+                        ColumnDefinitions="*,Auto"
+                        ColumnSpacing="8"
+                        VerticalOptions="Center">
+                        <Label
+                            Grid.Column="0"
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            LineBreakMode="TailTruncation"
+                            Text="{Binding SelectedStudent.FullName, FallbackValue='No student'}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}"
+                            VerticalOptions="Center" />
+
+                        <Border
+                            Grid.Column="1"
+                            Padding="8,3"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
+                                                              Dark={StaticResource StatBusBgDark}}"
+                            HorizontalOptions="End"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 8"
+                            VerticalOptions="Center">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                Text="{Binding SelectedStudent.BusDisplay}"
+                                TextColor="{StaticResource Primary}" />
+                        </Border>
+                    </Grid>
+
+                    <!--  Row 2: Class Left and Code Right  -->
+                    <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                        <Label
+                            Grid.Column="0"
+                            FontSize="12"
+                            Text="{Binding SelectedStudent.StandardName, StringFormat='Class: {0}', FallbackValue='-'}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}"
+                            VerticalOptions="Center" />
+                        <Label
+                            Grid.Column="1"
+                            FontAttributes="Bold"
+                            FontSize="11"
+                            Text="{Binding SelectedStudent.StudentCode}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                        Dark={StaticResource TextSecondaryDark}}"
+                            VerticalOptions="Center" />
+                    </Grid>
+
+                    <!--  Row 3: Assigned Stop Details with SVG pin  -->
+                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                        <Image
+                            HeightRequest="14"
+                            Source="map_pin.png"
+                            VerticalOptions="Center"
+                            WidthRequest="14">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                            </Image.Behaviors>
+                        </Image>
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            Text="{Binding SelectedStudent.StopName, StringFormat='Stop: {0}', FallbackValue='Stop: -'}"
+                            TextColor="{StaticResource Primary}"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
                 </VerticalStackLayout>
-
-                <Border
-                    Grid.Column="2"
-                    Padding="8,4"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
-                                                      Dark={StaticResource StatBusBgDark}}"
-                    Stroke="Transparent"
-                    StrokeShape="RoundRectangle 8"
-                    VerticalOptions="Center">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="11"
-                        Text="{Binding SelectedStudent.BusDisplay}"
-                        TextColor="{StaticResource Primary}" />
-                </Border>
-
-                <Label
-                    Grid.Column="3"
-                    FontSize="11"
-                    Text="{Binding SelectedStudent.StudentCode}"
-                    TextColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                Dark={StaticResource TextSecondaryDark}}"
-                    VerticalOptions="Center" />
 
             </Grid>
         </Border>
@@ -431,39 +468,64 @@
                                 </CollectionView.ItemsLayout>
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="tracking:StopStatus">
-                                        <Grid Padding="14,10" ColumnDefinitions="28,12,*,Auto">
+                                        <Grid Padding="14,10" ColumnDefinitions="32,12,*,Auto">
                                             <Border
                                                 Grid.Column="0"
                                                 BackgroundColor="{Binding StatusColor}"
-                                                HeightRequest="28"
-                                                StrokeShape="RoundRectangle 8"
+                                                HeightRequest="32"
+                                                StrokeShape="RoundRectangle 16"
                                                 StrokeThickness="0"
-                                                WidthRequest="28">
+                                                WidthRequest="32">
                                                 <Label
                                                     FontAttributes="Bold"
-                                                    FontSize="11"
+                                                    FontSize="12"
                                                     HorizontalOptions="Center"
                                                     Text="{Binding StopOrder}"
                                                     TextColor="White"
                                                     VerticalOptions="Center" />
                                             </Border>
-                                            <Label
+
+                                            <!--  Middle: Stop Name (Above) + SVG Image Child Pickup Info (Below)  -->
+                                            <VerticalStackLayout
                                                 Grid.Column="2"
-                                                FontAttributes="Bold"
-                                                FontSize="13"
-                                                Text="{Binding StopName}"
-                                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                                            Dark={StaticResource TextPrimaryDark}}"
-                                                VerticalOptions="Center" />
+                                                Spacing="3"
+                                                VerticalOptions="Center">
+                                                <Label
+                                                    FontAttributes="Bold"
+                                                    FontSize="13"
+                                                    Text="{Binding StopName}"
+                                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                                Dark={StaticResource TextPrimaryDark}}" />
+
+                                                <HorizontalStackLayout IsVisible="{Binding IsChildStop}" Spacing="5">
+                                                    <Image
+                                                        HeightRequest="14"
+                                                        Source="student.png"
+                                                        VerticalOptions="Center"
+                                                        WidthRequest="14">
+                                                        <Image.Behaviors>
+                                                            <mct:IconTintColorBehavior TintColor="#7c3aed" />
+                                                        </Image.Behaviors>
+                                                    </Image>
+                                                    <Label
+                                                        FontAttributes="Bold"
+                                                        FontSize="11"
+                                                        Text="Your child pickup stop"
+                                                        TextColor="#7c3aed"
+                                                        VerticalOptions="Center" />
+                                                </HorizontalStackLayout>
+                                            </VerticalStackLayout>
+
                                             <Border
                                                 Grid.Column="3"
-                                                Padding="8,3"
+                                                Padding="8,4"
                                                 BackgroundColor="{Binding StatusColor}"
                                                 StrokeShape="RoundRectangle 8"
                                                 StrokeThickness="0"
                                                 VerticalOptions="Center">
                                                 <Label
-                                                    FontSize="10"
+                                                    FontAttributes="Bold"
+                                                    FontSize="11"
                                                     Text="{Binding Status}"
                                                     TextColor="White" />
                                             </Border>

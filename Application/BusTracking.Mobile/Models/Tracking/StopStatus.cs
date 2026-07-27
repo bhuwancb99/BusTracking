@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Models.Tracking
+namespace BusTracking.Mobile.Models.Tracking
 {
     public class StopStatus
     {
@@ -11,11 +11,16 @@
         public DateTime? ReachedAt { get; set; }
         public DateTime? DepartedAt { get; set; }
 
-        public Color StatusColor => Status switch
-        {
-            "Reached" => Color.FromArgb("#1a73e8"),
-            "Departed" => Color.FromArgb("#1e8e3e"),
-            _ => Colors.Gray
-        };
+        public bool IsChildStop { get; set; }
+        public string? ChildStudentName { get; set; }
+
+        public Color StatusColor => IsChildStop
+            ? Color.FromArgb("#7c3aed")
+            : Status switch
+            {
+                "Reached" => Color.FromArgb("#1a73e8"),
+                "Departed" => Color.FromArgb("#1e8e3e"),
+                _ => Colors.Gray
+            };
     }
 }

@@ -6,11 +6,11 @@ namespace BusTracking.Mobile.Viewmodels.Student
         private System.Timers.Timer? _pollTimer;
 
         [ObservableProperty] private TrackingData? _tracking;
-        [ObservableProperty] private string _statusText = "Loading…";
-        [ObservableProperty] private string _speedText = "– km/h";
+        [ObservableProperty] private LinkedStudent? _student;
+        [ObservableProperty] private string _statusLabel = "Loading…";
         [ObservableProperty] private bool _isLive;
-        [ObservableProperty] private double _busLat;
-        [ObservableProperty] private double _busLng;
+        [ObservableProperty] private double _busLatitude;
+        [ObservableProperty] private double _busLongitude;
         [ObservableProperty] private ObservableCollection<StopStatus> _stops = [];
         [ObservableProperty] private bool _isSheetExpanded;
 
@@ -37,21 +37,41 @@ namespace BusTracking.Mobile.Viewmodels.Student
             {
                 Tracking = data;
                 IsLive = data?.IsLive ?? false;
-                StatusText = IsLive
-                    ? $"🚌 {data?.Bus?.BusNumber} is on the way"
-                    : data?.Message ?? "No active trip";
+
+                if (data?.Student != null)
+                {
+                    Student = data.Student;
+                }
 
                 if (IsLive && data?.Location is not null)
                 {
-                    BusLat = (double)data.Location.Latitude;
-                    BusLng = (double)data.Location.Longitude;
-                    SpeedText = data.Location.SpeedDisplay;
+                    BusLatitude = (double)data.Location.Latitude;
+                    BusLongitude = (double)data.Location.Longitude;
+                    StatusLabel = $"{data.Bus?.BusNumber ?? data.Bus?.BusName ?? "Bus"} — Moving";
                     SendToMap?.Invoke($"window.moveBus({data.Location.Latitude:F6}, {data.Location.Longitude:F6}, 0)");
                 }
-
-                if (data?.Stops?.Any() == true)
+                else
                 {
+                    StatusLabel = data?.Message ?? "No active trip";
+                }
+
+                if (data?.Stops != null && data.Stops.Any())
+                {
+                    var childStopName = Student?.StopName ?? data.StudentStop?.StopName;
+                    var childStopId = Student?.StopId ?? data.StudentStop?.StopId;
+
+                    foreach (var s in data.Stops)
+                    {
+                        if ((childStopId.HasValue && childStopId.Value > 0 && s.StopId == childStopId.Value) ||
+                            (!string.IsNullOrEmpty(childStopName) && s.StopName.Equals(childStopName, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            s.IsChildStop = true;
+                            s.ChildStudentName = Student?.FullName ?? "Your";
+                        }
+                    }
+
                     Stops = new ObservableCollection<StopStatus>(data.Stops);
+
                     var json = JsonSerializer.Serialize(
                         data.Stops.Select(s => new
                         {
@@ -59,7 +79,9 @@ namespace BusTracking.Mobile.Viewmodels.Student
                             lng = s.Longitude,
                             label = s.StopName,
                             order = s.StopOrder,
-                            status = s.Status
+                            status = s.Status,
+                            isChildStop = s.IsChildStop,
+                            childName = s.ChildStudentName ?? "Your"
                         }));
                     SendToMap?.Invoke($"window.setRouteStops({json})");
                 }

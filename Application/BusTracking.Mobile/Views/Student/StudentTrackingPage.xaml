@@ -33,13 +33,13 @@
         </Grid>
     </Shell.TitleView>
 
-    <!--  Full-screen layout: Top status bar + Map fills middle + BottomSheet for Route Stops  -->
-    <Grid RowDefinitions="Auto,*,Auto">
+    <!--  Full-screen layout: Top status bar + Student Info Strip + Map fills middle + BottomSheet for Route Stops  -->
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
 
         <!--  Row 0 - Live status bar  -->
         <Border
             Grid.Row="0"
-            Margin="12,12,12,6"
+            Margin="12,8,12,4"
             BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                               Dark={StaticResource CardBgDark}}"
             Stroke="{AppThemeBinding Light={StaticResource BorderColor},
@@ -47,18 +47,18 @@
             StrokeShape="RoundRectangle 16"
             StrokeThickness="1">
             <Grid
-                Padding="14,12"
+                Padding="14,10"
                 ColumnDefinitions="Auto,*,Auto"
                 ColumnSpacing="12">
                 <Border
                     Grid.Column="0"
                     BackgroundColor="{AppThemeBinding Light={StaticResource StatTripBg},
                                                       Dark={StaticResource StatTripBgDark}}"
-                    HeightRequest="42"
+                    HeightRequest="40"
                     StrokeShape="RoundRectangle 8"
                     StrokeThickness="0"
                     VerticalOptions="Center"
-                    WidthRequest="42">
+                    WidthRequest="40">
                     <Image
                         HeightRequest="22"
                         HorizontalOptions="Center"
@@ -70,26 +70,27 @@
                         </Image.Behaviors>
                     </Image>
                 </Border>
+
                 <VerticalStackLayout
                     Grid.Column="1"
-                    Margin="0"
-                    Spacing="3"
+                    Spacing="2"
                     VerticalOptions="Center">
                     <Label
                         FontAttributes="Bold"
-                        FontSize="15"
-                        Text="{Binding StatusText}"
+                        FontSize="14"
+                        Text="{Binding StatusLabel}"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
                     <Label
                         FontSize="12"
-                        Text="{Binding SpeedText}"
+                        Text="{Binding Tracking.BoardingStatus, StringFormat='Boarding: {0}', FallbackValue='Boarding: Pending'}"
                         TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                     Dark={StaticResource TextSecondaryDark}}" />
                 </VerticalStackLayout>
+
                 <Border
                     Grid.Column="2"
-                    Padding="10,5"
+                    Padding="10,4"
                     StrokeShape="RoundRectangle 20"
                     StrokeThickness="0"
                     VerticalOptions="Center">
@@ -107,7 +108,7 @@
                             <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource BorderColor}, Dark={StaticResource StatTripBgDark}}" />
                         </DataTrigger>
                     </Border.Triggers>
-                    <Label FontAttributes="Bold" FontSize="12">
+                    <Label FontAttributes="Bold" FontSize="11">
                         <Label.Triggers>
                             <DataTrigger
                                 Binding="{Binding IsLive}"
@@ -129,9 +130,122 @@
             </Grid>
         </Border>
 
-        <!--  Row 1 - Full Height Interactive Map  -->
+        <!--  Row 1 - Selected student info strip (3 Rows)  -->
         <Border
             Grid.Row="1"
+            Margin="12,4,12,4"
+            Padding="14,10"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                              Dark={StaticResource CardBgDark}}"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                     Dark={StaticResource BorderColorDark}}"
+            StrokeShape="RoundRectangle 12"
+            StrokeThickness="1">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+
+                <!--  Avatar Col 0  -->
+                <Border
+                    Grid.Column="0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
+                                                      Dark={StaticResource StatBusBgDark}}"
+                    HeightRequest="42"
+                    StrokeShape="RoundRectangle 21"
+                    StrokeThickness="0"
+                    VerticalOptions="Center"
+                    WidthRequest="42">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="15"
+                        HorizontalOptions="Center"
+                        Text="{Binding Student.Initials, FallbackValue='?'}"
+                        TextColor="{StaticResource Primary}"
+                        VerticalOptions="Center" />
+                </Border>
+
+                <!--  3 Rows Stack Col 1  -->
+                <VerticalStackLayout
+                    Grid.Column="1"
+                    Spacing="4"
+                    VerticalOptions="Center">
+
+                    <!--  Row 1: Name Left + Bus Name and Number Pill Right  -->
+                    <Grid
+                        ColumnDefinitions="*,Auto"
+                        ColumnSpacing="8"
+                        VerticalOptions="Center">
+                        <Label
+                            Grid.Column="0"
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            LineBreakMode="TailTruncation"
+                            Text="{Binding Student.FullName, FallbackValue='Student'}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}"
+                            VerticalOptions="Center" />
+
+                        <Border
+                            Grid.Column="1"
+                            Padding="8,3"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource StatBusBg},
+                                                              Dark={StaticResource StatBusBgDark}}"
+                            HorizontalOptions="End"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 8"
+                            VerticalOptions="Center">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                Text="{Binding Student.BusDisplay}"
+                                TextColor="{StaticResource Primary}" />
+                        </Border>
+                    </Grid>
+
+                    <!--  Row 2: Class Left and Code Right  -->
+                    <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                        <Label
+                            Grid.Column="0"
+                            FontSize="12"
+                            Text="{Binding Student.StandardName, StringFormat='Class: {0}', FallbackValue='-'}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}"
+                            VerticalOptions="Center" />
+                        <Label
+                            Grid.Column="1"
+                            FontAttributes="Bold"
+                            FontSize="11"
+                            Text="{Binding Student.StudentCode}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                        Dark={StaticResource TextSecondaryDark}}"
+                            VerticalOptions="Center" />
+                    </Grid>
+
+                    <!--  Row 3: Assigned Stop Details with SVG pin  -->
+                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                        <Image
+                            HeightRequest="14"
+                            Source="map_pin.png"
+                            VerticalOptions="Center"
+                            WidthRequest="14">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                            </Image.Behaviors>
+                        </Image>
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            Text="{Binding Student.StopName, StringFormat='Stop: {0}', FallbackValue='Stop: -'}"
+                            TextColor="{StaticResource Primary}"
+                            VerticalOptions="Center" />
+                    </HorizontalStackLayout>
+
+                </VerticalStackLayout>
+
+            </Grid>
+        </Border>
+
+        <!--  Row 2 - Full Height Interactive Map  -->
+        <Border
+            Grid.Row="2"
             Margin="12,2"
             BackgroundColor="{AppThemeBinding Light={StaticResource BorderColor},
                                               Dark={StaticResource BorderColorDark}}"
@@ -148,9 +262,9 @@
             </Grid>
         </Border>
 
-        <!--  Row 2 - Bottom Bar handle to expand Route Stops  -->
+        <!--  Row 3 - Bottom Bar handle to expand Route Stops  -->
         <Border
-            Grid.Row="2"
+            Grid.Row="3"
             Margin="12,4,12,12"
             Padding="16,12"
             BackgroundColor="{AppThemeBinding Light=White,
@@ -201,7 +315,7 @@
         <!--  SYNCFUSION BOTTOM SHEET for Route Stops  -->
         <sfBottomSheet:SfBottomSheet
             x:Name="StopsBottomSheet"
-            Grid.RowSpan="3"
+            Grid.RowSpan="4"
             Background="{AppThemeBinding Light=White,
                                          Dark={StaticResource CardBgDark}}"
             CornerRadius="24"
@@ -283,39 +397,64 @@
                                 </CollectionView.ItemsLayout>
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate x:DataType="tracking:StopStatus">
-                                        <Grid Padding="14,10" ColumnDefinitions="28,12,*,Auto">
+                                        <Grid Padding="14,10" ColumnDefinitions="32,12,*,Auto">
                                             <Border
                                                 Grid.Column="0"
                                                 BackgroundColor="{Binding StatusColor}"
-                                                HeightRequest="28"
-                                                StrokeShape="RoundRectangle 8"
+                                                HeightRequest="32"
+                                                StrokeShape="RoundRectangle 16"
                                                 StrokeThickness="0"
-                                                WidthRequest="28">
+                                                WidthRequest="32">
                                                 <Label
                                                     FontAttributes="Bold"
-                                                    FontSize="11"
+                                                    FontSize="12"
                                                     HorizontalOptions="Center"
                                                     Text="{Binding StopOrder}"
                                                     TextColor="White"
                                                     VerticalOptions="Center" />
                                             </Border>
-                                            <Label
+
+                                            <!--  Middle: Stop Name (Above) + SVG Image Child Pickup Info (Below)  -->
+                                            <VerticalStackLayout
                                                 Grid.Column="2"
-                                                FontAttributes="Bold"
-                                                FontSize="13"
-                                                Text="{Binding StopName}"
-                                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                                            Dark={StaticResource TextPrimaryDark}}"
-                                                VerticalOptions="Center" />
+                                                Spacing="3"
+                                                VerticalOptions="Center">
+                                                <Label
+                                                    FontAttributes="Bold"
+                                                    FontSize="13"
+                                                    Text="{Binding StopName}"
+                                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                                Dark={StaticResource TextPrimaryDark}}" />
+
+                                                <HorizontalStackLayout IsVisible="{Binding IsChildStop}" Spacing="5">
+                                                    <Image
+                                                        HeightRequest="14"
+                                                        Source="student.png"
+                                                        VerticalOptions="Center"
+                                                        WidthRequest="14">
+                                                        <Image.Behaviors>
+                                                            <mct:IconTintColorBehavior TintColor="#7c3aed" />
+                                                        </Image.Behaviors>
+                                                    </Image>
+                                                    <Label
+                                                        FontAttributes="Bold"
+                                                        FontSize="11"
+                                                        Text="Your pickup stop"
+                                                        TextColor="#7c3aed"
+                                                        VerticalOptions="Center" />
+                                                </HorizontalStackLayout>
+                                            </VerticalStackLayout>
+
                                             <Border
                                                 Grid.Column="3"
-                                                Padding="8,3"
+                                                Padding="8,4"
                                                 BackgroundColor="{Binding StatusColor}"
                                                 StrokeShape="RoundRectangle 8"
                                                 StrokeThickness="0"
                                                 VerticalOptions="Center">
                                                 <Label
-                                                    FontSize="10"
+                                                    FontAttributes="Bold"
+                                                    FontSize="11"
                                                     Text="{Binding Status}"
                                                     TextColor="White" />
                                             </Border>

@@ -37,6 +37,10 @@ namespace BusTracking.API.Controllers
                 FullName = ps.Student.User.FullName,
                 StandardName = ps.Student.Standard?.StandardName ?? "N/A",
                 ProfileImageUrl = ps.Student.User.ProfileImageUrl,  // ← NEW
+                BusName = ps.Student.Bus?.BusName,
+                BusNumber = ps.Student.Bus?.BusNumber,
+                StopId = ps.Student.StopId,
+                StopName = ps.Student.Stop?.StopName,
                 Bus = ps.Student.Bus is null ? null : new
                 {
                     ps.Student.Bus.BusId,
@@ -136,7 +140,7 @@ namespace BusTracking.API.Controllers
                                         && ps.ParentId == parentDetail.ParentId);
             if (link is null) return Forbid();
 
-            var student = await _db.Students.Include(s => s.Bus)
+            var student = await _db.Students.Include(s => s.Bus).Include(s => s.Stop)
                 .FirstOrDefaultAsync(s => s.StudentId == studentId);
 
             if (student?.BusId is null)
@@ -172,7 +176,8 @@ namespace BusTracking.API.Controllers
                 {
                     IsLive = false,
                     Message = "No active trip right now.",
-                    Bus = new { student.Bus!.BusName, student.Bus.BusNumber }
+                    Bus = new { student.Bus!.BusName, student.Bus.BusNumber },
+                    StudentStop = student.Stop is null ? null : new { student.Stop.StopId, student.Stop.StopName }
                 }));
 
             var locObj = await _db.BusLiveLocations
@@ -230,6 +235,7 @@ namespace BusTracking.API.Controllers
                     DriverName = trip.Driver?.FullName ?? "Bus Driver"
                 },
                 Bus = new { student.Bus!.BusName, student.Bus.BusNumber },
+                StudentStop = student.Stop is null ? null : new { student.Stop.StopId, student.Stop.StopName },
                 Location = loc,
                 BoardingStatus = boarding?.BoardingStatus.ToString() ?? "Pending",
                 Stops = stops

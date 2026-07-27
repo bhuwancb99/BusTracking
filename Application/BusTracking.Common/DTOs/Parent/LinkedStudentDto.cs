@@ -9,5 +9,7 @@ namespace BusTracking.Common.DTOs.Parent
         public string? StandardName { get; set; }
         public string? BusNumber { get; set; }
         public string? BusName { get; set; }
+        public int? StopId { get; set; }
+        public string? StopName { get; set; }
     }
 }

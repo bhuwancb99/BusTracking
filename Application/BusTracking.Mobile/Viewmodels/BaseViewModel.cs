@@ -85,8 +85,15 @@ public abstract partial class BaseViewModel : ObservableObject
                 iconSource = "delete.png";
                 acceptColor = Color.FromArgb("#ba1a1a");
             }
+            else if (title.Contains("End", StringComparison.OrdinalIgnoreCase) || title.Contains("Stop", StringComparison.OrdinalIgnoreCase))
+            {
+                iconSource = "end_trip.png";
+                acceptColor = Color.FromArgb("#dc2626");
+                if (accept == "Yes") accept = "Yes, End Trip";
+            }
             else
             {
+                iconSource = "info.png";
                 acceptColor = Color.FromArgb("#512BD4"); // Primary
             }
 

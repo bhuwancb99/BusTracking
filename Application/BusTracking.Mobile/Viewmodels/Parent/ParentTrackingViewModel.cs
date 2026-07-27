@@ -108,11 +108,28 @@ namespace BusTracking.Mobile.Viewmodels.Parent
                 Tracking = data;
                 IsLive = data?.IsLive ?? false;
 
+                if (SelectedStudent != null)
+                {
+                    if (string.IsNullOrEmpty(SelectedStudent.StopName) && data?.StudentStop?.StopName != null)
+                    {
+                        SelectedStudent.StopName = data.StudentStop.StopName;
+                        if (data.StudentStop.StopId > 0) SelectedStudent.StopId = data.StudentStop.StopId;
+                    }
+
+                    if (string.IsNullOrEmpty(SelectedStudent.BusName) && data?.Bus?.BusName != null)
+                    {
+                        SelectedStudent.BusName = data.Bus.BusName;
+                        SelectedStudent.BusNumber = data.Bus.BusNumber;
+                    }
+
+                    OnPropertyChanged(nameof(SelectedStudent));
+                }
+
                 if (IsLive && data?.Location is not null)
                 {
                     BusLatitude = (double)data.Location.Latitude;
                     BusLongitude = (double)data.Location.Longitude;
-                    StatusLabel = $"{data.Bus?.BusNumber} — Moving";
+                    StatusLabel = $"{data.Bus?.BusNumber ?? data.Bus?.BusName ?? "Bus"} — Moving";
                     SendToMap?.Invoke($"window.moveBus({data.Location.Latitude:F6}, {data.Location.Longitude:F6}, 0)");
                 }
                 else
@@ -122,6 +139,19 @@ namespace BusTracking.Mobile.Viewmodels.Parent
 
                 if (data?.Stops != null && data.Stops.Any())
                 {
+                    var childStopName = SelectedStudent?.StopName;
+                    var childStopId = SelectedStudent?.StopId;
+
+                    foreach (var s in data.Stops)
+                    {
+                        if ((childStopId.HasValue && childStopId.Value > 0 && s.StopId == childStopId.Value) ||
+                            (!string.IsNullOrEmpty(childStopName) && s.StopName.Equals(childStopName, StringComparison.OrdinalIgnoreCase)))
+                        {
+                            s.IsChildStop = true;
+                            s.ChildStudentName = SelectedStudent?.FullName;
+                        }
+                    }
+
                     var json = JsonSerializer.Serialize(
                         data.Stops.Select(s => new
                         {
@@ -129,7 +159,9 @@ namespace BusTracking.Mobile.Viewmodels.Parent
                             lng = s.Longitude,
                             label = s.StopName,
                             order = s.StopOrder,
-                            status = s.Status
+                            status = s.Status,
+                            isChildStop = s.IsChildStop,
+                            childName = s.ChildStudentName ?? ""
                         }));
                     SendToMap?.Invoke($"window.setRouteStops({json})");
                 }

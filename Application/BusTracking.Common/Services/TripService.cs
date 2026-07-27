@@ -533,10 +533,7 @@ namespace BusTracking.Common.Services
                 s.UpdatedAt = DateTime.UtcNow;
             }
             await _db.SaveChangesAsync();
-            if (bs == BoardingStatus.PickedUp)
-            {
-                _ = _fcm.SendStudentPickedUpPushAsync(tripId, studentId, stopId);
-            }
+            _ = _fcm.SendStudentBoardingStatusPushAsync(tripId, studentId, stopId, bs);
             return ApiResponse<bool>.Ok(true, "Boarding status updated.");
         }
 
