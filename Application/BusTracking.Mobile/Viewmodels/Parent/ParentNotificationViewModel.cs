@@ -7,6 +7,12 @@ namespace BusTracking.Mobile.Viewmodels.Parent
         [ObservableProperty] private ObservableCollection<NotificationItem> _items = [];
         [ObservableProperty] private DateTime _fromDate = DateTime.Today;
         [ObservableProperty] private DateTime _toDate = DateTime.Today;
+
+        [ObservableProperty] private bool _isFromDateCalendarOpen;
+        [RelayCommand] private void OpenFromDateCalendar() => IsFromDateCalendarOpen = true;
+
+        [ObservableProperty] private bool _isToDateCalendarOpen;
+        [RelayCommand] private void OpenToDateCalendar() => IsToDateCalendarOpen = true;
         [ObservableProperty] private int _pageNumber = 1;
         [ObservableProperty] private int _totalPages = 1;
         [ObservableProperty] private int _totalCount;

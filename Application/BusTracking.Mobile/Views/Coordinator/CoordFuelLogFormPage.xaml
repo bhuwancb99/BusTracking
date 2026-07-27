@@ -3,6 +3,7 @@
     x:Class="BusTracking.Mobile.Views.Coordinator.CoordFuelLogFormPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:common="clr-namespace:BusTracking.Mobile.Views.Common"
     xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
@@ -25,265 +26,297 @@
             VerticalOptions="Center" />
     </Shell.TitleView>
 
-    <ScrollView>
-        <VerticalStackLayout Padding="16,16,16,32" Spacing="14">
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout Padding="16,16,16,32" Spacing="14">
 
-            <!--  Error Banner  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight},
-                                                  Dark={StaticResource ErrorBannerBgDark}}"
-                IsVisible="{Binding HasError}"
-                Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
-                                         Dark={StaticResource ErrorBannerBorderDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <Label
-                    Padding="12,10"
-                    FontSize="13"
-                    Text="{Binding ErrorMessage}"
-                    TextColor="{StaticResource Danger}" />
-            </Border>
-
-            <!--  Bus Selector  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
-                                                  Dark={StaticResource CardBgDark}}"
-                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                         Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <VerticalStackLayout Padding="16" Spacing="8">
+                <!--  Error Banner  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight},
+                                                      Dark={StaticResource ErrorBannerBgDark}}"
+                    IsVisible="{Binding HasError}"
+                    Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
+                                             Dark={StaticResource ErrorBannerBorderDark}}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
                     <Label
+                        Padding="12,10"
+                        FontSize="13"
+                        Text="{Binding ErrorMessage}"
+                        TextColor="{StaticResource Danger}" />
+                </Border>
+
+                <!--  Bus Selector  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <VerticalStackLayout Padding="16" Spacing="8">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Select Bus" />
+                                    <Span Text="*" TextColor="{StaticResource Danger}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Picker
+                            Title="Select a bus…"
+                            BackgroundColor="Transparent"
+                            ItemDisplayBinding="{Binding BusNumber}"
+                            ItemsSource="{Binding BusOptions}"
+                            SelectedItem="{Binding SelectedBus}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}"
+                            TitleColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                         Dark={StaticResource TextSecondaryDark}}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Odometer Reading  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <VerticalStackLayout Padding="16" Spacing="8">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Odometer Reading (km)" />
+                                    <Span Text="*" TextColor="{StaticResource Danger}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Entry
+                            BackgroundColor="Transparent"
+                            Keyboard="Numeric"
+                            Placeholder="e.g. 15400"
+                            PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                               Dark={StaticResource TextSecondaryDark}}"
+                            Text="{Binding OdometerReading}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Fuel Liters  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <VerticalStackLayout Padding="16" Spacing="8">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Fuel Liters" />
+                                    <Span Text="*" TextColor="{StaticResource Danger}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Entry
+                            BackgroundColor="Transparent"
+                            Keyboard="Numeric"
+                            Placeholder="e.g. 45.5"
+                            PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                               Dark={StaticResource TextSecondaryDark}}"
+                            Text="{Binding FuelLiters}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Total Cost  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <VerticalStackLayout Padding="16" Spacing="8">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Total Cost" />
+                                    <Span Text="*" TextColor="{StaticResource Danger}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Entry
+                            BackgroundColor="Transparent"
+                            Keyboard="Numeric"
+                            Placeholder="e.g. 120.00"
+                            PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                               Dark={StaticResource TextSecondaryDark}}"
+                            Text="{Binding TotalCost}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Fuel Date Card  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <VerticalStackLayout Padding="16" Spacing="8">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Fuel Date" />
+                                    <Span Text="*" TextColor="{StaticResource Danger}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Border
+                            BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                                              Dark={StaticResource PageBgDark}}"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                     Dark={StaticResource BorderColorDark}}"
+                            StrokeShape="RoundRectangle 6"
+                            StrokeThickness="1">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenFuelDateCalendarCommand}" />
+                            </Border.GestureRecognizers>
+                            <Grid Padding="12,10" ColumnDefinitions="*,Auto">
+                                <Label
+                                    Grid.Column="0"
+                                    FontSize="14"
+                                    Text="{Binding FuelDate, StringFormat='{0:yyyy-MM-dd}'}"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                Dark={StaticResource TextPrimaryDark}}"
+                                    VerticalOptions="Center" />
+                                <Image
+                                    Grid.Column="1"
+                                    HeightRequest="18"
+                                    Source="calendar_icon.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="18">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Notes  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <VerticalStackLayout Padding="16" Spacing="8">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            Text="Notes"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                        <Editor
+                            BackgroundColor="Transparent"
+                            HeightRequest="80"
+                            Placeholder="Optional notes…"
+                            PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                               Dark={StaticResource TextSecondaryDark}}"
+                            Text="{Binding Notes}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Action Buttons  -->
+                <Grid
+                    Margin="0,8,0,0"
+                    ColumnDefinitions="*,*"
+                    ColumnSpacing="12">
+                    <Button
+                        Grid.Column="0"
+                        BackgroundColor="White"
+                        BorderColor="{AppThemeBinding Light={StaticResource BorderColor},
+                                                      Dark={StaticResource BorderColorDark}}"
+                        BorderWidth="1.5"
+                        Command="{Binding CancelCommand}"
+                        CornerRadius="8"
                         FontAttributes="Bold"
-                        FontSize="12"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}">
-                        <Label.FormattedText>
-                            <FormattedString>
-                                <Span Text="Select Bus" />
-                                <Span Text="*" TextColor="{StaticResource Danger}" />
-                            </FormattedString>
-                        </Label.FormattedText>
-                    </Label>
-                    <Picker
-                        Title="Select a bus…"
-                        BackgroundColor="Transparent"
-                        ItemDisplayBinding="{Binding BusNumber}"
-                        ItemsSource="{Binding BusOptions}"
-                        SelectedItem="{Binding SelectedBus}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}"
-                        TitleColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                     Dark={StaticResource TextSecondaryDark}}" />
-                </VerticalStackLayout>
-            </Border>
-
-            <!--  Odometer Reading  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
-                                                  Dark={StaticResource CardBgDark}}"
-                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                         Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <VerticalStackLayout Padding="16" Spacing="8">
-                    <Label
+                        HeightRequest="50"
+                        Text="Cancel"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                    <Button
+                        Grid.Column="1"
+                        BackgroundColor="{StaticResource Primary}"
+                        Command="{Binding SaveCommand}"
+                        CornerRadius="8"
                         FontAttributes="Bold"
-                        FontSize="12"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}">
-                        <Label.FormattedText>
-                            <FormattedString>
-                                <Span Text="Odometer Reading (km)" />
-                                <Span Text="*" TextColor="{StaticResource Danger}" />
-                            </FormattedString>
-                        </Label.FormattedText>
-                    </Label>
-                    <Entry
-                        BackgroundColor="Transparent"
-                        Keyboard="Numeric"
-                        Placeholder="e.g. 15400"
-                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                           Dark={StaticResource TextSecondaryDark}}"
-                        Text="{Binding OdometerReading}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
-                </VerticalStackLayout>
-            </Border>
+                        HeightRequest="50"
+                        TextColor="White">
+                        <Button.Triggers>
+                            <DataTrigger
+                                Binding="{Binding IsBusy}"
+                                TargetType="Button"
+                                Value="True">
+                                <Setter Property="Text" Value="Saving…" />
+                                <Setter Property="IsEnabled" Value="False" />
+                            </DataTrigger>
+                            <DataTrigger
+                                Binding="{Binding IsEditMode}"
+                                TargetType="Button"
+                                Value="True">
+                                <Setter Property="Text" Value="Update Fuel Log" />
+                            </DataTrigger>
+                            <DataTrigger
+                                Binding="{Binding IsEditMode}"
+                                TargetType="Button"
+                                Value="False">
+                                <Setter Property="Text" Value="Add Fuel Log" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                </Grid>
 
-            <!--  Fuel Liters  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
-                                                  Dark={StaticResource CardBgDark}}"
-                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                         Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <VerticalStackLayout Padding="16" Spacing="8">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="12"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}">
-                        <Label.FormattedText>
-                            <FormattedString>
-                                <Span Text="Fuel Liters" />
-                                <Span Text="*" TextColor="{StaticResource Danger}" />
-                            </FormattedString>
-                        </Label.FormattedText>
-                    </Label>
-                    <Entry
-                        BackgroundColor="Transparent"
-                        Keyboard="Numeric"
-                        Placeholder="e.g. 45.5"
-                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                           Dark={StaticResource TextSecondaryDark}}"
-                        Text="{Binding FuelLiters}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
-                </VerticalStackLayout>
-            </Border>
+            </VerticalStackLayout>
+        </ScrollView>
 
-            <!--  Total Cost  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
-                                                  Dark={StaticResource CardBgDark}}"
-                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                         Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <VerticalStackLayout Padding="16" Spacing="8">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="12"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}">
-                        <Label.FormattedText>
-                            <FormattedString>
-                                <Span Text="Total Cost" />
-                                <Span Text="*" TextColor="{StaticResource Danger}" />
-                            </FormattedString>
-                        </Label.FormattedText>
-                    </Label>
-                    <Entry
-                        BackgroundColor="Transparent"
-                        Keyboard="Numeric"
-                        Placeholder="e.g. 120.00"
-                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                           Dark={StaticResource TextSecondaryDark}}"
-                        Text="{Binding TotalCost}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
-                </VerticalStackLayout>
-            </Border>
-
-            <!--  Fuel Date  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
-                                                  Dark={StaticResource CardBgDark}}"
-                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                         Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <VerticalStackLayout Padding="16" Spacing="8">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="12"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}">
-                        <Label.FormattedText>
-                            <FormattedString>
-                                <Span Text="Fuel Date" />
-                                <Span Text="*" TextColor="{StaticResource Danger}" />
-                            </FormattedString>
-                        </Label.FormattedText>
-                    </Label>
-                    <DatePicker
-                        BackgroundColor="Transparent"
-                        Date="{Binding FuelDate}"
-                        Format="yyyy-MM-dd"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
-                </VerticalStackLayout>
-            </Border>
-
-            <!--  Notes  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
-                                                  Dark={StaticResource CardBgDark}}"
-                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                         Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <VerticalStackLayout Padding="16" Spacing="8">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="12"
-                        Text="Notes"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
-                    <Editor
-                        BackgroundColor="Transparent"
-                        HeightRequest="80"
-                        Placeholder="Optional notes…"
-                        PlaceholderColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                           Dark={StaticResource TextSecondaryDark}}"
-                        Text="{Binding Notes}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
-                </VerticalStackLayout>
-            </Border>
-
-            <!--  Action Buttons  -->
-            <Grid
-                Margin="0,8,0,0"
-                ColumnDefinitions="*,*"
-                ColumnSpacing="12">
-                <Button
-                    Grid.Column="0"
-                    BackgroundColor="White"
-                    BorderColor="{AppThemeBinding Light={StaticResource BorderColor},
-                                                  Dark={StaticResource BorderColorDark}}"
-                    BorderWidth="1.5"
-                    Command="{Binding CancelCommand}"
-                    CornerRadius="8"
-                    FontAttributes="Bold"
-                    HeightRequest="50"
-                    Text="Cancel"
-                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                Dark={StaticResource TextSecondaryDark}}" />
-                <Button
-                    Grid.Column="1"
-                    BackgroundColor="{StaticResource Primary}"
-                    Command="{Binding SaveCommand}"
-                    CornerRadius="8"
-                    FontAttributes="Bold"
-                    HeightRequest="50"
-                    TextColor="White">
-                    <Button.Triggers>
-                        <DataTrigger
-                            Binding="{Binding IsBusy}"
-                            TargetType="Button"
-                            Value="True">
-                            <Setter Property="Text" Value="Saving…" />
-                            <Setter Property="IsEnabled" Value="False" />
-                        </DataTrigger>
-                        <DataTrigger
-                            Binding="{Binding IsEditMode}"
-                            TargetType="Button"
-                            Value="True">
-                            <Setter Property="Text" Value="Update Fuel Log" />
-                        </DataTrigger>
-                        <DataTrigger
-                            Binding="{Binding IsEditMode}"
-                            TargetType="Button"
-                            Value="False">
-                            <Setter Property="Text" Value="Add Fuel Log" />
-                        </DataTrigger>
-                    </Button.Triggers>
-                </Button>
-            </Grid>
-
-        </VerticalStackLayout>
-    </ScrollView>
+        <!--  Shared Calendar Popup  -->
+        <common:CalendarPickerPopup
+            Title="Select Fuel Date"
+            IsOpen="{Binding IsFuelDateCalendarOpen, Mode=TwoWay}"
+            SelectedDate="{Binding FuelDate, Mode=TwoWay}" />
+    </Grid>
 </views:ViewBase>

@@ -22,6 +22,16 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [ObservableProperty] private DateTime? _pucExpiryDate;
         [ObservableProperty] private DateTime? _lastServiceDate;
 
+        [ObservableProperty] private bool _isInsuranceCalendarOpen;
+        [ObservableProperty] private bool _isFitnessCalendarOpen;
+        [ObservableProperty] private bool _isPucCalendarOpen;
+        [ObservableProperty] private bool _isServiceCalendarOpen;
+
+        [RelayCommand] private void OpenInsuranceCalendar() => IsInsuranceCalendarOpen = true;
+        [RelayCommand] private void OpenFitnessCalendar() => IsFitnessCalendarOpen = true;
+        [RelayCommand] private void OpenPucCalendar() => IsPucCalendarOpen = true;
+        [RelayCommand] private void OpenServiceCalendar() => IsServiceCalendarOpen = true;
+
         [ObservableProperty] private List<BusTypeItem> _busTypeOptions = [];
         [ObservableProperty] private ObservableCollection<SelectableItem> _selectableRoutes = [];
         [ObservableProperty] private ObservableCollection<SelectableItem> _selectableDrivers = [];

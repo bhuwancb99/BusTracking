@@ -25,8 +25,11 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 
         // Transport Fee Tracking
         [ObservableProperty] private List<string> _feeStatusOptions = ["Paid", "Pending", "Expired"];
-        [ObservableProperty] private string _selectedFeeStatus = "Paid";
+        [ObservableProperty] private string? _selectedFeeStatus;
         [ObservableProperty] private DateTime? _feeExpiryDate;
+
+        [ObservableProperty] private bool _isFeeExpiryCalendarOpen;
+        [RelayCommand] private void OpenFeeExpiryCalendar() => IsFeeExpiryCalendarOpen = true;
 
         // ── Username live-check ───────────────────────────────────────────────
         [ObservableProperty] private string _usernameMessage = "";

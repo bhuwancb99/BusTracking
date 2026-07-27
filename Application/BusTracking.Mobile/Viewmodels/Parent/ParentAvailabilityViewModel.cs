@@ -8,6 +8,8 @@ namespace BusTracking.Mobile.Viewmodels.Parent
         [ObservableProperty] private ObservableCollection<LinkedStudent> _children = [];
         [ObservableProperty] private LinkedStudent? _selectedChild;
         [ObservableProperty] private DateTime _selectedDate = DateTime.Today;
+        [ObservableProperty] private bool _isDateCalendarOpen;
+        [RelayCommand] private void OpenDateCalendar() => IsDateCalendarOpen = true;
         [ObservableProperty] private bool _morningAvailable = true;
         [ObservableProperty] private bool _eveningAvailable = true;
         [ObservableProperty] private string _reason = "";

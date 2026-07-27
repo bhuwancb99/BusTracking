@@ -18,6 +18,11 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [ObservableProperty] private string? _tripType;
         [ObservableProperty] private DateTime _tripDate = DateTime.Today;
 
+        [ObservableProperty] private bool _isTripDateCalendarOpen;
+
+        [RelayCommand] private void OpenTripDateCalendar() => IsTripDateCalendarOpen = true;
+        [RelayCommand] private void CloseTripDateCalendar() => IsTripDateCalendarOpen = false;
+
         public List<string> TripTypes => ["Morning", "Evening", "SpecialEvent", "ExamRoute"];
 
         public CoordTripFormViewModel(IAuthService auth, INavigationService nav,

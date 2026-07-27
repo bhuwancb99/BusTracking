@@ -3,6 +3,7 @@
     x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminTripFormPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:common="clr-namespace:BusTracking.Mobile.Views.Common"
     xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     xmlns:models="clr-namespace:BusTracking.Mobile.Models.Route"
     xmlns:sys="clr-namespace:System;assembly=netstandard"
@@ -12,6 +13,7 @@
     x:TypeArguments="vm:AdminTripFormViewModel"
     BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
                                       Dark={StaticResource PageBgDark}}">
+
     <views:ViewBase.Behaviors>
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
@@ -25,274 +27,288 @@
                                         Dark=White}"
             VerticalOptions="Center" />
     </Shell.TitleView>
-    <ScrollView>
-        <VerticalStackLayout Padding="16,16,16,32" Spacing="14">
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight},
-                                                  Dark={StaticResource ErrorBannerBgDark}}"
-                IsVisible="{Binding HasError}"
-                Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
-                                         Dark={StaticResource ErrorBannerBorderDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <Label
-                    Padding="12,10"
-                    FontSize="13"
-                    Text="{Binding ErrorMessage}"
-                    TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
-                                                Dark={StaticResource ErrorTextDark}}" />
-            </Border>
 
-            <!--  1. Select Bus  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
-                                                  Dark={StaticResource CardBgDark}}"
-                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                         Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <VerticalStackLayout Padding="16" Spacing="8">
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout Padding="16,16,16,32" Spacing="14">
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight},
+                                                      Dark={StaticResource ErrorBannerBgDark}}"
+                    IsVisible="{Binding HasError}"
+                    Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
+                                             Dark={StaticResource ErrorBannerBorderDark}}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
                     <Label
-                        FontAttributes="Bold"
-                        FontSize="12"
-                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                    Dark={StaticResource TextSecondaryDark}}">
-                        <Label.FormattedText>
-                            <FormattedString>
-                                <Span Text="1. Select Bus" />
-                                <Span Text="*" TextColor="{StaticResource Danger}" />
-                            </FormattedString>
-                        </Label.FormattedText>
-                    </Label>
-                    <Picker
-                        Title="-- Select Bus --"
-                        BackgroundColor="Transparent"
-                        ItemDisplayBinding="{Binding BusName}"
-                        ItemsSource="{Binding BusOptions}"
-                        SelectedItem="{Binding SelectedBus}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
-                </VerticalStackLayout>
-            </Border>
-
-            <!--  2. Select Driver (Populated based on selected bus)  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
-                                                  Dark={StaticResource CardBgDark}}"
-                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                         Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <VerticalStackLayout Padding="16" Spacing="8">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="12"
-                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                    Dark={StaticResource TextSecondaryDark}}">
-                        <Label.FormattedText>
-                            <FormattedString>
-                                <Span Text="2. Select Driver" />
-                                <Span Text="*" TextColor="{StaticResource Danger}" />
-                            </FormattedString>
-                        </Label.FormattedText>
-                    </Label>
-                    <Picker
-                        Title="-- Select Driver --"
-                        BackgroundColor="Transparent"
-                        ItemDisplayBinding="{Binding FullName}"
-                        ItemsSource="{Binding DriverOptions}"
-                        SelectedItem="{Binding SelectedDriver}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
-                </VerticalStackLayout>
-            </Border>
-
-            <!--  3. Select Route (Populated based on selected driver/bus)  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
-                                                  Dark={StaticResource CardBgDark}}"
-                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                         Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <VerticalStackLayout Padding="16" Spacing="8">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="12"
-                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                    Dark={StaticResource TextSecondaryDark}}">
-                        <Label.FormattedText>
-                            <FormattedString>
-                                <Span Text="3. Select Route" />
-                                <Span Text="*" TextColor="{StaticResource Danger}" />
-                            </FormattedString>
-                        </Label.FormattedText>
-                    </Label>
-                    <Picker
-                        Title="-- Select Route --"
-                        BackgroundColor="Transparent"
-                        ItemDisplayBinding="{Binding RouteName}"
-                        ItemsSource="{Binding RouteOptions}"
-                        SelectedItem="{Binding SelectedRoute}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
-                </VerticalStackLayout>
-            </Border>
-
-            <!--  Stops Preview Card  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
-                                                  Dark={StaticResource CardBgDark}}"
-                IsVisible="{Binding StopsPreview.Count, Converter={StaticResource IntToBool}}"
-                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                         Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <VerticalStackLayout Padding="16" Spacing="10">
-                    <Label
-                        FontAttributes="Bold"
+                        Padding="12,10"
                         FontSize="13"
-                        Text="Route Stops Sequence"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
-                    <FlexLayout BindableLayout.ItemsSource="{Binding StopsPreview}" Wrap="Wrap">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="models:StopItem">
-                                <Border
-                                    Margin="0,0,8,8"
-                                    Padding="10,6"
-                                    BackgroundColor="{AppThemeBinding Light=#e0f2fe,
-                                                                      Dark=#075985}"
-                                    StrokeShape="RoundRectangle 16"
-                                    StrokeThickness="0">
-                                    <HorizontalStackLayout Spacing="6">
-                                        <Label
-                                            FontAttributes="Bold"
-                                            FontSize="11"
-                                            Text="{Binding StopOrder, StringFormat='#{0}'}"
-                                            TextColor="{AppThemeBinding Light=#0284c7,
-                                                                        Dark=#bae6fd}"
-                                            VerticalOptions="Center" />
-                                        <Label
-                                            FontSize="12"
-                                            Text="{Binding StopName}"
-                                            TextColor="{AppThemeBinding Light=#0369a1,
-                                                                        Dark=#e0f2fe}"
-                                            VerticalOptions="Center" />
-                                    </HorizontalStackLayout>
-                                </Border>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </FlexLayout>
-                </VerticalStackLayout>
-            </Border>
+                        Text="{Binding ErrorMessage}"
+                        TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
+                                                    Dark={StaticResource ErrorTextDark}}" />
+                </Border>
 
-            <!--  4. Trip Type  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
-                                                  Dark={StaticResource CardBgDark}}"
-                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                         Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <VerticalStackLayout Padding="16" Spacing="8">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="12"
-                        Text="Trip Type"
-                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                    Dark={StaticResource TextSecondaryDark}}" />
-                    <Picker
-                        Title="-- Select Trip Type --"
-                        BackgroundColor="Transparent"
-                        ItemsSource="{Binding TripTypes}"
-                        SelectedItem="{Binding TripType}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
-                </VerticalStackLayout>
-            </Border>
-
-            <!--  5. Trip Date  -->
-            <Border
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
-                                                  Dark={StaticResource CardBgDark}}"
-                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                         Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 8"
-                StrokeThickness="1">
-                <VerticalStackLayout Padding="16" Spacing="6">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="12"
-                        Text="Trip Date"
-                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                    Dark={StaticResource TextSecondaryDark}}" />
-                    <Border
-                        BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
-                                                          Dark={StaticResource PageBgDark}}"
-                        Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                                 Dark={StaticResource BorderColorDark}}"
-                        StrokeShape="RoundRectangle 6"
-                        StrokeThickness="1">
-                        <Grid Padding="12,4" ColumnDefinitions="*,Auto">
-                            <DatePicker
-                                Grid.Column="0"
-                                BackgroundColor="Transparent"
-                                Date="{Binding TripDate}"
-                                FontSize="14"
-                                MinimumDate="{x:Static sys:DateTime.Today}"
-                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                            Dark={StaticResource TextPrimaryDark}}" />
-                            <Label
-                                Grid.Column="1"
-                                FontSize="16"
-                                Text="📅"
-                                VerticalOptions="Center" />
-                        </Grid>
-                    </Border>
-                </VerticalStackLayout>
-            </Border>
-
-            <!--  Buttons  -->
-            <Grid
-                Margin="0,8,0,0"
-                ColumnDefinitions="*,*"
-                ColumnSpacing="12">
-                <Button
-                    Grid.Column="0"
+                <!--  1. Select Bus  -->
+                <Border
                     BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                                       Dark={StaticResource CardBgDark}}"
-                    BorderColor="{AppThemeBinding Light={StaticResource BorderColor},
-                                                  Dark={StaticResource BorderColorDark}}"
-                    BorderWidth="1.5"
-                    Command="{Binding CancelCommand}"
-                    CornerRadius="8"
-                    FontAttributes="Bold"
-                    HeightRequest="50"
-                    Text="Cancel"
-                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                Dark={StaticResource TextSecondaryDark}}" />
-                <Button
-                    Grid.Column="1"
-                    BackgroundColor="{StaticResource Primary}"
-                    Command="{Binding SaveCommand}"
-                    CornerRadius="8"
-                    FontAttributes="Bold"
-                    HeightRequest="50"
-                    Text="Create Trip"
-                    TextColor="White">
-                    <Button.Triggers>
-                        <DataTrigger
-                            Binding="{Binding IsBusy}"
-                            TargetType="Button"
-                            Value="True">
-                            <Setter Property="Text" Value="Saving…" />
-                            <Setter Property="IsEnabled" Value="False" />
-                        </DataTrigger>
-                    </Button.Triggers>
-                </Button>
-            </Grid>
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <VerticalStackLayout Padding="16" Spacing="8">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="1. Select Bus" />
+                                    <Span Text="*" TextColor="{StaticResource Danger}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Picker
+                            Title="-- Select Bus --"
+                            BackgroundColor="Transparent"
+                            ItemDisplayBinding="{Binding BusName}"
+                            ItemsSource="{Binding BusOptions}"
+                            SelectedItem="{Binding SelectedBus}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                    </VerticalStackLayout>
+                </Border>
 
-        </VerticalStackLayout>
-    </ScrollView>
+                <!--  2. Select Driver (Populated based on selected bus)  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <VerticalStackLayout Padding="16" Spacing="8">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="2. Select Driver" />
+                                    <Span Text="*" TextColor="{StaticResource Danger}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Picker
+                            Title="-- Select Driver --"
+                            BackgroundColor="Transparent"
+                            ItemDisplayBinding="{Binding FullName}"
+                            ItemsSource="{Binding DriverOptions}"
+                            SelectedItem="{Binding SelectedDriver}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  3. Select Route (Populated based on selected driver/bus)  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <VerticalStackLayout Padding="16" Spacing="8">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="3. Select Route" />
+                                    <Span Text="*" TextColor="{StaticResource Danger}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Picker
+                            Title="-- Select Route --"
+                            BackgroundColor="Transparent"
+                            ItemDisplayBinding="{Binding RouteName}"
+                            ItemsSource="{Binding RouteOptions}"
+                            SelectedItem="{Binding SelectedRoute}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Stops Preview Card  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    IsVisible="{Binding StopsPreview.Count, Converter={StaticResource IntToBool}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <VerticalStackLayout Padding="16" Spacing="10">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="13"
+                            Text="Route Stops Sequence"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                        <FlexLayout BindableLayout.ItemsSource="{Binding StopsPreview}" Wrap="Wrap">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="models:StopItem">
+                                    <Border
+                                        Margin="0,0,8,8"
+                                        Padding="10,6"
+                                        BackgroundColor="{AppThemeBinding Light=#e0f2fe,
+                                                                          Dark=#075985}"
+                                        StrokeShape="RoundRectangle 16"
+                                        StrokeThickness="0">
+                                        <HorizontalStackLayout Spacing="6">
+                                            <Label
+                                                FontAttributes="Bold"
+                                                FontSize="11"
+                                                Text="{Binding StopOrder, StringFormat='#{0}'}"
+                                                TextColor="{AppThemeBinding Light=#0284c7,
+                                                                            Dark=#bae6fd}"
+                                                VerticalOptions="Center" />
+                                            <Label
+                                                FontSize="12"
+                                                Text="{Binding StopName}"
+                                                TextColor="{AppThemeBinding Light=#0369a1,
+                                                                            Dark=#e0f2fe}"
+                                                VerticalOptions="Center" />
+                                        </HorizontalStackLayout>
+                                    </Border>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </FlexLayout>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  4. Trip Type  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <VerticalStackLayout Padding="16" Spacing="8">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            Text="Trip Type"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                        <Picker
+                            Title="-- Select Trip Type --"
+                            BackgroundColor="Transparent"
+                            ItemsSource="{Binding TripTypes}"
+                            SelectedItem="{Binding TripType}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  5. Trip Date Card (Clickable to open SfCalendar Modal)  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <VerticalStackLayout Padding="16" Spacing="6">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            Text="Trip Date"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                        <Border
+                            BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                                              Dark={StaticResource PageBgDark}}"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                     Dark={StaticResource BorderColorDark}}"
+                            StrokeShape="RoundRectangle 6"
+                            StrokeThickness="1">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenTripDateCalendarCommand}" />
+                            </Border.GestureRecognizers>
+                            <Grid Padding="12,10" ColumnDefinitions="*,Auto">
+                                <Label
+                                    Grid.Column="0"
+                                    FontSize="14"
+                                    Text="{Binding TripDate, StringFormat='{0:yyyy-MM-dd}'}"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                Dark={StaticResource TextPrimaryDark}}"
+                                    VerticalOptions="Center" />
+                                <Label
+                                    Grid.Column="1"
+                                    FontSize="16"
+                                    Text="📅"
+                                    VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Buttons  -->
+                <Grid
+                    Margin="0,8,0,0"
+                    ColumnDefinitions="*,*"
+                    ColumnSpacing="12">
+                    <Button
+                        Grid.Column="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                          Dark={StaticResource CardBgDark}}"
+                        BorderColor="{AppThemeBinding Light={StaticResource BorderColor},
+                                                      Dark={StaticResource BorderColorDark}}"
+                        BorderWidth="1.5"
+                        Command="{Binding CancelCommand}"
+                        CornerRadius="8"
+                        FontAttributes="Bold"
+                        HeightRequest="50"
+                        Text="Cancel"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                    <Button
+                        Grid.Column="1"
+                        BackgroundColor="{StaticResource Primary}"
+                        Command="{Binding SaveCommand}"
+                        CornerRadius="8"
+                        FontAttributes="Bold"
+                        HeightRequest="50"
+                        Text="Create Trip"
+                        TextColor="White">
+                        <Button.Triggers>
+                            <DataTrigger
+                                Binding="{Binding IsBusy}"
+                                TargetType="Button"
+                                Value="True">
+                                <Setter Property="Text" Value="Saving…" />
+                                <Setter Property="IsEnabled" Value="False" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                </Grid>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!--  Shared Calendar Popup  -->
+        <common:CalendarPickerPopup
+            Title="Select Trip Date"
+            CloseCommand="{Binding CloseTripDateCalendarCommand}"
+            IsOpen="{Binding IsTripDateCalendarOpen, Mode=TwoWay}"
+            MinimumDate="{x:Static sys:DateTime.Today}"
+            SelectedDate="{Binding TripDate, Mode=TwoWay}" />
+    </Grid>
+
 </views:ViewBase>

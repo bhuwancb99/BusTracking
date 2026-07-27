@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
+namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordTripListViewModel : BaseViewModel
     {
@@ -7,6 +7,8 @@
         [ObservableProperty] private ObservableCollection<TripItem> _items = [];
         [ObservableProperty] private string _selectedStatus = "All";
         [ObservableProperty] private DateTime _selectedDate = DateTime.Today;
+        [ObservableProperty] private bool _isDateCalendarOpen;
+        [RelayCommand] private void OpenDateCalendar() => IsDateCalendarOpen = true;
         [ObservableProperty] private int _currentPage = 1;
         [ObservableProperty] private bool _canLoadMore;
 

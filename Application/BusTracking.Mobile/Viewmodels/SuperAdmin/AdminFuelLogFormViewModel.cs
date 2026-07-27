@@ -14,6 +14,9 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [ObservableProperty] private DateTime _fuelDate = DateTime.Today;
         [ObservableProperty] private string? _notes;
 
+        [ObservableProperty] private bool _isFuelDateCalendarOpen;
+        [RelayCommand] private void OpenFuelDateCalendar() => IsFuelDateCalendarOpen = true;
+
         [ObservableProperty] private List<BusItem> _busOptions = [];
         [ObservableProperty] private BusItem? _selectedBus;
 

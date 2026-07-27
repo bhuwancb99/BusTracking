@@ -3,6 +3,7 @@
     x:Class="BusTracking.Mobile.Views.Parent.ParentNotificationPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:common="clr-namespace:BusTracking.Mobile.Views.Common"
     xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     xmlns:models="clr-namespace:BusTracking.Mobile.Models.Notification"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
@@ -70,28 +71,50 @@
                 ColumnSpacing="8"
                 VerticalOptions="Center">
                 <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenFromDateCalendarCommand}" />
+                    </VerticalStackLayout.GestureRecognizers>
                     <Label
                         FontAttributes="Bold"
                         FontSize="10"
                         Text="From"
                         TextColor="#64748b" />
-                    <DatePicker
-                        Date="{Binding FromDate, Mode=TwoWay}"
-                        FontSize="12"
-                        Format="yyyy-MM-dd"
-                        HeightRequest="36" />
+                    <Border
+                        Padding="8,6"
+                        BackgroundColor="{AppThemeBinding Light=#f8fafc,
+                                                          Dark=#0f172a}"
+                        Stroke="#cbd5e1"
+                        StrokeShape="RoundRectangle 6">
+                        <Label
+                            FontSize="12"
+                            Text="{Binding FromDate, StringFormat='{0:yyyy-MM-dd}'}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark=White}"
+                            VerticalOptions="Center" />
+                    </Border>
                 </VerticalStackLayout>
                 <VerticalStackLayout Grid.Column="1" Spacing="2">
+                    <VerticalStackLayout.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding OpenToDateCalendarCommand}" />
+                    </VerticalStackLayout.GestureRecognizers>
                     <Label
                         FontAttributes="Bold"
                         FontSize="10"
                         Text="To"
                         TextColor="#64748b" />
-                    <DatePicker
-                        Date="{Binding ToDate, Mode=TwoWay}"
-                        FontSize="12"
-                        Format="yyyy-MM-dd"
-                        HeightRequest="36" />
+                    <Border
+                        Padding="8,6"
+                        BackgroundColor="{AppThemeBinding Light=#f8fafc,
+                                                          Dark=#0f172a}"
+                        Stroke="#cbd5e1"
+                        StrokeShape="RoundRectangle 6">
+                        <Label
+                            FontSize="12"
+                            Text="{Binding ToDate, StringFormat='{0:yyyy-MM-dd}'}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark=White}"
+                            VerticalOptions="Center" />
+                    </Border>
                 </VerticalStackLayout>
                 <ImageButton
                     Grid.Column="2"
@@ -216,5 +239,16 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
         </RefreshView>
+
+        <!--  Shared Calendar Popups  -->
+        <common:CalendarPickerPopup
+            Title="Select From Date"
+            IsOpen="{Binding IsFromDateCalendarOpen, Mode=TwoWay}"
+            SelectedDate="{Binding FromDate, Mode=TwoWay}" />
+
+        <common:CalendarPickerPopup
+            Title="Select To Date"
+            IsOpen="{Binding IsToDateCalendarOpen, Mode=TwoWay}"
+            SelectedDate="{Binding ToDate, Mode=TwoWay}" />
     </Grid>
 </views:ViewBase>
