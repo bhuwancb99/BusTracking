@@ -27,6 +27,7 @@ global using FirebaseAdmin.Messaging;
 global using MailKit.Net.Smtp;
 global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.AspNetCore.Http;
+global using Microsoft.AspNetCore.Mvc.Rendering;
 global using Microsoft.EntityFrameworkCore;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;

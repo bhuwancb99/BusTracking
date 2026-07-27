@@ -32,6 +32,7 @@ public static class SidebarHelper
         new() { Label = "Fuel & Mileage",   Icon = "bi-fuel-pump-fill",      Controller = "FuelLog",        Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Analytics & Reports", Icon = "bi-bar-chart-line-fill", Controller = "Report",       Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Trips",            Icon = "bi-signpost-split",      Controller = "Trip",           Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "Broadcast Message",Icon = "bi-megaphone-fill",      Controller = "Broadcast",      Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Notifications",    Icon = "bi-bell",            Controller = "Notification",   Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Help & Support",   Icon = "bi-headset",         Controller = "Feedback",       Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "System Logs",      Icon = "bi-journal-text",    Controller = "Logger",         Action = "Index",   Area = "SuperAdmin" },
