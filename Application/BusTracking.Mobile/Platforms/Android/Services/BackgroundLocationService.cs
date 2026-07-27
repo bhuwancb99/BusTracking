@@ -1,7 +1,7 @@
 using Android.Content;
 using Android.OS;
 
-namespace BusTracking.Mobile.Platforms.Android
+namespace BusTracking.Mobile.Platforms.Android.Services
 {
     public class BackgroundLocationService : IBackgroundLocationService
     {

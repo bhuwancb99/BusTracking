@@ -4,7 +4,7 @@ using Android.Content.PM;
 using Android.OS;
 using AndroidX.Core.App;
 
-namespace BusTracking.Mobile.Platforms.Android
+namespace BusTracking.Mobile.Platforms.Android.Services
 {
     [Service(ForegroundServiceType = ForegroundService.TypeLocation)]
     public class LocationForegroundService : Service
@@ -98,7 +98,7 @@ namespace BusTracking.Mobile.Platforms.Android
         // ── Notification ──────────────────────────────────────────────────
         private Notification BuildNotification()
         {
-            var mainIntent = new Intent(this, typeof(BusTracking.Mobile.MainActivity));
+            var mainIntent = new Intent(this, typeof(MainActivity));
 
             // PendingIntentFlags.Immutable is only available on API 23+
             PendingIntentFlags pendingFlags;

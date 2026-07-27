@@ -3,6 +3,7 @@
     x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminBusFormPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:commonModels="clr-namespace:BusTracking.Mobile.Models.Common"
     xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     xmlns:models="clr-namespace:BusTracking.Mobile.Models"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
@@ -178,7 +179,7 @@
                                          Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 8"
                 StrokeThickness="1">
-                <VerticalStackLayout Padding="16" Spacing="12">
+                <VerticalStackLayout Padding="16" Spacing="14">
                     <Label
                         FontAttributes="Bold"
                         FontSize="13"
@@ -187,68 +188,140 @@
                                                     Dark={StaticResource TextPrimaryDark}}" />
 
                     <!--  Insurance Expiry Date  -->
-                    <VerticalStackLayout Spacing="4">
+                    <VerticalStackLayout Spacing="6">
                         <Label
+                            FontAttributes="Bold"
                             FontSize="12"
                             Text="Insurance Expiry Date"
                             TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                         Dark={StaticResource TextSecondaryDark}}" />
-                        <DatePicker
-                            BackgroundColor="Transparent"
-                            Date="{Binding InsuranceExpiryDate}"
-                            Format="yyyy-MM-dd"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                        Dark={StaticResource TextPrimaryDark}}" />
+                        <Border
+                            BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                                              Dark={StaticResource PageBgDark}}"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                     Dark={StaticResource BorderColorDark}}"
+                            StrokeShape="RoundRectangle 6"
+                            StrokeThickness="1">
+                            <Grid Padding="12,4" ColumnDefinitions="*,Auto">
+                                <DatePicker
+                                    Grid.Column="0"
+                                    BackgroundColor="Transparent"
+                                    Date="{Binding InsuranceExpiryDate}"
+                                    FontSize="14"
+                                    Format="yyyy-MM-dd"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                Dark={StaticResource TextPrimaryDark}}" />
+                                <Label
+                                    Grid.Column="1"
+                                    FontSize="16"
+                                    Text="📅"
+                                    VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
                     </VerticalStackLayout>
 
                     <!--  Fitness Certificate Expiry Date  -->
-                    <VerticalStackLayout Spacing="4">
+                    <VerticalStackLayout Spacing="6">
                         <Label
+                            FontAttributes="Bold"
                             FontSize="12"
                             Text="Fitness Certificate Expiry Date"
                             TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                         Dark={StaticResource TextSecondaryDark}}" />
-                        <DatePicker
-                            BackgroundColor="Transparent"
-                            Date="{Binding FitnessExpiryDate}"
-                            Format="yyyy-MM-dd"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                        Dark={StaticResource TextPrimaryDark}}" />
+                        <Border
+                            BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                                              Dark={StaticResource PageBgDark}}"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                     Dark={StaticResource BorderColorDark}}"
+                            StrokeShape="RoundRectangle 6"
+                            StrokeThickness="1">
+                            <Grid Padding="12,4" ColumnDefinitions="*,Auto">
+                                <DatePicker
+                                    Grid.Column="0"
+                                    BackgroundColor="Transparent"
+                                    Date="{Binding FitnessExpiryDate}"
+                                    FontSize="14"
+                                    Format="yyyy-MM-dd"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                Dark={StaticResource TextPrimaryDark}}" />
+                                <Label
+                                    Grid.Column="1"
+                                    FontSize="16"
+                                    Text="📅"
+                                    VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
                     </VerticalStackLayout>
 
                     <!--  PUC Expiry Date  -->
-                    <VerticalStackLayout Spacing="4">
+                    <VerticalStackLayout Spacing="6">
                         <Label
+                            FontAttributes="Bold"
                             FontSize="12"
                             Text="PUC Expiry Date"
                             TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                         Dark={StaticResource TextSecondaryDark}}" />
-                        <DatePicker
-                            BackgroundColor="Transparent"
-                            Date="{Binding PucExpiryDate}"
-                            Format="yyyy-MM-dd"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                        Dark={StaticResource TextPrimaryDark}}" />
+                        <Border
+                            BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                                              Dark={StaticResource PageBgDark}}"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                     Dark={StaticResource BorderColorDark}}"
+                            StrokeShape="RoundRectangle 6"
+                            StrokeThickness="1">
+                            <Grid Padding="12,4" ColumnDefinitions="*,Auto">
+                                <DatePicker
+                                    Grid.Column="0"
+                                    BackgroundColor="Transparent"
+                                    Date="{Binding PucExpiryDate}"
+                                    FontSize="14"
+                                    Format="yyyy-MM-dd"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                Dark={StaticResource TextPrimaryDark}}" />
+                                <Label
+                                    Grid.Column="1"
+                                    FontSize="16"
+                                    Text="📅"
+                                    VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
                     </VerticalStackLayout>
 
                     <!--  Last Service Date  -->
-                    <VerticalStackLayout Spacing="4">
+                    <VerticalStackLayout Spacing="6">
                         <Label
+                            FontAttributes="Bold"
                             FontSize="12"
                             Text="Last Maintenance / Service Date"
                             TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                         Dark={StaticResource TextSecondaryDark}}" />
-                        <DatePicker
-                            BackgroundColor="Transparent"
-                            Date="{Binding LastServiceDate}"
-                            Format="yyyy-MM-dd"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                        Dark={StaticResource TextPrimaryDark}}" />
+                        <Border
+                            BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                                              Dark={StaticResource PageBgDark}}"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                     Dark={StaticResource BorderColorDark}}"
+                            StrokeShape="RoundRectangle 6"
+                            StrokeThickness="1">
+                            <Grid Padding="12,4" ColumnDefinitions="*,Auto">
+                                <DatePicker
+                                    Grid.Column="0"
+                                    BackgroundColor="Transparent"
+                                    Date="{Binding LastServiceDate}"
+                                    FontSize="14"
+                                    Format="yyyy-MM-dd"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                Dark={StaticResource TextPrimaryDark}}" />
+                                <Label
+                                    Grid.Column="1"
+                                    FontSize="16"
+                                    Text="📅"
+                                    VerticalOptions="Center" />
+                            </Grid>
+                        </Border>
                     </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
 
-            <!--  Assign Route  -->
+            <!--  Assign Routes (Multi-select)  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                                   Dark={StaticResource CardBgDark}}"
@@ -259,22 +332,38 @@
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
-                        FontSize="12"
-                        Text="Assign Route"
+                        FontSize="13"
+                        Text="Assign Routes"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
-                    <Picker
-                        Title="Select a route…"
-                        BackgroundColor="Transparent"
-                        ItemDisplayBinding="{Binding RouteName}"
-                        ItemsSource="{Binding RouteOptions}"
-                        SelectedItem="{Binding SelectedRoute}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
+                    <Label
+                        FontSize="11"
+                        Text="Check to assign multiple routes to this bus"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                    <CollectionView ItemsSource="{Binding SelectableRoutes}" MaximumHeightRequest="180">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="commonModels:SelectableItem">
+                                <Grid Padding="4,6" ColumnDefinitions="Auto,*">
+                                    <CheckBox
+                                        IsChecked="{Binding IsSelected}"
+                                        VerticalOptions="Center"
+                                        Color="{StaticResource Primary}" />
+                                    <Label
+                                        Grid.Column="1"
+                                        FontSize="13"
+                                        Text="{Binding Display}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                    Dark={StaticResource TextPrimaryDark}}"
+                                        VerticalOptions="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
                 </VerticalStackLayout>
             </Border>
 
-            <!--  Assign Driver  -->
+            <!--  Assign Drivers (Multi-select)  -->
             <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                                   Dark={StaticResource CardBgDark}}"
@@ -285,24 +374,34 @@
                 <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
-                        FontSize="12"
-                        Text="Assign Driver"
+                        FontSize="13"
+                        Text="Assign Drivers (Optional)"
                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                     Dark={StaticResource TextPrimaryDark}}" />
-                    <Picker
-                        Title="Select a driver…"
-                        BackgroundColor="Transparent"
-                        ItemDisplayBinding="{Binding FullName}"
-                        ItemsSource="{Binding DriverOptions}"
-                        SelectedItem="{Binding SelectedDriver}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark={StaticResource TextPrimaryDark}}" />
-                    <!--  Show selected driver display  -->
                     <Label
                         FontSize="11"
-                        IsVisible="{Binding SelectedDriver, Converter={StaticResource NullToBool}}"
-                        Text="{Binding SelectedDriver.BusDisplay}"
-                        TextColor="{StaticResource Primary}" />
+                        Text="Check to assign multiple drivers to this bus"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                    <CollectionView ItemsSource="{Binding SelectableDrivers}" MaximumHeightRequest="180">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="commonModels:SelectableItem">
+                                <Grid Padding="4,6" ColumnDefinitions="Auto,*">
+                                    <CheckBox
+                                        IsChecked="{Binding IsSelected}"
+                                        VerticalOptions="Center"
+                                        Color="{StaticResource Primary}" />
+                                    <Label
+                                        Grid.Column="1"
+                                        FontSize="13"
+                                        Text="{Binding Display}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                    Dark={StaticResource TextPrimaryDark}}"
+                                        VerticalOptions="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
                 </VerticalStackLayout>
             </Border>
 
@@ -386,8 +485,6 @@
                     </Button.Triggers>
                 </Button>
             </Grid>
-
-
 
         </VerticalStackLayout>
     </ScrollView>

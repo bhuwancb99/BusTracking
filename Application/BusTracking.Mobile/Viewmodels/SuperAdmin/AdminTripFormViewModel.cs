@@ -36,10 +36,13 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             });
         }
 
+        [ObservableProperty] private List<StopItem> _stopsPreview = [];
+
         partial void OnSelectedBusChanged(BusItem? value)
         {
             SelectedDriver = null;
             SelectedRoute = null;
+            StopsPreview = [];
 
             if (value != null && DriverOptions.Count > 0)
             {
@@ -54,10 +57,25 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         partial void OnSelectedDriverChanged(DriverItem? value)
         {
             SelectedRoute = null;
+            StopsPreview = [];
 
             if (value != null && SelectedBus != null && SelectedBus.RouteId.HasValue && RouteOptions.Count > 0)
             {
                 SelectedRoute = RouteOptions.FirstOrDefault(r => r.RouteId == SelectedBus.RouteId);
+            }
+        }
+
+        partial void OnSelectedRouteChanged(RouteItem? value)
+        {
+            StopsPreview = [];
+            if (value != null)
+            {
+                var routeId = value.RouteId;
+                _ = Task.Run(async () =>
+                {
+                    var stops = await _routes.GetStopsAsync(routeId);
+                    MainThread.BeginInvokeOnMainThread(() => StopsPreview = stops);
+                });
             }
         }
 

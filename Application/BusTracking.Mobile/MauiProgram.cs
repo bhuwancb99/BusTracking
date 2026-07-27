@@ -29,7 +29,8 @@ namespace BusTracking.Mobile
                         }
                     }));
 #elif IOS
-                    events.AddiOS(iOS => iOS.FinishedLaunching((app, options) => {
+                    events.AddiOS(iOS => iOS.FinishedLaunching((app, options) =>
+                    {
                         try
                         {
                             Plugin.Firebase.Bundled.Platforms.iOS.CrossFirebase.Initialize(CreateCrossFirebaseSettings());
@@ -149,11 +150,9 @@ namespace BusTracking.Mobile
         private static void RegisterServices(IServiceCollection s)
         {
 #if ANDROID
-            s.AddSingleton<IBackgroundLocationService,
-                BusTracking.Mobile.Platforms.Android.BackgroundLocationService>();
+            s.AddSingleton<IBackgroundLocationService, BusTracking.Mobile.Platforms.Android.Services.BackgroundLocationService>();
 #elif IOS
-            s.AddSingleton<IBackgroundLocationService,
-                BusTracking.Mobile.Platforms.iOS.BackgroundLocationService>();
+            s.AddSingleton<IBackgroundLocationService, BusTracking.Mobile.Platforms.iOS.Services.BackgroundLocationService>();
 #endif
             s.AddSingleton<ITrackingHubService, TrackingHubService>();
             s.AddSingleton<IRingtoneService, RingtoneService>();
@@ -396,6 +395,7 @@ namespace BusTracking.Mobile
         // ── Control Handlers ──────────────────────────────────────────────────
         static void MauiControlsHandlers()
         {
+
             #region DatePicker Handler
             Microsoft.Maui.Handlers.DatePickerHandler.Mapper.AppendToMapping("MyDatePickerHandler", (handler, view) =>
             {

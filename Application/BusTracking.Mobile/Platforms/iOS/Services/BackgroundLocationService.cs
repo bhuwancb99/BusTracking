@@ -1,6 +1,6 @@
 using CoreLocation;
 
-namespace BusTracking.Mobile.Platforms.iOS
+namespace BusTracking.Mobile.Platforms.iOS.Services
 {
     /// <summary>
     /// iOS implementation of IBackgroundLocationService.

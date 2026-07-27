@@ -21,11 +21,9 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [ObservableProperty] private DateTime? _lastServiceDate;
 
         [ObservableProperty] private List<BusTypeItem> _busTypeOptions = [];
-        [ObservableProperty] private List<RouteItem> _routeOptions = [];
-        [ObservableProperty] private List<DriverItem> _driverOptions = [];
+        [ObservableProperty] private ObservableCollection<SelectableItem> _selectableRoutes = [];
+        [ObservableProperty] private ObservableCollection<SelectableItem> _selectableDrivers = [];
         [ObservableProperty] private BusTypeItem? _selectedBusType;
-        [ObservableProperty] private RouteItem? _selectedRoute;
-        [ObservableProperty] private DriverItem? _selectedDriver;
 
         public CoordBusFormViewModel(IAuthService auth, INavigationService nav,
             IBusService buses, IRouteService routes, IDriverService drivers, IBusTypeService busTypes)
@@ -43,8 +41,14 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             await RunAsync(async () =>
             {
                 BusTypeOptions = await _busTypes.GetDropdownAsync();
-                RouteOptions = await _routes.GetDropdownAsync();
-                DriverOptions = await _drivers.GetAllForFormAsync();
+                var routes = await _routes.GetDropdownAsync();
+                var drivers = await _drivers.GetAllForFormAsync();
+
+                SelectableRoutes = new ObservableCollection<SelectableItem>(
+                    routes.Select(r => new SelectableItem { Id = r.RouteId, Name = r.RouteName, Code = r.RouteCode }));
+
+                SelectableDrivers = new ObservableCollection<SelectableItem>(
+                    drivers.Select(d => new SelectableItem { Id = d.UserId, Name = d.FullName, Code = d.UserName }));
 
                 if (IsEditMode && BusId.HasValue)
                 {
@@ -59,8 +63,18 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                     if (DateTime.TryParse(bus.LastServiceDate, out var srv)) LastServiceDate = srv;
 
                     SelectedBusType = BusTypeOptions.FirstOrDefault(t => t.Id == bus.BusTypeId);
-                    SelectedRoute = RouteOptions.FirstOrDefault(r => r.RouteId == bus.RouteId);
-                    SelectedDriver = DriverOptions.FirstOrDefault(d => d.UserId == bus.DriverUserId);
+
+                    var activeRouteIds = bus.RouteIds.Count > 0 ? bus.RouteIds : (bus.RouteId.HasValue ? [bus.RouteId.Value] : new List<int>());
+                    foreach (var sr in SelectableRoutes)
+                    {
+                        if (activeRouteIds.Contains(sr.Id)) sr.IsSelected = true;
+                    }
+
+                    var activeDriverIds = bus.DriverUserIds.Count > 0 ? bus.DriverUserIds : (bus.DriverUserId.HasValue ? [bus.DriverUserId.Value] : new List<int>());
+                    foreach (var sd in SelectableDrivers)
+                    {
+                        if (activeDriverIds.Contains(sd.Id)) sd.IsSelected = true;
+                    }
                 }
             });
         }
@@ -74,6 +88,9 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             if (SelectedBusType is null)
             { SetError("Please select a bus type."); return; }
 
+            var selectedRouteIds = SelectableRoutes.Where(r => r.IsSelected).Select(r => r.Id).ToList();
+            var selectedDriverIds = SelectableDrivers.Where(d => d.IsSelected).Select(d => d.Id).ToList();
+
             await RunAsync(async () =>
             {
                 var req = new UpdateBusRequest
@@ -81,9 +98,11 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                     BusName = BusName,
                     BusNumber = BusNumber,
                     BusTypeId = SelectedBusType.Id,
-                    RouteId = SelectedRoute?.RouteId,
+                    RouteId = selectedRouteIds.FirstOrDefault(),
+                    RouteIds = selectedRouteIds,
                     Capacity = Capacity,
-                    DriverUserId = SelectedDriver?.UserId,
+                    DriverUserId = selectedDriverIds.FirstOrDefault(),
+                    DriverUserIds = selectedDriverIds,
                     InsuranceExpiryDate = InsuranceExpiryDate?.ToString("yyyy-MM-dd"),
                     FitnessExpiryDate = FitnessExpiryDate?.ToString("yyyy-MM-dd"),
                     PucExpiryDate = PucExpiryDate?.ToString("yyyy-MM-dd"),
@@ -99,8 +118,10 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                         BusNumber = BusNumber,
                         BusTypeId = SelectedBusType.Id,
                         RouteId = req.RouteId,
+                        RouteIds = selectedRouteIds,
                         Capacity = Capacity,
                         DriverUserId = req.DriverUserId,
+                        DriverUserIds = selectedDriverIds,
                         InsuranceExpiryDate = req.InsuranceExpiryDate,
                         FitnessExpiryDate = req.FitnessExpiryDate,
                         PucExpiryDate = req.PucExpiryDate,
