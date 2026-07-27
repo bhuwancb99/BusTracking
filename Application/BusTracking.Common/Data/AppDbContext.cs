@@ -87,13 +87,14 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<School>().HasIndex(s => s.SchoolCode).IsUnique();
         modelBuilder.Entity<SystemAdministrator>().HasIndex(s => s.UserName).IsUnique();
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
-        modelBuilder.Entity<BusRoute>().HasIndex(r => r.RouteCode).IsUnique();
-        modelBuilder.Entity<Bus>().HasIndex(b => b.BusNumber).IsUnique();
-        modelBuilder.Entity<StudentDetail>().HasIndex(s => s.StudentCode).IsUnique();
-        modelBuilder.Entity<StandardMaster>().HasIndex(s => s.StandardName).IsUnique();
+        modelBuilder.Entity<BusRoute>().HasIndex(r => new { r.SchoolId, r.RouteCode }).IsUnique();
+        modelBuilder.Entity<Bus>().HasIndex(b => new { b.SchoolId, b.BusNumber }).IsUnique();
+        modelBuilder.Entity<StudentDetail>().HasIndex(s => new { s.SchoolId, s.StudentCode }).IsUnique();
+        modelBuilder.Entity<StandardMaster>().HasIndex(s => new { s.SchoolId, s.StandardName }).IsUnique();
+        modelBuilder.Entity<NotificationSetting>().HasIndex(n => new { n.SchoolId, n.NotificationType }).IsUnique();
         modelBuilder.Entity<Permission>().HasIndex(p => p.PermissionKey).IsUnique();
         modelBuilder.Entity<PasswordResetToken>().HasIndex(t => t.Token).IsUnique();
-        modelBuilder.Entity<BusTypeMaster>().HasIndex(b => b.Name).IsUnique();
+        modelBuilder.Entity<BusTypeMaster>().HasIndex(b => new { b.SchoolId, b.Name }).IsUnique();
         modelBuilder.Entity<SubAdminPermission>()
             .HasIndex(sp => new { sp.UserId, sp.PermissionId }).IsUnique();
         modelBuilder.Entity<ParentStudent>()
@@ -115,7 +116,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<TripStopEvent>().Property(t => t.Status).HasConversion<string>();
         modelBuilder.Entity<AppConfiguration>().Property(c => c.Platform).HasConversion<string>();
         modelBuilder.Entity<StudentDetail>().Property(s => s.TransportFeeStatus).HasConversion<string>();
-        modelBuilder.Entity<AppConfiguration>().HasIndex(c => new { c.ConfigKey, c.Platform }).IsUnique();
+        modelBuilder.Entity<AppConfiguration>().HasIndex(c => new { c.SchoolId, c.ConfigKey, c.Platform }).IsUnique();
 
         // ── Prevent cascade cycles & explicit relationship mapping ─────
         modelBuilder.Entity<SubAdminPermission>()

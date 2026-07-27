@@ -102,7 +102,35 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
                 }
             }
 
-            TempData["SuccessMessage"] = "School created successfully.";
+            // Clone default AppConfigurations (from SchoolId = 1) for the new school
+            if (school.SchoolId != 1)
+            {
+                var masterConfigs = await _db.AppConfigurations
+                    .IgnoreQueryFilters()
+                    .Where(c => c.SchoolId == 1)
+                    .ToListAsync();
+
+                if (masterConfigs.Count > 0)
+                {
+                    var newSchoolConfigs = masterConfigs.Select(c => new AppConfiguration
+                    {
+                        SchoolId = school.SchoolId,
+                        ConfigKey = c.ConfigKey,
+                        ConfigValue = c.ConfigValue,
+                        Description = c.Description,
+                        Platform = c.Platform,
+                        IsActive = c.IsActive,
+                        CreatedBy = c.CreatedBy,
+                        CreatedAt = DateTime.UtcNow,
+                        UpdatedAt = DateTime.UtcNow
+                    }).ToList();
+
+                    await _db.AppConfigurations.AddRangeAsync(newSchoolConfigs);
+                    await _db.SaveChangesAsync();
+                }
+            }
+
+            TempData["SuccessMessage"] = "School created successfully with default App Configurations.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -198,6 +226,61 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
             await _db.SaveChangesAsync();
 
             return Json(new { success = true, isActive = school.IsActive });
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ImportAppConfigs(int id)
+        {
+            var school = await _db.Schools.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.SchoolId == id);
+            if (school == null) return NotFound();
+
+            var masterConfigs = await _db.AppConfigurations
+                .IgnoreQueryFilters()
+                .Where(c => c.SchoolId == 1)
+                .ToListAsync();
+
+            if (masterConfigs.Count == 0)
+            {
+                TempData["ErrorMessage"] = "No master AppConfigurations found under School #1 to import.";
+                return RedirectToAction(nameof(Edit), new { id });
+            }
+
+            var existingKeys = await _db.AppConfigurations
+                .IgnoreQueryFilters()
+                .Where(c => c.SchoolId == id)
+                .Select(c => new { c.ConfigKey, c.Platform })
+                .ToListAsync();
+
+            var existingKeySet = existingKeys.Select(k => $"{k.ConfigKey}_{k.Platform}").ToHashSet();
+
+            var missingConfigs = masterConfigs
+                .Where(c => !existingKeySet.Contains($"{c.ConfigKey}_{c.Platform}"))
+                .Select(c => new AppConfiguration
+                {
+                    SchoolId = id,
+                    ConfigKey = c.ConfigKey,
+                    ConfigValue = c.ConfigValue,
+                    Description = c.Description,
+                    Platform = c.Platform,
+                    IsActive = c.IsActive,
+                    CreatedBy = c.CreatedBy,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                })
+                .ToList();
+
+            if (missingConfigs.Count == 0)
+            {
+                TempData["SuccessMessage"] = "All master AppConfigurations already exist for this school. Nothing new to import.";
+            }
+            else
+            {
+                await _db.AppConfigurations.AddRangeAsync(missingConfigs);
+                await _db.SaveChangesAsync();
+                TempData["SuccessMessage"] = $"Successfully imported {missingConfigs.Count} missing AppConfiguration record(s) from School #1.";
+            }
+
+            return RedirectToAction(nameof(Edit), new { id });
         }
     }
 }

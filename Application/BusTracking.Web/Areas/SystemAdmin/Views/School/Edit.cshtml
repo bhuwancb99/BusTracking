@@ -5,11 +5,22 @@
 
 <div class="row">
     <div class="col-md-9 mx-auto">
-        <div class="d-flex align-items-center mb-4">
-            <a href="@Url.Action("Index", "School", new { area = "SystemAdmin" })" class="btn btn-secondary btn-sm me-3 rounded-circle" style="padding: 0.375rem 0.5rem;">
-                <i class="bi bi-arrow-left"></i>
-            </a>
-            <h2 class="fw-bold m-0"><i class="bi bi-building-gear text-primary me-2"></i>Edit School</h2>
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div class="d-flex align-items-center">
+                <a href="@Url.Action("Index", "School", new { area = "SystemAdmin" })" class="btn btn-secondary btn-sm me-3 rounded-circle" style="padding: 0.375rem 0.5rem;">
+                    <i class="bi bi-arrow-left"></i>
+                </a>
+                <h2 class="fw-bold m-0"><i class="bi bi-building-gear text-primary me-2"></i>Edit School</h2>
+            </div>
+            @if (Model.SchoolId != 1)
+            {
+                <form asp-area="SystemAdmin" asp-controller="School" asp-action="ImportAppConfigs" asp-route-id="@Model.SchoolId" method="post" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-outline-primary rounded-3 fw-semibold shadow-sm" onclick="return confirm('Import missing AppConfigurations from School #1 template for this school?');">
+                        <i class="bi bi-download me-1"></i> Import App Configurations
+                    </button>
+                </form>
+            }
         </div>
 
         <div class="premium-card rounded-4 border-0 p-4">

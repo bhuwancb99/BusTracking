@@ -3,21 +3,34 @@ namespace BusTracking.Common.Services
     public class AppConfigService : IAppConfigService
     {
         private readonly AppDbContext _db;
-        public AppConfigService(AppDbContext db) => _db = db;
+        private readonly ICurrentUserService _currentUserService;
+
+        public AppConfigService(AppDbContext db, ICurrentUserService currentUserService)
+        {
+            _db = db;
+            _currentUserService = currentUserService;
+        }
 
         public async Task<ApiResponse<PagedResult<AppConfigDto>>> GetAllAsync(
             string? platform, string? search, bool? isActive, int page = 1)
         {
-            var q = _db.AppConfigurations
-                .Include(c => c.CreatedByUser)
-                .AsQueryable();
+            var schoolId = _currentUserService.SchoolId;
+            var q = _db.AppConfigurations.AsQueryable();
 
-            // Exact platform match only — selecting "Web" shows Web-only rows,
-            // "Mobile" shows Mobile-only rows, "Both" shows Web/Mobile rows.
-            // (No implicit merge with "Both" when a single platform is selected.)
+            if (schoolId.HasValue)
+            {
+                q = q.Where(c => c.SchoolId == schoolId.Value);
+            }
+
             if (!string.IsNullOrWhiteSpace(platform) &&
-                Enum.TryParse<ConfigPlatform>(platform, true, out var p))
-                q = q.Where(c => c.Platform == p);
+                !platform.Equals("All", StringComparison.OrdinalIgnoreCase) &&
+                !platform.Equals("Both", StringComparison.OrdinalIgnoreCase))
+            {
+                if (Enum.TryParse<ConfigPlatform>(platform, true, out var p))
+                {
+                    q = q.Where(c => c.Platform == p || c.Platform == ConfigPlatform.Both);
+                }
+            }
 
             if (!string.IsNullOrWhiteSpace(search))
                 q = q.Where(c => c.ConfigKey.Contains(search) || c.ConfigValue.Contains(search));
@@ -29,20 +42,38 @@ namespace BusTracking.Common.Services
             page = PaginationHelper.Clamp(page);
 
             var total = await q.CountAsync();
-            var items = await q.OrderBy(c => c.Platform).ThenBy(c => c.ConfigKey)
+            var rawItems = await q.OrderBy(c => c.Platform).ThenBy(c => c.ConfigKey)
                 .Skip((page - 1) * pageSize).Take(pageSize)
-                .Select(c => new AppConfigDto
+                .Select(c => new
                 {
-                    ConfigId = c.ConfigId,
-                    ConfigKey = c.ConfigKey,
-                    ConfigValue = c.ConfigValue,
-                    Description = c.Description,
+                    c.ConfigId,
+                    c.ConfigKey,
+                    c.ConfigValue,
+                    c.Description,
                     Platform = c.Platform.ToString(),
-                    IsActive = c.IsActive,
-                    CreatedAt = c.CreatedAt,
-                    UpdatedAt = c.UpdatedAt,
-                    CreatedByName = c.CreatedByUser.FullName
+                    c.IsActive,
+                    c.CreatedAt,
+                    c.UpdatedAt,
+                    c.CreatedBy
                 }).ToListAsync();
+
+            var userIds = rawItems.Select(x => x.CreatedBy).Distinct().ToList();
+            var userMap = await _db.Users.IgnoreQueryFilters()
+                .Where(u => userIds.Contains(u.UserId))
+                .ToDictionaryAsync(u => u.UserId, u => u.FullName);
+
+            var items = rawItems.Select(c => new AppConfigDto
+            {
+                ConfigId = c.ConfigId,
+                ConfigKey = c.ConfigKey,
+                ConfigValue = c.ConfigValue,
+                Description = c.Description,
+                Platform = c.Platform,
+                IsActive = c.IsActive,
+                CreatedAt = c.CreatedAt,
+                UpdatedAt = c.UpdatedAt,
+                CreatedByName = userMap.TryGetValue(c.CreatedBy, out var name) ? name : "System"
+            }).ToList();
 
             return ApiResponse<PagedResult<AppConfigDto>>.Ok(new PagedResult<AppConfigDto>
             {
@@ -56,8 +87,23 @@ namespace BusTracking.Common.Services
         public async Task<string?> GetValueAsync(string configKey)
         {
             if (string.IsNullOrWhiteSpace(configKey)) return null;
+            var schoolId = _currentUserService.SchoolId;
+
+            if (schoolId.HasValue)
+            {
+                // First try getting school-specific config
+                var val = await _db.AppConfigurations
+                    .Where(c => c.SchoolId == schoolId.Value && c.ConfigKey == configKey && c.IsActive)
+                    .Select(c => c.ConfigValue)
+                    .FirstOrDefaultAsync();
+
+                if (!string.IsNullOrWhiteSpace(val)) return val;
+            }
+
+            // Fallback to SchoolId = 1 or null template config
             return await _db.AppConfigurations
-                .Where(c => c.ConfigKey == configKey && c.IsActive)
+                .IgnoreQueryFilters()
+                .Where(c => (c.SchoolId == 1 || c.SchoolId == null) && c.ConfigKey == configKey && c.IsActive)
                 .Select(c => c.ConfigValue)
                 .FirstOrDefaultAsync();
         }
@@ -81,11 +127,13 @@ namespace BusTracking.Common.Services
         public async Task<ApiResponse<AppConfigDto>> GetByIdAsync(int configId)
         {
             var c = await _db.AppConfigurations
-                .Include(x => x.CreatedByUser)
                 .FirstOrDefaultAsync(x => x.ConfigId == configId);
 
             if (c is null)
                 return ApiResponse<AppConfigDto>.Fail("Configuration not found.");
+
+            var creator = await _db.Users.IgnoreQueryFilters()
+                .FirstOrDefaultAsync(u => u.UserId == c.CreatedBy);
 
             return ApiResponse<AppConfigDto>.Ok(new AppConfigDto
             {
@@ -97,20 +145,23 @@ namespace BusTracking.Common.Services
                 IsActive = c.IsActive,
                 CreatedAt = c.CreatedAt,
                 UpdatedAt = c.UpdatedAt,
-                CreatedByName = c.CreatedByUser.FullName
+                CreatedByName = creator?.FullName ?? "System"
             });
         }
 
         public async Task<ApiResponse<bool>> CreateAsync(CreateAppConfigDto dto, int createdBy)
         {
-            // Ensure unique key per platform
+            var schoolId = _currentUserService.SchoolId;
+
+            // Ensure unique key per platform for THIS school
             var exists = await _db.AppConfigurations
-                .AnyAsync(c => c.ConfigKey == dto.ConfigKey && c.Platform == dto.PlatformEnum);
+                .AnyAsync(c => c.ConfigKey == dto.ConfigKey && c.Platform == dto.PlatformEnum && c.SchoolId == schoolId);
             if (exists)
                 return ApiResponse<bool>.Fail($"Key '{dto.ConfigKey}' already exists for platform '{dto.Platform}'.");
 
             _db.AppConfigurations.Add(new AppConfiguration
             {
+                SchoolId = schoolId,
                 ConfigKey = dto.ConfigKey.Trim(),
                 ConfigValue = dto.ConfigValue.Trim(),
                 Description = dto.Description?.Trim(),
@@ -131,12 +182,13 @@ namespace BusTracking.Common.Services
             if (c is null)
                 return ApiResponse<bool>.Fail("Configuration not found.");
 
-            // Check uniqueness only if key or platform changed
+            // Check uniqueness only if key or platform changed for THIS school
             if (c.ConfigKey != dto.ConfigKey || c.Platform != dto.PlatformEnum)
             {
                 var exists = await _db.AppConfigurations
                     .AnyAsync(x => x.ConfigKey == dto.ConfigKey
                                 && x.Platform == dto.PlatformEnum
+                                && x.SchoolId == c.SchoolId
                                 && x.ConfigId != configId);
                 if (exists)
                     return ApiResponse<bool>.Fail($"Key '{dto.ConfigKey}' already exists for platform '{dto.Platform}'.");

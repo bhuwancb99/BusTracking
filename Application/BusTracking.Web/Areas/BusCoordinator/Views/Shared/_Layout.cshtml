@@ -234,16 +234,6 @@
                 </li>
             }
 
-            @* Notifications *@
-            @if (showNotif)
-            {
-                <li class="sidebar-item @(ctrl == "Notification" ? "active" : "")">
-                    <a class="sidebar-link" asp-area="BusCoordinator" asp-controller="Notification" asp-action="Index">
-                        <i class="bi bi-bell"></i><span>Notifications</span>
-                    </a>
-                </li>
-            }
-
             @* Help & Support *@
             @if (showSupport)
             {

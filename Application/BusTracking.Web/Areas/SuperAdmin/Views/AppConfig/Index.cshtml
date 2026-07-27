@@ -24,7 +24,7 @@
                 <select name="platform" class="form-select form-select-sm" style="width:160px" onchange="this.form.submit()">
                     <option value="Web" selected="@(platformFilter == "Web")">Web only</option>
                     <option value="Mobile" selected="@(platformFilter == "Mobile")">Mobile only</option>
-                    <option value="Both" selected="@(platformFilter == "Both")">Web/Mobile</option>
+                    <option value="Both" selected="@(string.IsNullOrEmpty(platformFilter) || platformFilter == "Both")">Web/Mobile</option>
                 </select>
             </div>
             <div>

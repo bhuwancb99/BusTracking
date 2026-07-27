@@ -40,7 +40,7 @@
                 <select name="platform" class="form-select form-select-sm" style="width:160px" onchange="this.form.submit()">
                     <option value="Web" selected="@(platformFilter == "Web")">Web only</option>
                     <option value="Mobile" selected="@(platformFilter == "Mobile")">Mobile only</option>
-                    <option value="Both" selected="@(platformFilter == "Both")">Web/Mobile</option>
+                    <option value="Both" selected="@(string.IsNullOrEmpty(platformFilter) || platformFilter == "Both")">Web/Mobile</option>
                 </select>
             </div>
             <div>
@@ -189,8 +189,8 @@ else
 @section Scripts {
     <script>
         document.querySelectorAll('.btn-toggle-config').forEach(btn => {
-            btn.addEventListener('click', async function () {
-                const id  = this.dataset.id;
+            btn.addEventListener('click', async function() {
+                const id = this.dataset.id;
                 const res = await fetch(`/BusCoordinator/AppConfig/Toggle/${id}`, {
                     method: 'POST',
                     headers: { 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '' }

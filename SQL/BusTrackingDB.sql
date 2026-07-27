@@ -259,7 +259,7 @@ CREATE TABLE Routes (
     CreatedBy     INT           NULL,
     CONSTRAINT PK_Routes PRIMARY KEY (RouteId),
     CONSTRAINT FK_Routes_Users FOREIGN KEY (CreatedBy) REFERENCES Users(UserId),
-    CONSTRAINT UQ_Routes_RouteCode UNIQUE (RouteCode),
+    CONSTRAINT UQ_Routes_RouteCode UNIQUE (SchoolId, RouteCode),
     CONSTRAINT FK_Routes_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId));
 GO
 
@@ -294,7 +294,7 @@ CREATE TABLE BusTypeMasters (
     CreatedAt DATETIME2     NOT NULL CONSTRAINT DF_BusTypeMasters_CreatedAt DEFAULT GETUTCDATE(),
     UpdatedAt DATETIME2     NOT NULL CONSTRAINT DF_BusTypeMasters_UpdatedAt DEFAULT GETUTCDATE(),
     CONSTRAINT PK_BusTypeMasters PRIMARY KEY (Id),
-    CONSTRAINT UQ_BusTypeMasters_Name UNIQUE (Name),
+    CONSTRAINT UQ_BusTypeMasters_Name UNIQUE (SchoolId, Name),
     CONSTRAINT FK_BusTypeMasters_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId));
 GO
 
@@ -319,7 +319,7 @@ CREATE TABLE Buses (
     CONSTRAINT PK_Buses PRIMARY KEY (BusId),
     CONSTRAINT FK_Buses_BusTypeMasters FOREIGN KEY (BusTypeId) REFERENCES BusTypeMasters(Id),
     CONSTRAINT FK_Buses_Users FOREIGN KEY (CreatedBy) REFERENCES Users(UserId),
-    CONSTRAINT UQ_Buses_BusNumber UNIQUE (BusNumber),
+    CONSTRAINT UQ_Buses_BusNumber UNIQUE (SchoolId, BusNumber),
     CONSTRAINT FK_Buses_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId));
 GO
 
@@ -350,7 +350,7 @@ CREATE TABLE StandardMasters (
     IsActive      BIT           NOT NULL CONSTRAINT DF_StandardMasters_IsActive DEFAULT 1,
     CreatedAt     DATETIME2     NOT NULL CONSTRAINT DF_StandardMasters_CreatedAt DEFAULT GETUTCDATE(),
     CONSTRAINT PK_StandardMasters PRIMARY KEY (StandardId),
-    CONSTRAINT UQ_StandardMasters_StandardName UNIQUE (StandardName),
+    CONSTRAINT UQ_StandardMasters_StandardName UNIQUE (SchoolId, StandardName),
     CONSTRAINT FK_StandardMasters_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId));
 GO
 
@@ -375,7 +375,7 @@ CREATE TABLE Students (
     CONSTRAINT FK_Students_Buses FOREIGN KEY (BusId) REFERENCES Buses(BusId),
     CONSTRAINT FK_Students_Stops FOREIGN KEY (StopId) REFERENCES Stops(StopId),
     CONSTRAINT UQ_Students_UserId UNIQUE (UserId),
-    CONSTRAINT UQ_Students_StudentCode UNIQUE (StudentCode),
+    CONSTRAINT UQ_Students_StudentCode UNIQUE (SchoolId, StudentCode),
     CONSTRAINT FK_Students_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId));
 GO
 
@@ -584,7 +584,7 @@ CREATE TABLE NotificationSettings (
     UpdatedBy             INT           NULL,
     CONSTRAINT PK_NotificationSettings PRIMARY KEY (NotificationSettingId),
     CONSTRAINT FK_NotificationSettings_Users FOREIGN KEY (UpdatedBy) REFERENCES Users(UserId),
-    CONSTRAINT UQ_NotificationSettings_NotificationType UNIQUE (NotificationType),
+    CONSTRAINT UQ_NotificationSettings_NotificationType UNIQUE (SchoolId, NotificationType),
     CONSTRAINT FK_NotificationSettings_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId));
 GO
 
@@ -702,7 +702,7 @@ BEGIN
         UpdatedAt    DATETIME2     NOT NULL CONSTRAINT DF_AppConfigurations_UpdatedAt DEFAULT GETUTCDATE(),
         CONSTRAINT PK_AppConfigurations PRIMARY KEY (ConfigId),
         CONSTRAINT FK_AppConfigurations_Users FOREIGN KEY (CreatedBy) REFERENCES Users(UserId),
-        CONSTRAINT UQ_AppConfigurations_Key_Platform UNIQUE (ConfigKey, Platform),
+        CONSTRAINT UQ_AppConfigurations_Key_Platform UNIQUE (SchoolId, ConfigKey, Platform),
         CONSTRAINT FK_AppConfigurations_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId));
 
     CREATE INDEX IX_AppConfigurations_Platform_Active
