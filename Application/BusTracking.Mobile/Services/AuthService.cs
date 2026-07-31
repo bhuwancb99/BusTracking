@@ -33,8 +33,11 @@ namespace BusTracking.Mobile.Services
 
             var user = r.Data;
 
-            // Clear any old/corrupt session before saving new one
+            // Clear any old/corrupt session and cache before saving new one
+            _cache.Clear();
             await _db.ClearSessionAsync();
+
+            if (user.SchoolId == 0) user.SchoolId = null;
 
             // Fetch profile image URL & school info right after login
             _api.SetToken(user.Token);
@@ -44,9 +47,15 @@ namespace BusTracking.Mobile.Services
                 if (profileResp.Success && profileResp.Data is not null)
                 {
                     user.ProfileImageUrl = profileResp.Data.ProfileImageUrl;
-                    if (user.SchoolId == null) user.SchoolId = profileResp.Data.SchoolId;
-                    if (string.IsNullOrWhiteSpace(user.SchoolName)) user.SchoolName = profileResp.Data.SchoolName;
-                    if (string.IsNullOrWhiteSpace(user.SchoolLogoUrl)) user.SchoolLogoUrl = profileResp.Data.SchoolLogo;
+                    if (profileResp.Data.SchoolId.HasValue && profileResp.Data.SchoolId.Value > 0)
+                        user.SchoolId = profileResp.Data.SchoolId.Value;
+                    else if (profileResp.Data.SchoolId == 0)
+                        user.SchoolId = null;
+
+                    if (!string.IsNullOrWhiteSpace(profileResp.Data.SchoolName))
+                        user.SchoolName = profileResp.Data.SchoolName;
+                    if (!string.IsNullOrWhiteSpace(profileResp.Data.SchoolLogo))
+                        user.SchoolLogoUrl = profileResp.Data.SchoolLogo;
                 }
             }
             catch { /* non-fatal — proceed without image */ }

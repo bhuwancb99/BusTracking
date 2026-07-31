@@ -35,15 +35,16 @@ namespace BusTracking.Common.Services
             string? utcOffset = null;
 
             // Cascading Deactivation / School Inactivity Checks
-            if (user.SchoolId.HasValue)
+            if (user.Role.RoleName != "SystemAdmin" && user.SchoolId.HasValue)
             {
+
                 var school = await _db.Schools
                     .Include(s => s.TimeZone)
                     .IgnoreQueryFilters()
                     .FirstOrDefaultAsync(s => s.SchoolId == user.SchoolId.Value);
 
                 if (school == null || !school.IsActive)
-                    return ApiResponse<LoginResponseDto>.Fail("Your account has been deactivated. Please contact your System Administrator for assistance.");
+                    return ApiResponse<LoginResponseDto>.Fail("Your account has been deactivated or assigned to an inactive school. Please contact your System Administrator for assistance.");
 
                 schoolName = school.SchoolName;
                 schoolLogo = school.SchoolLogo;

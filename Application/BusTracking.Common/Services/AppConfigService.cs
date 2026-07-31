@@ -100,7 +100,7 @@ namespace BusTracking.Common.Services
                 if (!string.IsNullOrWhiteSpace(val)) return val;
             }
 
-            // Fallback to SchoolId = 1 or null template config
+            // Fallback to null template config (global system config) or school 1 config
             return await _db.AppConfigurations
                 .IgnoreQueryFilters()
                 .Where(c => (c.SchoolId == 1 || c.SchoolId == null) && c.ConfigKey == configKey && c.IsActive)
@@ -229,11 +229,23 @@ namespace BusTracking.Common.Services
 
         public async Task<ApiResponse<List<AppConfigValueDto>>> GetConfigForPlatformAsync(ConfigPlatform platform)
         {
-            var list = await _db.AppConfigurations
-                .Where(c => c.IsActive && (c.Platform == platform || c.Platform == ConfigPlatform.Both))
-                .OrderBy(c => c.ConfigKey)
+            var schoolId = _currentUserService.SchoolId;
+            var q = _db.AppConfigurations
+                .Where(c => c.IsActive && (c.Platform == platform || c.Platform == ConfigPlatform.Both));
+
+            if (!schoolId.HasValue)
+            {
+                q = _db.AppConfigurations.IgnoreQueryFilters()
+                    .Where(c => c.IsActive && (c.SchoolId == 1 || c.SchoolId == null) && (c.Platform == platform || c.Platform == ConfigPlatform.Both));
+            }
+
+            var raw = await q.OrderBy(c => c.ConfigKey)
                 .Select(c => new AppConfigValueDto { Key = c.ConfigKey, Value = c.ConfigValue })
                 .ToListAsync();
+
+            var list = raw.GroupBy(x => x.Key, StringComparer.OrdinalIgnoreCase)
+                .Select(g => g.First())
+                .ToList();
 
             return ApiResponse<List<AppConfigValueDto>>.Ok(list);
         }

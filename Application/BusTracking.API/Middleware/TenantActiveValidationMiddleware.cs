@@ -26,17 +26,17 @@ namespace BusTracking.API.Middleware
 
                     if (user == null || !user.IsActive)
                     {
-                        await RespondDeactivatedAsync(context);
+                        await RespondDeactivatedAsync(context, "Your account has been deactivated. Please contact your System Administrator for assistance.");
                         return;
                     }
 
-                    if (user.SchoolId.HasValue)
+                    if (user.Role.RoleName != "SystemAdmin" && user.SchoolId.HasValue)
                     {
                         // Check if school is active
                         var school = await db.Schools.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.SchoolId == user.SchoolId.Value);
                         if (school == null || !school.IsActive)
                         {
-                            await RespondDeactivatedAsync(context);
+                            await RespondDeactivatedAsync(context, "Your account has been deactivated or assigned to an inactive school. Please contact your System Administrator for assistance.");
                             return;
                         }
 
@@ -48,7 +48,7 @@ namespace BusTracking.API.Middleware
                                 .AnyAsync(u => u.SchoolId == user.SchoolId && u.Role.RoleId == 1 && u.IsActive);
                             if (!hasActiveSuperAdmin)
                             {
-                                await RespondDeactivatedAsync(context);
+                                await RespondDeactivatedAsync(context, "Your account has been deactivated. Please contact your System Administrator for assistance.");
                                 return;
                             }
                         }
@@ -59,12 +59,13 @@ namespace BusTracking.API.Middleware
             await _next(context);
         }
 
-        private static async Task RespondDeactivatedAsync(HttpContext context)
+        private static async Task RespondDeactivatedAsync(HttpContext context, string? message = null)
         {
             context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             context.Response.ContentType = "application/json";
-            
-            var response = ApiResponse<object>.Fail("Your account has been deactivated. Please contact your System Administrator for assistance.");
+
+            var msg = message ?? "Your account has been deactivated. Please contact your System Administrator for assistance.";
+            var response = ApiResponse<object>.Fail(msg);
             await context.Response.WriteAsync(JsonSerializer.Serialize(response,
                 new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         }

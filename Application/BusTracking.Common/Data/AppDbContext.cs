@@ -231,11 +231,22 @@ public class AppDbContext : DbContext
 
             foreach (var entry in modifiedEntries)
             {
-                if (entry.Entity is IMultiTenant tenantEntity && schoolId.HasValue && entry.State == EntityState.Added)
+                if (entry.Entity is IMultiTenant tenantEntity)
                 {
-                    if (tenantEntity.SchoolId == null || tenantEntity.SchoolId == 0)
+                    if (entry.State == EntityState.Added)
                     {
-                        tenantEntity.SchoolId = schoolId.Value;
+                        if ((tenantEntity.SchoolId == null || tenantEntity.SchoolId == 0) && schoolId.HasValue && schoolId.Value > 0)
+                        {
+                            tenantEntity.SchoolId = schoolId.Value;
+                        }
+                        else if (tenantEntity.SchoolId == 0)
+                        {
+                            tenantEntity.SchoolId = null;
+                        }
+                    }
+                    else if (entry.State == EntityState.Modified && tenantEntity.SchoolId == 0)
+                    {
+                        tenantEntity.SchoolId = null;
                     }
                 }
 

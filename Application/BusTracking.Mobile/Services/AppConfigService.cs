@@ -21,7 +21,14 @@ namespace BusTracking.Mobile.Services
             var r = await _api.GetAsync<List<AppConfigValue>>(Constants.AppConfig.Mobile);
             if (!r.Success || r.Data is null) return [];
 
-            var dict = r.Data.ToDictionary(x => x.Key, x => x.Value, StringComparer.OrdinalIgnoreCase);
+            var dict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var item in r.Data)
+            {
+                if (!string.IsNullOrEmpty(item.Key))
+                {
+                    dict[item.Key] = item.Value ?? "";
+                }
+            }
             _cache.Set(key, dict, ttl);
             return dict;
         }

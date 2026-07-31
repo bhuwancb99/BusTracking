@@ -15,7 +15,7 @@ namespace BusTracking.Web.Filters
             if (httpContext.User.Identity?.IsAuthenticated == true)
             {
                 var db = httpContext.RequestServices.GetRequiredService<AppDbContext>();
-                
+
                 var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
                 if (int.TryParse(userIdClaim, out var userId))
                 {
@@ -28,6 +28,7 @@ namespace BusTracking.Web.Filters
                             .FirstOrDefaultAsync(u => u.UserId == userId);
 
                         bool deactivate = false;
+                        string errorMessage = "Your account has been deactivated. Please contact your System Administrator for assistance.";
 
                         if (user == null || !user.IsActive)
                         {
@@ -39,6 +40,7 @@ namespace BusTracking.Web.Filters
                             if (school == null || !school.IsActive)
                             {
                                 deactivate = true;
+                                errorMessage = "Your account has been deactivated or assigned to an inactive school. Please contact your System Administrator for assistance.";
                             }
                             else if (user.Role.RoleName != AppConstants.RoleSuperAdmin)
                             {
@@ -55,13 +57,13 @@ namespace BusTracking.Web.Filters
                         if (deactivate)
                         {
                             await httpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-                            
+
                             var controller = context.Controller as Controller;
                             if (controller != null)
                             {
-                                controller.TempData["ErrorMessage"] = "Your account has been deactivated. Please contact your System Administrator for assistance.";
+                                controller.TempData["ErrorMessage"] = errorMessage;
                             }
-                            
+
                             context.Result = new RedirectToActionResult("Login", "Auth", new { area = "" });
                             return;
                         }
