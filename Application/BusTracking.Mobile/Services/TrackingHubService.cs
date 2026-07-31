@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.SignalR.Client;
-
 namespace BusTracking.Mobile.Services
 {
     /// <summary>

@@ -1,5 +1,3 @@
-using CommunityToolkit.Maui.Extensions;
-
 namespace BusTracking.Mobile.Views.Common;
 
 public partial class ConfirmPopup : CommunityToolkit.Maui.Views.Popup

@@ -11,6 +11,8 @@
             <!--  ── Converters ─────────────────────────────────────────  -->
             <converters:InvertBoolConverter x:Key="InvertBool" />
             <converters:InvertBoolConverter x:Key="InvertBoolConverter" />
+            <converters:InvertBoolConverter x:Key="InverseBoolConverter" />
+            <converters:InvertBoolConverter x:Key="InvertedBoolConverter" />
             <converters:InvertBoolConverter x:Key="Invert" />
             <converters:NullToBoolConverter x:Key="NullToBool" />
             <converters:NullToVisibleConverter x:Key="NullToVisible" />
