@@ -2,15 +2,36 @@ namespace BusTracking.Common.Services
 {
     public class StudentService : IStudentService
     {
-        private readonly AppDbContext _db; private readonly IPasswordService _pwd; private readonly IEmailService _email;
-        public StudentService(AppDbContext db, IPasswordService pwd, IEmailService email) { _db = db; _pwd = pwd; _email = email; }
+        private readonly AppDbContext _db;
+        private readonly IPasswordService _pwd;
+        private readonly IEmailService _email;
+        private readonly ICurrentUserService _currentUser;
+
+        public StudentService(AppDbContext db, IPasswordService pwd, IEmailService email, ICurrentUserService currentUser)
+        {
+            _db = db;
+            _pwd = pwd;
+            _email = email;
+            _currentUser = currentUser;
+        }
 
         public async Task<ApiResponse<PagedResult<StudentListDto>>> GetAllAsync(int page, string? search, string? status)
         {
-            var q = _db.Students.Include(s => s.User).Include(s => s.Standard).Include(s => s.Bus).Include(s => s.Stop).AsQueryable();
-            if (!string.IsNullOrWhiteSpace(search)) q = q.Where(s => s.User.FullName.Contains(search) || s.User.UserName.Contains(search) || s.StudentCode.Contains(search));
-            if (status == "Active") q = q.Where(s => s.User.IsActive);
-            else if (status == "Inactive") q = q.Where(s => !s.User.IsActive);
+            var schoolId = _currentUser.SchoolId;
+
+            var q = _db.Students
+                .Include(s => s.User)
+                .Include(s => s.Standard)
+                .Include(s => s.Bus)
+                .Include(s => s.Stop)
+                .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(search))
+                q = q.Where(s => s.User.FullName.Contains(search) || s.User.UserName.Contains(search) || s.StudentCode.Contains(search));
+
+            var normalisedStatus = (status == "Both" || string.IsNullOrWhiteSpace(status)) ? null : status;
+            if (normalisedStatus == "Active") q = q.Where(s => s.User.IsActive);
+            else if (normalisedStatus == "Inactive") q = q.Where(s => !s.User.IsActive);
 
             var pageSize = await GetListPageSizeAsync();
             page = PaginationHelper.Clamp(page);
@@ -49,7 +70,20 @@ namespace BusTracking.Common.Services
         public Task<int> GetListPageSizeAsync() => PaginationHelper.GetListPageSizeAsync(_db);
         public async Task<ApiResponse<StudentListDto>> GetByIdAsync(int studentId)
         {
-            var s = await _db.Students.Include(x => x.User).Include(x => x.Standard).Include(x => x.Bus).Include(x => x.Stop).FirstOrDefaultAsync(x => x.StudentId == studentId);
+            var schoolId = _currentUser.SchoolId;
+            var q = _db.Students
+                .Include(x => x.User)
+                .Include(x => x.Standard)
+                .Include(x => x.Bus)
+                .Include(x => x.Stop)
+                .AsQueryable();
+
+            if (schoolId.HasValue)
+            {
+                q = q.Where(s => s.SchoolId == schoolId.Value || (s.User != null && s.User.SchoolId == schoolId.Value));
+            }
+
+            var s = await q.FirstOrDefaultAsync(x => x.StudentId == studentId);
             if (s is null) return ApiResponse<StudentListDto>.Fail("Not found.");
             return ApiResponse<StudentListDto>.Ok(new StudentListDto
             {
@@ -89,6 +123,7 @@ namespace BusTracking.Common.Services
                 FullName = dto.FullName,
                 UserName = dto.UserName,
                 Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email,
+                SchoolId = _currentUser.SchoolId,
                 PasswordHash = hash,
                 PasswordSalt = salt,
                 CreatedBy = createdBy
@@ -96,6 +131,7 @@ namespace BusTracking.Common.Services
             _db.Users.Add(user); await _db.SaveChangesAsync();
             _db.Students.Add(new StudentDetail
             {
+                SchoolId = user.SchoolId ?? _currentUser.SchoolId,
                 UserId = user.UserId,
                 StudentCode = dto.StudentCode,
                 StandardId = dto.StandardId,
@@ -150,7 +186,7 @@ namespace BusTracking.Common.Services
         public async Task<ApiResponse<bool>> ToggleActiveAsync(int studentId)
         { var s = await _db.Students.Include(x => x.User).FirstOrDefaultAsync(x => x.StudentId == studentId); if (s is null) return ApiResponse<bool>.Fail("Not found."); s.User.IsActive = !s.User.IsActive; s.User.UpdatedAt = DateTime.UtcNow; await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, s.User.IsActive ? "Activated." : "Deactivated."); }
         public async Task<ApiResponse<bool>> AssignBusAsync(AssignBusToStudentDto dto)
-        { var s = await _db.Students.FindAsync(dto.StudentId); if (s is null) return ApiResponse<bool>.Fail("Not found."); s.BusId = dto.BusId; s.StopId = dto.StopId; s.UpdatedAt = DateTime.UtcNow; await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Bus assigned."); }
+        { var s = await _db.Students.FirstOrDefaultAsync(x => x.StudentId == dto.StudentId); if (s is null) return ApiResponse<bool>.Fail("Not found."); s.BusId = dto.BusId; s.StopId = dto.StopId; s.UpdatedAt = DateTime.UtcNow; await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Bus assigned."); }
         public async Task<ApiResponse<bool>> SetAvailabilityAsync(CreateAvailabilityDto dto, int markedBy)
         {
             if (!DateOnly.TryParse(dto.FromDate, out var from) || !DateOnly.TryParse(dto.ToDate, out var to)) return ApiResponse<bool>.Fail("Invalid date.");
@@ -181,7 +217,12 @@ namespace BusTracking.Common.Services
         }
         public async Task<ApiResponse<List<StudentSearchDto>>> SearchAsync(string? query)
         {
+            var schoolId = _currentUser.SchoolId;
             var q = _db.Students.Include(s => s.User).Include(s => s.Standard).Include(s => s.Bus).Where(s => s.User.IsActive);
+            if (schoolId.HasValue)
+            {
+                q = q.Where(s => s.SchoolId == schoolId.Value || (s.User != null && s.User.SchoolId == schoolId.Value));
+            }
             if (!string.IsNullOrWhiteSpace(query)) q = q.Where(s => s.User.FullName.Contains(query) || s.StudentCode.Contains(query));
             var list = await q.OrderBy(s => s.User.FullName).Take(10).Select(s => new StudentSearchDto
             {
@@ -197,7 +238,7 @@ namespace BusTracking.Common.Services
 
         public async Task<ApiResponse<CreatedUserResultDto>> ResetPasswordAsync(int studentId)
         {
-            var u = await _db.Users.FindAsync(studentId);
+            var u = await _db.Users.FirstOrDefaultAsync(x => x.UserId == studentId);
             if (u is null) return ApiResponse<CreatedUserResultDto>.Fail("Student not found.");
             var newPassword = _pwd.GenerateRandomPassword();
             var (hash, salt) = _pwd.HashPassword(newPassword);

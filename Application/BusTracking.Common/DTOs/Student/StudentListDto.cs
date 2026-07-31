@@ -20,6 +20,7 @@ namespace BusTracking.Common.DTOs.Student
         public string? ProfileImageUrl { get; set; }
 
         // Transport Fee Tracking
+        [JsonConverter(typeof(JsonStringEnumConverter))]
         public TransportFeeStatus TransportFeeStatus { get; set; } = TransportFeeStatus.Paid;
         public DateOnly? FeeExpiryDate { get; set; }
     }

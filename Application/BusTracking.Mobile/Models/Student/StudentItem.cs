@@ -1,5 +1,36 @@
 namespace BusTracking.Mobile.Models.Student
 {
+    public class FlexibleStringConverter : JsonConverter<string>
+    {
+        public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.Number)
+            {
+                if (reader.TryGetInt32(out var intVal))
+                {
+                    return intVal switch
+                    {
+                        0 => "Paid",
+                        1 => "Pending",
+                        2 => "Overdue",
+                        _ => intVal.ToString()
+                    };
+                }
+                return reader.GetDouble().ToString();
+            }
+            if (reader.TokenType == JsonTokenType.String)
+            {
+                return reader.GetString() ?? "";
+            }
+            return reader.TokenType.ToString();
+        }
+
+        public override void Write(Utf8JsonWriter writer, string value, JsonSerializerOptions options)
+        {
+            writer.WriteStringValue(value);
+        }
+    }
+
     public class StudentItem
     {
         public int StudentId { get; set; }
@@ -19,6 +50,7 @@ namespace BusTracking.Mobile.Models.Student
         public bool IsActive { get; set; }
 
         // Transport Fee Tracking
+        [JsonConverter(typeof(FlexibleStringConverter))]
         public string TransportFeeStatus { get; set; } = "Paid";
         public string? FeeExpiryDate { get; set; }
 
