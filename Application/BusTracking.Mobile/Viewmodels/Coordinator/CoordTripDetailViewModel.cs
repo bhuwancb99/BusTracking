@@ -6,7 +6,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [ObservableProperty] private int _tripId;
         [ObservableProperty] private TripItem? _trip;
 
-        public bool CanEdit   => Can("trip.manage");
+        public bool CanEdit   => false;
         public bool CanDelete => Can("trip.manage");
 
         public CoordTripDetailViewModel(IAuthService auth, INavigationService nav, ITripService trips)

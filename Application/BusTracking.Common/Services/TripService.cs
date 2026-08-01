@@ -4,21 +4,28 @@ namespace BusTracking.Common.Services
     {
         private readonly AppDbContext _db;
         private readonly IFcmPushNotificationService _fcm;
+        private readonly ICurrentUserService _currentUser;
 
-        public TripService(AppDbContext db, IFcmPushNotificationService fcm)
+        public TripService(AppDbContext db, IFcmPushNotificationService fcm, ICurrentUserService currentUser)
         {
             _db = db;
             _fcm = fcm;
+            _currentUser = currentUser;
         }
 
         public async Task<ApiResponse<PagedResult<TripListDto>>> GetAllAsync(int page, string? busId, string? status = null, string? date = null)
         {
-            var q = _db.BusTrips
-                .IgnoreQueryFilters()
-                .Include(t => t.Bus)
-                .Include(t => t.Driver)
-                .Include(t => t.Route)
-                .AsQueryable();
+            var schoolId = _currentUser.SchoolId;
+            var q = _db.BusTrips.AsQueryable();
+
+            if (schoolId.HasValue)
+            {
+                q = q.Where(t => t.SchoolId == schoolId.Value || (t.Bus != null && t.Bus.SchoolId == schoolId.Value));
+            }
+
+            q = q.Include(t => t.Bus)
+                 .Include(t => t.Driver)
+                 .Include(t => t.Route);
 
             if (!string.IsNullOrWhiteSpace(busId) && int.TryParse(busId, out var bid))
                 q = q.Where(t => t.BusId == bid);
@@ -58,8 +65,14 @@ namespace BusTracking.Common.Services
 
         public async Task<ApiResponse<List<StudentTripStatusDto>>> GetTripStudentsAsync(int tripId)
         {
-            var trip = await _db.BusTrips
-                .IgnoreQueryFilters()
+            var schoolId = _currentUser.SchoolId;
+            var tripQuery = _db.BusTrips.AsQueryable();
+            if (schoolId.HasValue)
+            {
+                tripQuery = tripQuery.Where(t => t.SchoolId == schoolId.Value || (t.Bus != null && t.Bus.SchoolId == schoolId.Value));
+            }
+
+            var trip = await tripQuery
                 .Include(t => t.Bus)
                 .Include(t => t.Route).ThenInclude(r => r!.Stops)
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
@@ -198,11 +211,16 @@ namespace BusTracking.Common.Services
 
         public async Task<ApiResponse<TripListDto>> GetByIdAsync(int tripId)
         {
-            var t = await _db.BusTrips
-                .IgnoreQueryFilters()
+            var schoolId = _currentUser.SchoolId;
+            var q = _db.BusTrips.Where(x => x.TripId == tripId);
+            if (schoolId.HasValue)
+            {
+                q = q.Where(t => t.SchoolId == schoolId.Value || (t.Bus != null && t.Bus.SchoolId == schoolId.Value));
+            }
+            var t = await q
                 .Include(x => x.Bus).Include(x => x.Driver)
                 .Include(x => x.Route).ThenInclude(r => r!.Stops)
-                .FirstOrDefaultAsync(x => x.TripId == tripId);
+                .FirstOrDefaultAsync();
             if (t is null) return ApiResponse<TripListDto>.Fail("Trip not found.");
             return ApiResponse<TripListDto>.Ok(new TripListDto
             {
@@ -243,8 +261,12 @@ namespace BusTracking.Common.Services
                     return ApiResponse<TripListDto>.Fail("No active driver is assigned to this bus.");
                 driverId = assignedDriver.DriverUserId;
             }
+            var busForTrip = await _db.Buses.IgnoreQueryFilters().FirstOrDefaultAsync(b => b.BusId == dto.BusId);
+            var tripSchoolId = _currentUser.SchoolId ?? busForTrip?.SchoolId;
+
             var trip = new BusTrip
             {
+                SchoolId = tripSchoolId,
                 BusId = dto.BusId,
                 DriverId = driverId,
                 RouteId = dto.RouteId,
@@ -301,7 +323,7 @@ namespace BusTracking.Common.Services
                 .FirstOrDefaultAsync(t => t.TripId == tripId);
 
             if (trip is null) return ApiResponse<bool>.Fail("Trip not found.");
-            if (trip.Status != TripStatus.Scheduled && trip.Status != TripStatus.InProgress) 
+            if (trip.Status != TripStatus.Scheduled && trip.Status != TripStatus.InProgress)
                 return ApiResponse<bool>.Fail("Trip is not in Scheduled or InProgress status.");
 
             trip.Status = TripStatus.InProgress;

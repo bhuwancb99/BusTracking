@@ -3,11 +3,23 @@ namespace BusTracking.Common.Services
     public class StandardService : IStandardService
     {
         private readonly AppDbContext _db;
-        public StandardService(AppDbContext db) => _db = db;
+        private readonly ICurrentUserService _currentUser;
+
+        public StandardService(AppDbContext db, ICurrentUserService currentUser)
+        {
+            _db = db;
+            _currentUser = currentUser;
+        }
 
         public async Task<ApiResponse<PagedResult<StandardDto>>> GetAllAsync(string? search, bool? isActive, int page = 1)
         {
-            var q = _db.StandardMasters.AsQueryable();
+            var schoolId = _currentUser.SchoolId;
+            var q = _db.StandardMasters.IgnoreQueryFilters().AsQueryable();
+
+            if (schoolId.HasValue)
+            {
+                q = q.Where(s => s.SchoolId == schoolId.Value);
+            }
 
             if (!string.IsNullOrWhiteSpace(search))
                 q = q.Where(s => s.StandardName.Contains(search));
@@ -70,6 +82,7 @@ namespace BusTracking.Common.Services
 
             _db.StandardMasters.Add(new StandardMaster
             {
+                SchoolId = _currentUser.SchoolId,
                 StandardName = dto.StandardName.Trim(),
                 IsActive = dto.IsActive,
                 CreatedAt = DateTime.UtcNow

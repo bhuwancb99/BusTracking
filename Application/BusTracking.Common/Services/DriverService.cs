@@ -2,13 +2,29 @@ namespace BusTracking.Common.Services
 {
     public class DriverService : IDriverService
     {
-        private readonly AppDbContext _db; private readonly IPasswordService _pwd; private readonly IEmailService _email;
-        public DriverService(AppDbContext db, IPasswordService pwd, IEmailService email) { _db = db; _pwd = pwd; _email = email; }
+        private readonly AppDbContext _db;
+        private readonly IPasswordService _pwd;
+        private readonly IEmailService _email;
+        private readonly ICurrentUserService _currentUser;
+
+        public DriverService(AppDbContext db, IPasswordService pwd, IEmailService email, ICurrentUserService currentUser)
+        {
+            _db = db;
+            _pwd = pwd;
+            _email = email;
+            _currentUser = currentUser;
+        }
 
         public async Task<ApiResponse<PagedResult<DriverListDto>>> GetAllAsync(int page, string? search, string? status)
         {
+            var schoolId = _currentUser.SchoolId;
             var roleId = await _db.Roles.Where(r => r.RoleName == "Driver").Select(r => r.RoleId).FirstAsync();
-            var q = _db.Users.Include(u => u.DriverDetail).Where(u => u.RoleId == roleId);
+            var q = _db.Users.IgnoreQueryFilters().Include(u => u.DriverDetail).Where(u => u.RoleId == roleId);
+
+            if (schoolId.HasValue)
+            {
+                q = q.Where(u => u.SchoolId == schoolId.Value || (u.DriverDetail != null && u.DriverDetail.SchoolId == schoolId.Value));
+            }
             if (!string.IsNullOrWhiteSpace(search)) q = q.Where(u => u.FullName.Contains(search) || u.UserName.Contains(search) || (u.Email != null && u.Email.Contains(search)));
             if (status == "Active") q = q.Where(u => u.IsActive);
             else if (status == "Inactive") q = q.Where(u => !u.IsActive);
@@ -70,6 +86,7 @@ namespace BusTracking.Common.Services
             var user = new User
             {
                 RoleId = roleId,
+                SchoolId = _currentUser.SchoolId,
                 FullName = dto.FullName,
                 UserName = dto.UserName,
                 Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email,
@@ -81,6 +98,7 @@ namespace BusTracking.Common.Services
             _db.Users.Add(user); await _db.SaveChangesAsync();
             _db.DriverDetails.Add(new DriverDetail
             {
+                SchoolId = user.SchoolId ?? _currentUser.SchoolId,
                 UserId = user.UserId,
                 LicenseNumber = dto.LicenseNumber,
                 LicenseExpiry = dto.LicenseExpiry is not null ? DateOnly.Parse(dto.LicenseExpiry) : null

@@ -7,7 +7,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [ObservableProperty] private int _tripId;
         [ObservableProperty] private TripItem? _trip;
 
-        public bool CanEdit => Can("trip.manage");
+        public bool CanEdit => false;
         public bool CanDelete => Can("trip.manage");
 
         public AdminTripDetailViewModel(IAuthService auth, INavigationService nav, ITripService trips)

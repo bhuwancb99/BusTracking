@@ -3,16 +3,28 @@ namespace BusTracking.Common.Services
     public class BusService : IBusService
     {
         private readonly AppDbContext _db;
-        public BusService(AppDbContext db) => _db = db;
+        private readonly ICurrentUserService _currentUser;
+
+        public BusService(AppDbContext db, ICurrentUserService currentUser)
+        {
+            _db = db;
+            _currentUser = currentUser;
+        }
 
         public async Task<ApiResponse<PagedResult<BusListDto>>> GetAllAsync(int page, string? search, string? status)
         {
-            var q = _db.Buses
+            var schoolId = _currentUser.SchoolId;
+            var q = _db.Buses.IgnoreQueryFilters()
                 .Include(b => b.BusType)
                 .Include(b => b.Students)
                 .Include(b => b.RouteMappings).ThenInclude(rm => rm.Route)
                 .Include(b => b.DriverMappings).ThenInclude(dm => dm.DriverUser)
                 .AsQueryable();
+
+            if (schoolId.HasValue)
+            {
+                q = q.Where(b => b.SchoolId == schoolId.Value);
+            }
 
             if (!string.IsNullOrWhiteSpace(search)) q = q.Where(b => b.BusName.Contains(search) || b.BusNumber.Contains(search));
             if (status == "Active") q = q.Where(b => b.IsActive);
@@ -114,6 +126,7 @@ namespace BusTracking.Common.Services
 
             var bus = new Bus
             {
+                SchoolId = _currentUser.SchoolId,
                 BusName = dto.BusName,
                 BusNumber = dto.BusNumber,
                 BusTypeId = dto.BusTypeId,
@@ -247,7 +260,9 @@ namespace BusTracking.Common.Services
 
         public async Task<ApiResponse<List<BusDropdownDto>>> GetDropdownAsync(string? search)
         {
-            var q = _db.Buses.Where(b => b.IsActive);
+            var schoolId = _currentUser.SchoolId;
+            var q = _db.Buses.IgnoreQueryFilters().Where(b => b.IsActive);
+            if (schoolId.HasValue) q = q.Where(b => b.SchoolId == schoolId.Value);
             if (!string.IsNullOrWhiteSpace(search)) q = q.Where(b => b.BusName.Contains(search) || b.BusNumber.Contains(search));
             var list = await q.OrderBy(b => b.BusName).Select(b => new BusDropdownDto { BusId = b.BusId, Display = $"{b.BusName} ({b.BusNumber})" }).ToListAsync();
             return ApiResponse<List<BusDropdownDto>>.Ok(list);
@@ -275,10 +290,12 @@ namespace BusTracking.Common.Services
 
         public async Task<ApiResponse<List<DriverDropdownDto>>> GetDriversForBusAsync(int busId)
         {
+            var schoolId = _currentUser.SchoolId;
             var mappedDriverUserIds = await _db.BusDriverMappings.Where(dm => dm.BusId == busId).Select(dm => dm.DriverUserId).ToListAsync();
 
             var roleId = await _db.Roles.Where(r => r.RoleName == "Driver").Select(r => r.RoleId).FirstAsync();
-            var q = _db.Users.Where(u => u.RoleId == roleId && u.IsActive);
+            var q = _db.Users.IgnoreQueryFilters().Where(u => u.RoleId == roleId && u.IsActive);
+            if (schoolId.HasValue) q = q.Where(u => u.SchoolId == schoolId.Value || (u.DriverDetail != null && u.DriverDetail.SchoolId == schoolId.Value));
 
             var allActiveDrivers = await q.OrderBy(u => u.FullName).Select(u => new DriverDropdownDto
             {

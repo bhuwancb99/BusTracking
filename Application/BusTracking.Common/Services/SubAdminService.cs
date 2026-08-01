@@ -2,13 +2,29 @@ namespace BusTracking.Common.Services
 {
     public class SubAdminService : ISubAdminService
     {
-        private readonly AppDbContext _db; private readonly IPasswordService _pwd; private readonly IEmailService _email;
-        public SubAdminService(AppDbContext db, IPasswordService pwd, IEmailService email) { _db = db; _pwd = pwd; _email = email; }
+        private readonly AppDbContext _db;
+        private readonly IPasswordService _pwd;
+        private readonly IEmailService _email;
+        private readonly ICurrentUserService _currentUser;
+
+        public SubAdminService(AppDbContext db, IPasswordService pwd, IEmailService email, ICurrentUserService currentUser)
+        {
+            _db = db;
+            _pwd = pwd;
+            _email = email;
+            _currentUser = currentUser;
+        }
 
         public async Task<ApiResponse<PagedResult<SubAdminListDto>>> GetAllAsync(int page, string? search, string? status)
         {
+            var schoolId = _currentUser.SchoolId;
             var roleId = await _db.Roles.Where(r => r.RoleName == "BusCoordinator").Select(r => r.RoleId).FirstAsync();
-            var q = _db.Users.Include(u => u.SubAdminPermissions).ThenInclude(sp => sp.Permission).Where(u => u.RoleId == roleId);
+            var q = _db.Users.IgnoreQueryFilters().Include(u => u.SubAdminPermissions).ThenInclude(sp => sp.Permission).Where(u => u.RoleId == roleId);
+
+            if (schoolId.HasValue)
+            {
+                q = q.Where(u => u.SchoolId == schoolId.Value);
+            }
             if (!string.IsNullOrWhiteSpace(search)) q = q.Where(u => u.FullName.Contains(search) || u.UserName.Contains(search) || (u.Email != null && u.Email.Contains(search)));
             if (status == "Active") q = q.Where(u => u.IsActive);
             else if (status == "Inactive") q = q.Where(u => !u.IsActive);
@@ -66,6 +82,7 @@ namespace BusTracking.Common.Services
             var user = new User
             {
                 RoleId = roleId,
+                SchoolId = _currentUser.SchoolId,
                 FullName = dto.FullName,
                 UserName = dto.UserName,
                 Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email,

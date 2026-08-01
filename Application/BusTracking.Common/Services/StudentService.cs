@@ -26,6 +26,11 @@ namespace BusTracking.Common.Services
                 .Include(s => s.Stop)
                 .AsQueryable();
 
+            if (schoolId.HasValue)
+            {
+                q = q.Where(s => s.SchoolId == schoolId.Value || (s.User != null && s.User.SchoolId == schoolId.Value));
+            }
+
             if (!string.IsNullOrWhiteSpace(search))
                 q = q.Where(s => s.User.FullName.Contains(search) || s.User.UserName.Contains(search) || s.StudentCode.Contains(search));
 
@@ -257,7 +262,13 @@ namespace BusTracking.Common.Services
         }
         public async Task<ApiResponse<List<StandardMaster>>> GetStandardsAsync()
         {
-            var list = await _db.StandardMasters.Where(x => x.IsActive).OrderBy(x => x.StandardId).ToListAsync();
+            var schoolId = _currentUser.SchoolId;
+            var q = _db.StandardMasters.Where(x => x.IsActive);
+            if (schoolId.HasValue)
+            {
+                q = q.Where(x => x.SchoolId == schoolId.Value);
+            }
+            var list = await q.OrderBy(x => x.StandardId).ToListAsync();
             return ApiResponse<List<StandardMaster>>.Ok(list);
         }
     }

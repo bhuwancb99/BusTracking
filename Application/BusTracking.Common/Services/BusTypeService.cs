@@ -3,11 +3,23 @@ namespace BusTracking.Common.Services
     public class BusTypeService : IBusTypeService
     {
         private readonly AppDbContext _db;
-        public BusTypeService(AppDbContext db) => _db = db;
+        private readonly ICurrentUserService _currentUser;
+
+        public BusTypeService(AppDbContext db, ICurrentUserService currentUser)
+        {
+            _db = db;
+            _currentUser = currentUser;
+        }
 
         public async Task<ApiResponse<PagedResult<BusTypeDto>>> GetAllAsync(string? search = null, int page = 1)
         {
-            var q = _db.BusTypeMasters.AsQueryable();
+            var schoolId = _currentUser.SchoolId;
+            var q = _db.BusTypeMasters.IgnoreQueryFilters().AsQueryable();
+
+            if (schoolId.HasValue)
+            {
+                q = q.Where(t => t.SchoolId == schoolId.Value);
+            }
 
             if (!string.IsNullOrWhiteSpace(search))
                 q = q.Where(t => t.Name.Contains(search));
@@ -62,6 +74,7 @@ namespace BusTracking.Common.Services
 
             var entity = new BusTypeMaster
             {
+                SchoolId = _currentUser.SchoolId,
                 Name = name,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow

@@ -1,13 +1,26 @@
-﻿namespace BusTracking.Common.Services
+namespace BusTracking.Common.Services
 {
     public class FeedbackService : IFeedbackService
     {
         private readonly AppDbContext _db;
-        public FeedbackService(AppDbContext db) => _db = db;
+        private readonly ICurrentUserService _currentUser;
+
+        public FeedbackService(AppDbContext db, ICurrentUserService currentUser)
+        {
+            _db = db;
+            _currentUser = currentUser;
+        }
 
         public async Task<ApiResponse<PagedResult<FeedbackListDto>>> GetAllAsync(int page, int pageSize, string? status)
         {
-            var q = _db.Feedbacks.Include(f => f.User).AsQueryable();
+            var schoolId = _currentUser.SchoolId;
+            var q = _db.Feedbacks.IgnoreQueryFilters().Include(f => f.User).AsQueryable();
+
+            if (schoolId.HasValue)
+            {
+                q = q.Where(f => f.User != null && f.User.SchoolId == schoolId.Value);
+            }
+
             if (!string.IsNullOrWhiteSpace(status) && Enum.TryParse<FeedbackStatus>(status, out var fs))
                 q = q.Where(f => f.Status == fs);
 

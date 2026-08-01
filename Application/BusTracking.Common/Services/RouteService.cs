@@ -3,10 +3,20 @@ namespace BusTracking.Common.Services
     public class RouteService : IRouteService
     {
         private readonly AppDbContext _db;
-        public RouteService(AppDbContext db) => _db = db;
+        private readonly ICurrentUserService _currentUser;
+
+        public RouteService(AppDbContext db, ICurrentUserService currentUser)
+        {
+            _db = db;
+            _currentUser = currentUser;
+        }
+
         public async Task<ApiResponse<PagedResult<RouteListDto>>> GetAllAsync(int page, string? search, string? status = "Active")
         {
-            var q = _db.Routes.Include(r => r.Stops).AsQueryable();
+            var schoolId = _currentUser.SchoolId;
+            var q = _db.Routes.IgnoreQueryFilters().Include(r => r.Stops).AsQueryable();
+            if (schoolId.HasValue) q = q.Where(r => r.SchoolId == schoolId.Value);
+
             if (status == "Active") q = q.Where(r => r.IsActive);
             else if (status == "Inactive") q = q.Where(r => !r.IsActive);
             if (!string.IsNullOrWhiteSpace(search)) q = q.Where(r => r.RouteName.Contains(search) || r.RouteCode.Contains(search));
@@ -33,7 +43,9 @@ namespace BusTracking.Common.Services
 
         public async Task<List<RouteListDto>> GetDropdownAsync(string? search = null)
         {
-            var q = _db.Routes.Include(r => r.Stops).Where(r => r.IsActive).AsQueryable();
+            var schoolId = _currentUser.SchoolId;
+            var q = _db.Routes.IgnoreQueryFilters().Include(r => r.Stops).Where(r => r.IsActive).AsQueryable();
+            if (schoolId.HasValue) q = q.Where(r => r.SchoolId == schoolId.Value);
             if (!string.IsNullOrWhiteSpace(search))
                 q = q.Where(r => r.RouteName.Contains(search) || r.RouteCode.Contains(search));
 
@@ -85,7 +97,7 @@ namespace BusTracking.Common.Services
         public async Task<ApiResponse<bool>> CreateAsync(CreateRouteDto dto, int createdBy)
         {
             if (await _db.Routes.AnyAsync(r => r.RouteCode == dto.RouteCode)) return ApiResponse<bool>.Fail("Route code exists.");
-            _db.Routes.Add(new BusRoute { RouteName = dto.RouteName, RouteCode = dto.RouteCode.ToUpper(), Description = dto.Description, MorningTime = dto.MorningTime is not null ? TimeOnly.Parse(dto.MorningTime) : null, EveningTime = dto.EveningTime is not null ? TimeOnly.Parse(dto.EveningTime) : null, CreatedBy = createdBy });
+            _db.Routes.Add(new BusRoute { SchoolId = _currentUser.SchoolId, RouteName = dto.RouteName, RouteCode = dto.RouteCode.ToUpper(), Description = dto.Description, MorningTime = dto.MorningTime is not null ? TimeOnly.Parse(dto.MorningTime) : null, EveningTime = dto.EveningTime is not null ? TimeOnly.Parse(dto.EveningTime) : null, CreatedBy = createdBy });
             await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Route created.");
         }
         public async Task<ApiResponse<bool>> UpdateAsync(int routeId, UpdateRouteDto dto)

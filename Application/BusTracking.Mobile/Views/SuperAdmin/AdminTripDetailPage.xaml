@@ -18,7 +18,7 @@
     <Shell.TitleView>
         <Grid
             Padding="0,0,8,0"
-            ColumnDefinitions="*,Auto,Auto"
+            ColumnDefinitions="*,Auto"
             ColumnSpacing="8">
             <Label
                 Grid.Column="0"
@@ -30,28 +30,6 @@
                 VerticalOptions="Center" />
             <Border
                 Grid.Column="1"
-                Padding="7"
-                BackgroundColor="White"
-                IsVisible="{Binding CanEdit}"
-                StrokeShape="RoundRectangle 18"
-                StrokeThickness="0"
-                VerticalOptions="Center">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Command="{Binding EditCommand}" />
-                </Border.GestureRecognizers>
-                <Image
-                    HeightRequest="18"
-                    HorizontalOptions="Center"
-                    Source="edit.png"
-                    VerticalOptions="Center"
-                    WidthRequest="18">
-                    <Image.Behaviors>
-                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
-                    </Image.Behaviors>
-                </Image>
-            </Border>
-            <Border
-                Grid.Column="2"
                 Padding="7"
                 BackgroundColor="{StaticResource Danger}"
                 IsVisible="{Binding CanDelete}"

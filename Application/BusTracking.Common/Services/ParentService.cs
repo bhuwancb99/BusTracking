@@ -5,16 +5,30 @@ namespace BusTracking.Common.Services
         private readonly AppDbContext _db;
         private readonly IPasswordService _pwd;
         private readonly IEmailService _email;
-        public ParentService(AppDbContext db, IPasswordService pwd, IEmailService email)
+        private readonly ICurrentUserService _currentUser;
+
+        public ParentService(AppDbContext db, IPasswordService pwd, IEmailService email, ICurrentUserService currentUser)
         {
             _db = db;
             _pwd = pwd;
             _email = email;
+            _currentUser = currentUser;
         }
 
         public async Task<ApiResponse<PagedResult<ParentListDto>>> GetAllAsync(int page, string? search, string? status)
         {
-            var q = _db.Parents.Include(p => p.User).Include(p => p.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.User).Include(p => p.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.Standard).Include(p => p.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.Bus).AsQueryable();
+            var schoolId = _currentUser.SchoolId;
+            var q = _db.Parents.IgnoreQueryFilters()
+                .Include(p => p.User)
+                .Include(p => p.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.User)
+                .Include(p => p.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.Standard)
+                .Include(p => p.ParentStudents).ThenInclude(ps => ps.Student).ThenInclude(s => s.Bus)
+                .AsQueryable();
+
+            if (schoolId.HasValue)
+            {
+                q = q.Where(p => p.SchoolId == schoolId.Value || (p.User != null && p.User.SchoolId == schoolId.Value));
+            }
             if (!string.IsNullOrWhiteSpace(search)) q = q.Where(p => p.User.FullName.Contains(search) || p.User.UserName.Contains(search) || (p.User.Email != null && p.User.Email.Contains(search)));
             if (status == "Active") q = q.Where(p => p.User.IsActive);
             else if (status == "Inactive") q = q.Where(p => !p.User.IsActive);
@@ -91,6 +105,7 @@ namespace BusTracking.Common.Services
             var user = new User
             {
                 RoleId = roleId,
+                SchoolId = _currentUser.SchoolId,
                 FullName = dto.FullName,
                 UserName = dto.UserName,
                 Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email,
@@ -102,6 +117,7 @@ namespace BusTracking.Common.Services
             _db.Users.Add(user); await _db.SaveChangesAsync();
             var parent = new ParentDetail
             {
+                SchoolId = user.SchoolId ?? _currentUser.SchoolId,
                 UserId = user.UserId
             }; _db.Parents.Add(parent); await _db.SaveChangesAsync();
             foreach (var code in dto.StudentCodes.Where(c => !string.IsNullOrWhiteSpace(c)).Distinct())
