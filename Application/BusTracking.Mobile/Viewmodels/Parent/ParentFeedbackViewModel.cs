@@ -36,6 +36,7 @@ namespace BusTracking.Mobile.Viewmodels.Parent
                 {
                     Category = SelectedCategory ?? "Other",
                     Subject = Subject.Trim(),
+                    Description = Message.Trim(),
                     Message = Message.Trim()
                 };
 

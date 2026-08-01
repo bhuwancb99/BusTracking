@@ -1,8 +1,9 @@
-﻿namespace BusTracking.Common.Interfaces
+namespace BusTracking.Common.Interfaces
 {
     public interface IFeedbackService
     {
         Task<ApiResponse<PagedResult<FeedbackListDto>>> GetAllAsync(int page, int pageSize, string? status);
+        Task<ApiResponse<FeedbackListDto>> GetByIdAsync(int feedbackId);
         Task<ApiResponse<bool>> CreateAsync(CreateFeedbackDto dto, int userId);
         Task<ApiResponse<bool>> UpdateStatusAsync(int feedbackId, string status, int resolvedBy);
     }

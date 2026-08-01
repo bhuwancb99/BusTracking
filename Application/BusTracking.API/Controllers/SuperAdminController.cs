@@ -713,6 +713,13 @@ namespace BusTracking.API.Controllers
             return Ok(r);
         }
 
+        [HttpGet("feedback/{id:int}")]
+        public async Task<IActionResult> GetFeedbackById(int id)
+        {
+            var r = await _feedback.GetByIdAsync(id);
+            return r.Success ? Ok(r) : NotFound(r);
+        }
+
         [HttpPut("feedback/{id}/status")]
         public async Task<IActionResult> UpdateFeedbackStatus(int id, [FromBody] UpdateFeedbackStatusRequest req)
         {

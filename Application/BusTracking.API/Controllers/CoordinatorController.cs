@@ -653,11 +653,8 @@ namespace BusTracking.API.Controllers
         public async Task<IActionResult> GetFeedbackById(int id)
         {
             RequirePermission("helpsupport.view");
-            var all = await _feedback.GetAllAsync(1, 1000, null);
-            var item = all.Data?.Items?.FirstOrDefault(f => f.FeedbackId == id);
-            return item is not null
-                ? Ok(ApiResponse<FeedbackListDto>.Ok(item))
-                : NotFound(ApiResponse<FeedbackListDto>.Fail("Feedback not found."));
+            var r = await _feedback.GetByIdAsync(id);
+            return r.Success ? Ok(r) : NotFound(r);
         }
 
         [HttpPut("feedback/{id:int}/status")]

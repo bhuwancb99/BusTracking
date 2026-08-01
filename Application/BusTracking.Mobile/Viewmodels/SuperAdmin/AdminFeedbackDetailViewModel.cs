@@ -16,7 +16,16 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 
         public void ApplyQueryAttributes(IDictionary<string, object> query)
         {
-            if (query.TryGetValue("FeedbackId", out var id)) FeedbackId = (int)id;
+            if (query.TryGetValue("Feedback", out var fb) && fb is FeedbackItem item)
+            {
+                Feedback = item;
+                FeedbackId = item.FeedbackId;
+                SelectedStatus = item.Status ?? "Open";
+            }
+            else if (query.TryGetValue("FeedbackId", out var id))
+            {
+                FeedbackId = (int)id;
+            }
         }
 
         public override async Task InitializeAsync() => await LoadAsync();
@@ -24,13 +33,19 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [RelayCommand]
         private async Task LoadAsync()
         {
+            if (FeedbackId <= 0 && Feedback is null) return;
             await RunAsync(async () =>
             {
-                // Re-use coordinator endpoint to fetch single feedback by id since it's shared and authorized
-                var r = await _api.GetAsync<FeedbackItem>(
-                    string.Format(Constants.Coordinator.FeedbackById, FeedbackId));
-                Feedback = r.Data;
-                SelectedStatus = Feedback?.Status ?? "Open";
+                if (FeedbackId > 0)
+                {
+                    var r = await _api.GetAsync<FeedbackItem>(
+                        string.Format(Constants.Admin.FeedbackById, FeedbackId));
+                    if (r.Success && r.Data is not null)
+                    {
+                        Feedback = r.Data;
+                        SelectedStatus = Feedback.Status ?? "Open";
+                    }
+                }
             });
         }
 

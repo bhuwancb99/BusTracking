@@ -10,8 +10,8 @@ public static class Constants
 
 #if DEBUG
     // Switch comment depending on what you are testing on
-    public const string ApiBaseUrl = "https://10.0.2.2:7001";       // Android emulator
-    //public const string ApiBaseUrl = "https://192.168.29.242:7001";  // Physical device
+    //public const string ApiBaseUrl = "https://10.0.2.2:7001";       // Android emulator
+    public const string ApiBaseUrl = "https://192.168.29.242:7001";  // Physical device
 #else
     public const string ApiBaseUrl = "https://api.bustracking.com";
 #endif
@@ -115,6 +115,7 @@ public static class Constants
 
         // Feedback & Notifications
         public const string Feedback = "/api/admin/feedback";
+        public const string FeedbackById = "/api/admin/feedback/{0}";
         public const string FeedbackStatus = "/api/admin/feedback/{0}/status";
         public const string Notifications = "/api/admin/notifications";
         public const string NotifRead = "/api/admin/notifications/{0}/read";

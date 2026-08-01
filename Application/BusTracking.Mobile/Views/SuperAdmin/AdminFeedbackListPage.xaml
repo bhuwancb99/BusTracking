@@ -159,7 +159,6 @@
                                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                                     Dark={StaticResource TextPrimaryDark}}" />
                                     <Label Style="{StaticResource SubLabel}" Text="{Binding UserName}" />
-                                    <Label Style="{StaticResource SubLabel}" Text="{Binding Category}" />
                                     <Label Style="{StaticResource SubLabel}" Text="{Binding CreatedAt, StringFormat='{0:dd MMM yyyy}'}" />
                                 </VerticalStackLayout>
 

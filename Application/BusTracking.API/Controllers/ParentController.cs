@@ -16,6 +16,7 @@ namespace BusTracking.API.Controllers
         public async Task<IActionResult> Dashboard()
         {
             var parent = await _db.Parents
+                .IgnoreQueryFilters()
                 .Include(p => p.ParentStudents)
                     .ThenInclude(ps => ps.Student).ThenInclude(s => s.User)
                 .Include(p => p.ParentStudents)
@@ -27,34 +28,36 @@ namespace BusTracking.API.Controllers
                 .FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
 
             if (parent is null)
-                return NotFound(ApiResponse<object>.Fail("Parent not found."));
+                return NotFound(ApiResponse<object>.Fail("Parent record not found."));
 
-            var children = parent.ParentStudents.Select(ps => new
-            {
-                ps.Student.StudentId,
-                ps.Student.UserId,                              // ← needed for photo upload
-                ps.Student.StudentCode,
-                FullName = ps.Student.User.FullName,
-                StandardName = ps.Student.Standard?.StandardName ?? "N/A",
-                ProfileImageUrl = ps.Student.User.ProfileImageUrl,  // ← NEW
-                BusName = ps.Student.Bus?.BusName,
-                BusNumber = ps.Student.Bus?.BusNumber,
-                StopId = ps.Student.StopId,
-                StopName = ps.Student.Stop?.StopName,
-                Bus = ps.Student.Bus is null ? null : new
+            var children = parent.ParentStudents
+                .Where(ps => ps.Student != null)
+                .Select(ps => new
                 {
-                    ps.Student.Bus.BusId,
-                    ps.Student.Bus.BusName,
-                    ps.Student.Bus.BusNumber
-                },
-                Stop = ps.Student.Stop is null ? null : new
-                {
-                    ps.Student.Stop.StopId,
-                    ps.Student.Stop.StopName,
-                    ps.Student.Stop.Latitude,
-                    ps.Student.Stop.Longitude
-                }
-            }).ToList();
+                    ps.Student.StudentId,
+                    ps.Student.UserId,
+                    ps.Student.StudentCode,
+                    FullName = ps.Student.User != null ? ps.Student.User.FullName : "Student",
+                    StandardName = ps.Student.Standard?.StandardName ?? "N/A",
+                    ProfileImageUrl = ps.Student.User != null ? ps.Student.User.ProfileImageUrl : null,
+                    BusName = ps.Student.Bus?.BusName,
+                    BusNumber = ps.Student.Bus?.BusNumber,
+                    StopId = ps.Student.StopId,
+                    StopName = ps.Student.Stop?.StopName,
+                    Bus = ps.Student.Bus is null ? null : new
+                    {
+                        ps.Student.Bus.BusId,
+                        ps.Student.Bus.BusName,
+                        ps.Student.Bus.BusNumber
+                    },
+                    Stop = ps.Student.Stop is null ? null : new
+                    {
+                        ps.Student.Stop.StopId,
+                        ps.Student.Stop.StopName,
+                        ps.Student.Stop.Latitude,
+                        ps.Student.Stop.Longitude
+                    }
+                }).ToList();
 
             return Ok(ApiResponse<object>.Ok(new { Children = children }));
         }
@@ -69,17 +72,18 @@ namespace BusTracking.API.Controllers
         [RequestSizeLimit(5_242_880)]
         public async Task<IActionResult> UploadPhoto(int studentId, IFormFile file)
         {
-            // Verify this student belongs to the logged-in parent
-            var parentDetail = await _db.Parents.FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
+            var parentDetail = await _db.Parents.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
             if (parentDetail is null) return Forbid();
 
             var link = await _db.ParentStudents
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(ps => ps.StudentId == studentId
                                         && ps.ParentId == parentDetail.ParentId);
             if (link is null)
                 return Forbid();
 
             var student = await _db.Students
+                .IgnoreQueryFilters()
                 .Include(s => s.User)
                 .FirstOrDefaultAsync(s => s.StudentId == studentId);
 
@@ -108,15 +112,16 @@ namespace BusTracking.API.Controllers
         [HttpDelete("children/{studentId}/photo")]
         public async Task<IActionResult> DeletePhoto(int studentId)
         {
-            var parentDetail = await _db.Parents.FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
+            var parentDetail = await _db.Parents.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
             if (parentDetail is null) return Forbid();
 
             var link = await _db.ParentStudents
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(ps => ps.StudentId == studentId
                                         && ps.ParentId == parentDetail.ParentId);
             if (link is null) return Forbid();
 
-            var student = await _db.Students.Include(s => s.User)
+            var student = await _db.Students.IgnoreQueryFilters().Include(s => s.User)
                 .FirstOrDefaultAsync(s => s.StudentId == studentId);
             if (student?.User is null) return NotFound(ApiResponse<bool>.Fail("Student user record not found."));
 
@@ -132,18 +137,21 @@ namespace BusTracking.API.Controllers
         [HttpGet("children/{studentId}/track")]
         public async Task<IActionResult> TrackBus(int studentId)
         {
-            var parentDetail = await _db.Parents.FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
+            var parentDetail = await _db.Parents.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
             if (parentDetail is null) return Forbid();
 
             var link = await _db.ParentStudents
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(ps => ps.StudentId == studentId
                                         && ps.ParentId == parentDetail.ParentId);
             if (link is null) return Forbid();
 
-            var student = await _db.Students.Include(s => s.Bus).Include(s => s.Stop)
+            var student = await _db.Students.IgnoreQueryFilters()
+                .Include(s => s.Bus)
+                .Include(s => s.Stop)
                 .FirstOrDefaultAsync(s => s.StudentId == studentId);
 
-            if (student?.BusId is null)
+            if (student is null || student.BusId is null || student.Bus is null)
                 return NotFound(ApiResponse<object>.Fail("No bus assigned to this student."));
 
             var trip = await _db.BusTrips
@@ -176,7 +184,7 @@ namespace BusTracking.API.Controllers
                 {
                     IsLive = false,
                     Message = "No active trip right now.",
-                    Bus = new { student.Bus!.BusName, student.Bus.BusNumber },
+                    Bus = new { student.Bus.BusName, student.Bus.BusNumber },
                     StudentStop = student.Stop is null ? null : new { student.Stop.StopId, student.Stop.StopName }
                 }));
 
@@ -205,11 +213,13 @@ namespace BusTracking.API.Controllers
             }
 
             var boarding = await _db.StudentTripStatuses
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(s => s.TripId == trip.TripId && s.StudentId == studentId);
 
             var stops = await _db.TripStopEvents
+                .IgnoreQueryFilters()
                 .Include(e => e.Stop)
-                .Where(e => e.TripId == trip.TripId)
+                .Where(e => e.TripId == trip.TripId && e.Stop != null)
                 .OrderBy(e => e.Stop.StopOrder)
                 .Select(e => new
                 {
@@ -234,7 +244,7 @@ namespace BusTracking.API.Controllers
                     Status = trip.Status.ToString(),
                     DriverName = trip.Driver?.FullName ?? "Bus Driver"
                 },
-                Bus = new { student.Bus!.BusName, student.Bus.BusNumber },
+                Bus = new { student.Bus.BusName, student.Bus.BusNumber },
                 StudentStop = student.Stop is null ? null : new { student.Stop.StopId, student.Stop.StopName },
                 Location = loc,
                 BoardingStatus = boarding?.BoardingStatus.ToString() ?? "Pending",
@@ -246,15 +256,17 @@ namespace BusTracking.API.Controllers
         [HttpGet("children/{studentId}/availability")]
         public async Task<IActionResult> Availability(int studentId)
         {
-            var parentDetail = await _db.Parents.FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
+            var parentDetail = await _db.Parents.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
             if (parentDetail is null) return Forbid();
 
             var link = await _db.ParentStudents
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(ps => ps.StudentId == studentId
                                         && ps.ParentId == parentDetail.ParentId);
             if (link is null) return Forbid();
 
             var avail = await _db.StudentAvailabilities
+                .IgnoreQueryFilters()
                 .Where(a => a.StudentId == studentId && a.FromDate >= DateOnly.FromDateTime(DateTime.UtcNow))
                 .OrderBy(a => a.FromDate)
                 .Select(a => new
@@ -273,26 +285,28 @@ namespace BusTracking.API.Controllers
         [HttpGet("trips/history")]
         public async Task<IActionResult> TripHistory([FromQuery] int days = 7)
         {
-            var parentDetail = await _db.Parents.FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
+            var parentDetail = await _db.Parents.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
             if (parentDetail is null) return Forbid();
 
             var studentIds = await _db.ParentStudents
+                .IgnoreQueryFilters()
                 .Where(ps => ps.ParentId == parentDetail.ParentId)
                 .Select(ps => ps.StudentId).ToListAsync();
 
             var since = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-days));
             var trips = await _db.StudentTripStatuses
+                .IgnoreQueryFilters()
                 .Include(s => s.Trip).ThenInclude(t => t.Bus)
                 .Include(s => s.Student).ThenInclude(st => st.User)
-                .Where(s => studentIds.Contains(s.StudentId) && s.Trip.TripDate >= since)
+                .Where(s => studentIds.Contains(s.StudentId) && s.Trip != null && s.Trip.TripDate >= since)
                 .OrderByDescending(s => s.Trip.TripDate)
                 .Select(s => new
                 {
                     s.Trip.TripId,
                     s.Trip.TripDate,
                     TripType = s.Trip.TripType.ToString(),
-                    BusNumber = s.Trip.Bus.BusNumber,
-                    StudentName = s.Student.User.FullName,
+                    BusNumber = s.Trip.Bus != null ? s.Trip.Bus.BusNumber : "N/A",
+                    StudentName = s.Student != null && s.Student.User != null ? s.Student.User.FullName : "Student",
                     BoardingStatus = s.BoardingStatus.ToString()
                 })
                 .ToListAsync();

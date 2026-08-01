@@ -1,15 +1,15 @@
-﻿namespace BusTracking.Mobile.Viewmodels.Coordinator
+namespace BusTracking.Mobile.Viewmodels.Coordinator
 {
     public partial class CoordFeedbackListViewModel : BaseViewModel
     {
         private readonly IApiService _api;
 
         [ObservableProperty] private ObservableCollection<FeedbackItem> _items = [];
-        [ObservableProperty] private string _selectedStatus = "";
+        [ObservableProperty] private string _selectedStatus = "All";
         [ObservableProperty] private bool _canLoadMore;
 
         public bool CanManage => Can("helpsupport.manage");
-        public List<string> StatusOptions => ["", "Open", "InProgress", "Resolved", "Closed"];
+        public List<string> StatusOptions => ["All", "Open", "InProgress", "Resolved", "Closed"];
 
         public CoordFeedbackListViewModel(IAuthService auth, INavigationService nav, IApiService api)
             : base(auth, nav) { _api = api; Title = "Help & Support"; }
@@ -23,7 +23,7 @@
             await RunAsync(async () =>
             {
                 var url = Constants.Coordinator.Feedback;
-                if (!string.IsNullOrEmpty(SelectedStatus))
+                if (!string.IsNullOrWhiteSpace(SelectedStatus) && !SelectedStatus.Equals("All", StringComparison.OrdinalIgnoreCase))
                     url += $"?status={SelectedStatus}";
 
                 var r = await _api.GetAsync<PagedResult<FeedbackItem>>(url);
@@ -38,7 +38,7 @@
         [RelayCommand]
         private Task DetailAsync(FeedbackItem item) =>
             Nav.GoToAsync("CoordFeedbackDetail",
-                new Dictionary<string, object> { ["FeedbackId"] = item.FeedbackId });
+                new Dictionary<string, object> { ["Feedback"] = item, ["FeedbackId"] = item.FeedbackId });
 
         [RelayCommand] private async Task LoadMoreAsync() { }
         [RelayCommand]

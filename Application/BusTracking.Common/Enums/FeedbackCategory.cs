@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.Enums
+namespace BusTracking.Common.Enums
 {
     public enum FeedbackCategory
     {
