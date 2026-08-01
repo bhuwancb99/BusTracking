@@ -35,10 +35,11 @@
             <converters:StringToInvertBoolConverter x:Key="StringToInvertBool" />
             <converters:NullableTimeSpanConverter x:Key="NullableTimeSpan" />
             <converters:EqualsToPendingConverter x:Key="EqualsToPending" />
-            <converters:EqualsToReachedConverter x:Key="EqualsToReached" />
             <converters:CountToHeightConverter x:Key="CountToHeight" />
             <converters:StudentPickedUpTupleConverter x:Key="StudentPickedUpTuple" />
             <converters:StudentNoShowTupleConverter x:Key="StudentNoShowTuple" />
+            <converters:IntToBoolConverter x:Key="IntToBool" />
+            <converters:IntToBoolConverter x:Key="IntToBoolConverter" />
 
 
             <ResourceDictionary.MergedDictionaries>

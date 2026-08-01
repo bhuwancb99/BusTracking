@@ -395,15 +395,41 @@ public class EqualsToPendingConverter : IValueConverter
 /// Used to enable/disable the "Departed" button on DriverTrackingPage.
 ///
 /// Register in App.xaml:
-///   &lt;converters:EqualsToReachedConverter x:Key="EqualsToReached" /&gt;
 /// </summary>
-public class EqualsToReachedConverter : IValueConverter
+/// <summary>
+/// Converts an integer (or count) to a boolean value.
+/// Returns true if value > 0 (or matches parameter if provided).
+/// </summary>
+public class IntToBoolConverter : IValueConverter
 {
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
-        => value is string s && s == "Reached";
+    {
+        if (value is int i)
+        {
+            if (parameter is not null && int.TryParse(parameter.ToString(), out var p))
+                return i == p;
+            return i > 0;
+        }
+        if (value is long l)
+        {
+            if (parameter is not null && long.TryParse(parameter.ToString(), out var p))
+                return l == p;
+            return l > 0;
+        }
+        if (value is double d)
+        {
+            return d > 0;
+        }
+        if (value is string s && int.TryParse(s, out var parsedInt))
+        {
+            return parsedInt > 0;
+        }
+        return false;
+    }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
         => throw new NotImplementedException();
 }
+
 
 
