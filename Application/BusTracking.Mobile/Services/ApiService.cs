@@ -44,8 +44,15 @@ namespace BusTracking.Mobile.Services
         public void SetToken(string token)
         {
             _token = token;
-            _http.DefaultRequestHeaders.Authorization =
-                new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                _http.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+            else
+            {
+                _http.DefaultRequestHeaders.Authorization = null;
+            }
         }
 
         public void ClearToken()
@@ -138,34 +145,46 @@ namespace BusTracking.Mobile.Services
         // ── Helpers ───────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Restore token from DB on app restart.
-        /// Skipped entirely for login/public endpoints that need no token.
+        /// Restore token from DB on app restart and ensure Authorization header is set for authenticated endpoints.
+        /// Public endpoints (e.g. login) skip sending token.
         /// </summary>
         private async Task EnsureTokenAsync(string endpoint)
         {
-            // Skip for public endpoints — login must never send a stale token
-            if (_noAuthEndpoints.Any(e =>
-                    endpoint.StartsWith(e, StringComparison.OrdinalIgnoreCase)))
+            bool isNoAuth = _noAuthEndpoints.Any(e =>
+                endpoint.StartsWith(e, StringComparison.OrdinalIgnoreCase));
+
+            if (isNoAuth)
             {
-                // Also clear any stale token header so it is not accidentally sent
                 _http.DefaultRequestHeaders.Authorization = null;
                 return;
             }
 
-            // Token already set in memory — nothing to do
-            if (!string.IsNullOrEmpty(_token))
-                return;
-
-            // App restarted — restore token from DB
-            try
+            // Restore token from DB if memory token is missing (e.g. app restart)
+            if (string.IsNullOrWhiteSpace(_token))
             {
-                var session = await _db.GetSessionAsync();
-                if (session != null && !string.IsNullOrWhiteSpace(session.Token))
-                    SetToken(session.Token);
+                try
+                {
+                    var session = await _db.GetSessionAsync();
+                    if (session != null && !string.IsNullOrWhiteSpace(session.Token))
+                    {
+                        _token = session.Token;
+                    }
+                }
+                catch
+                {
+                    // DB read failed — proceed without token
+                }
             }
-            catch
+
+            // ALWAYS ensure the Bearer token header is set on _http for authenticated endpoints
+            if (!string.IsNullOrWhiteSpace(_token))
             {
-                // DB read failed — proceed without token, server will return 401
+                _http.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _token);
+            }
+            else
+            {
+                _http.DefaultRequestHeaders.Authorization = null;
             }
         }
 
