@@ -14,6 +14,8 @@
 		<PackageReference Include="AutoMapper" Version="16.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.10" />
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
+		<!-- Promote transitive dependency to direct reference to address known vulnerability -->
+		<PackageReference Include="Microsoft.OpenApi" Version="2.7.5" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.10" />
 	</ItemGroup>
 
