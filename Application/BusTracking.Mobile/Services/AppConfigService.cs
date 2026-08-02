@@ -1,5 +1,9 @@
 namespace BusTracking.Mobile.Services
 {
+    /// <summary>
+    /// School-scoped AppConfiguration service — reads from /api/app-config/mobile (after login).
+    /// For pre-login global config (maintenance, version checks), use IGlobalConfigService instead.
+    /// </summary>
     public class AppConfigService : IAppConfigService
     {
         private readonly IApiService _api;
@@ -37,18 +41,6 @@ namespace BusTracking.Mobile.Services
         {
             var config = await GetMobileConfigAsync();
             return config.TryGetValue(key, out var v) ? v : null;
-        }
-
-        public async Task<bool> IsMaintenanceModeAsync()
-        {
-            var v = await GetValueAsync("IsMaintencePage");
-            return v == "1";
-        }
-
-        public async Task<bool> IsMandatoryUpdateAsync()
-        {
-            var v = await GetValueAsync("MandatoryUpdateApp");
-            return v == "1";
         }
 
         /// <summary>

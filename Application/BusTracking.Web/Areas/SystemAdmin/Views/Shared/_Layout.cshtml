@@ -43,6 +43,12 @@
                     <span>Super Admins</span>
                 </a>
             </li>
+            <li class="sidebar-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "GlobalConfig" ? "active" : "")">
+                <a class="sidebar-link" href="@Url.Action("Index", "GlobalConfig", new { area = "SystemAdmin" })">
+                    <i class="bi bi-gear-wide-connected"></i>
+                    <span>Global Configs</span>
+                </a>
+            </li>
             <li class="sidebar-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Auth" && ViewContext.RouteData.Values["action"]?.ToString() == "Profile" ? "active" : "")">
                 <a class="sidebar-link" href="@Url.Action("Profile", "Auth", new { area = "SystemAdmin" })">
                     <i class="bi bi-person-circle"></i>

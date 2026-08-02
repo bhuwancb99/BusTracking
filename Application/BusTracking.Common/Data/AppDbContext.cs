@@ -39,6 +39,7 @@ public class AppDbContext : DbContext
     public DbSet<Feedback> Feedbacks { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<AppConfiguration> AppConfigurations { get; set; }
+    public DbSet<GlobalConfiguration> GlobalConfigurations { get; set; }
     public DbSet<Logger> Loggers { get; set; }
     public DbSet<BusFuelLog> BusFuelLogs { get; set; }
     public DbSet<BusRouteMapping> BusRouteMappings { get; set; }
@@ -78,6 +79,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Feedback>().ToTable("Feedbacks");
         modelBuilder.Entity<AuditLog>().ToTable("AuditLogs");
         modelBuilder.Entity<AppConfiguration>().ToTable("AppConfigurations");
+        modelBuilder.Entity<GlobalConfiguration>().ToTable("GlobalConfigurations");
         modelBuilder.Entity<Logger>().ToTable("Logger");
         modelBuilder.Entity<BusFuelLog>().ToTable("BusFuelLogs");
         modelBuilder.Entity<BusRouteMapping>().ToTable("BusRouteMappings");
@@ -86,6 +88,7 @@ public class AppDbContext : DbContext
         // ── Unique indexes ────────────────────────────────────────────
         modelBuilder.Entity<School>().HasIndex(s => s.SchoolCode).IsUnique();
         modelBuilder.Entity<SystemAdministrator>().HasIndex(s => s.UserName).IsUnique();
+        modelBuilder.Entity<GlobalConfiguration>().HasIndex(g => g.GlobalConfigKey).IsUnique();
         modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
         modelBuilder.Entity<BusRoute>().HasIndex(r => new { r.SchoolId, r.RouteCode }).IsUnique();
         modelBuilder.Entity<Bus>().HasIndex(b => new { b.SchoolId, b.BusNumber }).IsUnique();

@@ -39,6 +39,14 @@ public static class Constants
         public const string MobileKey = "/api/app-config/mobile/{0}";
     }
 
+    // ── Global Config  →  GlobalConfigPublicController  [Route("api/global-config")] ──
+    // Pre-login: maintenance mode, forced update, version checks (system-wide)
+    public static class GlobalConfig
+    {
+        public const string Mobile = "/api/global-config/mobile";
+        public const string MobileKey = "/api/global-config/mobile/{0}";
+    }
+
     public static class Lookups
     {
         public const string Standards = "/api/standards";
@@ -260,8 +268,10 @@ public static class Constants
     public static class Cache
     {
         public const string AppConfig = "app_config_mobile";
+        public const string GlobalConfig = "global_config_mobile";
         public const string Dashboard = "dashboard_summary";
         public const int AppConfigTtlH = 12;
+        public const int GlobalConfigTtlH = 1;
         public const int DashboardTtlM = 5;
         public const int ListTtlM = 3;
     }

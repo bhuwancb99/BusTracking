@@ -166,6 +166,7 @@ namespace BusTracking.Mobile
             s.AddSingleton<INavigationService, NavigationService>();
             s.AddSingleton<IAuthService, AuthService>();
 
+            s.AddTransient<IGlobalConfigService, GlobalConfigService>();
             s.AddTransient<IAppConfigService, AppConfigService>();
             s.AddTransient<IDashboardService, DashboardService>();
             s.AddTransient<IBusService, BusService>();

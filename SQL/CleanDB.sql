@@ -50,6 +50,7 @@ BEGIN TRY
     IF OBJECT_ID('SubAdminPermissions', 'U') IS NOT NULL DELETE FROM SubAdminPermissions;
     IF OBJECT_ID('PasswordResetTokens', 'U') IS NOT NULL DELETE FROM PasswordResetTokens;
     IF OBJECT_ID('AppConfigurations', 'U') IS NOT NULL DELETE FROM AppConfigurations;
+    IF OBJECT_ID('GlobalConfigurations', 'U') IS NOT NULL DELETE FROM GlobalConfigurations;
     IF OBJECT_ID('DeviceTokens', 'U') IS NOT NULL DELETE FROM DeviceTokens;
     IF OBJECT_ID('Feedbacks', 'U') IS NOT NULL DELETE FROM Feedbacks;
     IF OBJECT_ID('Notifications', 'U') IS NOT NULL DELETE FROM Notifications;
@@ -140,6 +141,7 @@ IF OBJECT_ID('Routes', 'U') IS NOT NULL DROP TABLE Routes;
 IF OBJECT_ID('SubAdminPermissions', 'U') IS NOT NULL DROP TABLE SubAdminPermissions;
 IF OBJECT_ID('PasswordResetTokens', 'U') IS NOT NULL DROP TABLE PasswordResetTokens;
 IF OBJECT_ID('AppConfigurations', 'U') IS NOT NULL DROP TABLE AppConfigurations;
+IF OBJECT_ID('GlobalConfigurations', 'U') IS NOT NULL DROP TABLE GlobalConfigurations;
 IF OBJECT_ID('DeviceTokens', 'U') IS NOT NULL DROP TABLE DeviceTokens;
 IF OBJECT_ID('Feedbacks', 'U') IS NOT NULL DROP TABLE Feedbacks;
 IF OBJECT_ID('Notifications', 'U') IS NOT NULL DROP TABLE Notifications;

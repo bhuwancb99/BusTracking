@@ -711,6 +711,43 @@ END
 GO
 
 -- ============================================================
+-- 23B. GLOBAL CONFIGURATIONS
+-- ============================================================
+
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'GlobalConfigurations')
+BEGIN
+    CREATE TABLE GlobalConfigurations (
+        GlobalConfigId    INT IDENTITY(1,1) NOT NULL,
+        GlobalConfigKey   NVARCHAR(100) NOT NULL,
+        GlobalConfigValue NVARCHAR(1000) NOT NULL,
+        Description       NVARCHAR(500) NULL,
+        IsActive          BIT NOT NULL CONSTRAINT DF_GlobalConfigurations_IsActive DEFAULT 1,
+        CreatedAt         DATETIME2(7) NOT NULL CONSTRAINT DF_GlobalConfigurations_CreatedAt DEFAULT GETUTCDATE(),
+        UpdatedAt         DATETIME2(7) NULL,
+        CONSTRAINT PK_GlobalConfigurations PRIMARY KEY (GlobalConfigId)
+    );
+
+    CREATE UNIQUE NONCLUSTERED INDEX IX_GlobalConfigurations_GlobalConfigKey 
+        ON GlobalConfigurations (GlobalConfigKey ASC);
+END
+GO
+
+MERGE INTO GlobalConfigurations AS Target
+USING (VALUES 
+    (N'IsMaintencePage', N'0', N'Controls global maintenance mode status across mobile app and website.', 1),
+    (N'MandatoryUpdateApp', N'0', N'Enforces mandatory mobile application update for outdated versions.', 1),
+    (N'AndroidVersion', N'1.0', N'Minimum supported Android application version.', 1),
+    (N'iOSVersion', N'1.0', N'Minimum supported iOS application version.', 1),
+    (N'Android_Update_Url', N'https://play.google.com/store/apps/details?id=com.bustrack.bustracking', N'Google Play Store update URL for Android application.', 1),
+    (N'iOS_Update_Url', N'https://apps.apple.com/app/id123456789', N'Apple App Store update URL for iOS application.', 1)
+) AS Source (GlobalConfigKey, GlobalConfigValue, Description, IsActive)
+ON Target.GlobalConfigKey = Source.GlobalConfigKey
+WHEN NOT MATCHED BY TARGET THEN
+    INSERT (GlobalConfigKey, GlobalConfigValue, Description, IsActive, CreatedAt, UpdatedAt)
+    VALUES (Source.GlobalConfigKey, Source.GlobalConfigValue, Source.Description, Source.IsActive, GETUTCDATE(), GETUTCDATE());
+GO
+
+-- ============================================================
 -- 24. BUS IMAGES
 -- ============================================================
 
@@ -762,12 +799,6 @@ GO
 
 INSERT INTO AppConfigurations (ConfigKey, ConfigValue, SchoolId, Description, Platform, IsActive, CreatedBy)
 SELECT * FROM (VALUES
-    ('IsMaintencePage',    '0',   1, 'Set to 1 to show maintenance screen on app launch',       'Mobile', 1, 1),
-    ('MandatoryUpdateApp', '0',   1, 'Set to 1 to force users to update the app',                'Mobile', 1, 1),
-    ('AndroidVersion',      '1.0.0', 1, '','Mobile', 1, 1),
-    ('iOSVersion',      '1.0.0', 1, '','Mobile', 1, 1),
-    ('Android_Update_Url', '',    1, 'Google Play Store URL for the Android app',                'Mobile', 1, 1),
-    ('iOS_Update_Url',     '',    1, 'Apple App Store URL for the iOS app',                      'Mobile', 1, 1),
     ('GpsIntervalSeconds', '10',  1, 'How often the driver app sends GPS pings (seconds)',        'Mobile', 1, 1),
     ('SupportEmail',       '',    1, 'Support email shown inside the mobile app',                'Mobile', 1, 1),
     ('SupportPhone',       '',    1, 'Support phone number shown inside the mobile app',         'Mobile', 1, 1),

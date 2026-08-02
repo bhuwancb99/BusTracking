@@ -194,38 +194,9 @@
                         </Border>
                     </Grid>
 
-                    <!--  Maintenance Mode Panel  -->
-                    <VerticalStackLayout
-                        Padding="0,16"
-                        IsVisible="{Binding IsMaintenanceMode}"
-                        Spacing="16">
-                        <Image
-                            HeightRequest="60"
-                            HorizontalOptions="Center"
-                            Source="config.png"
-                            WidthRequest="60">
-                            <Image.Behaviors>
-                                <mct:IconTintColorBehavior TintColor="{StaticResource Accent}" />
-                            </Image.Behaviors>
-                        </Image>
-                        <Label
-                            FontAttributes="Bold"
-                            FontSize="18"
-                            HorizontalOptions="Center"
-                            Text="Under Maintenance"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                        Dark={StaticResource TextPrimaryDark}}" />
-                        <Label
-                            FontSize="13"
-                            HorizontalOptions="Center"
-                            HorizontalTextAlignment="Center"
-                            Text="{Binding MaintenanceMessage}"
-                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                        Dark={StaticResource TextSecondaryDark}}" />
-                    </VerticalStackLayout>
 
                     <!--  Login Form Section  -->
-                    <VerticalStackLayout IsVisible="{Binding IsMaintenanceMode, Converter={StaticResource InvertBool}}" Spacing="0">
+                    <VerticalStackLayout Spacing="0">
 
                         <!--  Error display box  -->
                         <Border

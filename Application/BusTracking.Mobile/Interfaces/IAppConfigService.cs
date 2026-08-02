@@ -2,10 +2,18 @@ namespace BusTracking.Mobile.Interfaces
 {
     public interface IAppConfigService
     {
+        /// <summary>
+        /// GetMobileConfigAsync
+        /// </summary>
+        /// <param name="forceRefresh"></param>
+        /// <returns></returns>
         Task<Dictionary<string, string>> GetMobileConfigAsync(bool forceRefresh = false);
+        /// <summary>
+        /// GetValueAsync
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
         Task<string?> GetValueAsync(string key);
-        Task<bool> IsMaintenanceModeAsync();
-        Task<bool> IsMandatoryUpdateAsync();
         /// <summary>
         /// Returns true when IsMobileUpdateImage = "1" in AppConfig.
         /// </summary>

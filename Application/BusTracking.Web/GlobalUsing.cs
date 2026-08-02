@@ -9,6 +9,7 @@ global using BusTracking.Common.DTOs.BusType;
 global using BusTracking.Common.DTOs.Common;
 global using BusTracking.Common.DTOs.Driver;
 global using BusTracking.Common.DTOs.Feedback;
+global using BusTracking.Common.DTOs.GlobalConfig;
 global using BusTracking.Common.DTOs.Parent;
 global using BusTracking.Common.DTOs.Route;
 global using BusTracking.Common.DTOs.Standard;
