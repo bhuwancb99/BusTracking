@@ -32,6 +32,25 @@ if (File.Exists(firebaseKeyPath) && FirebaseAdmin.FirebaseApp.DefaultInstance ==
 }
 builder.Services.AddControllers();
 
+// ── API Versioning ───────────────────────────────────────────────────────────
+builder.Services.AddApiVersioning(options =>
+{
+    options.DefaultApiVersion = new ApiVersion(1, 0);
+    options.AssumeDefaultVersionWhenUnspecified = true;
+    options.ReportApiVersions = true;
+    options.ApiVersionReader = ApiVersionReader.Combine(
+        new UrlSegmentApiVersionReader(),
+        new HeaderApiVersionReader("x-api-version"),
+        new HeaderApiVersionReader("api-version"),
+        new QueryStringApiVersionReader("api-version"),
+        new QueryStringApiVersionReader("v")
+    );
+}).AddApiExplorer(options =>
+{
+    options.GroupNameFormat = "'v'VVV";
+    options.SubstituteApiVersionInUrl = true;
+});
+
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o =>
 {
     o.MultipartBodyLengthLimit = 26_214_400;

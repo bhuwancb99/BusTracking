@@ -1,6 +1,7 @@
 namespace BusTracking.API.Controllers
 {
     [ApiController]
+    [ApiVersion("1.0")]
     public abstract class ApiBaseController : ControllerBase
     {
         protected int CurrentUserId =>

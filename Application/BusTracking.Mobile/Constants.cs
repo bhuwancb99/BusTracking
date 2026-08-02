@@ -6,8 +6,8 @@ namespace BusTracking.Mobile;
 /// </summary>
 public static class Constants
 {
-    // ── API Base ──────────────────────────────────────────────────────────
-
+    // ── API Base & Version ────────────────────────────────────────────────
+    public const string ApiVersion = "1.0";
 #if DEBUG
     // Switch comment depending on what you are testing on
     //public const string ApiBaseUrl = "https://10.0.2.2:7001";       // Android emulator

@@ -8,6 +8,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Asp.Versioning.Mvc" Version="10.0.1" />
+		<PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="10.0.1" />
 		<ProjectReference Include="..\BusTracking.Common\BusTracking.Common.csproj" />
 		<PackageReference Include="AutoMapper" Version="16.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.10" />

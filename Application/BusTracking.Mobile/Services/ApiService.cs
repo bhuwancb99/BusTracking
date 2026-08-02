@@ -39,6 +39,10 @@ namespace BusTracking.Mobile.Services
                 BaseAddress = new Uri(Constants.ApiBaseUrl),
                 Timeout = TimeSpan.FromSeconds(30)
             };
+
+            // Set global API version header on all requests
+            _http.DefaultRequestHeaders.Remove("x-api-version");
+            _http.DefaultRequestHeaders.Add("x-api-version", Constants.ApiVersion);
         }
 
         public void SetToken(string token)
