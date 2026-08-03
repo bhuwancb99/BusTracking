@@ -29,10 +29,23 @@ namespace BusTracking.Common.Entities
         [MaxLength(200)]
         public string? Website { get; set; }
 
+        public int? CountryId { get; set; }
+
+        public int? RegionId { get; set; }
+
+        [MaxLength(150)]
+        public string? City { get; set; }
+
         public int? TimeZoneId { get; set; }
 
         [MaxLength(100)]
         public string? TimeZoneInfoId { get; set; } = "India Standard Time";
+
+        [ForeignKey(nameof(CountryId))]
+        public CountryMaster? Country { get; set; }
+
+        [ForeignKey(nameof(RegionId))]
+        public RegionMaster? Region { get; set; }
 
         [ForeignKey(nameof(TimeZoneId))]
         public TimeZoneMaster? TimeZone { get; set; }

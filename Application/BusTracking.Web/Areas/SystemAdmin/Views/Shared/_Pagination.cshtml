@@ -3,40 +3,85 @@
     int currentPage = ViewBag.CurrentPage ?? 1;
     int totalPages = ViewBag.TotalPages ?? 1;
     int totalItems = ViewBag.TotalItems ?? 0;
-    int pageSize = 10;
+    int pageSize = ViewBag.PageSize ?? 10;
     int startItem = totalItems == 0 ? 0 : (currentPage - 1) * pageSize + 1;
     int endItem = Math.Min(currentPage * pageSize, totalItems);
-    string search = ViewBag.Search as string ?? "";
     string action = ViewContext.RouteData.Values["action"]?.ToString() ?? "Index";
-    string controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Home";
+    string controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "Index";
+    string area = ViewContext.RouteData.Values["area"]?.ToString() ?? "SystemAdmin";
+
+    // Preserve all active query parameters (e.g. countryId, search, isActive, pageSize)
+    var routeData = new Microsoft.AspNetCore.Routing.RouteValueDictionary();
+    foreach (var key in Context.Request.Query.Keys)
+    {
+        if (!string.Equals(key, "page", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(key))
+        {
+            routeData[key] = Context.Request.Query[key].ToString();
+        }
+    }
+    routeData["area"] = area;
+
+    Func<int, string> getPageUrl = (p) =>
+    {
+        var dict = new Microsoft.AspNetCore.Routing.RouteValueDictionary(routeData);
+        dict["page"] = p;
+        return Url.Action(action, controller, dict) ?? "#";
+    };
 }
 
 @if (totalItems > 0)
 {
     <div class="premium-card rounded-4 border-0 p-3 mt-4">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-            <div class="text-secondary small">
-                Showing @startItem–@endItem of <strong>@totalItems</strong> results
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <!-- Left Info & Items Per Page Selector -->
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="text-secondary small">
+                    Showing <strong>@startItem–@endItem</strong> of <strong>@totalItems</strong> results
+                </div>
+                @if (totalItems > 10 || pageSize != 10)
+                {
+                    <div class="d-flex align-items-center gap-2 border-start ps-3">
+                        <label for="sysAdminPageSizeSelect" class="text-secondary small mb-0 fw-semibold">Per page:</label>
+                        <select id="sysAdminPageSizeSelect" class="form-select form-select-sm rounded-3 py-1 text-center" style="width: 78px; padding-right: 1.75rem !important; cursor: pointer;" onchange="changeSysAdminPageSize(this.value)">
+                            <!option value="10" @(pageSize == 10 ? "selected" : "")>10</!option>
+                            <!option value="20" @(pageSize == 20 ? "selected" : "")>20</!option>
+                            <!option value="30" @(pageSize == 30 ? "selected" : "")>30</!option>
+                            <!option value="50" @(pageSize == 50 ? "selected" : "")>50</!option>
+                            <!option value="100" @(pageSize == 100 ? "selected" : "")>100</!option>
+                        </select>
+                    </div>
+                }
             </div>
+
+            <!-- Page Links Navigation -->
             @if (totalPages > 1)
             {
                 <nav>
                     <ul class="pagination pagination-sm mb-0">
                         <li class="page-item @(currentPage <= 1 ? "disabled" : "")">
-                            <a class="page-link" href="@Url.Action(action, controller, new { area = "SystemAdmin", search = search, page = currentPage - 1 })">&laquo;</a>
+                            <a class="page-link rounded-start-3" href="@getPageUrl(currentPage - 1)">&laquo;</a>
                         </li>
                         @for (int i = 1; i <= totalPages; i++)
                         {
                             <li class="page-item @(currentPage == i ? "active" : "")">
-                                <a class="page-link" href="@Url.Action(action, controller, new { area = "SystemAdmin", search = search, page = i })">@i</a>
+                                <a class="page-link" href="@getPageUrl(i)">@i</a>
                             </li>
                         }
                         <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
-                            <a class="page-link" href="@Url.Action(action, controller, new { area = "SystemAdmin", search = search, page = currentPage + 1 })">&raquo;</a>
+                            <a class="page-link rounded-end-3" href="@getPageUrl(currentPage + 1)">&raquo;</a>
                         </li>
                     </ul>
                 </nav>
             }
         </div>
     </div>
+
+    <script>
+        function changeSysAdminPageSize(newSize) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('pageSize', newSize);
+            url.searchParams.set('page', '1'); // Reset to page 1 on page size change
+            window.location.href = url.toString();
+        }
+    </script>
 }

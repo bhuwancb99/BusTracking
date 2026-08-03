@@ -31,6 +31,18 @@
                     <span>Schools</span>
                 </a>
             </li>
+            <li class="sidebar-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Country" ? "active" : "")">
+                <a class="sidebar-link" href="@Url.Action("Index", "Country", new { area = "SystemAdmin" })">
+                    <i class="bi bi-globe"></i>
+                    <span>Countries</span>
+                </a>
+            </li>
+            <li class="sidebar-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Region" ? "active" : "")">
+                <a class="sidebar-link" href="@Url.Action("Index", "Region", new { area = "SystemAdmin" })">
+                    <i class="bi bi-map"></i>
+                    <span>Regions</span>
+                </a>
+            </li>
             <li class="sidebar-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "TimeZone" ? "active" : "")">
                 <a class="sidebar-link" href="@Url.Action("Index", "TimeZone", new { area = "SystemAdmin" })">
                     <i class="bi bi-clock-history"></i>

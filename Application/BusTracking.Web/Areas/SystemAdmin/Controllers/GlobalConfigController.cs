@@ -11,13 +11,16 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
             _globalConfigService = globalConfigService;
         }
 
-        public async Task<IActionResult> Index(string search, bool? isActive, int page = 1)
+        public async Task<IActionResult> Index(string? search, bool? isActive, int page = 1, int pageSize = 10)
         {
-            var result = await _globalConfigService.GetAllAsync(search, isActive, page, 10);
+            if (pageSize <= 0) pageSize = 10;
+
+            var result = await _globalConfigService.GetAllAsync(search, isActive, page, pageSize);
 
             ViewBag.Search = search;
             ViewBag.IsActive = isActive;
             ViewBag.CurrentPage = page;
+            ViewBag.PageSize = pageSize;
             ViewBag.TotalPages = result.TotalPages;
             ViewBag.TotalItems = result.TotalCount;
 

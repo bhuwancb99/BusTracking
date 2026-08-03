@@ -4,6 +4,7 @@ global using BusTracking.API.Middleware;
 global using BusTracking.API.Models;
 global using BusTracking.Common;
 global using BusTracking.Common.Data;
+global using BusTracking.Common.DTOs;
 global using BusTracking.Common.DTOs.AppConfig;
 global using BusTracking.Common.DTOs.Assign;
 global using BusTracking.Common.DTOs.Auth;

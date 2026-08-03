@@ -1,0 +1,74 @@
+@model BusTracking.Common.Entities.CountryMaster
+@{
+    ViewData["Title"] = "Add New Country";
+}
+
+<div class="container-fluid p-4">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-primary text-white p-4 d-flex align-items-center justify-content-between">
+            <div>
+                <h4 class="mb-1 fw-bold"><i class="bi bi-plus-circle me-2"></i>Add New Country</h4>
+                <p class="mb-0 text-white-50 small">Create a global country master record with ISO code and currency formatting</p>
+            </div>
+            <a asp-action="Index" class="btn btn-outline-light rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6 col-12">
+                        <label asp-for="CountryName" class="form-label fw-semibold">Country Name <span class="text-danger">*</span></label>
+                        <input asp-for="CountryName" class="form-control form-control-lg rounded-3" placeholder="e.g. United Arab Emirates" required />
+                        <span asp-validation-for="CountryName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-3 col-6">
+                        <label asp-for="ISO2" class="form-label fw-semibold">ISO2 Code</label>
+                        <input asp-for="ISO2" class="form-control form-control-lg rounded-3 text-uppercase" placeholder="e.g. AE" maxlength="10" />
+                        <span asp-validation-for="ISO2" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-3 col-6">
+                        <label asp-for="PhoneCode" class="form-label fw-semibold">Phone Code</label>
+                        <input asp-for="PhoneCode" class="form-control form-control-lg rounded-3" placeholder="e.g. +971" maxlength="10" />
+                        <span asp-validation-for="PhoneCode" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4 col-12">
+                        <label asp-for="CurrencyCode" class="form-label fw-semibold">Currency Code</label>
+                        <input asp-for="CurrencyCode" class="form-control form-control-lg rounded-3 text-uppercase" placeholder="e.g. AED" maxlength="10" />
+                        <span asp-validation-for="CurrencyCode" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4 col-12">
+                        <label asp-for="CurrencySymbol" class="form-label fw-semibold">Currency Symbol</label>
+                        <input asp-for="CurrencySymbol" class="form-control form-control-lg rounded-3" placeholder="e.g. د.إ or $" maxlength="10" />
+                        <span asp-validation-for="CurrencySymbol" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4 col-12 d-flex align-items-end">
+                        <div class="form-check form-switch mb-2">
+                            <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" checked />
+                            <label class="form-check-label fw-semibold fs-6" for="isActiveSwitch">Active & Available in System</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-end gap-2 border-top pt-4 mt-2">
+                    <a asp-action="Index" class="btn btn-light rounded-pill px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">Save Country</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

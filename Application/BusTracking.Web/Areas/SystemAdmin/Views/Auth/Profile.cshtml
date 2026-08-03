@@ -3,44 +3,46 @@
     ViewData["Title"] = "Profile Settings";
 }
 
-<div class="row">
-    <div class="col-md-8 mx-auto">
-        <div class="d-flex align-items-center justify-content-between mb-4">
-            <h2 class="fw-bold m-0"><i class="bi bi-person-gear text-primary me-2"></i>Profile Settings</h2>
-            <a href="@Url.Action("ChangePassword", "Auth", new { area = "SystemAdmin" })" class="btn btn-outline-primary rounded-3">
-                <i class="bi bi-key me-2"></i>Change Password
+<div class="container-fluid p-4">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-primary text-white p-4 d-flex align-items-center justify-content-between">
+            <div>
+                <h4 class="mb-1 fw-bold"><i class="bi bi-person-gear me-2"></i>Profile Settings</h4>
+                <p class="mb-0 text-white-50 small">Manage your System Administrator account profile details</p>
+            </div>
+            <a href="@Url.Action("ChangePassword", "Auth", new { area = "SystemAdmin" })" class="btn btn-outline-light rounded-pill px-4">
+                <i class="bi bi-key me-1"></i> Change Password
             </a>
         </div>
-
-        <div class="premium-card rounded-4 border-0">
-            <h5 class="fw-bold mb-4 text-primary border-bottom pb-2 border-secondary">Personal Details</h5>
-
+        <div class="card-body p-4">
             @if (!ViewData.ModelState.IsValid)
             {
-                <div class="alert alert-danger py-2 border-0 rounded-3" style="background-color: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                <div class="alert alert-danger py-2 border-0 rounded-3 mb-4" style="background-color: rgba(239, 68, 68, 0.15); color: #ef4444;">
                     <div asp-validation-summary="All"></div>
                 </div>
             }
 
             <form asp-action="Profile" method="post">
                 @Html.AntiForgeryToken()
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label for="FullName" class="form-label">Full Name</label>
-                        <input type="text" id="FullName" name="fullName" value="@Model.FullName" class="form-control" required />
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4 col-12">
+                        <label for="FullName" class="form-label fw-bold">Full Name <span class="text-danger">*</span></label>
+                        <input type="text" id="FullName" name="fullName" value="@Model.FullName" class="form-control form-control-lg rounded-3" required />
                     </div>
-                    <div class="col-md-4">
-                        <label for="UserName" class="form-label">Username</label>
-                        <input type="text" id="UserName" name="userName" value="@Model.UserName" class="form-control" required />
+
+                    <div class="col-md-4 col-12">
+                        <label for="UserName" class="form-label fw-bold">Username <span class="text-danger">*</span></label>
+                        <input type="text" id="UserName" name="userName" value="@Model.UserName" class="form-control form-control-lg rounded-3" required />
                     </div>
-                    <div class="col-12">
-                        <label for="Email" class="form-label">Email Address</label>
-                        <input type="email" id="Email" name="email" value="@Model.Email" class="form-control" />
+
+                    <div class="col-md-4 col-12">
+                        <label for="Email" class="form-label fw-bold">Email Address</label>
+                        <input type="email" id="Email" name="email" value="@Model.Email" class="form-control form-control-lg rounded-3" placeholder="admin@system.com" />
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-end mt-4">
-                    <button type="submit" class="btn btn-primary rounded-3"><i class="bi bi-save me-2"></i>Save Changes</button>
+                <div class="d-flex justify-content-end gap-2 border-top pt-4 mt-2">
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm"><i class="bi bi-save me-2"></i>Save Changes</button>
                 </div>
             </form>
         </div>

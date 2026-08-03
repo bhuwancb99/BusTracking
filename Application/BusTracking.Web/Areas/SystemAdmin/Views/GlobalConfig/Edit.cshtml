@@ -5,45 +5,49 @@
     string key = ViewBag.GlobalConfigKey ?? "";
 }
 
-<div class="d-flex align-items-center justify-content-between mb-4">
-    <h2 class="fw-bold m-0"><i class="bi bi-pencil-square text-primary me-2"></i>Edit Global Configuration</h2>
-    <a href="@Url.Action("Index", "GlobalConfig", new { area = "SystemAdmin" })" class="btn btn-outline-secondary rounded-3">
-        <i class="bi bi-arrow-left me-2"></i>Back to List
-    </a>
-</div>
-
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="premium-card rounded-4 border-0 p-4">
+<div class="container-fluid p-4">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-primary text-white p-4 d-flex align-items-center justify-content-between">
+            <div>
+                <h4 class="mb-1 fw-bold"><i class="bi bi-pencil-square me-2"></i>Edit Global Configuration</h4>
+                <p class="mb-0 text-white-50 small">Update system configuration value and settings</p>
+            </div>
+            <a href="@Url.Action("Index", "GlobalConfig", new { area = "SystemAdmin" })" class="btn btn-outline-light rounded-pill px-4">
+                <i class="bi bi-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+        <div class="card-body p-4">
             <form action="@Url.Action("Edit", "GlobalConfig", new { area = "SystemAdmin", id = id })" method="post">
                 @Html.AntiForgeryToken()
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-3"></div>
 
-                <div class="mb-3">
-                    <label class="form-label fw-bold">Configuration Key</label>
-                    <input type="text" value="@key" class="form-control rounded-3 bg-light text-muted" readonly />
+                <div class="row g-4 mb-4">
+                    <div class="col-md-6 col-12">
+                        <label class="form-label fw-bold">Configuration Key</label>
+                        <input type="text" value="@key" class="form-control form-control-lg rounded-3 bg-light text-muted" readonly />
+                    </div>
+
+                    <div class="col-md-6 col-12">
+                        <label asp-for="Description" class="form-label fw-bold">Description</label>
+                        <input asp-for="Description" class="form-control form-control-lg rounded-3" placeholder="Describe the purpose of this configuration..." />
+                        <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-4">
                     <label asp-for="GlobalConfigValue" class="form-label fw-bold">Configuration Value <span class="text-danger">*</span></label>
                     <textarea asp-for="GlobalConfigValue" class="form-control rounded-3" rows="3" placeholder="Enter configuration value..."></textarea>
                     <span asp-validation-for="GlobalConfigValue" class="text-danger small"></span>
                 </div>
 
-                <div class="mb-3">
-                    <label asp-for="Description" class="form-label fw-bold">Description</label>
-                    <input asp-for="Description" class="form-control rounded-3" placeholder="Describe the purpose of this configuration..." />
-                    <span asp-validation-for="Description" class="text-danger small"></span>
-                </div>
-
-                <div class="mb-4 form-check form-switch">
+                <div class="form-check form-switch mb-4">
                     <input asp-for="IsActive" class="form-check-input" type="checkbox" id="isActiveSwitch" />
-                    <label class="form-check-label fw-semibold" for="isActiveSwitch">Active</label>
+                    <label class="form-check-label fw-semibold fs-6" for="isActiveSwitch">Active</label>
                 </div>
 
-                <div class="d-flex justify-content-end gap-2">
-                    <a href="@Url.Action("Index", "GlobalConfig", new { area = "SystemAdmin" })" class="btn btn-light rounded-3">Cancel</a>
-                    <button type="submit" class="btn btn-primary rounded-3 px-4"><i class="bi bi-check-circle me-2"></i>Update Configuration</button>
+                <div class="d-flex justify-content-end gap-2 border-top pt-4 mt-2">
+                    <a href="@Url.Action("Index", "GlobalConfig", new { area = "SystemAdmin" })" class="btn btn-light rounded-pill px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm"><i class="bi bi-check-circle me-2"></i>Update Configuration</button>
                 </div>
             </form>
         </div>

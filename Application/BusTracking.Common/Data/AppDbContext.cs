@@ -10,6 +10,8 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<School> Schools { get; set; }
+    public DbSet<CountryMaster> CountryMasters { get; set; }
+    public DbSet<RegionMaster> RegionMasters { get; set; }
     public DbSet<TimeZoneMaster> TimeZoneMasters { get; set; }
     public DbSet<SystemAdministrator> SystemAdministrators { get; set; }
 
@@ -50,6 +52,8 @@ public class AppDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<School>().ToTable("Schools");
+        modelBuilder.Entity<CountryMaster>().ToTable("CountryMasters").HasKey(c => c.CountryId);
+        modelBuilder.Entity<RegionMaster>().ToTable("RegionMasters").HasKey(r => r.RegionId);
         modelBuilder.Entity<TimeZoneMaster>().ToTable("TimeZoneMasters");
         modelBuilder.Entity<SystemAdministrator>().ToTable("SystemAdministrators");
         // ── Explicit table names — must match SQL script exactly ─────

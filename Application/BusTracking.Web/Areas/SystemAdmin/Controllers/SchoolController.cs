@@ -13,8 +13,10 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
             _img = img;
         }
 
-        public async Task<IActionResult> Index(string search, int page = 1)
+        public async Task<IActionResult> Index(string search, int page = 1, int pageSize = 10)
         {
+            if (pageSize <= 0) pageSize = 10;
+
             var query = _db.Schools.Include(s => s.TimeZone).IgnoreQueryFilters().AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
@@ -23,7 +25,6 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
                 query = query.Where(sc => sc.SchoolName.Contains(s) || sc.SchoolCode.Contains(s) || sc.PrincipalName.Contains(s));
             }
 
-            int pageSize = 10;
             int totalItems = await query.CountAsync();
             var items = await query
                 .OrderByDescending(sc => sc.CreatedAt)
@@ -33,6 +34,7 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
 
             ViewBag.Search = search;
             ViewBag.CurrentPage = page;
+            ViewBag.PageSize = pageSize;
             ViewBag.TotalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
             ViewBag.TotalItems = totalItems;
 

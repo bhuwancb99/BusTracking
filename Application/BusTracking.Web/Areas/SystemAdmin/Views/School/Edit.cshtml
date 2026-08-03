@@ -3,27 +3,29 @@
     ViewData["Title"] = "Edit School";
 }
 
-<div class="row">
-    <div class="col-md-9 mx-auto">
-        <div class="d-flex align-items-center justify-content-between mb-4">
-            <div class="d-flex align-items-center">
-                <a href="@Url.Action("Index", "School", new { area = "SystemAdmin" })" class="btn btn-secondary btn-sm me-3 rounded-circle" style="padding: 0.375rem 0.5rem;">
-                    <i class="bi bi-arrow-left"></i>
-                </a>
-                <h2 class="fw-bold m-0"><i class="bi bi-building-gear text-primary me-2"></i>Edit School</h2>
+<div class="container-fluid p-4">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-primary text-white p-4 d-flex align-items-center justify-content-between">
+            <div>
+                <h4 class="mb-1 fw-bold"><i class="bi bi-building-gear me-2"></i>Edit School</h4>
+                <p class="mb-0 text-white-50 small">Update school configuration, contact information, and time zone</p>
             </div>
-            @if (Model.SchoolId != 1)
-            {
-                <form asp-area="SystemAdmin" asp-controller="School" asp-action="ImportAppConfigs" asp-route-id="@Model.SchoolId" method="post" class="d-inline">
-                    @Html.AntiForgeryToken()
-                    <button type="submit" class="btn btn-outline-primary rounded-3 fw-semibold shadow-sm" onclick="return confirm('Import missing AppConfigurations from School #1 template for this school?');">
-                        <i class="bi bi-download me-1"></i> Import App Configurations
-                    </button>
-                </form>
-            }
+            <div class="d-flex align-items-center gap-2">
+                @if (Model.SchoolId != 1)
+                {
+                    <form asp-area="SystemAdmin" asp-controller="School" asp-action="ImportAppConfigs" asp-route-id="@Model.SchoolId" method="post" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-light rounded-pill px-3 fw-semibold" onclick="return confirm('Import missing AppConfigurations from School #1 template for this school?');">
+                            <i class="bi bi-download me-1"></i> Import App Configs
+                        </button>
+                    </form>
+                }
+                <a href="@Url.Action("Index", "School", new { area = "SystemAdmin" })" class="btn btn-outline-light rounded-pill px-4">
+                    <i class="bi bi-arrow-left me-1"></i> Back to List
+                </a>
+            </div>
         </div>
-
-        <div class="premium-card rounded-4 border-0 p-4">
+        <div class="card-body p-4">
             <form asp-action="Edit" method="post" enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="SchoolId" />
@@ -35,36 +37,65 @@
                     </div>
                 }
 
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label asp-for="SchoolName" class="form-label">School Name</label>
-                        <input asp-for="SchoolName" class="form-control" required />
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4 col-12">
+                        <label asp-for="SchoolName" class="form-label fw-bold">School Name <span class="text-danger">*</span></label>
+                        <input asp-for="SchoolName" class="form-control form-control-lg rounded-3" required />
                         <span asp-validation-for="SchoolName" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-4">
-                        <label asp-for="SchoolCode" class="form-label">School Code</label>
-                        <input asp-for="SchoolCode" class="form-control" required />
+                    <div class="col-md-4 col-12">
+                        <label asp-for="SchoolCode" class="form-label fw-bold">School Code <span class="text-danger">*</span></label>
+                        <input asp-for="SchoolCode" class="form-control form-control-lg rounded-3" required />
                         <span asp-validation-for="SchoolCode" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-4">
-                        <label asp-for="PrincipalName" class="form-label">Principal Name</label>
-                        <input asp-for="PrincipalName" class="form-control" required />
+                    <div class="col-md-4 col-12">
+                        <label asp-for="PrincipalName" class="form-label fw-bold">Principal Name <span class="text-danger">*</span></label>
+                        <input asp-for="PrincipalName" class="form-control form-control-lg rounded-3" required />
                         <span asp-validation-for="PrincipalName" class="text-danger small"></span>
                     </div>
+                </div>
 
-                    <div class="col-md-4">
-                        <label for="logoFile" class="form-label fw-semibold">School Logo</label>
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4 col-12">
+                        <label asp-for="ContactNumber" class="form-label fw-bold">Contact Number <span class="text-danger">*</span></label>
+                        <input asp-for="ContactNumber" class="form-control form-control-lg rounded-3" required />
+                        <span asp-validation-for="ContactNumber" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4 col-12">
+                        <label asp-for="EmailAddress" class="form-label fw-bold">Email Address <span class="text-danger">*</span></label>
+                        <input asp-for="EmailAddress" type="email" class="form-control form-control-lg rounded-3" required />
+                        <span asp-validation-for="EmailAddress" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4 col-12">
+                        <label asp-for="Website" class="form-label fw-bold">Website</label>
+                        <input asp-for="Website" type="url" class="form-control form-control-lg rounded-3" placeholder="https://example.com" />
+                        <span asp-validation-for="Website" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="row g-4 mb-4">
+                    <div class="col-md-4 col-12">
+                        <label asp-for="TimeZoneId" class="form-label fw-bold">School Time Zone</label>
+                        <select asp-for="TimeZoneId" asp-items="(List<SelectListItem>)ViewBag.TimeZones" class="form-select form-select-lg rounded-3">
+                            <option value="">-- Select Time Zone --</option>
+                        </select>
+                        <span asp-validation-for="TimeZoneId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-6 col-12">
+                        <label for="logoFile" class="form-label fw-bold">School Logo</label>
                         <div class="premium-file-upload border border-dashed rounded-3 p-3 text-center position-relative bg-light-subtle" style="cursor: pointer; border-style: dashed !important; border-color: #3d5af1 !important; transition: background-color 0.2s;">
                             <input type="file" id="logoFile" name="logoFile" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer;" accept="image/*" onchange="previewFile(this, 'logoPreview', 'logoFileName')" />
-                            <div class="upload-content">
-                                <i class="bi bi-cloud-arrow-up-fill text-primary fs-3 d-block mb-1"></i>
-                                <span class="fw-semibold text-secondary d-block" id="logoFileName">Choose new logo...</span>
-                                <span class="text-muted small">PNG, JPG or WebP (max. 5MB)</span>
+                            <div class="upload-content d-flex align-items-center justify-content-center gap-3">
+                                <i class="bi bi-cloud-arrow-up-fill text-primary fs-3"></i>
+                                <span class="fw-semibold text-secondary" id="logoFileName">Choose new logo image...</span>
                             </div>
                             <div id="logoPreview" class="mt-2 @(string.IsNullOrEmpty(Model.SchoolLogo) ? "d-none" : "")">
-                                <img src="@Model.SchoolLogo" class="rounded-circle border border-secondary shadow-sm" style="width: 60px; height: 60px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
+                                <img src="@Model.SchoolLogo" class="rounded-circle border border-secondary shadow-sm" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
                                 @if (!string.IsNullOrEmpty(Model.SchoolLogo))
                                 {
                                     <div class="text-secondary small mt-1">Current Active Logo</div>
@@ -73,50 +104,25 @@
                         </div>
                     </div>
 
-                    <div class="col-md-4">
-                        <label asp-for="ContactNumber" class="form-label">Contact Number</label>
-                        <input asp-for="ContactNumber" class="form-control" required />
-                        <span asp-validation-for="ContactNumber" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label asp-for="EmailAddress" class="form-label">Email Address</label>
-                        <input asp-for="EmailAddress" type="email" class="form-control" required />
-                        <span asp-validation-for="EmailAddress" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label asp-for="Website" class="form-label">Website</label>
-                        <input asp-for="Website" type="url" class="form-control" placeholder="https://example.com" />
-                        <span asp-validation-for="Website" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-md-4">
-                        <label asp-for="TimeZoneId" class="form-label fw-bold">School Time Zone</label>
-                        <select asp-for="TimeZoneId" asp-items="(List<SelectListItem>)ViewBag.TimeZones" class="form-select">
-                            <option value="">-- Select Time Zone --</option>
-                        </select>
-                        <span asp-validation-for="TimeZoneId" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-md-12">
-                        <label asp-for="SchoolAddress" class="form-label">School Address</label>
-                        <textarea asp-for="SchoolAddress" class="form-control" rows="3" required></textarea>
-                        <span asp-validation-for="SchoolAddress" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-md-4 mt-3">
-                        <label class="form-label d-block">Status</label>
-                        <div class="form-check form-switch pt-1">
+                    <div class="col-md-2 col-12 d-flex align-items-end">
+                        <div class="form-check form-switch mb-2">
                             <input class="form-check-input" type="checkbox" asp-for="IsActive" id="IsActiveSwitch" style="cursor: pointer; width: 45px; height: 22px;">
-                            <label class="form-check-label ms-2 text-secondary" for="IsActiveSwitch">Active / Enabled</label>
+                            <label class="form-check-label ms-2 fw-semibold fs-6" for="IsActiveSwitch">Active</label>
                         </div>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-end mt-4 gap-2">
-                    <a href="@Url.Action("Index", "School", new { area = "SystemAdmin" })" class="btn btn-secondary rounded-3">Cancel</a>
-                    <button type="submit" class="btn btn-primary rounded-3"><i class="bi bi-save me-2"></i>Save Changes</button>
+                <div class="row g-4 mb-4">
+                    <div class="col-12">
+                        <label asp-for="SchoolAddress" class="form-label fw-bold">School Address <span class="text-danger">*</span></label>
+                        <textarea asp-for="SchoolAddress" class="form-control rounded-3" rows="3" required></textarea>
+                        <span asp-validation-for="SchoolAddress" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 border-top pt-4 mt-2">
+                    <a href="@Url.Action("Index", "School", new { area = "SystemAdmin" })" class="btn btn-light rounded-pill px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm"><i class="bi bi-save me-2"></i>Save Changes</button>
                 </div>
             </form>
         </div>
@@ -136,7 +142,6 @@
                 reader.onload = function(e) {
                     previewDiv.querySelector('img').src = e.target.result;
                     previewDiv.classList.remove('d-none');
-                    // Remove current logo helper text
                     const helper = previewDiv.querySelector('.text-secondary');
                     if (helper) helper.textContent = "New Selected Logo";
                 };
