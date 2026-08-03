@@ -1,5 +1,5 @@
 -- ============================================================
---  BUS TRACKING APPLICATION - Database Cleanup Script
+--  SCHOOL ERP APPLICATION - Database Cleanup Script
 --  Platform : SQL Server (T-SQL)
 --  Description:
 --    1. Disables all foreign key constraints.
@@ -7,7 +7,10 @@
 --    3. Drops all views, stored procedures, and tables.
 -- ============================================================
 
-USE BusTrackingDB;
+IF DB_ID('SchoolErpDB') IS NOT NULL
+    USE SchoolErpDB;
+ELSE IF DB_ID('BusTrackingDB') IS NOT NULL
+    USE BusTrackingDB;
 GO
 
 PRINT 'Starting database cleanup...';
@@ -27,6 +30,11 @@ PRINT 'Deleting all records from all tables...';
 BEGIN TRANSACTION;
 BEGIN TRY
     -- Order designed to minimize constraint checks (even though disabled)
+    IF OBJECT_ID('FeePayments', 'U') IS NOT NULL DELETE FROM FeePayments;
+    IF OBJECT_ID('FeeStructures', 'U') IS NOT NULL DELETE FROM FeeStructures;
+    IF OBJECT_ID('DailyAttendances', 'U') IS NOT NULL DELETE FROM DailyAttendances;
+    IF OBJECT_ID('PaymentTransactions', 'U') IS NOT NULL DELETE FROM PaymentTransactions;
+    IF OBJECT_ID('PaymentGatewayConfigs', 'U') IS NOT NULL DELETE FROM PaymentGatewayConfigs;
     IF OBJECT_ID('Logger', 'U') IS NOT NULL DELETE FROM Logger;
     IF OBJECT_ID('AuditLogs', 'U') IS NOT NULL DELETE FROM AuditLogs;
     IF OBJECT_ID('BusFuelLogs', 'U') IS NOT NULL DELETE FROM BusFuelLogs;
@@ -38,6 +46,8 @@ BEGIN TRY
     IF OBJECT_ID('ParentStudents', 'U') IS NOT NULL DELETE FROM ParentStudents;
     IF OBJECT_ID('Parents', 'U') IS NOT NULL DELETE FROM Parents;
     IF OBJECT_ID('Students', 'U') IS NOT NULL DELETE FROM Students;
+    IF OBJECT_ID('Sections', 'U') IS NOT NULL DELETE FROM Sections;
+    IF OBJECT_ID('AcademicYears', 'U') IS NOT NULL DELETE FROM AcademicYears;
     IF OBJECT_ID('StandardMasters', 'U') IS NOT NULL DELETE FROM StandardMasters;
     IF OBJECT_ID('DriverDetails', 'U') IS NOT NULL DELETE FROM DriverDetails;
     IF OBJECT_ID('BusRouteMappings', 'U') IS NOT NULL DELETE FROM BusRouteMappings;
@@ -58,6 +68,8 @@ BEGIN TRY
     IF OBJECT_ID('SystemAdministrators', 'U') IS NOT NULL DELETE FROM SystemAdministrators;
     IF OBJECT_ID('Users', 'U') IS NOT NULL DELETE FROM Users;
     IF OBJECT_ID('Schools', 'U') IS NOT NULL DELETE FROM Schools;
+    IF OBJECT_ID('RegionMasters', 'U') IS NOT NULL DELETE FROM RegionMasters;
+    IF OBJECT_ID('CountryMasters', 'U') IS NOT NULL DELETE FROM CountryMasters;
     IF OBJECT_ID('TimeZoneMasters', 'U') IS NOT NULL DELETE FROM TimeZoneMasters;
     IF OBJECT_ID('Permissions', 'U') IS NOT NULL DELETE FROM Permissions;
     IF OBJECT_ID('Roles', 'U') IS NOT NULL DELETE FROM Roles;
@@ -118,6 +130,11 @@ GO
 -- ────────────────────────────────────────────────────────────
 PRINT 'Dropping all tables...';
 -- Drop tables in reverse dependency order to ensure clean execution
+IF OBJECT_ID('FeePayments', 'U') IS NOT NULL DROP TABLE FeePayments;
+IF OBJECT_ID('FeeStructures', 'U') IS NOT NULL DROP TABLE FeeStructures;
+IF OBJECT_ID('DailyAttendances', 'U') IS NOT NULL DROP TABLE DailyAttendances;
+IF OBJECT_ID('PaymentTransactions', 'U') IS NOT NULL DROP TABLE PaymentTransactions;
+IF OBJECT_ID('PaymentGatewayConfigs', 'U') IS NOT NULL DROP TABLE PaymentGatewayConfigs;
 IF OBJECT_ID('Logger', 'U') IS NOT NULL DROP TABLE Logger;
 IF OBJECT_ID('AuditLogs', 'U') IS NOT NULL DROP TABLE AuditLogs;
 IF OBJECT_ID('BusFuelLogs', 'U') IS NOT NULL DROP TABLE BusFuelLogs;
@@ -129,6 +146,8 @@ IF OBJECT_ID('StudentAvailabilities', 'U') IS NOT NULL DROP TABLE StudentAvailab
 IF OBJECT_ID('ParentStudents', 'U') IS NOT NULL DROP TABLE ParentStudents;
 IF OBJECT_ID('Parents', 'U') IS NOT NULL DROP TABLE Parents;
 IF OBJECT_ID('Students', 'U') IS NOT NULL DROP TABLE Students;
+IF OBJECT_ID('Sections', 'U') IS NOT NULL DROP TABLE Sections;
+IF OBJECT_ID('AcademicYears', 'U') IS NOT NULL DROP TABLE AcademicYears;
 IF OBJECT_ID('StandardMasters', 'U') IS NOT NULL DROP TABLE StandardMasters;
 IF OBJECT_ID('DriverDetails', 'U') IS NOT NULL DROP TABLE DriverDetails;
 IF OBJECT_ID('BusRouteMappings', 'U') IS NOT NULL DROP TABLE BusRouteMappings;
@@ -149,6 +168,8 @@ IF OBJECT_ID('NotificationSettings', 'U') IS NOT NULL DROP TABLE NotificationSet
 IF OBJECT_ID('SystemAdministrators', 'U') IS NOT NULL DROP TABLE SystemAdministrators;
 IF OBJECT_ID('Users', 'U') IS NOT NULL DROP TABLE Users;
 IF OBJECT_ID('Schools', 'U') IS NOT NULL DROP TABLE Schools;
+IF OBJECT_ID('RegionMasters', 'U') IS NOT NULL DROP TABLE RegionMasters;
+IF OBJECT_ID('CountryMasters', 'U') IS NOT NULL DROP TABLE CountryMasters;
 IF OBJECT_ID('TimeZoneMasters', 'U') IS NOT NULL DROP TABLE TimeZoneMasters;
 IF OBJECT_ID('Permissions', 'U') IS NOT NULL DROP TABLE Permissions;
 IF OBJECT_ID('Roles', 'U') IS NOT NULL DROP TABLE Roles;
