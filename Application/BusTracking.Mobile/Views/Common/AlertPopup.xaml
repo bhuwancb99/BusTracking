@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup
+    x:Class="BusTracking.Mobile.Views.Common.AlertPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
+
+    <Border
+        Margin="24"
+        Padding="24"
+        BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                          Dark={StaticResource CardBgDark}}"
+        HorizontalOptions="Center"
+        Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                 Dark={StaticResource BorderColorDark}}"
+        StrokeShape="RoundRectangle 24"
+        StrokeThickness="1.5"
+        VerticalOptions="Center"
+        WidthRequest="320">
+        <Border.Shadow>
+            <Shadow
+                Brush="Black"
+                Opacity="0.25"
+                Radius="16"
+                Offset="0,8" />
+        </Border.Shadow>
+
+        <VerticalStackLayout Spacing="20">
+            <!--  Icon badge with colored background  -->
+            <Border
+                x:Name="IconBadgeBorder"
+                BackgroundColor="{AppThemeBinding Light=#FFF8E1,
+                                                  Dark=#40351A}"
+                HeightRequest="60"
+                HorizontalOptions="Center"
+                StrokeShape="Ellipse"
+                StrokeThickness="0"
+                WidthRequest="60">
+                <Image
+                    x:Name="IconImage"
+                    HeightRequest="26"
+                    HorizontalOptions="Center"
+                    Source="info.png"
+                    VerticalOptions="Center"
+                    WidthRequest="26">
+                    <Image.Behaviors>
+                        <toolkit:IconTintColorBehavior x:Name="IconTintColor" TintColor="{StaticResource Warning}" />
+                    </Image.Behaviors>
+                </Image>
+            </Border>
+
+            <!--  Title & Message  -->
+            <VerticalStackLayout HorizontalOptions="Fill" Spacing="8">
+                <Label
+                    x:Name="TitleLabel"
+                    FontAttributes="Bold"
+                    FontSize="18"
+                    HorizontalTextAlignment="Center"
+                    Text="Alert"
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                Dark={StaticResource TextPrimaryDark}}" />
+                <Label
+                    x:Name="MessageLabel"
+                    FontSize="14"
+                    HorizontalTextAlignment="Center"
+                    LineBreakMode="WordWrap"
+                    Text=""
+                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                Dark={StaticResource TextSecondaryDark}}" />
+            </VerticalStackLayout>
+
+            <!--  Single OK button  -->
+            <Button
+                x:Name="OkButton"
+                BackgroundColor="{AppThemeBinding Light={StaticResource PrimaryButtonBgLight},
+                                                  Dark={StaticResource PrimaryButtonBgDark}}"
+                Clicked="OnOkClicked"
+                CornerRadius="12"
+                FontAttributes="Bold"
+                HeightRequest="48"
+                HorizontalOptions="Fill"
+                Text="OK"
+                TextColor="{AppThemeBinding Light={StaticResource PrimaryButtonTextLight},
+                                            Dark={StaticResource PrimaryButtonTextDark}}" />
+        </VerticalStackLayout>
+    </Border>
+
+</toolkit:Popup>

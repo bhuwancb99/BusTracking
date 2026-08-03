@@ -62,7 +62,36 @@ public abstract partial class BaseViewModel : ObservableObject
     protected async Task ShowAlertAsync(string title, string message, string cancel = "OK")
     {
         if (Application.Current?.Windows[0].Page is Page p)
-            await p.DisplayAlertAsync(title, message, cancel);
+        {
+            string iconSource = "info.png";
+            Color? iconColor = null;
+
+            if (title.Contains("Error", StringComparison.OrdinalIgnoreCase) ||
+                title.Contains("Failed", StringComparison.OrdinalIgnoreCase))
+            {
+                iconSource = "info.png";
+                iconColor = Color.FromArgb("#ba1a1a"); // Danger
+            }
+            else if (title.Contains("Warning", StringComparison.OrdinalIgnoreCase) ||
+                     title.Contains("Maintenance", StringComparison.OrdinalIgnoreCase))
+            {
+                iconSource = "config.png";
+                iconColor = Color.FromArgb("#ffa929"); // Warning
+            }
+            else if (title.Contains("Success", StringComparison.OrdinalIgnoreCase))
+            {
+                iconSource = "check.png";
+                iconColor = Color.FromArgb("#10b981"); // Success
+            }
+            else
+            {
+                iconSource = "info.png";
+                iconColor = Color.FromArgb("#00288e"); // Primary
+            }
+
+            var popup = new Views.Common.AlertPopup(title, message, cancel, iconSource, iconColor);
+            await p.ShowPopupAsync(popup);
+        }
     }
 
     protected async Task<bool> ConfirmAsync(string title, string message,
