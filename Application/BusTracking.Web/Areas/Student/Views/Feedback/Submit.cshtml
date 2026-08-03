@@ -2,28 +2,67 @@
 @{
     ViewData["Title"] = "Help & Support";
 }
-<div class="row justify-content-center">
-    <div class="col-lg-7">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-headset me-2 text-primary"></i>Submit Inquiry or Complaint</div>
-            <div class="card-body p-4">
-                @if (TempData["SuccessMessage"] is string msg)
-                {
-                    <div class="alert alert-success py-2">@msg</div>
-                }
-                <form asp-area="Student" asp-controller="Feedback" asp-action="Submit" method="post">
-                    @Html.AntiForgeryToken()
-                    <div class="mb-3 d-flex gap-4">
-                        <div class="form-check"><input class="form-check-input" type="radio" name="Category" value="Inquiry" id="ci" checked /><label class="form-check-label" for="ci">Inquiry</label></div>
-                        <div class="form-check"><input class="form-check-input" type="radio" name="Category" value="Complaint" id="cc" /><label class="form-check-label" for="cc">Complaint</label></div>
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-md-6"><label asp-for="Email" class="form-label fw-semibold">Email <span class="text-danger">*</span></label><input asp-for="Email" type="email" class="form-control" /></div>
-                        <div class="col-md-6"><label asp-for="PhoneNumber" class="form-label fw-semibold">Phone</label><input asp-for="PhoneNumber" class="form-control" /></div>
-                        <div class="col-12"><label asp-for="Description" class="form-label fw-semibold">Message <span class="text-danger">*</span></label><textarea asp-for="Description" class="form-control" rows="5"></textarea></div>
-                    </div>
-                    <div class="mt-4"><button type="submit" class="btn btn-primary px-4"><i class="bi bi-send me-1"></i>Submit</button></div>
-                </form>
+
+<div class="container-fluid p-0">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold m-0 text-dark">
+                <i class="bi bi-headset text-primary me-2"></i>Help & Support Center
+            </h2>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small text-muted">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item active text-primary" aria-current="page">Help & Support</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 bg-white">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-0 fw-bold text-primary text-uppercase fs-7">
+                    <i class="bi bi-send me-2 text-primary"></i>Submit Inquiry or Ticket
+                </div>
+                <div class="card-body p-4">
+                    <form asp-area="Student" asp-controller="Feedback" asp-action="Submit" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="mb-4 bg-light p-3 rounded-3 border">
+                            <label class="form-label fw-semibold small text-muted d-block mb-2">Category Type</label>
+                            <div class="d-flex gap-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Category" value="Inquiry" id="ci" checked />
+                                    <label class="form-check-label fw-semibold text-dark" for="ci">General Inquiry</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="Category" value="Complaint" id="cc" />
+                                    <label class="form-check-label fw-semibold text-dark" for="cc">Route Complaint</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label asp-for="Email" class="form-label fw-semibold small text-muted">Email Address <span class="text-danger">*</span></label>
+                                <input asp-for="Email" type="email" class="form-control rounded-3" placeholder="name@example.com" />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="PhoneNumber" class="form-label fw-semibold small text-muted">Phone Number</label>
+                                <input asp-for="PhoneNumber" class="form-control rounded-3" placeholder="+91 XXXXXXXXXX" />
+                            </div>
+                            <div class="col-12">
+                                <label asp-for="Description" class="form-label fw-semibold small text-muted">Message / Description <span class="text-danger">*</span></label>
+                                <textarea asp-for="Description" class="form-control rounded-3" rows="5" placeholder="Please describe your question or issue in detail…"></textarea>
+                                <span asp-validation-for="Description" class="text-danger small"></span>
+                            </div>
+                        </div>
+                        <div class="mt-4 text-end">
+                            <button type="submit" class="btn btn-primary rounded-3 px-4 shadow-sm">
+                                <i class="bi bi-send me-1"></i>Submit Ticket
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

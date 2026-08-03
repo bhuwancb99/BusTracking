@@ -1,5 +1,8 @@
 @model BusTracking.Common.DTOs.Dashboard.DashboardSummaryDto
 @using BusTracking.Web.Helpers
+@using BusTracking.Common.Helpers
+@inject BusTracking.Common.Data.AppDbContext DbContext
+@inject BusTracking.Common.Interfaces.ICurrentUserService CurrentUser
 @{
     ViewData["Title"] = "Dashboard";
     var perms = User.Claims.Where(c => c.Type == "permission").Select(c => c.Value).ToHashSet();
@@ -14,55 +17,116 @@
     bool canAddStudent  = Has("student.add")  || fallback;
     bool canAddBus      = Has("bus.add")      || fallback;
     bool canViewSupport = Has("helpsupport.view") || Has("helpsupport.manage") || fallback;
-}
-<div class="mb-4"><h4 class="fw-bold mb-0">Coordinator Dashboard</h4><p class="text-muted small">@DateTime.Now.ToString("dddd, dd MMMM yyyy")</p></div>
-@if (Model is not null)
-{
-    <div class="row g-3 mb-4">
-        @if (canViewBus)
-        {
-            <div class="col-6 col-md-3"><div class="card stat-card border-0 shadow-sm text-center p-4"><i class="bi bi-bus-front-fill text-primary fs-1 d-block mb-2"></i><div class="fw-bold fs-2">@Model.TotalBuses</div><div class="text-muted small">Buses</div></div></div>
-        }
-        @if (canViewStudent)
-        {
-            <div class="col-6 col-md-3"><div class="card stat-card border-0 shadow-sm text-center p-4"><i class="bi bi-mortarboard-fill text-info fs-1 d-block mb-2"></i><div class="fw-bold fs-2">@Model.TotalStudents</div><div class="text-muted small">Students</div></div></div>
-        }
-        @if (canViewTrip)
-        {
-            <div class="col-6 col-md-3"><div class="card stat-card border-0 shadow-sm text-center p-4"><i class="bi bi-geo-alt-fill text-danger fs-1 d-block mb-2"></i><div class="fw-bold fs-2">@Model.ActiveTrips</div><div class="text-muted small">Active Trips</div></div></div>
-        }
-        @if (canViewParent)
-        {
-            <div class="col-6 col-md-3"><div class="card stat-card border-0 shadow-sm text-center p-4"><i class="bi bi-people-fill text-success fs-1 d-block mb-2"></i><div class="fw-bold fs-2">@Model.TotalParents</div><div class="text-muted small">Parents</div></div></div>
-        }
-    </div>
 
-    @if (canAddTrip || canViewTrip || canAddStudent || canAddBus || canViewSupport)
+    string? userPhoto = null;
+    var uId = CurrentUser.UserId;
+    if (uId.HasValue)
     {
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-lightning-charge me-2 text-warning"></i>Quick Actions</div>
-            <div class="card-body px-4 pb-4 d-flex flex-wrap gap-2">
-                @if (canAddTrip)
-                {
-                    <a asp-area="BusCoordinator" asp-controller="Trip" asp-action="Create" class="btn btn-outline-primary"><i class="bi bi-play-circle me-1"></i>Create Trip</a>
-                }
-                @if (canViewTrip)
-                {
-                    <a asp-area="BusCoordinator" asp-controller="Trip" asp-action="Index" class="btn btn-outline-info"><i class="bi bi-list me-1"></i>View Trips</a>
-                }
-                @if (canAddStudent)
-                {
-                    <a asp-area="BusCoordinator" asp-controller="Student" asp-action="Create" class="btn btn-outline-info"><i class="bi bi-plus me-1"></i>Add Student</a>
-                }
-                @if (canAddBus)
-                {
-                    <a asp-area="BusCoordinator" asp-controller="Bus" asp-action="Create" class="btn btn-outline-secondary"><i class="bi bi-plus me-1"></i>Add Bus</a>
-                }
-                @if (canViewSupport)
-                {
-                    <a asp-area="BusCoordinator" asp-controller="Feedback" asp-action="Index" class="btn btn-outline-secondary"><i class="bi bi-headset me-1"></i>View Support</a>
-                }
+        var dbUser = DbContext.Users.IgnoreQueryFilters().FirstOrDefault(u => u.UserId == uId.Value);
+        if (dbUser != null)
+        {
+            userPhoto = dbUser.ProfileImageUrl;
+        }
+    }
+    var coordinatorName = User.GetFullName();
+}
+
+<div class="container-fluid p-0">
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 p-4 text-white" style="background: linear-gradient(135deg, #3d5af1 0%, #2241d7 100%);">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="@(string.IsNullOrWhiteSpace(userPhoto) ? "/images/default-avatar.svg" : userPhoto)" class="rounded-circle border border-2 border-white shadow-sm" style="width: 65px; height: 65px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
+                        <div>
+                            <h3 class="fw-bold mb-1">Welcome back, @coordinatorName!</h3>
+                            <p class="mb-0 text-white-50">Bus Coordinator Workspace • Fleet & Student Management</p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="@Url.Action("Index", "Notification", new { area = "BusCoordinator" })" class="btn btn-light rounded-3 px-4 fw-semibold position-relative">
+                            <i class="bi bi-bell me-2"></i>Notifications
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
+
+    @if (Model is not null)
+    {
+        <div class="row g-4 mb-4">
+            @if (canViewBus)
+            {
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white text-center h-100">
+                        <i class="bi bi-bus-front-fill text-primary fs-1 d-block mb-2"></i>
+                        <div class="fw-bold fs-2 text-dark">@Model.TotalBuses</div>
+                        <div class="text-muted small">Active Buses</div>
+                    </div>
+                </div>
+            }
+            @if (canViewStudent)
+            {
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white text-center h-100">
+                        <i class="bi bi-mortarboard-fill text-info fs-1 d-block mb-2"></i>
+                        <div class="fw-bold fs-2 text-dark">@Model.TotalStudents</div>
+                        <div class="text-muted small">Total Students</div>
+                    </div>
+                </div>
+            }
+            @if (canViewTrip)
+            {
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white text-center h-100">
+                        <i class="bi bi-geo-alt-fill text-danger fs-1 d-block mb-2"></i>
+                        <div class="fw-bold fs-2 text-dark">@Model.ActiveTrips</div>
+                        <div class="text-muted small">Active Trips</div>
+                    </div>
+                </div>
+            }
+            @if (canViewParent)
+            {
+                <div class="col-6 col-md-3">
+                    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white text-center h-100">
+                        <i class="bi bi-people-fill text-success fs-1 d-block mb-2"></i>
+                        <div class="fw-bold fs-2 text-dark">@Model.TotalParents</div>
+                        <div class="text-muted small">Registered Parents</div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (canAddTrip || canViewTrip || canAddStudent || canAddBus || canViewSupport)
+        {
+            <div class="card border-0 shadow-sm rounded-4 mb-4 bg-white">
+                <div class="card-header bg-white border-0 pt-4 px-4 fw-bold text-primary text-uppercase fs-7">
+                    <i class="bi bi-lightning-charge me-2 text-warning"></i>Quick Actions
+                </div>
+                <div class="card-body px-4 pb-4 d-flex flex-wrap gap-2">
+                    @if (canAddTrip)
+                    {
+                        <a asp-area="BusCoordinator" asp-controller="Trip" asp-action="Create" class="btn btn-outline-primary rounded-3"><i class="bi bi-play-circle me-1"></i>Create Trip</a>
+                    }
+                    @if (canViewTrip)
+                    {
+                        <a asp-area="BusCoordinator" asp-controller="Trip" asp-action="Index" class="btn btn-outline-info rounded-3"><i class="bi bi-list me-1"></i>View Trips</a>
+                    }
+                    @if (canAddStudent)
+                    {
+                        <a asp-area="BusCoordinator" asp-controller="Student" asp-action="Create" class="btn btn-outline-info rounded-3"><i class="bi bi-plus me-1"></i>Add Student</a>
+                    }
+                    @if (canAddBus)
+                    {
+                        <a asp-area="BusCoordinator" asp-controller="Bus" asp-action="Create" class="btn btn-outline-secondary rounded-3"><i class="bi bi-plus me-1"></i>Add Bus</a>
+                    }
+                    @if (canViewSupport)
+                    {
+                        <a asp-area="BusCoordinator" asp-controller="Feedback" asp-action="Index" class="btn btn-outline-secondary rounded-3"><i class="bi bi-headset me-1"></i>View Support</a>
+                    }
+                </div>
+            </div>
+        }
     }
-}
+</div>

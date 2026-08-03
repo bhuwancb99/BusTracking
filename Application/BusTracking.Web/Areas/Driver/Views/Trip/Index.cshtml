@@ -3,162 +3,169 @@
     ViewData["Title"] = "My Trip";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h4 class="fw-bold mb-0"><i class="bi bi-bus-front me-2 text-primary"></i>My Trip</h4>
-        <p class="text-muted small mb-0">@DateTime.Now.ToString("dddd, dd MMMM yyyy")</p>
-    </div>
-</div>
-
-@if (Model is null)
-{
-    <div class="card border-0 shadow-sm">
-        <div class="card-body text-center py-5">
-            <i class="bi bi-bus-front text-muted" style="font-size:3rem"></i>
-            <h5 class="mt-3 fw-semibold">No Bus Assigned</h5>
-            <p class="text-muted">No bus is currently assigned to you. Please contact your coordinator.</p>
+<div class="container-fluid p-0">
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div>
+            <h2 class="fw-bold m-0 text-dark">
+                <i class="bi bi-signpost-split text-primary me-2"></i>My Trip Workspace
+            </h2>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small text-muted">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item active text-primary" aria-current="page">My Trip</li>
+                </ol>
+            </nav>
         </div>
+        <span class="badge bg-light text-dark border px-3 py-2 font-monospace fs-7">
+            <i class="bi bi-calendar-event me-1 text-primary"></i>@DateTime.Now.ToString("dddd, dd MMM yyyy")
+        </span>
     </div>
-    return;
-}
 
-<div class="row g-4">
-    <!-- Bus / Route Info -->
-    <div class="col-md-5">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white border-0 pt-4 px-4">
-                <span class="fw-semibold"><i class="bi bi-bus-front me-2 text-primary"></i>Assigned Bus</span>
-            </div>
-            <div class="card-body px-4 pb-4">
-                <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded-3" style="background:#f8faff">
-                    <div class="rounded-circle bg-primary-subtle d-flex align-items-center justify-content-center flex-shrink-0"
-                         style="width:52px;height:52px">
-                        <i class="bi bi-bus-front-fill text-primary fs-4"></i>
-                    </div>
-                    <div>
-                        <div class="fw-bold fs-5">@Model.BusNumber</div>
-                        <div class="text-muted small">@Model.BusName</div>
-                    </div>
-                </div>
-                <div class="d-flex flex-column gap-2 small">
-                    <div class="d-flex justify-content-between py-2 border-bottom">
-                        <span class="text-muted fw-semibold" style="letter-spacing:.04em">ROUTE</span>
-                        <span class="fw-semibold">@Model.RouteName</span>
-                    </div>
-                    <div class="d-flex justify-content-between py-2">
-                        <span class="text-muted fw-semibold" style="letter-spacing:.04em">BUS ID</span>
-                        <span class="fw-semibold">#@Model.BusId</span>
-                    </div>
-                </div>
+    @if (Model is null)
+    {
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-bus-front text-secondary opacity-50 display-4 d-block mb-3"></i>
+                <h5 class="fw-bold text-dark">No Bus Assigned</h5>
+                <p class="text-muted small mb-0">No bus is currently assigned to your account. Please contact your school coordinator.</p>
             </div>
         </div>
-    </div>
+        return;
+    }
 
-    <!-- Today's Trip Card -->
-    <div class="col-md-7">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white border-0 pt-4 px-4">
-                <span class="fw-semibold"><i class="bi bi-calendar-check me-2 text-success"></i>Today's Trip</span>
+    <div class="row g-4">
+        <!-- Bus / Route Info -->
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 m-0"><i class="bi bi-bus-front me-2"></i>Assigned Bus Details</h6>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded-4 bg-primary-subtle border border-primary-subtle">
+                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center flex-shrink-0 shadow-sm" style="width:52px;height:52px">
+                            <i class="bi bi-bus-front-fill fs-4"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-5 text-dark">@Model.BusNumber</div>
+                            <div class="text-secondary small">@Model.BusName</div>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column gap-2 small">
+                        <div class="d-flex justify-content-between py-2 border-bottom">
+                            <span class="text-muted fw-semibold">ROUTE NAME</span>
+                            <span class="fw-bold text-dark">@Model.RouteName</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-2">
+                            <span class="text-muted fw-semibold">BUS ID</span>
+                            <span class="badge bg-secondary-subtle text-dark border font-monospace">#@Model.BusId</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="card-body px-4 pb-4">
-                @if (Model.Trip is null)
-                {
-                    <div class="text-center py-4">
-                        <i class="bi bi-calendar-x text-muted" style="font-size:2.5rem"></i>
-                        <p class="text-muted mt-3 mb-0">No trip scheduled for today.</p>
-                        <small class="text-muted">Your coordinator will assign trips when needed.</small>
-                    </div>
-                }
-                else
-                {
-                    var trip = Model.Trip;
-                    var statusStyle = trip.Status switch
+        </div>
+
+        <!-- Today's Trip Card -->
+        <div class="col-md-7">
+            <div class="card border-0 shadow-sm rounded-4 h-100 bg-white">
+                <div class="card-header bg-white border-0 pt-4 px-4 pb-0">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 m-0"><i class="bi bi-calendar-check me-2 text-success"></i>Today's Scheduled Trip</h6>
+                </div>
+                <div class="card-body p-4">
+                    @if (Model.Trip is null)
                     {
-                        "Scheduled"  => "background:#e8f0fe;color:#1a73e8",
-                        "InProgress" => "background:#fef9c3;color:#854d0e",
-                        "Completed"  => "background:#e6f4ea;color:#1e8e3e",
-                        "Cancelled"  => "background:#fce8e6;color:#c5221f",
-                        _            => "background:#f1f3f4;color:#5f6368"
-                    };
-                    var driverTtIcon = trip.TripType switch
+                        <div class="text-center py-5 text-muted">
+                            <i class="bi bi-calendar-x text-secondary opacity-50 display-4 d-block mb-3"></i>
+                            <h6 class="fw-bold text-dark mb-1">No trip scheduled for today</h6>
+                            <span class="small">Your coordinator will assign trips when routes are scheduled.</span>
+                        </div>
+                    }
+                    else
                     {
-                        "Morning" => "bi-sunrise",
-                        "Evening" => "bi-sunset",
-                        "SpecialEvent" => "bi-star-fill",
-                        "ExamRoute" => "bi-journal-text",
-                        _ => "bi-circle"
-                    };
-
-                    <div class="d-flex flex-column gap-0">
-                        <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
-                            <span class="text-muted fw-semibold small" style="letter-spacing:.04em">TRIP TYPE</span>
-                            <span class="fw-semibold">
-                                <i class="bi @driverTtIcon me-1 text-warning"></i>
-                                @trip.TripType
-                            </span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
-                            <span class="text-muted fw-semibold small" style="letter-spacing:.04em">STATUS</span>
-                            <span class="badge rounded-pill px-3 py-2 fw-semibold" style="@statusStyle;font-size:.82rem">
-                                @trip.Status
-                            </span>
-                        </div>
-                        @if (trip.StartedAt is not null)
+                        var trip = Model.Trip;
+                        var statusBadge = trip.Status switch
                         {
+                            "Scheduled" => "bg-primary-subtle text-primary border border-primary-subtle",
+                            "InProgress" => "bg-warning-subtle text-warning border border-warning-subtle",
+                            "Completed" => "bg-success-subtle text-success border border-success-subtle",
+                            "Cancelled" => "bg-danger-subtle text-danger border border-danger-subtle",
+                            _ => "bg-secondary-subtle text-secondary border"
+                        };
+                        var driverTtIcon = trip.TripType switch
+                        {
+                            "Morning" => "bi-sunrise",
+                            "Evening" => "bi-sunset",
+                            "SpecialEvent" => "bi-star-fill",
+                            "ExamRoute" => "bi-journal-text",
+                            _ => "bi-circle"
+                        };
+
+                        <div class="d-flex flex-column gap-0">
                             <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
-                                <span class="text-muted fw-semibold small" style="letter-spacing:.04em">STARTED AT</span>
-                                <span class="fw-semibold">@trip.StartedAt.Value.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</span>
+                                <span class="text-muted fw-semibold small">TRIP TYPE</span>
+                                <span class="fw-bold text-dark">
+                                    <i class="bi @driverTtIcon me-1 text-warning"></i>@trip.TripType
+                                </span>
                             </div>
-                        }
-                        @if (trip.EndedAt is not null)
-                        {
                             <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
-                                <span class="text-muted fw-semibold small" style="letter-spacing:.04em">ENDED AT</span>
-                                <span class="fw-semibold">@trip.EndedAt.Value.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</span>
+                                <span class="text-muted fw-semibold small">STATUS</span>
+                                <span class="badge rounded-pill px-3 py-2 fw-semibold @statusBadge">
+                                    @trip.Status
+                                </span>
                             </div>
-                        }
-                    </div>
+                            @if (trip.StartedAt is not null)
+                            {
+                                <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                                    <span class="text-muted fw-semibold small">STARTED AT</span>
+                                    <span class="fw-semibold text-dark">@trip.StartedAt.Value.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</span>
+                                </div>
+                            }
+                            @if (trip.EndedAt is not null)
+                            {
+                                <div class="d-flex justify-content-between align-items-center py-3 border-bottom">
+                                    <span class="text-muted fw-semibold small">ENDED AT</span>
+                                    <span class="fw-semibold text-dark">@trip.EndedAt.Value.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</span>
+                                </div>
+                            }
+                        </div>
 
-                    <!-- Action Buttons -->
-                    <div class="d-flex gap-2 flex-wrap mt-4">
-                        @if (trip.CanStart)
-                        {
-                            <form asp-action="Start" asp-route-tripId="@trip.TripId" method="post">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-success px-4">
-                                    <i class="bi bi-play-fill me-1"></i>Start Trip
-                                </button>
-                            </form>
-                        }
+                        <!-- Action Buttons -->
+                        <div class="d-flex gap-2 flex-wrap mt-4">
+                            @if (trip.CanStart)
+                            {
+                                <form asp-action="Start" asp-route-tripId="@trip.TripId" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-success rounded-3 px-4 shadow-sm">
+                                        <i class="bi bi-play-fill me-1"></i>Start Trip
+                                    </button>
+                                </form>
+                            }
 
-                        @if (trip.Status == "InProgress")
-                        {
-                            <form asp-action="End" asp-route-tripId="@trip.TripId" method="post"
-                                  onsubmit="return confirm('End this trip?')">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-danger px-4">
-                                    <i class="bi bi-stop-fill me-1"></i>End Trip
-                                </button>
-                            </form>
-                        }
+                            @if (trip.Status == "InProgress")
+                            {
+                                <form asp-action="End" asp-route-tripId="@trip.TripId" method="post" onsubmit="return confirm('End this trip?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-danger rounded-3 px-4 shadow-sm">
+                                        <i class="bi bi-stop-fill me-1"></i>End Trip
+                                    </button>
+                                </form>
+                            }
 
-                        @if (trip.Status == "InProgress" || trip.Status == "Scheduled")
-                        {
-                            <a asp-action="Details" asp-route-tripId="@trip.TripId"
-                               class="btn btn-outline-primary px-4">
-                                <i class="bi bi-signpost-split me-1"></i>Manage Stops
-                            </a>
-                        }
+                            @if (trip.Status == "InProgress" || trip.Status == "Scheduled")
+                            {
+                                <a asp-action="Details" asp-route-tripId="@trip.TripId" class="btn btn-primary rounded-3 px-4 shadow-sm">
+                                    <i class="bi bi-signpost-split me-1"></i>Manage Stops & Live Map
+                                </a>
+                            }
 
-                        @if (trip.Status == "InProgress" || trip.Status == "Completed")
-                        {
-                            <a asp-action="Details" asp-route-tripId="@trip.TripId"
-                               class="btn btn-outline-secondary px-3">
-                                <i class="bi bi-people me-1"></i>Students
-                            </a>
-                        }
-                    </div>
-                }
+                            @if (trip.Status == "Completed")
+                            {
+                                <a asp-action="Details" asp-route-tripId="@trip.TripId" class="btn btn-outline-secondary rounded-3 px-4">
+                                    <i class="bi bi-people me-1"></i>View Summary
+                                </a>
+                            }
+                        </div>
+                    }
+                </div>
             </div>
         </div>
     </div>

@@ -22,13 +22,19 @@
 @Html.AntiForgeryToken()
 
 <!-- ── Header ─────────────────────────────────────────────────────── -->
-<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
     <div>
-        <h4 class="fw-bold mb-1">
-            <i class="bi bi-bus-front me-2 text-primary"></i>
-            Trip #@Model?.TripId — @busInfo?.BusNumber
-        </h4>
-        <div class="d-flex align-items-center gap-2 flex-wrap">
+        <h2 class="fw-bold m-0 text-dark">
+            <i class="bi bi-bus-front text-primary me-2"></i>Trip #@Model?.TripId — @busInfo?.BusNumber
+        </h2>
+        <nav aria-label="breadcrumb" class="mt-1">
+            <ol class="breadcrumb mb-0 small text-muted">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="@Url.Action("Index")" class="text-decoration-none text-muted">My Trip</a></li>
+                <li class="breadcrumb-item active text-primary" aria-current="page">Live Map & Stops</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center gap-2 flex-wrap mt-2">
             <span class="badge rounded-pill px-3 py-2" style="@statusStyle;font-size:.8rem">
                 @Model?.Status
             </span>
@@ -51,8 +57,7 @@
                     _ => "bi-circle"
                 };
             }
-            <span class="badge rounded-pill px-2"
-                  style="@tripTypeStyle;font-size:.75rem">
+            <span class="badge rounded-pill px-2" style="@tripTypeStyle;font-size:.75rem">
                 <i class="bi @tripTypeIcon me-1"></i>@Model?.TripType
             </span>
             <span class="text-muted small"><i class="bi bi-map me-1"></i>@busInfo?.RouteName</span>
@@ -64,11 +69,11 @@
             <form asp-action="End" asp-route-tripId="@Model!.TripId" method="post"
                   onsubmit="return confirm('End this trip? Tracking will stop for all parents.')">
                 @Html.AntiForgeryToken()
-                <button class="btn btn-danger px-4"><i class="bi bi-stop-fill me-1"></i>End Trip</button>
+                <button class="btn btn-danger rounded-3 px-4 shadow-sm"><i class="bi bi-stop-fill me-1"></i>End Trip</button>
             </form>
         }
-        <a asp-action="Index" class="btn btn-outline-secondary px-3">
-            <i class="bi bi-arrow-left me-1"></i>Back
+        <a asp-action="Index" class="btn btn-outline-secondary rounded-3 px-4 shadow-sm">
+            <i class="bi bi-arrow-left me-1"></i>Back to My Trip
         </a>
     </div>
 </div>

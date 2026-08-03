@@ -3,69 +3,80 @@
     ViewData["Title"] = "Notifications";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0"><i class="bi bi-bell me-2 text-primary"></i>Notifications</h4>
-    @if (Model?.Any(n => !n.IsRead) == true)
-    {
-        <form asp-action="MarkAllRead" method="post">
-            @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn-outline-secondary btn-sm">
-                <i class="bi bi-check2-all me-1"></i>Mark All as Read
-            </button>
-        </form>
-    }
-</div>
-
-<div class="card border-0 shadow-sm">
-    <div class="card-body p-0">
-        @if (Model is null || Model.Count == 0)
+<div class="container-fluid p-0">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold m-0 text-dark">
+                <i class="bi bi-bell-fill text-primary me-2"></i>My Notifications
+            </h2>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small text-muted">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item active text-primary" aria-current="page">Notifications</li>
+                </ol>
+            </nav>
+        </div>
+        @if (Model?.Any(n => !n.IsRead) == true)
         {
-            <div class="text-center text-muted py-5">
-                <i class="bi bi-bell-slash fs-1 d-block mb-2"></i>
-                You have no notifications.
-            </div>
+            <form asp-action="MarkAllRead" method="post">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-outline-primary rounded-3">
+                    <i class="bi bi-check2-all me-1"></i> Mark All as Read
+                </button>
+            </form>
         }
-        else
-        {
-            @foreach (var n in Model)
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-body p-0">
+            @if (Model is null || Model.Count == 0)
             {
-                <div class="d-flex align-items-start gap-3 p-3 border-bottom @(!n.IsRead ? "bg-primary-subtle" : "")"
-                     style="transition:background .2s">
-                    <div class="mt-1">
-                        @{
-                            var (icon, color) = n.NotificationType switch
-                            {
-                                "BusApproaching" => ("bi-bus-front-fill", "text-primary"),
-                                "StudentPickedUp" => ("bi-check-circle-fill", "text-success"),
-                                "NoShow" => ("bi-exclamation-circle-fill", "text-danger"),
-                                "BusAssigned" => ("bi-bus-front", "text-info"),
-                                "RouteChanged" => ("bi-map-fill", "text-warning"),
-                                "Broadcast" => ("bi-megaphone-fill", "text-secondary"),
-                                _ => ("bi-bell-fill", "text-muted")
-                            };
-                        }
-                        <i class="bi @icon @color fs-5"></i>
-                    </div>
-                    <div class="flex-grow-1">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <strong class="small">@n.Title</strong>
-                            <span class="text-muted" style="font-size:.72rem;white-space:nowrap;margin-left:12px">
-                                @n.SentAt.ToString("dd MMM, hh:mm tt")
-                            </span>
-                        </div>
-                        <p class="mb-0 small text-muted mt-1">@n.Body</p>
-                    </div>
-                    @if (!n.IsRead)
+                <div class="text-center py-5 text-muted">
+                    <i class="bi bi-bell-slash text-secondary opacity-50 display-4 d-block mb-2"></i>
+                    <p class="mb-0 fw-semibold fs-6">No notifications found</p>
+                    <span class="small">You have no unread or historical notifications at this time.</span>
+                </div>
+            }
+            else
+            {
+                <div class="list-group list-group-flush">
+                    @foreach (var n in Model)
                     {
-                        <form asp-action="MarkRead" asp-route-id="@n.NotificationId" method="post" class="flex-shrink-0">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-sm btn-link p-0 text-primary" title="Mark as read">
-                                <i class="bi bi-check2"></i>
-                            </button>
-                        </form>
+                        var (icon, color) = n.NotificationType switch
+                        {
+                            "BusApproaching" => ("bi-bus-front-fill", "text-primary"),
+                            "StudentPickedUp" => ("bi-check-circle-fill", "text-success"),
+                            "NoShow" => ("bi-exclamation-circle-fill", "text-danger"),
+                            "BusAssigned" => ("bi-bus-front", "text-info"),
+                            "RouteChanged" => ("bi-map-fill", "text-warning"),
+                            "Broadcast" => ("bi-megaphone-fill", "text-secondary"),
+                            _ => ("bi-bell-fill", "text-muted")
+                        };
+
+                        <div class="list-group-item p-4 d-flex align-items-start justify-content-between gap-3 @(n.IsRead ? "bg-light-subtle" : "bg-white")">
+                            <div class="d-flex gap-3">
+                                <div class="rounded-circle p-3 d-flex align-items-center justify-content-center @(n.IsRead ? "bg-secondary-subtle text-secondary" : "bg-primary-subtle text-primary border border-primary-subtle")" style="width: 48px; height: 48px;">
+                                    <i class="bi @icon fs-5 @color"></i>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-dark">@n.Title</h6>
+                                    <p class="mb-1 text-secondary">@n.Body</p>
+                                    <span class="text-muted small"><i class="bi bi-clock me-1"></i>@n.SentAt.ToLocalTime().ToString("dd MMM yyyy, hh:mm tt")</span>
+                                </div>
+                            </div>
+                            @if (!n.IsRead)
+                            {
+                                <form asp-action="MarkRead" asp-route-id="@n.NotificationId" method="post" class="flex-shrink-0">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-primary rounded-3">
+                                        Mark as Read
+                                    </button>
+                                </form>
+                            }
+                        </div>
                     }
                 </div>
             }
-        }
+        </div>
     </div>
 </div>

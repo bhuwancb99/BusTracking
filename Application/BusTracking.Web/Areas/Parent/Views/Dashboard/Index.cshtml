@@ -1,91 +1,119 @@
 @using System.Security.Claims
+@using BusTracking.Common.Helpers
+@inject BusTracking.Common.Data.AppDbContext DbContext
+@inject BusTracking.Common.Interfaces.ICurrentUserService CurrentUser
 @{
     ViewData["Title"] = "Parent Dashboard";
     var userName = User.FindFirstValue(ClaimTypes.Name) ?? "Parent";
-    var firstName = userName.Split(' ').FirstOrDefault() ?? "Parent";
+    string? userPhoto = null;
+    var uId = CurrentUser.UserId;
+    if (uId.HasValue)
+    {
+        var dbUser = DbContext.Users.IgnoreQueryFilters().FirstOrDefault(u => u.UserId == uId.Value);
+        if (dbUser != null)
+        {
+            userPhoto = dbUser.ProfileImageUrl;
+        }
+    }
 }
 
-<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
-    <div>
-        <h2 class="fw-bold m-0 text-dark">
-            <i class="bi bi-people text-primary me-2"></i>Welcome back, @firstName
-        </h2>
-        <nav aria-label="breadcrumb" class="mt-1">
-            <ol class="breadcrumb mb-0 small text-muted">
-                <li class="breadcrumb-item active text-primary" aria-current="page">Parent Dashboard</li>
-            </ol>
-        </nav>
+<div class="container-fluid p-0">
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4 p-4 text-white" style="background: linear-gradient(135deg, #3d5af1 0%, #2241d7 100%);">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="@(string.IsNullOrWhiteSpace(userPhoto) ? "/images/default-avatar.svg" : userPhoto)" class="rounded-circle border border-2 border-white shadow-sm" style="width: 65px; height: 65px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
+                        <div>
+                            <h3 class="fw-bold mb-1">Welcome back, @userName!</h3>
+                            <p class="mb-0 text-white-50">Parent Portal • Real-time Bus Tracking & Attendance</p>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="@Url.Action("Index", "Notification", new { area = "Parent" })" class="btn btn-light rounded-3 px-4 fw-semibold position-relative">
+                            <i class="bi bi-bell me-2"></i>Notifications
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <span class="badge bg-light text-dark border px-3 py-2 font-monospace fs-7">
-        <i class="bi bi-calendar-event me-1 text-primary"></i>@DateTime.Now.ToString("dddd, dd MMM yyyy")
-    </span>
-</div>
 
-<!-- Quick action cards -->
-<div class="row g-4 mb-4">
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-4">
-            <div class="rounded-circle bg-danger-subtle text-danger mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:56px;height:56px">
-                <i class="bi bi-geo-alt-fill fs-3"></i>
+    <!-- Quick action cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 m-0"><i class="bi bi-geo-alt-fill me-2"></i>Live Tracking</h6>
+                    <i class="bi bi-map-fill text-danger fs-3"></i>
+                </div>
+                <p class="text-secondary small mb-4">See where your child's bus is in real time with live location updates.</p>
+                <div class="mt-auto">
+                    <a asp-area="Parent" asp-controller="Tracking" asp-action="Track" class="btn btn-danger rounded-3 px-4 shadow-sm w-100">
+                        <i class="bi bi-map me-1"></i>Open Live Map
+                    </a>
+                </div>
             </div>
-            <h5 class="fw-bold text-dark mb-1">Track Bus</h5>
-            <p class="text-secondary small mb-4">See where your child's bus is in real time.</p>
-            <a asp-area="Parent" asp-controller="Tracking" asp-action="Track"
-               class="btn btn-danger rounded-3 px-4 shadow-sm mt-auto"><i class="bi bi-map me-1"></i>Open Map</a>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 m-0"><i class="bi bi-calendar-check-fill me-2"></i>Leave & Attendance</h6>
+                    <i class="bi bi-calendar-event text-primary fs-3"></i>
+                </div>
+                <p class="text-secondary small mb-4">Mark planned leave, holiday, or parent pickup days in advance.</p>
+                <div class="mt-auto">
+                    <a asp-area="Parent" asp-controller="Home" asp-action="Availability" class="btn btn-primary rounded-3 px-4 shadow-sm w-100">
+                        <i class="bi bi-calendar-plus me-1"></i>Manage Availability
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 m-0"><i class="bi bi-headset me-2"></i>Help & Support</h6>
+                    <i class="bi bi-headset text-success fs-3"></i>
+                </div>
+                <p class="text-secondary small mb-4">Have a question or concern about routes or schedules? Contact support.</p>
+                <div class="mt-auto">
+                    <a asp-area="Parent" asp-controller="Feedback" asp-action="Submit" class="btn btn-outline-primary rounded-3 px-4 w-100">
+                        <i class="bi bi-send me-1"></i>Contact Support
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-4">
-            <div class="rounded-circle bg-info-subtle text-info mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:56px;height:56px">
-                <i class="bi bi-calendar-check-fill fs-3"></i>
-            </div>
-            <h5 class="fw-bold text-dark mb-1">Manage Availability</h5>
-            <p class="text-secondary small mb-4">Mark leave, holiday, or parent pickup days.</p>
-            <a asp-area="Parent" asp-controller="Home" asp-action="Availability"
-               class="btn btn-primary rounded-3 px-4 shadow-sm mt-auto"><i class="bi bi-calendar-plus me-1"></i>Manage</a>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-4">
-            <div class="rounded-circle bg-secondary-subtle text-secondary mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:56px;height:56px">
-                <i class="bi bi-headset fs-3"></i>
-            </div>
-            <h5 class="fw-bold text-dark mb-1">Help & Support</h5>
-            <p class="text-secondary small mb-4">Have a question or concern? Contact support.</p>
-            <a asp-area="Parent" asp-controller="Feedback" asp-action="Submit"
-               class="btn btn-outline-primary rounded-3 px-4 mt-auto"><i class="bi bi-send me-1"></i>Contact Us</a>
-        </div>
-    </div>
-</div>
 
-<!-- My Children -->
-<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
-    <div class="card-header bg-light-subtle border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
-        <span class="fw-bold text-dark fs-6"><i class="bi bi-mortarboard me-2 text-primary"></i>My Children</span>
-        <span class="badge bg-info-subtle text-info border border-info-subtle font-monospace px-3 py-1" id="childrenCount">Loading…</span>
-    </div>
-    <div class="card-body p-4">
-        <div id="childrenCards" class="d-flex flex-nowrap gap-3 overflow-x-auto pb-3 custom-horizontal-scroll">
-            @for (int s = 0; s < 2; s++)
-            {
-                <div class="skeleton-card" style="min-width:320px;max-width:360px;flex:0 0 auto;">
-                    <div class="card border-0 bg-light h-100 rounded-3">
-                        <div class="card-body p-4">
-                            <div class="placeholder-glow">
-                                <span class="placeholder col-6 mb-2 d-block"></span>
-                                <span class="placeholder col-4 mb-3 d-block"></span>
-                                <span class="placeholder col-8 mb-1 d-block"></span>
-                                <span class="placeholder col-5 d-block"></span>
+    <!-- My Children -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="card-header bg-white border-bottom py-3 px-4 d-flex justify-content-between align-items-center">
+            <span class="fw-bold text-dark fs-6"><i class="bi bi-mortarboard me-2 text-primary"></i>My Children</span>
+            <span class="badge bg-info-subtle text-info border border-info-subtle font-monospace px-3 py-1" id="childrenCount">Loading…</span>
+        </div>
+        <div class="card-body p-4">
+            <div id="childrenCards" class="d-flex flex-nowrap gap-3 overflow-x-auto pb-3 custom-horizontal-scroll">
+                @for (int s = 0; s < 2; s++)
+                {
+                    <div class="skeleton-card" style="min-width:320px;max-width:360px;flex:0 0 auto;">
+                        <div class="card border-0 bg-light h-100 rounded-3">
+                            <div class="card-body p-4">
+                                <div class="placeholder-glow">
+                                    <span class="placeholder col-6 mb-2 d-block"></span>
+                                    <span class="placeholder col-4 mb-3 d-block"></span>
+                                    <span class="placeholder col-8 mb-1 d-block"></span>
+                                    <span class="placeholder col-5 d-block"></span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            }
-        </div>
-        <div id="noChildrenMsg" class="text-center text-muted py-4 d-none">
-            <i class="bi bi-mortarboard text-secondary opacity-50 display-4 d-block mb-2"></i>
-            <p class="fw-semibold mb-0">No children linked to your account yet.</p>
-            <small>Please contact the school administrator.</small>
+                }
+            </div>
+            <div id="noChildrenMsg" class="text-center text-muted py-4 d-none">
+                <i class="bi bi-mortarboard text-secondary opacity-50 display-4 d-block mb-2"></i>
+                <p class="fw-semibold mb-0">No children linked to your account yet.</p>
+                <small>Please contact the school administrator.</small>
+            </div>
         </div>
     </div>
 </div>
