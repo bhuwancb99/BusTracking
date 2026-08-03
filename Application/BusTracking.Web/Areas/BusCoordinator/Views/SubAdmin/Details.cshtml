@@ -1,61 +1,55 @@
-@* BusCoordinator/Views/SubAdmin/Details.cshtml — UPDATED *@
 @model BusTracking.Common.DTOs.SubAdmin.SubAdminListDto
-@using BusTracking.Web.Helpers
 @{
-    ViewData["Title"] = "Sub-Admin Details";
-    bool canEdit = PermissionHelper.Can(User, "subadmin.edit");
-    int currentUserId = int.Parse(User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier) ?? "0");
-    bool isSelf = Model?.UserId == currentUserId;
-    var thumbUrl = Model?.ProfileImageUrl?.Replace("_medium.webp", "_thumb.webp");
+    ViewData["Title"] = "Coordinator Details - " + Model.FullName;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0"><i class="bi bi-person-badge me-2 text-warning"></i>Sub-Admin Details</h4>
-    <div class="d-flex gap-2 align-items-center">
-        @if (isSelf)
-        {
-            <span class="badge bg-warning-subtle text-warning px-3 py-2" style="font-size:.8rem">
-                <i class="bi bi-person-check me-1"></i>This is your account
-            </span>
-        }
-        @if (canEdit && !isSelf)
-        {
-            <a asp-area="BusCoordinator" asp-controller="SubAdmin" asp-action="Edit"
-               asp-route-id="@Model?.UserId" class="btn btn-outline-warning btn-sm">
-                <i class="bi bi-pencil me-1"></i>Edit
+<div class="container-fluid p-0">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold m-0 text-dark">
+                <i class="bi bi-person-badge text-primary me-2"></i>Coordinator Details
+            </h2>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small text-muted">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index")" class="text-decoration-none text-muted">Bus Coordinators</a></li>
+                    <li class="breadcrumb-item active text-primary" aria-current="page">Coordinator Details</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("Edit", new { id = Model.UserId })" class="btn btn-primary rounded-3 px-3 shadow-sm">
+                <i class="bi bi-pencil-fill me-1"></i> Edit Profile
             </a>
-        }
-        <a asp-area="BusCoordinator" asp-controller="SubAdmin" asp-action="Index"
-           class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary rounded-3 px-3">
+                <i class="bi bi-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
     </div>
-</div>
 
-@if (Model is not null)
-{
-    <div class="row g-4">
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4 text-center">
-
-                    <!-- ── Profile photo widget ── -->
-                    <div class="position-relative d-inline-block mb-3" id="imgWidget_@Model.UserId">
+    @if (Model is not null)
+    {
+        <div class="row g-4">
+            <div class="col-lg-4 col-12">
+                <div class="card border-0 shadow-sm rounded-4 text-center p-4 h-100">
+                    <div class="position-relative d-inline-block mx-auto mb-3" id="imgWidget_@Model.UserId">
                         @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
                         {
                             <img id="imgWidget_@(Model.UserId)_preview" src="@Model.ProfileImageUrl" alt="@Model.FullName"
-                                 class="rounded-circle border shadow"
-                                 style="width:80px;height:80px;object-fit:cover;"
+                                 class="rounded-circle border shadow-sm"
+                                 style="width: 110px; height: 110px; object-fit: cover;"
                                  onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
                         }
                         else
                         {
                             <img id="imgWidget_@(Model.UserId)_preview" src="/images/default-avatar.svg" alt="@Model.FullName"
-                                 class="rounded-circle border shadow"
-                                 style="width:80px;height:80px;object-fit:cover;" />
+                                 class="rounded-circle border shadow-sm"
+                                 style="width: 110px; height: 110px; object-fit: cover;" />
                         }
                         <label for="imgInput_@Model.UserId"
-                               class="position-absolute bottom-0 end-0 btn btn-sm btn-primary rounded-circle p-1"
-                               style="width:26px;height:26px;line-height:1;cursor:pointer;" title="Change photo">
-                            <i class="bi bi-camera-fill" style="font-size:0.7rem;"></i>
+                               class="position-absolute bottom-0 end-0 btn btn-sm btn-primary rounded-circle p-1 shadow-sm"
+                               style="width:30px;height:30px;line-height:1;cursor:pointer;" title="Change photo">
+                            <i class="bi bi-camera-fill" style="font-size:0.8rem;"></i>
                             <input type="file" id="imgInput_@Model.UserId" class="d-none"
                                    accept="image/jpeg,image/png,image/webp"
                                    onchange="uploadUserProfile(@Model.UserId, this, 'imgWidget_@Model.UserId')" />
@@ -64,84 +58,111 @@
                     <div id="imgWidget_@(Model.UserId)_msg" class="small mb-2"></div>
                     @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
                     {
-                        <button type="button" class="btn btn-sm btn-outline-danger mb-3"
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-3 mb-3"
                                 onclick="deleteUserProfile(@Model.UserId, 'imgWidget_@Model.UserId')">
                             <i class="bi bi-trash me-1"></i>Remove Photo
                         </button>
                     }
 
-                    <h5 class="fw-bold mb-1">@Model.FullName</h5>
-                    <span class="badge bg-warning-subtle text-warning">Bus Coordinator</span>
-                    <span class="badge @(Model.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger") ms-1">
-                        @(Model.IsActive ? "Active" : "Inactive")
-                    </span>
-                    <hr />
-                    <table class="table table-borderless small text-start mb-0">
-                        <tr><th class="text-muted">Email</th><td>@Model.Email</td></tr>
-                        <tr><th class="text-muted">Phone</th><td>@(Model.PhoneNumber ?? "–")</td></tr>
-                        <tr><th class="text-muted">Created</th><td>@Model.CreatedAt.ToString("dd MMM yyyy")</td></tr>
-                        <tr><th class="text-muted">Permissions</th><td><span class="badge bg-primary-subtle text-primary">@Model.Permissions.Count</span></td></tr>
-                    </table>
+                    <h4 class="fw-bold text-dark mb-1">@Model.FullName</h4>
+                    <span class="badge bg-info-subtle text-info border border-info-subtle font-monospace px-3 py-1 mb-2">Bus Coordinator</span>
+                    <div class="d-flex justify-content-center gap-2 mt-2">
+                        <span class="badge @(Model.IsActive ? "bg-success-subtle text-success border border-success-subtle" : "bg-danger-subtle text-danger border border-danger-subtle") rounded-pill px-3 py-2">
+                            <i class="bi bi-circle-fill me-1 fs-7"></i>@(Model.IsActive ? "Active Account" : "Inactive Account")
+                        </span>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div class="col-lg-8">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
-                    <i class="bi bi-shield-check me-2 text-primary"></i>Assigned Permissions (@Model.Permissions.Count)
-                </div>
-                <div class="card-body p-4">
-                    @if (!Model.Permissions.Any())
-                    {
-                        <div class="text-muted text-center py-3">No permissions assigned.</div>
-                    }
-                    else
-                    {
-                        var grouped = Model.Permissions.GroupBy(p => p.Split('.')[0]).ToDictionary(g => g.Key, g => g.ToList());
-                        <div class="row g-3">
-                            @foreach (var (module, perms) in grouped)
-                            {
-                                <div class="col-md-6">
-                                    <div class="border rounded p-3">
-                                        <div class="fw-semibold small text-uppercase text-muted mb-2">@module</div>
-                                        @foreach (var p in perms)
-                                        {
-                                            <span class="badge bg-primary-subtle text-primary me-1 mb-1">@p.Split('.').Last()</span>
-                                        }
-                                    </div>
-                                </div>
-                            }
+
+            <div class="col-lg-8 col-12">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-card-heading me-2"></i>Account & Contact Information</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6 col-12">
+                                <small class="text-muted d-block">Email Address</small>
+                                <span class="fw-semibold text-dark">@(string.IsNullOrWhiteSpace(Model.Email) ? "N/A" : Model.Email)</span>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <small class="text-muted d-block">Phone Number</small>
+                                <span class="fw-semibold text-dark">@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "N/A" : Model.PhoneNumber)</span>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <small class="text-muted d-block">Account Created</small>
+                                <span class="fw-semibold text-dark">@Model.CreatedAt.ToString("dd MMM yyyy hh:mm tt")</span>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <small class="text-muted d-block">Total Permissions</small>
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace">@Model.Permissions.Count Module Permissions</span>
+                            </div>
                         </div>
-                    }
+
+                        <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3 pt-3 border-top"><i class="bi bi-shield-check me-2"></i>Assigned Module Permissions (@Model.Permissions.Count)</h6>
+                        @if (!Model.Permissions.Any())
+                        {
+                            <div class="text-muted text-center py-3">No permissions assigned.</div>
+                        }
+                        else
+                        {
+                            var grouped = Model.Permissions.GroupBy(p => p.Split('.')[0]).ToDictionary(g => g.Key, g => g.ToList());
+                            <div class="row g-3">
+                                @foreach (var (module, perms) in grouped)
+                                {
+                                    <div class="col-md-6 col-12">
+                                        <div class="border rounded-4 p-3 bg-light-subtle">
+                                            <div class="fw-bold small text-uppercase text-primary mb-2 border-bottom pb-2">@module</div>
+                                            <div class="d-flex flex-wrap gap-1">
+                                                @foreach (var p in perms)
+                                                {
+                                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle">@p.Split('.').Last()</span>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-}
+    }
+</div>
 
 @Html.AntiForgeryToken()
 
 @section Scripts {
     <script>
         const _tok = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+
         async function uploadUserProfile(userId, input, widgetId) {
             if (!input.files || !input.files[0]) return;
             const msg = document.getElementById(widgetId + '_msg');
             msg.innerHTML = '<span class="text-muted">Uploading…</span>';
-            const fd = new FormData(); fd.append('file', input.files[0]);
+            const fd = new FormData();
+            fd.append('file', input.files[0]);
             try {
-                const res = await fetch('/Image/UploadUserProfile?userId=' + userId, { method: 'POST', headers: { 'RequestVerificationToken': _tok() }, body: fd });
+                const res = await fetch('/Image/UploadUserProfile?userId=' + userId, {
+                    method: 'POST', headers: { 'RequestVerificationToken': _tok() }, body: fd
+                });
                 const json = await res.json();
-                if (json.success) { msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>Saved.</span>'; setTimeout(() => location.reload(), 800); }
-                else { msg.innerHTML = `<span class="text-danger">${json.message}</span>`; }
+                if (json.success) {
+                    msg.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>Saved.</span>';
+                    setTimeout(() => location.reload(), 800);
+                } else {
+                    msg.innerHTML = `<span class="text-danger">${json.message}</span>`;
+                }
             } catch { msg.innerHTML = '<span class="text-danger">Upload failed.</span>'; }
             input.value = '';
         }
+
         async function deleteUserProfile(userId, widgetId) {
             if (!confirm('Remove this profile photo?')) return;
             const msg = document.getElementById(widgetId + '_msg');
             try {
-                const res = await fetch('/Image/DeleteUserProfile?userId=' + userId, { method: 'POST', headers: { 'RequestVerificationToken': _tok() } });
+                const res = await fetch('/Image/DeleteUserProfile?userId=' + userId, {
+                    method: 'POST', headers: { 'RequestVerificationToken': _tok() }
+                });
                 const json = await res.json();
                 if (json.success) location.reload();
             } catch { msg.innerHTML = '<span class="text-danger">Error.</span>'; }

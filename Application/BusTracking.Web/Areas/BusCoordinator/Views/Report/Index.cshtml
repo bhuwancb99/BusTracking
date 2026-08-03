@@ -46,7 +46,7 @@
             <h5 class="fw-bold mb-3"><i class="bi bi-file-earmark-spreadsheet text-success me-2"></i>Student Transport Roster</h5>
             <p class="text-secondary small">Download an official roster containing student codes, names, classes, assigned buses, stops, and transport fee statuses.</p>
             <div class="mt-auto pt-3">
-                <a href="@Url.Action("ExportStudentRoster", "Report", new { area = "BusCoordinator" })" class="btn btn-outline-success rounded-3 w-100">
+                <a href="@Url.Action("ExportStudentRoster", "Report", new { area = "SuperAdmin" })" class="btn btn-outline-success rounded-3 w-100">
                     <i class="bi bi-download me-2"></i>Export Student Roster (CSV)
                 </a>
             </div>
@@ -57,7 +57,7 @@
             <h5 class="fw-bold mb-3"><i class="bi bi-file-earmark-text text-primary me-2"></i>Trip Execution Logs</h5>
             <p class="text-secondary small">Export historical log of all daily morning, evening, event, and exam trips including start/end timestamps and statuses.</p>
             <div class="mt-auto pt-3">
-                <a href="@Url.Action("ExportTripLogs", "Report", new { area = "BusCoordinator" })" class="btn btn-outline-primary rounded-3 w-100">
+                <a href="@Url.Action("ExportTripLogs", "Report", new { area = "SuperAdmin" })" class="btn btn-outline-primary rounded-3 w-100">
                     <i class="bi bi-download me-2"></i>Export Trip Logs (CSV)
                 </a>
             </div>

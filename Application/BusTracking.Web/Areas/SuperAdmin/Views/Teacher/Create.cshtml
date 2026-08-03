@@ -52,9 +52,10 @@
                         </div>
 
                         <div class="col-md-4 col-12">
-                            <label asp-for="Password" class="form-label fw-bold">Password <span class="text-danger">*</span></label>
-                            <input asp-for="Password" type="password" class="form-control rounded-3" placeholder="Enter password (min 6 chars)" required />
+                            <label asp-for="Password" class="form-label fw-bold">Password <span class="text-muted fw-normal">(Optional)</span></label>
+                            <input asp-for="Password" type="password" class="form-control rounded-3" placeholder="Leave blank to use default" />
                             <span asp-validation-for="Password" class="text-danger small"></span>
+                            <div class="form-text text-muted">If left blank, default password <code class="text-primary font-monospace">Teacher123!</code> will be assigned.</div>
                         </div>
                     </div>
                 </div>

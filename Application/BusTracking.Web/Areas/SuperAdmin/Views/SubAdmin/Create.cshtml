@@ -3,97 +3,133 @@
     ViewData["Title"] = "Add Coordinator";
 }
 
-<div class="row">
-    <div class="col-lg-9">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-person-badge me-2 text-warning"></i>Add Bus Coordinator</div>
-            <div class="card-body p-4">
+<div class="container-fluid p-0">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold m-0 text-dark">
+                <i class="bi bi-person-plus-fill text-primary me-2"></i>Add Bus Coordinator
+            </h2>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small text-muted">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index")" class="text-decoration-none text-muted">Bus Coordinators</a></li>
+                    <li class="breadcrumb-item active text-primary" aria-current="page">Add Coordinator</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary rounded-3 px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post" id="createForm">
+                @Html.AntiForgeryToken()
+
                 @if (!ViewData.ModelState.IsValid)
                 {
-                    <div asp-validation-summary="All" class="alert alert-danger py-2 border-0"></div>
+                    <div class="alert alert-danger py-2 border-0 rounded-3 mb-4" style="background-color: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                        <div asp-validation-summary="All"></div>
+                    </div>
                 }
-                <form asp-area="SuperAdmin" asp-action="Create" method="post" id="createForm">
-                    @Html.AntiForgeryToken()
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-4">
-                            <label asp-for="FullName" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
-                            <input asp-for="FullName" class="form-control" placeholder="Coordinator full name" />
+
+                <!-- Section 1: Account Credentials -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-shield-lock me-2"></i>Account Credentials</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4 col-12">
+                            <label asp-for="FullName" class="form-label fw-bold">Full Name <span class="text-danger">*</span></label>
+                            <input asp-for="FullName" class="form-control rounded-3" placeholder="Coordinator full name" required />
                             <span asp-validation-for="FullName" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="UserName" class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <input asp-for="UserName" class="form-control" placeholder="unique_username" id="usernameInput" autocomplete="off" />
-                            </div>
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="UserName" class="form-label fw-bold">Username <span class="text-danger">*</span></label>
+                            <input asp-for="UserName" class="form-control rounded-3" placeholder="unique_username" id="usernameInput" autocomplete="off" required />
                             <span asp-validation-for="UserName" class="text-danger small"></span>
                             <div id="usernameMsg" class="small mt-1"></div>
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="Email" class="form-label fw-semibold">Email <span class="text-muted fw-normal">(Optional)</span></label>
-                            <input asp-for="Email" type="email" class="form-control" placeholder="coordinator@email.com" />
-                            <span asp-validation-for="Email" class="text-danger small"></span>
-                        </div>
-                        <div class="col-md-4">
-                            <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number</label>
-                            <input asp-for="PhoneNumber" class="form-control" placeholder="+91 98765 43210" />
-                        </div>
-                        <div class="col-md-4">
-                            <label asp-for="Password" class="form-label fw-semibold">Password <span class="text-muted fw-normal">(leave blank to auto-generate)</span></label>
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="Password" class="form-label fw-bold">Password <span class="text-muted fw-normal">(Optional)</span></label>
                             <div class="input-group">
-                                <input asp-for="Password" type="password" class="form-control" placeholder="Set password or leave blank" id="pwdInput" autocomplete="new-password" />
+                                <input asp-for="Password" type="password" class="form-control rounded-3" placeholder="Leave blank to auto-generate" id="pwdInput" autocomplete="new-password" />
                                 <button type="button" class="btn btn-outline-secondary" id="togglePwd"><i class="bi bi-eye" id="eyeIcon"></i></button>
                             </div>
+                            <span asp-validation-for="Password" class="text-danger small"></span>
                         </div>
                     </div>
+                </div>
 
-                    <div class="mb-4">
-                        <div class="d-flex justify-content-between align-items-center mb-3">
-                            <span class="fw-semibold">Assign Permissions</span>
-                            <button type="button" class="btn btn-sm btn-outline-primary" id="btnSelectAll">Select All</button>
+                <!-- Section 2: Contact Details -->
+                <div class="mb-4 pt-3 border-top">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-envelope me-2"></i>Contact Details</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6 col-12">
+                            <label asp-for="Email" class="form-label fw-bold">Email Address</label>
+                            <input asp-for="Email" type="email" class="form-control rounded-3" placeholder="coordinator@school.edu" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
-                        @{
-                            var allPerms = ViewBag.AllPermissions as List<(int Id, string ModuleName, string Key, string Description)>
-                                          ?? new List<(int, string, string, string)>();
-                            var permGroups = allPerms.GroupBy(p => p.ModuleName).OrderBy(g => g.Key);
-                        }
-                        <div class="row g-3">
-                            @foreach (var group in permGroups)
-                            {
-                                var modKey = group.Key.Replace(" ", "_").Replace("&", "");
-                                <div class="col-md-4">
-                                    <div class="border rounded p-3">
-                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                            <span class="fw-semibold small text-uppercase text-muted">@group.Key.Replace("Manage", "")</span>
-                                            <button type="button" class="btn btn-link btn-sm p-0 text-primary btn-module-all" data-mod="@modKey">All</button>
-                                        </div>
-                                        @foreach (var perm in group)
-                                        {
-                                            <div class="form-check">
-                                                <input class="form-check-input perm-@modKey" type="checkbox"
-                                                       name="PermissionIds" value="@perm.Id" id="perm_@perm.Id" />
-                                                <label class="form-check-label small" for="perm_@perm.Id">@perm.Description</label>
-                                            </div>
-                                        }
+
+                        <div class="col-md-6 col-12">
+                            <label asp-for="PhoneNumber" class="form-label fw-bold">Phone Number</label>
+                            <input asp-for="PhoneNumber" class="form-control rounded-3" placeholder="+91 98765 43210" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Permissions -->
+                <div class="mb-4 pt-3 border-top">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h6 class="fw-bold text-primary text-uppercase fs-7 m-0"><i class="bi bi-key me-2"></i>Assign Permissions</h6>
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-3" id="btnSelectAll">Select All</button>
+                    </div>
+                    @{
+                        var allPerms = ViewBag.AllPermissions as List<(int Id, string ModuleName, string Key, string Description)>
+                                      ?? new List<(int, string, string, string)>();
+                        var permGroups = allPerms.GroupBy(p => p.ModuleName).OrderBy(g => g.Key);
+                    }
+                    <div class="row g-3">
+                        @foreach (var group in permGroups)
+                        {
+                            var modKey = group.Key.Replace(" ", "_").Replace("&", "");
+                            <div class="col-md-4 col-12">
+                                <div class="border rounded-4 p-3 bg-light-subtle">
+                                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
+                                        <span class="fw-bold small text-uppercase text-primary">@group.Key.Replace("Manage", "")</span>
+                                        <button type="button" class="btn btn-link btn-sm p-0 text-primary fw-semibold btn-module-all" data-mod="@modKey">All</button>
                                     </div>
+                                    @foreach (var perm in group)
+                                    {
+                                        <div class="form-check my-1">
+                                            <input class="form-check-input perm-@modKey" type="checkbox" name="PermissionIds" value="@perm.Id" id="perm_@perm.Id" />
+                                            <label class="form-check-label small text-dark" for="perm_@perm.Id">@perm.Description</label>
+                                        </div>
+                                    }
                                 </div>
-                            }
-                        </div>
+                            </div>
+                        }
                     </div>
+                </div>
 
-                    <div class="form-check form-switch mb-4">
-                        <input asp-for="SendEmail" class="form-check-input" type="checkbox" role="switch" id="sendEmailChk" />
-                        <label class="form-check-label" for="sendEmailChk">
-                            <i class="bi bi-envelope me-1"></i>Send welcome email with credentials
-                            <span class="badge bg-secondary-subtle text-secondary ms-1">Requires email</span>
+                <!-- Section 4: Options -->
+                <div class="mb-4 pt-3 border-top">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-gear me-2"></i>Additional Options</h6>
+                    <div class="form-check form-switch">
+                        <input asp-for="SendEmail" class="form-check-input" type="checkbox" role="switch" id="sendEmailChk" style="width: 40px; height: 20px; cursor: pointer;" />
+                        <label class="form-check-label fw-semibold text-dark ms-2" for="sendEmailChk">
+                            Send welcome email with login credentials
                         </label>
                     </div>
+                </div>
 
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-warning px-4"><i class="bi bi-check2 me-1"></i>Create Coordinator</button>
-                        <a asp-area="SuperAdmin" asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
-                    </div>
-                </form>
-            </div>
+                <div class="d-flex justify-content-end gap-2 border-top pt-4">
+                    <a href="@Url.Action("Index")" class="btn btn-light rounded-3 px-4">Cancel</a>
+                    <button type="submit" id="submitBtn" class="btn btn-primary rounded-3 px-4 shadow-sm"><i class="bi bi-check-circle me-2"></i>Create Coordinator</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -101,11 +137,6 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        const vs=document.getElementById('valSummary');
-        if(vs&&vs.querySelector('li,span:not(:empty)'))vs.style.display='';
-        document.getElementById('createForm').addEventListener('submit',()=>{if(vs)vs.style.display='';});
-
-        // Password toggle
         document.getElementById('togglePwd').addEventListener('click', function() {
             const inp = document.getElementById('pwdInput');
             const icon = document.getElementById('eyeIcon');
@@ -113,25 +144,26 @@
             icon.className = inp.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash';
         });
 
-        document.querySelectorAll('.btn-module-all').forEach(btn=>{
-            btn.addEventListener('click',function(){
-                const cls=`.perm-${this.dataset.mod}`;
-                const checks=[...document.querySelectorAll(cls)];
-                const all=checks.every(c=>c.checked);
-                checks.forEach(c=>c.checked=!all);
-                this.textContent=all?'All':'None';
+        document.querySelectorAll('.btn-module-all').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const cls = `.perm-${this.dataset.mod}`;
+                const checks = [...document.querySelectorAll(cls)];
+                const all = checks.every(c => c.checked);
+                checks.forEach(c => c.checked = !all);
+                this.textContent = all ? 'All' : 'None';
             });
         });
-        document.getElementById('btnSelectAll').addEventListener('click',function(){
-            const checks=[...document.querySelectorAll('input[name="PermissionIds"]')];
-            const all=checks.every(c=>c.checked);
-            checks.forEach(c=>c.checked=!all);
-            this.textContent=all?'Select All':'Deselect All';
+
+        document.getElementById('btnSelectAll').addEventListener('click', function() {
+            const checks = [...document.querySelectorAll('input[name="PermissionIds"]')];
+            const all = checks.every(c => c.checked);
+            checks.forEach(c => c.checked = !all);
+            this.textContent = all ? 'Select All' : 'Deselect All';
         });
-        // ── Username live-check (keyup, min 5 chars, no excludeUserId on create) ──
+
         const _unInput = document.getElementById('usernameInput');
-        const _unMsg   = document.getElementById('usernameMsg');
-        let   _unTimer = null;
+        const _unMsg = document.getElementById('usernameMsg');
+        let _unTimer = null;
 
         _unInput.addEventListener('keyup', () => {
             clearTimeout(_unTimer);
@@ -144,12 +176,12 @@
             _unMsg.className = 'small mt-1';
             if (val.length === 0) return;
             if (val.length < 5) {
-                _unMsg.innerHTML  = '<i class="bi bi-exclamation-circle me-1"></i>Username must have at least 5 characters';
-                _unMsg.className  = 'small mt-1 text-danger';
+                _unMsg.innerHTML = '<i class="bi bi-exclamation-circle me-1"></i>Username must have at least 5 characters';
+                _unMsg.className = 'small mt-1 text-danger';
                 return;
             }
             try {
-                const res  = await fetch(`/Auth/CheckUsername?userName=${encodeURIComponent(val)}`);
+                const res = await fetch(`/Auth/CheckUsername?userName=${encodeURIComponent(val)}`);
                 if (!res.ok) return;
                 const data = await res.json();
                 if (!data.success) {
@@ -159,7 +191,7 @@
                     _unMsg.innerHTML = `<i class="bi bi-check-circle me-1"></i><strong>${escHtml(val)}</strong> is available`;
                     _unMsg.className = 'small mt-1 text-success fw-semibold';
                 }
-            } catch (_) { /* silent */ }
+            } catch (_) { }
         }
         function escHtml(s) {
             return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');

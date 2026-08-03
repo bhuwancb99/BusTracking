@@ -1,200 +1,199 @@
-@* SuperAdmin/Views/Student/Details.cshtml — UPDATED *@
 @model BusTracking.Common.DTOs.Student.StudentListDto
 @{
-    ViewData["Title"] = "Student Details";
-    var thumbUrl = Model?.ProfileImageUrl?.Replace("_medium.webp", "_thumb.webp");
+    ViewData["Title"] = "Student Details - " + Model.FullName;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0"><i class="bi bi-mortarboard me-2 text-info"></i>Student Profile</h4>
-    <div class="d-flex gap-2">
-        <a asp-area="SuperAdmin" asp-action="Edit" asp-route-id="@Model?.StudentId" class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil me-1"></i>Edit</a>
-        <a asp-area="SuperAdmin" asp-action="Availability" asp-route-studentId="@Model?.StudentId" class="btn btn-outline-secondary btn-sm"><i class="bi bi-calendar-check me-1"></i>Availability</a>
-        <a asp-area="SuperAdmin" asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+<div class="container-fluid p-0">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold m-0 text-dark">
+                <i class="bi bi-mortarboard text-primary me-2"></i>Student Profile Details
+            </h2>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small text-muted">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index")" class="text-decoration-none text-muted">Students</a></li>
+                    <li class="breadcrumb-item active text-primary" aria-current="page">Student Details</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("Edit", new { id = Model.StudentId })" class="btn btn-primary rounded-3 px-3 shadow-sm">
+                <i class="bi bi-pencil-fill me-1"></i> Edit Profile
+            </a>
+            <a href="@Url.Action("Availability", new { studentId = Model.StudentId })" class="btn btn-outline-secondary rounded-3 px-3">
+                <i class="bi bi-calendar-check me-1"></i> Attendance
+            </a>
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary rounded-3 px-3">
+                <i class="bi bi-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
     </div>
-</div>
 
-@if (Model is not null)
-{
-    <div class="row g-4">
-        <!-- Profile card -->
-        <div class="col-lg-5">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="text-center mb-4">
-
-                        <!-- ── Profile photo widget ── -->
-                        <div class="position-relative d-inline-block mb-3" id="imgWidget_@Model.UserId">
-                            @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
-                            {
-                                <img id="imgWidget_@(Model.UserId)_preview" src="@Model.ProfileImageUrl" alt="@Model.FullName"
-                                     class="rounded-circle border shadow"
-                                     style="width:80px;height:80px;object-fit:cover;"
-                                     onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
-                            }
-                            else
-                            {
-                                <img id="imgWidget_@(Model.UserId)_preview" src="/images/default-avatar.svg" alt="@Model.FullName"
-                                     class="rounded-circle border shadow"
-                                     style="width:80px;height:80px;object-fit:cover;" />
-                            }
-                            <label for="imgInput_@Model.UserId"
-                                   class="position-absolute bottom-0 end-0 btn btn-sm btn-primary rounded-circle p-1"
-                                   style="width:26px;height:26px;line-height:1;cursor:pointer;" title="Change photo">
-                                <i class="bi bi-camera-fill" style="font-size:0.7rem;"></i>
-                                <input type="file" id="imgInput_@Model.UserId" class="d-none"
-                                       accept="image/jpeg,image/png,image/webp"
-                                       onchange="uploadUserProfile(@Model.UserId, this, 'imgWidget_@Model.UserId')" />
-                            </label>
-                        </div>
-                        <div id="imgWidget_@(Model.UserId)_msg" class="small mb-2"></div>
+    @if (Model is not null)
+    {
+        <div class="row g-4">
+            <div class="col-lg-4 col-12">
+                <!-- Profile Summary Card -->
+                <div class="card border-0 shadow-sm rounded-4 text-center p-4 h-100">
+                    <div class="position-relative d-inline-block mx-auto mb-3" id="imgWidget_@Model.UserId">
                         @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
                         {
-                            <button type="button" class="btn btn-sm btn-outline-danger mb-3"
-                                    onclick="deleteUserProfile(@Model.UserId, 'imgWidget_@Model.UserId')">
-                                <i class="bi bi-trash me-1"></i>Remove Photo
-                            </button>
+                            <img id="imgWidget_@(Model.UserId)_preview" src="@Model.ProfileImageUrl" alt="@Model.FullName"
+                                 class="rounded-circle border shadow-sm"
+                                 style="width: 110px; height: 110px; object-fit: cover;"
+                                 onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
                         }
-
-                        <h5 class="fw-bold mb-1">@Model.FullName</h5>
-                        <code class="small">@Model.StudentCode</code>
-                        <div class="mt-1">
-                            <span class="badge bg-info-subtle text-info me-1">Student</span>
-                            <span class="badge @(Model.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">
-                                @(Model.IsActive ? "Active" : "Inactive")
-                            </span>
-                        </div>
+                        else
+                        {
+                            <img id="imgWidget_@(Model.UserId)_preview" src="/images/default-avatar.svg" alt="@Model.FullName"
+                                 class="rounded-circle border shadow-sm"
+                                 style="width: 110px; height: 110px; object-fit: cover;" />
+                        }
+                        <label for="imgInput_@Model.UserId"
+                               class="position-absolute bottom-0 end-0 btn btn-sm btn-primary rounded-circle p-1 shadow-sm"
+                               style="width:30px;height:30px;line-height:1;cursor:pointer;" title="Change photo">
+                            <i class="bi bi-camera-fill" style="font-size:0.8rem;"></i>
+                            <input type="file" id="imgInput_@Model.UserId" class="d-none"
+                                   accept="image/jpeg,image/png,image/webp"
+                                   onchange="uploadUserProfile(@Model.UserId, this, 'imgWidget_@Model.UserId')" />
+                        </label>
                     </div>
-                    <table class="table table-borderless small mb-0">
-                        <tr><th class="text-muted w-40">Email</th><td>@Model.Email</td></tr>
-                        <tr><th class="text-muted">Phone</th><td>@(Model.PhoneNumber ?? "–")</td></tr>
-                        <tr><th class="text-muted">Class</th><td>@(Model.StandardName ?? "–")</td></tr>
-                        <tr><th class="text-muted">Stop</th><td>@(Model.StopName ?? "–")</td></tr>
-                        <tr>
-                            <th class="text-muted">Password</th>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <span id="pwdMask" class="font-monospace">••••••••••</span>
-                                    <span id="pwdReal" class="font-monospace d-none text-danger small">(Reset in Edit page)</span>
-                                    <button type="button" class="btn btn-sm btn-link p-0 text-muted" id="btnTogglePwd" title="Show/hide">
-                                        <i class="bi bi-eye" id="pwdEyeIcon"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                    </table>
+                    <div id="imgWidget_@(Model.UserId)_msg" class="small mb-2"></div>
+                    @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+                    {
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-3 mb-3"
+                                onclick="deleteUserProfile(@Model.UserId, 'imgWidget_@Model.UserId')">
+                            <i class="bi bi-trash me-1"></i>Remove Photo
+                        </button>
+                    }
+
+                    <h4 class="fw-bold text-dark mb-1">@Model.FullName</h4>
+                    <code class="font-monospace fw-bold text-primary fs-6 mb-2 d-block">@Model.StudentCode</code>
+                    <div class="d-flex justify-content-center gap-2 mt-2">
+                        <span class="badge @(Model.IsActive ? "bg-success-subtle text-success border border-success-subtle" : "bg-danger-subtle text-danger border border-danger-subtle") rounded-pill px-3 py-2">
+                            <i class="bi bi-circle-fill me-1 fs-7"></i>@(Model.IsActive ? "Active Student" : "Inactive Student")
+                        </span>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Transport Fee Tracking -->
-        <div class="col-lg-5">
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
-                    <i class="bi bi-cash-coin me-2 text-primary"></i>Transport Fee
-                </div>
-                <div class="card-body p-4">
-                    <table class="table table-borderless small mb-0">
-                        <tr>
-                            <th class="text-muted w-40">Fee Status</th>
-                            <td>
+            <div class="col-lg-8 col-12">
+                <!-- Academic & Personal Details -->
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-card-heading me-2"></i>Academic & Contact Information</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6 col-12">
+                                <small class="text-muted d-block">Class & Section</small>
+                                <span class="fw-bold text-dark fs-6">@(string.IsNullOrWhiteSpace(Model.StandardName) ? "Unassigned" : Model.StandardName)</span>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <small class="text-muted d-block">Username</small>
+                                <span class="fw-bold font-monospace text-dark">@Model.UserName</span>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <small class="text-muted d-block">Email Address</small>
+                                <span class="fw-semibold text-dark">@(string.IsNullOrWhiteSpace(Model.Email) ? "N/A" : Model.Email)</span>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <small class="text-muted d-block">Phone Number</small>
+                                <span class="fw-semibold text-dark">@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "N/A" : Model.PhoneNumber)</span>
+                            </div>
+                        </div>
+
+                        <!-- Transport Fee Tracking -->
+                        <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3 pt-3 border-top"><i class="bi bi-cash-coin me-2"></i>Transport Fee Tracking</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6 col-12">
+                                <small class="text-muted d-block mb-1">Fee Payment Status</small>
                                 @{
                                     var feeBadgeClass = Model.TransportFeeStatus switch
                                     {
-                                        BusTracking.Common.Enums.TransportFeeStatus.Paid => "bg-success-subtle text-success",
-                                        BusTracking.Common.Enums.TransportFeeStatus.Pending => "bg-warning-subtle text-warning",
-                                        BusTracking.Common.Enums.TransportFeeStatus.Expired => "bg-danger-subtle text-danger",
+                                        BusTracking.Common.Enums.TransportFeeStatus.Paid => "bg-success-subtle text-success border border-success-subtle",
+                                        BusTracking.Common.Enums.TransportFeeStatus.Pending => "bg-warning-subtle text-dark border border-warning-subtle",
+                                        BusTracking.Common.Enums.TransportFeeStatus.Expired => "bg-danger-subtle text-danger border border-danger-subtle",
                                         _ => "bg-secondary-subtle text-secondary"
                                     };
                                 }
-                                <span class="badge @feeBadgeClass">@Model.TransportFeeStatus</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th class="text-muted">Fee Expiry</th>
-                            <td>@(Model.FeeExpiryDate?.ToString("yyyy-MM-dd") ?? "—")</td>
-                        </tr>
-                    </table>
+                                <span class="badge @feeBadgeClass px-3 py-2 font-monospace">@Model.TransportFeeStatus</span>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <small class="text-muted d-block">Fee Expiry Date</small>
+                                <span class="fw-semibold text-dark">@(Model.FeeExpiryDate?.ToString("dd MMM yyyy") ?? "N/A")</span>
+                            </div>
+                        </div>
+
+                        <!-- Bus & Stop Assignment -->
+                        <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3 pt-3 border-top"><i class="bi bi-bus-front me-2"></i>Bus & Stop Assignment</h6>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6 col-12">
+                                <div class="p-3 bg-light-subtle rounded-4 border text-center">
+                                    <small class="text-muted d-block mb-1">Assigned Bus</small>
+                                    @if (!string.IsNullOrEmpty(Model.BusNumber))
+                                    {
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace px-3 py-1 fs-6">@Model.BusNumber</span>
+                                        <div class="small fw-semibold text-dark mt-1">@Model.BusName</div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Not Assigned</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <div class="p-3 bg-light-subtle rounded-4 border text-center">
+                                    <small class="text-muted d-block mb-1">Assigned Route Stop</small>
+                                    @if (!string.IsNullOrEmpty(Model.StopName))
+                                    {
+                                        <span class="badge bg-success-subtle text-success border border-success-subtle font-monospace px-3 py-1 fs-6">@Model.StopName</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">Not Assigned</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Bus Assignment Widget -->
+                        <div class="p-3 bg-light rounded-4 border">
+                            <label class="form-label fw-bold small text-primary mb-2"><i class="bi bi-arrow-repeat me-1"></i>Quick Reassign Bus & Stop</label>
+                            <div class="row g-2">
+                                <div class="col-md-6 col-12 position-relative">
+                                    <input type="text" id="quickBusSearch" class="form-control rounded-3" placeholder="Type bus name or plate..." autocomplete="off" />
+                                    <div id="quickBusSug" class="dropdown-menu w-100 shadow-sm rounded-3"></div>
+                                </div>
+                                <div class="col-md-6 col-12" id="stopSection" style="display:none">
+                                    <select id="stopSelect" class="form-select rounded-3">
+                                        <option value="">-- Select Stop --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2 mt-3 justify-content-end">
+                                <button type="button" class="btn btn-primary rounded-3 px-3" id="btnAssignBus"><i class="bi bi-check2 me-1"></i>Assign Bus & Stop</button>
+                                @if (Model.BusId.HasValue)
+                                {
+                                    <button type="button" class="btn btn-outline-danger rounded-3" id="btnRemoveBus"><i class="bi bi-x-lg me-1"></i>Remove</button>
+                                }
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- Bus & Stop assignment card — unchanged from original -->
-        <div class="col-lg-7">
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
-                    <i class="bi bi-bus-front me-2 text-primary"></i>Bus & Stop Assignment
-                </div>
-                <div class="card-body p-4">
-                    <div class="d-flex gap-3 mb-4 flex-wrap">
-                        <div class="flex-grow-1 border rounded p-3 text-center">
-                            <div class="text-muted small mb-1">Assigned Bus</div>
-                            @if (Model.BusName is not null)
-                            {
-                                <span class="badge bg-primary-subtle text-primary fs-6 px-3">@Model.BusNumber</span>
-                                <div class="small mt-1">@Model.BusName</div>
-                            }
-                            else
-                            {
-
-                                <span class="text-muted small">Not assigned</span>
-                            }
-                        </div>
-                        <div class="flex-grow-1 border rounded p-3 text-center">
-                            <div class="text-muted small mb-1">Assigned Stop</div>
-                            @if (Model.StopName is not null)
-                            {
-                                <span class="badge bg-success-subtle text-success fs-6 px-3">@Model.StopName</span>
-                            }
-                            else
-                            {
-
-                                <span class="text-muted small">Not assigned</span>
-                            }
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold small">Step 1 — Search & Select Bus</label>
-                        <div class="position-relative">
-                            <input type="text" id="quickBusSearch" class="form-control form-control-sm" placeholder="Type bus name or number…" autocomplete="off" />
-                            <div id="quickBusSug" class="dropdown-menu w-100 shadow-sm"></div>
-                        </div>
-                        <div id="busSelected" class="mt-1 small"></div>
-                    </div>
-                    <div id="stopSection" class="mb-3" style="display:none">
-                        <label class="form-label fw-semibold small">Step 2 — Select Stop</label>
-                        <select id="stopSelect" class="form-select form-select-sm">
-                            <option value="">-- Select a stop --</option>
-                        </select>
-                    </div>
-                    <div class="d-flex gap-2 mt-3">
-                        <button class="btn btn-sm btn-primary" id="btnAssignBus"><i class="bi bi-check2 me-1"></i>Assign Bus & Stop</button>
-                        <button class="btn btn-sm btn-outline-danger" id="btnRemoveBus"><i class="bi bi-x me-1"></i>Remove Assignment</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-}
+    }
+</div>
 
 @Html.AntiForgeryToken()
 
 @section Scripts {
     <script>
-        const studentId    = @(Model?.StudentId ?? 0);
-        let selectedBusId  = @(Model?.BusId?.ToString() ?? "null");
+        const studentId = @(Model?.StudentId ?? 0);
+        let selectedBusId = @(Model?.BusId?.ToString() ?? "null");
         let selectedStopId = @(Model?.StopId?.ToString() ?? "null");
         const _tok = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
 
-        // ── Password toggle ───────────────────────────────────────────────────
-        document.getElementById('btnTogglePwd').addEventListener('click', function () {
-            const mask = document.getElementById('pwdMask'), real = document.getElementById('pwdReal'), icon = document.getElementById('pwdEyeIcon');
-            const hidden = mask.classList.contains('d-none');
-            mask.classList.toggle('d-none', !hidden); real.classList.toggle('d-none', hidden);
-            icon.className = hidden ? 'bi bi-eye-slash' : 'bi bi-eye';
-        });
-
-        // ── Profile image helpers ─────────────────────────────────────────────
         async function uploadUserProfile(userId, input, widgetId) {
             if (!input.files || !input.files[0]) return;
             const msg = document.getElementById(widgetId + '_msg');
@@ -219,47 +218,75 @@
             } catch { msg.innerHTML = '<span class="text-danger">Error.</span>'; }
         }
 
-        // ── Bus autocomplete ──────────────────────────────────────────────────
         let t;
-        document.getElementById('quickBusSearch').addEventListener('input', function () {
-            clearTimeout(t); const q = this.value.trim();
-            if (q.length < 1) { hideSug(); return; }
-            t = setTimeout(() => fetchBuses(q), 250);
-        });
+        const busSearch = document.getElementById('quickBusSearch');
+        if (busSearch) {
+            busSearch.addEventListener('input', function () {
+                clearTimeout(t); const q = this.value.trim();
+                if (q.length < 1) { hideSug(); return; }
+                t = setTimeout(() => fetchBuses(q), 250);
+            });
+        }
         document.addEventListener('click', e => { if (!e.target.closest('#quickBusSearch,#quickBusSug')) hideSug(); });
+
         async function fetchBuses(q) {
-            const data = await (await fetch(`/SuperAdmin/Student/SearchBuses?q=${encodeURIComponent(q)}`)).json();
+            const res = await fetch('@Url.Action("SearchBuses")?q=' + encodeURIComponent(q));
+            const data = await res.json();
             const box = document.getElementById('quickBusSug'); box.innerHTML = '';
             if (!data.length) { hideSug(); return; }
             data.forEach(b => {
-                const a = document.createElement('a'); a.className = 'dropdown-item'; a.href = '#'; a.textContent = b.display;
-                a.addEventListener('click', e => { e.preventDefault(); selectedBusId = b.busId; document.getElementById('quickBusSearch').value = b.display; document.getElementById('busSelected').innerHTML = `<span class="badge bg-primary-subtle text-primary"><i class="bi bi-bus-front me-1"></i>${b.display}</span>`; hideSug(); loadStops(b.busId); });
+                const a = document.createElement('a'); a.className = 'dropdown-item py-2'; a.href = '#'; a.textContent = b.display;
+                a.addEventListener('click', e => {
+                    e.preventDefault(); selectedBusId = b.busId;
+                    document.getElementById('quickBusSearch').value = b.display;
+                    hideSug(); loadStops(b.busId);
+                });
                 box.appendChild(a);
             });
             box.classList.add('show');
         }
-        function hideSug() { document.getElementById('quickBusSug').classList.remove('show'); }
-        async function loadStops(busId) {
-            const stopSection = document.getElementById('stopSection'); const stopSelect = document.getElementById('stopSelect');
+        function hideSug() { const box = document.getElementById('quickBusSug'); if (box) box.classList.remove('show'); }
+
+        async function loadStops(bId) {
+            const stopSection = document.getElementById('stopSection');
+            const stopSelect = document.getElementById('stopSelect');
             stopSelect.innerHTML = '<option value="">-- Loading stops... --</option>'; stopSection.style.display = 'block';
-            const data = await (await fetch(`/SuperAdmin/Student/SearchStops?busId=${busId}`)).json();
-            stopSelect.innerHTML = '<option value="">-- Select a stop --</option>';
+            const res = await fetch('@Url.Action("SearchStops")?busId=' + bId);
+            const data = await res.json();
+            stopSelect.innerHTML = '<option value="">-- Select Stop --</option>';
             data.forEach(s => { const opt = document.createElement('option'); opt.value = s.stopId; opt.textContent = `${s.stopName} (Stop #${s.stopOrder})`; stopSelect.appendChild(opt); });
             if (selectedStopId) stopSelect.value = selectedStopId;
         }
+
         if (selectedBusId) { document.getElementById('stopSection').style.display = 'block'; loadStops(selectedBusId); }
-        document.getElementById('btnAssignBus').addEventListener('click', async () => {
-            if (!selectedBusId) { busTrack.showToast('Select a bus first', 'warning'); return; }
-            const stopId = document.getElementById('stopSelect').value || null;
-            const res = await fetch('/SuperAdmin/Student/AssignBus', { method: 'POST', headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _tok() }, body: JSON.stringify({ studentId, busId: parseInt(selectedBusId), stopId: stopId ? parseInt(stopId) : null }) });
-            const data = await res.json(); busTrack.showToast(data.message, data.success ? 'success' : 'danger');
-            if (data.success) setTimeout(() => location.reload(), 800);
-        });
-        document.getElementById('btnRemoveBus').addEventListener('click', async () => {
-            if (!confirm('Remove bus and stop assignment?')) return;
-            const res = await fetch('/SuperAdmin/Student/AssignBus', { method: 'POST', headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _tok() }, body: JSON.stringify({ studentId, busId: null, stopId: null }) });
-            const data = await res.json(); busTrack.showToast(data.message, data.success ? 'success' : 'danger');
-            if (data.success) setTimeout(() => location.reload(), 800);
-        });
+
+        const assignBtn = document.getElementById('btnAssignBus');
+        if (assignBtn) {
+            assignBtn.addEventListener('click', async () => {
+                if (!selectedBusId) { alert('Select a bus first'); return; }
+                const stopId = document.getElementById('stopSelect').value || null;
+                const res = await fetch('@Url.Action("AssignBus")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _tok() },
+                    body: JSON.stringify({ studentId, busId: parseInt(selectedBusId), stopId: stopId ? parseInt(stopId) : null })
+                });
+                const data = await res.json();
+                if (data.success) location.reload(); else alert(data.message);
+            });
+        }
+
+        const removeBtn = document.getElementById('btnRemoveBus');
+        if (removeBtn) {
+            removeBtn.addEventListener('click', async () => {
+                if (!confirm('Remove bus and stop assignment?')) return;
+                const res = await fetch('@Url.Action("AssignBus")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _tok() },
+                    body: JSON.stringify({ studentId, busId: null, stopId: null })
+                });
+                const data = await res.json();
+                if (data.success) location.reload(); else alert(data.message);
+            });
+        }
     </script>
 }

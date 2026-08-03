@@ -88,7 +88,7 @@
                     <th>Bus</th>
                     <th>Stop</th>
                     <th style="width: 100px;" class="text-center">Status</th>
-                    <th style="width: 100px;" class="text-center pe-4">Actions</th>
+                    <th style="width: 160px;" class="text-center pe-4">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -141,8 +141,14 @@
                                 </div>
                             </td>
                             <td class="text-center pe-4">
-                                <a href="@Url.Action("Edit", new { id = student.StudentId })" class="btn btn-outline-primary btn-sm rounded-3 px-2 py-1" title="Edit Student">
+                                <a href="@Url.Action("Details", new { id = student.StudentId })" class="btn btn-outline-info btn-sm rounded-3 px-2 py-1 me-1" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="@Url.Action("Edit", new { id = student.StudentId })" class="btn btn-outline-primary btn-sm rounded-3 px-2 py-1 me-1" title="Edit Student">
                                     <i class="bi bi-pencil-fill"></i>
+                                </a>
+                                <a href="@Url.Action("Availability", new { studentId = student.StudentId })" class="btn btn-outline-secondary btn-sm rounded-3 px-2 py-1" title="Manage Availability">
+                                    <i class="bi bi-calendar-check"></i>
                                 </a>
                             </td>
                         </tr>

@@ -1,37 +1,63 @@
-@* Student/Dashboard/Index.cshtml *@
 @{
     ViewData["Title"] = "Student Dashboard";
 }
-<div class="mb-4">
-    <h4 class="fw-bold mb-0">Welcome, @User.Identity?.Name?.Split(' ').FirstOrDefault()</h4>
-    <p class="text-muted small">@DateTime.Now.ToString("dddd, dd MMMM yyyy")</p>
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+    <div>
+        <h2 class="fw-bold m-0 text-dark">
+            <i class="bi bi-mortarboard text-primary me-2"></i>Welcome, @User.Identity?.Name?.Split(' ').FirstOrDefault()
+        </h2>
+        <nav aria-label="breadcrumb" class="mt-1">
+            <ol class="breadcrumb mb-0 small text-muted">
+                <li class="breadcrumb-item active text-primary" aria-current="page">Student Dashboard</li>
+            </ol>
+        </nav>
+    </div>
+    <span class="badge bg-light text-dark border px-3 py-2 font-monospace fs-7">
+        <i class="bi bi-calendar-event me-1 text-primary"></i>@DateTime.Now.ToString("dddd, dd MMM yyyy")
+    </span>
 </div>
-<div class="row g-3">
+
+<div class="row g-4">
     <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100 text-center p-4">
-            <i class="bi bi-geo-alt-fill text-danger fs-1 mb-3"></i>
-            <h6 class="fw-semibold">Track My Bus</h6>
-            <p class="text-muted small">See where your bus is right now.</p>
+        <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-4">
+            <div class="rounded-circle bg-danger-subtle text-danger mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:60px; height:60px;">
+                <i class="bi bi-geo-alt-fill fs-3"></i>
+            </div>
+            <h5 class="fw-bold text-dark mb-2">Track My Bus</h5>
+            <p class="text-secondary small mb-4">View live location and arrival estimate of your assigned school bus.</p>
             <a asp-area="Student" asp-controller="Tracking" asp-action="Track" asp-route-tripId="0"
-               class="btn btn-danger btn-sm mt-auto">Open Map</a>
+               class="btn btn-danger rounded-3 px-4 shadow-sm mt-auto">
+                <i class="bi bi-map me-1"></i>Open Live Map
+            </a>
         </div>
     </div>
+
     <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100 text-center p-4">
-            <i class="bi bi-calendar-check-fill text-secondary fs-1 mb-3"></i>
-            <h6 class="fw-semibold">My Availability</h6>
-            <p class="text-muted small">Mark your leave or absence days.</p>
+        <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-4">
+            <div class="rounded-circle bg-primary-subtle text-primary mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:60px; height:60px;">
+                <i class="bi bi-calendar-check-fill fs-3"></i>
+            </div>
+            <h5 class="fw-bold text-dark mb-2">My Availability</h5>
+            <p class="text-secondary small mb-4">Mark planned leaves or absence days so your driver is notified in advance.</p>
             <a asp-area="Student" asp-controller="Home" asp-action="Availability"
-               class="btn btn-secondary btn-sm mt-auto text-white">Manage</a>
+               class="btn btn-primary rounded-3 px-4 shadow-sm mt-auto">
+                <i class="bi bi-calendar-event me-1"></i>Manage Availability
+            </a>
         </div>
     </div>
+
     <div class="col-md-4">
-        <div class="card border-0 shadow-sm h-100 text-center p-4">
-            <i class="bi bi-headset text-primary fs-1 mb-3"></i>
-            <h6 class="fw-semibold">Help & Support</h6>
-            <p class="text-muted small">Have a question? Contact us.</p>
+        <div class="card border-0 shadow-sm rounded-4 h-100 text-center p-4">
+            <div class="rounded-circle bg-info-subtle text-info mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:60px; height:60px;">
+                <i class="bi bi-headset fs-3"></i>
+            </div>
+            <h5 class="fw-bold text-dark mb-2">Help & Support</h5>
+            <p class="text-secondary small mb-4">Need help or want to report an issue with bus tracking or stops?</p>
             <a asp-area="Student" asp-controller="Feedback" asp-action="Submit"
-               class="btn btn-outline-primary btn-sm mt-auto">Contact Us</a>
+               class="btn btn-outline-primary rounded-3 px-4 mt-auto">
+                <i class="bi bi-chat-dots me-1"></i>Contact Support
+            </a>
         </div>
     </div>
 </div>

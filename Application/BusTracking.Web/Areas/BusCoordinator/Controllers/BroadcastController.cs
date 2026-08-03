@@ -18,7 +18,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
         }
 
         private bool HasPermission() =>
-            PermissionHelper.Can(User, "broadcast.manage", HttpContext);
+          PermissionHelper.Can(User, "broadcast.manage", HttpContext);
 
         public async Task<IActionResult> Index()
         {
@@ -102,7 +102,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             // Dispatch FCM Push Notifications to recipients' active device tokens
             _ = Task.Run(() => _fcmPushService.SendBroadcastPushAsync(userIds, model.Title.Trim(), model.Body.Trim(), model.NotificationType));
 
-            TempData["Success"] = $"Broadcast notification successfully sent to {notifications.Count} recipient(s).";
+            TempData["SuccessMessage"] = $"Broadcast notification successfully sent to {notifications.Count} recipient(s).";
             return RedirectToAction(nameof(Index));
         }
 

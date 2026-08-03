@@ -1,61 +1,43 @@
 @model BusTracking.Common.Models.BroadcastModel
 @{
-    Layout = "~/Areas/BusCoordinator/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Broadcast Message";
-    ViewData["Breadcrumb"] = "Broadcast Message";
 }
 
 <div class="container-fluid p-0">
-
-    <!-- Page Header -->
     <div class="d-flex align-items-center justify-content-between mb-4">
         <div>
-            <h4 class="fw-bold mb-1 text-dark">
+            <h2 class="fw-bold m-0 text-dark">
                 <i class="bi bi-megaphone-fill text-primary me-2"></i>Broadcast Message
-            </h4>
-            <p class="text-muted mb-0 small">Send push notifications and in-app alerts to targeted user roles and specific members.</p>
+            </h2>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small text-muted">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item active text-primary" aria-current="page">Broadcast Message</li>
+                </ol>
+            </nav>
         </div>
     </div>
 
-    @if (TempData["Success"] is string successMsg)
-    {
-        <div class="alert alert-success alert-dismissible fade show d-flex align-items-center mb-4" role="alert">
-            <i class="bi bi-check-circle-fill me-2 fs-5"></i>
-            <div>@successMsg</div>
-            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
 
-    <form asp-area="BusCoordinator" asp-controller="Broadcast" asp-action="Send" method="post" id="broadcastForm">
+
+    <form asp-action="Send" method="post" id="broadcastForm">
         @Html.AntiForgeryToken()
 
         <div class="row g-4">
-
             <!-- Left Column: Role & Recipient Selection -->
             <div class="col-lg-7 col-xl-7">
                 <div class="card border-0 shadow-sm rounded-4 h-100">
-                    <div class="card-header bg-white border-bottom-0 pt-4 px-4 pb-0">
-                        <h6 class="fw-bold text-dark mb-1">
-                            <i class="bi bi-people-fill text-primary me-2"></i>1. Select Recipients
-                        </h6>
-                        <p class="text-muted small mb-0">Choose a role first, then select individual users or select all.</p>
-                    </div>
-
                     <div class="card-body p-4 d-flex flex-column">
+                        <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3">
+                            <i class="bi bi-people-fill me-2"></i>1. Target Recipients
+                        </h6>
 
                         <!-- Role Selector Dropdown -->
                         <div class="mb-4">
-                            <label asp-for="SelectedRoleId" class="form-label fw-semibold text-secondary small">
-                                Target Role <span class="text-danger">*</span>
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-end-0">
-                                    <i class="bi bi-person-badge text-muted"></i>
-                                </span>
-                                <select id="roleSelect" asp-for="SelectedRoleId" asp-items="Model.Roles" class="form-select border-start-0 ps-0 fw-semibold">
-                                    <option value="">-- Select Target Role --</option>
-                                </select>
-                            </div>
+                            <label asp-for="SelectedRoleId" class="form-label fw-bold">Target Role <span class="text-danger">*</span></label>
+                            <select id="roleSelect" asp-for="SelectedRoleId" asp-items="Model.Roles" class="form-select rounded-3">
+                                <option value="">-- Select Target Role --</option>
+                            </select>
                             <span asp-validation-for="SelectedRoleId" class="text-danger small"></span>
                         </div>
 
@@ -63,31 +45,22 @@
                         <div id="usersHeader" class="d-none mb-3">
                             <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 bg-light p-2 rounded-3 border">
                                 <div class="input-group input-group-sm w-auto flex-grow-1" style="max-width: 260px;">
-                                    <span class="input-group-text bg-white border-end-0">
-                                        <i class="bi bi-search text-muted"></i>
-                                    </span>
-                                    <input type="text" id="userSearchInput" class="form-control border-start-0" placeholder="Search user by name..." />
+                                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                                    <input type="text" id="userSearchInput" class="form-control border-start-0" placeholder="Search user..." />
                                 </div>
                                 <div class="d-flex align-items-center gap-2">
-                                    <button type="button" id="selectAllBtn" class="btn btn-sm btn-outline-primary fw-semibold">
-                                        <i class="bi bi-check-all me-1"></i>Select All
-                                    </button>
-                                    <button type="button" id="deselectAllBtn" class="btn btn-sm btn-outline-secondary fw-semibold">
-                                        <i class="bi bi-x-circle me-1"></i>Deselect All
-                                    </button>
-                                    <span id="selectedBadge" class="badge bg-primary rounded-pill px-3 py-2">
-                                        Selected: 0
-                                    </span>
+                                    <button type="button" id="selectAllBtn" class="btn btn-sm btn-outline-primary fw-bold rounded-3"><i class="bi bi-check-all me-1"></i>Select All</button>
+                                    <button type="button" id="deselectAllBtn" class="btn btn-sm btn-outline-secondary fw-bold rounded-3"><i class="bi bi-x-circle me-1"></i>Deselect All</button>
+                                    <span id="selectedBadge" class="badge bg-primary rounded-pill px-3 py-2">Selected: 0</span>
                                 </div>
                             </div>
                         </div>
 
                         <!-- Users Scrollable Container -->
                         <div id="usersContainer" class="flex-grow-1 overflow-auto border rounded-3 p-3 bg-white" style="min-height: 280px; max-height: 380px;">
-                            <!-- Placeholder Initial State -->
                             <div id="emptyState" class="text-center py-5 text-muted">
                                 <i class="bi bi-person-lines-fill fs-1 d-block mb-2 text-secondary opacity-50"></i>
-                                <span class="fw-semibold">Please select a Target Role above to view available users.</span>
+                                <span class="fw-semibold">Select a Target Role above to view available users.</span>
                             </div>
                         </div>
 
@@ -99,19 +72,15 @@
             <!-- Right Column: Message Details & Send Action -->
             <div class="col-lg-5 col-xl-5">
                 <div class="card border-0 shadow-sm rounded-4 h-100">
-                    <div class="card-header bg-white border-bottom-0 pt-4 px-4 pb-0">
-                        <h6 class="fw-bold text-dark mb-1">
-                            <i class="bi bi-envelope-paper-fill text-primary me-2"></i>2. Compose Message
-                        </h6>
-                        <p class="text-muted small mb-0">Enter the notification title and message body to send.</p>
-                    </div>
-
                     <div class="card-body p-4 d-flex flex-column">
+                        <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3">
+                            <i class="bi bi-envelope-paper-fill me-2"></i>2. Compose Broadcast
+                        </h6>
 
                         <!-- Category/Type Dropdown -->
                         <div class="mb-3">
-                            <label asp-for="NotificationType" class="form-label fw-semibold text-secondary small">Notification Category</label>
-                            <select asp-for="NotificationType" class="form-select fw-semibold">
+                            <label asp-for="NotificationType" class="form-label fw-bold">Notification Category</label>
+                            <select asp-for="NotificationType" class="form-select rounded-3">
                                 <option value="Broadcast">📢 General Broadcast</option>
                                 <option value="ContentUpdate">ℹ️ Announcement</option>
                                 <option value="ActivityUpdate">🔔 System Alert</option>
@@ -122,41 +91,34 @@
                         <!-- Title Input -->
                         <div class="mb-3">
                             <div class="d-flex justify-content-between align-items-center">
-                                <label asp-for="Title" class="form-label fw-semibold text-secondary small">
-                                    Message Title <span class="text-danger">*</span>
-                                </label>
+                                <label asp-for="Title" class="form-label fw-bold">Title <span class="text-danger">*</span></label>
                                 <span id="titleCounter" class="text-muted small">0 / 150</span>
                             </div>
-                            <input asp-for="Title" id="msgTitle" class="form-control" placeholder="e.g. Important Announcement for Tomorrow" maxlength="150" required />
+                            <input asp-for="Title" id="msgTitle" class="form-control rounded-3" placeholder="e.g. Important Announcement" maxlength="150" required />
                             <span asp-validation-for="Title" class="text-danger small"></span>
                         </div>
 
                         <!-- Message Body Input -->
                         <div class="mb-4 flex-grow-1">
                             <div class="d-flex justify-content-between align-items-center">
-                                <label asp-for="Body" class="form-label fw-semibold text-secondary small">
-                                    Message Content <span class="text-danger">*</span>
-                                </label>
+                                <label asp-for="Body" class="form-label fw-bold">Message Content <span class="text-danger">*</span></label>
                                 <span id="bodyCounter" class="text-muted small">0 / 1000</span>
                             </div>
-                            <textarea asp-for="Body" id="msgBody" class="form-control" rows="5" placeholder="Write your broadcast message here..." maxlength="1000" required></textarea>
+                            <textarea asp-for="Body" id="msgBody" class="form-control rounded-3" rows="5" placeholder="Write your message here..." maxlength="1000" required></textarea>
                             <span asp-validation-for="Body" class="text-danger small"></span>
                         </div>
 
-                        <!-- Submit Button Card Footer -->
+                        <!-- Submit Button -->
                         <div class="pt-3 border-top mt-auto">
                             <button type="submit" id="sendBtn" class="btn btn-primary w-100 py-2.5 rounded-3 fw-bold shadow-sm">
                                 <i class="bi bi-send-fill me-2"></i>Send Broadcast Message
                             </button>
                         </div>
-
                     </div>
                 </div>
             </div>
-
         </div>
     </form>
-
 </div>
 
 @section Scripts {
@@ -178,7 +140,6 @@
 
             let currentUsersList = [];
 
-            // 1. Role Selection Change Listener
             roleSelect.addEventListener('change', function() {
                 const roleId = this.value;
                 if (!roleId) {
@@ -188,16 +149,15 @@
                 fetchUsersByRole(roleId);
             });
 
-            // 2. Fetch Users via AJAX
             function fetchUsersByRole(roleId) {
                 usersContainer.innerHTML = `
-                            <div class="text-center py-5 text-muted">
-                                <div class="spinner-border text-primary mb-2" role="status"></div>
-                                <div class="fw-semibold small">Loading users for selected role...</div>
-                            </div>`;
+                    <div class="text-center py-5 text-muted">
+                        <div class="spinner-border text-primary mb-2" role="status"></div>
+                        <div class="fw-semibold small">Loading users...</div>
+                    </div>`;
                 usersHeader.classList.add('d-none');
 
-                fetch(`/BusCoordinator/Broadcast/GetUsersByRole?roleId=${roleId}`)
+                fetch('@Url.Action("GetUsersByRole")?roleId=' + roleId)
                     .then(response => response.json())
                     .then(data => {
                         currentUsersList = data || [];
@@ -213,7 +173,6 @@
                     });
             }
 
-            // 3. Render Users Grid
             function renderUsersList(users) {
                 usersHeader.classList.remove('d-none');
                 usersContainer.innerHTML = '';
@@ -227,23 +186,22 @@
                     col.setAttribute('data-name', (user.fullName + ' ' + user.userName).toLowerCase());
 
                     col.innerHTML = `
-                                <label class="d-flex align-items-center p-2 rounded-3 border bg-light-subtle h-100 cursor-pointer user-select-none hover-shadow">
-                                    <input type="checkbox" name="SelectedUserIds" value="${user.userId}" class="form-check-input me-3 user-checkbox" style="transform: scale(1.15);" />
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <div class="fw-bold text-dark text-truncate">${escapeHtml(user.fullName)}</div>
-                                        <div class="text-muted extra-small">
-                                            <span class="badge bg-secondary-subtle text-secondary me-1">&#64;${escapeHtml(user.userName)}</span>
-                                            ${user.phoneNumber ? `<span class="me-1"><i class="bi bi-telephone text-muted"></i> ${escapeHtml(user.phoneNumber)}</span>` : ''}
-                                            ${user.email ? `<span><i class="bi bi-envelope text-muted"></i> ${escapeHtml(user.email)}</span>` : ''}
-                                        </div>
-                                    </div>
-                                </label>`;
+                        <label class="d-flex align-items-center p-2 rounded-3 border bg-light-subtle h-100 cursor-pointer user-select-none">
+                            <input type="checkbox" name="SelectedUserIds" value="${user.userId}" class="form-check-input me-3 user-checkbox" style="transform: scale(1.15);" />
+                            <div class="flex-grow-1 overflow-hidden">
+                                <div class="fw-bold text-dark text-truncate">${escapeHtml(user.fullName)}</div>
+                                <div class="text-muted extra-small">
+                                    <span class="badge bg-secondary-subtle text-secondary me-1">&#64;${escapeHtml(user.userName)}</span>
+                                    ${user.phoneNumber ? `<span class="me-1"><i class="bi bi-telephone text-muted"></i> ${escapeHtml(user.phoneNumber)}</span>` : ''}
+                                    ${user.email ? `<span><i class="bi bi-envelope text-muted"></i> ${escapeHtml(user.email)}</span>` : ''}
+                                </div>
+                            </div>
+                        </label>`;
                     rowDiv.appendChild(col);
                 });
 
                 usersContainer.appendChild(rowDiv);
 
-                // Attach checkbox listeners
                 document.querySelectorAll('.user-checkbox').forEach(cb => {
                     cb.addEventListener('change', updateSelectedCount);
                 });
@@ -251,26 +209,22 @@
                 updateSelectedCount();
             }
 
-            // Helper to reset container
             function resetUsersContainer(message) {
                 usersHeader.classList.add('d-none');
                 usersContainer.innerHTML = `
-                            <div class="text-center py-5 text-muted">
-                                <i class="bi bi-person-lines-fill fs-1 d-block mb-2 text-secondary opacity-50"></i>
-                                <span class="fw-semibold">${message}</span>
-                            </div>`;
+                    <div class="text-center py-5 text-muted">
+                        <i class="bi bi-person-lines-fill fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                        <span class="fw-semibold">${message}</span>
+                    </div>`;
                 updateSelectedCount();
             }
 
-            // 4. Update Selected Counter
             function updateSelectedCount() {
                 const checkboxes = document.querySelectorAll('.user-checkbox');
                 const checked = document.querySelectorAll('.user-checkbox:checked');
-                const total = checkboxes.length;
-                selectedBadge.textContent = `Selected: ${checked.length} of ${total}`;
+                selectedBadge.textContent = `Selected: ${checked.length} of ${checkboxes.length}`;
             }
 
-            // 5. Select All & Deselect All
             selectAllBtn.addEventListener('click', function() {
                 document.querySelectorAll('.user-card-item:not(.d-none) .user-checkbox').forEach(cb => cb.checked = true);
                 updateSelectedCount();
@@ -281,7 +235,6 @@
                 updateSelectedCount();
             });
 
-            // 6. User Live Search Filter
             userSearchInput.addEventListener('input', function() {
                 const query = this.value.toLowerCase().trim();
                 document.querySelectorAll('.user-card-item').forEach(item => {
@@ -294,7 +247,6 @@
                 });
             });
 
-            // 7. Character Counters
             msgTitle.addEventListener('input', function() {
                 titleCounter.textContent = `${this.value.length} / 150`;
             });
@@ -303,12 +255,11 @@
                 bodyCounter.textContent = `${this.value.length} / 1000`;
             });
 
-            // 8. Form Submit Validation
             broadcastForm.addEventListener('submit', function(e) {
                 const checked = document.querySelectorAll('.user-checkbox:checked');
                 if (checked.length === 0) {
                     e.preventDefault();
-                    alert('Please select at least one recipient user before sending the broadcast.');
+                    alert('Please select at least one recipient user.');
                 }
             });
 

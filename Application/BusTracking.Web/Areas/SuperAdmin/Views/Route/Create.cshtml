@@ -1,52 +1,93 @@
-@* ── Route/Create.cshtml ────────────────────────────────────────────── *@
 @model BusTracking.Common.DTOs.Route.CreateRouteDto
 @{
-    ViewData["Title"] = "Add Route"; ViewData["Breadcrumb"] = "Routes / Add";
+    ViewData["Title"] = "Add New Route";
 }
-<div class="row">
-    <div class="col-lg-12">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4"><i class="bi bi-map me-2 text-primary"></i>Add New Route</div>
-            <div class="card-body p-4">
+
+<div class="container-fluid p-0">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold m-0 text-dark">
+                <i class="bi bi-map text-primary me-2"></i>Add New Route
+            </h2>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small text-muted">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index")" class="text-decoration-none text-muted">Routes</a></li>
+                    <li class="breadcrumb-item active text-primary" aria-current="page">Add Route</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary rounded-3 px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="card-body p-4">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+
                 @if (!ViewData.ModelState.IsValid)
                 {
-                    <div asp-validation-summary="All" class="alert alert-danger py-2 border-0"></div>
+                    <div class="alert alert-danger py-2 border-0 rounded-3 mb-4" style="background-color: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                        <div asp-validation-summary="All"></div>
+                    </div>
                 }
-                <form asp-action="Create" method="post">
-                    @Html.AntiForgeryToken()
+
+                <!-- Section 1: Route Basic Info -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-geo-alt me-2"></i>Route Identification</h6>
                     <div class="row g-3">
-                        <div class="col-md-8">
-                            <label asp-for="RouteName" class="form-label fw-semibold">Route Name <span class="text-danger">*</span></label>
-                            <input asp-for="RouteName" class="form-control" placeholder="e.g. North Zone Route A" />
+                        <div class="col-md-8 col-12">
+                            <label asp-for="RouteName" class="form-label fw-bold">Route Name <span class="text-danger">*</span></label>
+                            <input asp-for="RouteName" class="form-control rounded-3" placeholder="e.g. North Zone Route A" required />
                             <span asp-validation-for="RouteName" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="RouteCode" class="form-label fw-semibold">Route Code <span class="text-danger">*</span></label>
-                            <input asp-for="RouteCode" class="form-control" placeholder="e.g. NZ-A" />
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="RouteCode" class="form-label fw-bold">Route Code <span class="text-danger">*</span></label>
+                            <input asp-for="RouteCode" class="form-control rounded-3" placeholder="e.g. NZ-A" required />
                             <span asp-validation-for="RouteCode" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="MorningTime" class="form-label fw-semibold"><i class="bi bi-sunrise me-1 text-warning"></i>Morning Departure</label>
-                            <input asp-for="MorningTime" type="time" class="form-control" />
+                    </div>
+                </div>
+
+                <!-- Section 2: Departure Schedule -->
+                <div class="mb-4 pt-3 border-top">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-clock me-2"></i>Departure Schedule</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6 col-12">
+                            <label asp-for="MorningTime" class="form-label fw-bold"><i class="bi bi-sunrise me-1 text-warning"></i>Morning Pickup Time</label>
+                            <input asp-for="MorningTime" type="time" class="form-control rounded-3" />
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="EveningTime" class="form-label fw-semibold"><i class="bi bi-sunset me-1 text-secondary"></i>Evening Departure</label>
-                            <input asp-for="EveningTime" type="time" class="form-control" />
+
+                        <div class="col-md-6 col-12">
+                            <label asp-for="EveningTime" class="form-label fw-bold"><i class="bi bi-sunset me-1 text-secondary"></i>Evening Drop Time</label>
+                            <input asp-for="EveningTime" type="time" class="form-control rounded-3" />
                         </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Description -->
+                <div class="mb-4 pt-3 border-top">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-text-paragraph me-2"></i>Additional Notes</h6>
+                    <div class="row g-3">
                         <div class="col-12">
-                            <label asp-for="Description" class="form-label fw-semibold">Description</label>
-                            <textarea asp-for="Description" class="form-control" rows="2" placeholder="Optional description…"></textarea>
+                            <label asp-for="Description" class="form-label fw-bold">Route Description</label>
+                            <textarea asp-for="Description" class="form-control rounded-3" rows="3" placeholder="Optional notes regarding key landmarks or instructions..."></textarea>
                         </div>
                     </div>
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary px-4"><i class="bi bi-check2 me-1"></i>Save Route</button>
-                        <a asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
-                    </div>
-                </form>
-            </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 border-top pt-4">
+                    <a href="@Url.Action("Index")" class="btn btn-light rounded-3 px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary rounded-3 px-4 shadow-sm"><i class="bi bi-check-circle me-2"></i>Save Route</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }

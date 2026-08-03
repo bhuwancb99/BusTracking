@@ -7,14 +7,14 @@
 <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
         <h2 class="fw-bold m-0"><i class="bi bi-fuel-pump-fill text-primary me-2"></i>Fuel & Mileage Logs</h2>
-        <p class="text-secondary small mb-0">Track fuel fills, expenditure, and km/liter mileage efficiency</p>
+        <p class="text-secondary small mb-0">Track fuel fills, expenditure, and km/liter mileage efficiency across all buses</p>
     </div>
     <button type="button" class="btn btn-primary rounded-3" data-bs-toggle="modal" data-bs-target="#addFuelModal">
         <i class="bi bi-plus-circle me-2"></i>Record Fuel Fill
     </button>
 </div>
 
-<div class="premium-card rounded-4 border-0 p-4 mb-4">
+<div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
     <form method="get" class="row g-2 align-items-center">
         <div class="col-md-8">
             <select name="busId" class="form-select">
@@ -198,9 +198,9 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function() {
         document.querySelectorAll(".edit-fuel-btn").forEach(btn => {
-            btn.addEventListener("click", function () {
+            btn.addEventListener("click", function() {
                 document.getElementById("editFuelLogId").value = this.dataset.id;
                 document.getElementById("editBusId").value = this.dataset.busid;
                 document.getElementById("editOdometerReading").value = this.dataset.odometer;

@@ -43,7 +43,9 @@ namespace BusTracking.Common.Services
                     LicenseNumber = u.DriverDetail != null ? u.DriverDetail.LicenseNumber : null,
                     LicenseExpiry = u.DriverDetail != null && u.DriverDetail.LicenseExpiry.HasValue ? u.DriverDetail.LicenseExpiry.Value.ToString("yyyy-MM-dd") : null,
                     IsActive = u.IsActive,
-                    ProfileImageUrl = u.ProfileImageUrl
+                    ProfileImageUrl = u.ProfileImageUrl,
+                    BusName = _db.BusDriverMappings.Where(dm => dm.DriverUserId == u.UserId).Select(dm => dm.Bus.BusName).FirstOrDefault(),
+                    BusNumber = _db.BusDriverMappings.Where(dm => dm.DriverUserId == u.UserId).Select(dm => dm.Bus.BusNumber).FirstOrDefault()
                 }).ToListAsync();
             return ApiResponse<PagedResult<DriverListDto>>.Ok(new PagedResult<DriverListDto>
             {
@@ -60,6 +62,11 @@ namespace BusTracking.Common.Services
         {
             var u = await _db.Users.Include(x => x.DriverDetail).FirstOrDefaultAsync(x => x.UserId == userId);
             if (u is null) return ApiResponse<DriverListDto>.Fail("Not found.");
+
+            var busMapping = await _db.BusDriverMappings
+                .Include(m => m.Bus)
+                .FirstOrDefaultAsync(m => m.DriverUserId == userId);
+
             return ApiResponse<DriverListDto>.Ok(new DriverListDto
             {
                 UserId = u.UserId,
@@ -70,7 +77,9 @@ namespace BusTracking.Common.Services
                 LicenseNumber = u.DriverDetail?.LicenseNumber,
                 LicenseExpiry = u.DriverDetail?.LicenseExpiry?.ToString("yyyy-MM-dd"),
                 IsActive = u.IsActive,
-                ProfileImageUrl = u.ProfileImageUrl
+                ProfileImageUrl = u.ProfileImageUrl,
+                BusName = busMapping?.Bus?.BusName,
+                BusNumber = busMapping?.Bus?.BusNumber
             });
         }
 
@@ -170,15 +179,23 @@ namespace BusTracking.Common.Services
 
         public async Task<ApiResponse<bool>> AssignBusAsync(AssignBusToDriverDto dto)
         {
-            if (dto.BusId.HasValue)
+            var existing = await _db.BusDriverMappings.Where(dm => dm.DriverUserId == dto.DriverUserId).ToListAsync();
+            if (existing.Count > 0)
             {
-                if (!await _db.BusDriverMappings.AnyAsync(dm => dm.BusId == dto.BusId.Value && dm.DriverUserId == dto.DriverUserId))
-                {
-                    _db.BusDriverMappings.Add(new BusDriverMapping { BusId = dto.BusId.Value, DriverUserId = dto.DriverUserId });
-                    await _db.SaveChangesAsync();
-                }
+                _db.BusDriverMappings.RemoveRange(existing);
             }
-            return ApiResponse<bool>.Ok(true, "Bus assigned.");
+
+            if (dto.BusId.HasValue && dto.BusId.Value > 0)
+            {
+                _db.BusDriverMappings.Add(new BusDriverMapping
+                {
+                    BusId = dto.BusId.Value,
+                    DriverUserId = dto.DriverUserId,
+                    SchoolId = _currentUser.SchoolId
+                });
+            }
+            await _db.SaveChangesAsync();
+            return ApiResponse<bool>.Ok(true, dto.BusId.HasValue ? "Bus assigned successfully." : "Bus unassigned successfully.");
         }
 
         public async Task<ApiResponse<List<DriverDropdownDto>>> GetDropdownAsync(string? search)

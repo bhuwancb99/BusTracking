@@ -111,12 +111,14 @@ namespace BusTracking.Common.Services
             if (usernameExists)
                 return ApiResponse<TeacherDto>.Fail("Username already exists in the system.");
 
-            // Create User account (RoleId = 3 for Teacher)
+            var roleId = await _db.Roles.Where(r => r.RoleName == "Teacher").Select(r => r.RoleId).FirstAsync();
+
+            // Create User account
             var (hash, salt) = _pwd.HashPassword(dto.Password);
             var user = new User
             {
                 SchoolId = dto.SchoolId,
-                RoleId = 3, // RoleId = 3 is Teacher
+                RoleId = roleId,
                 FullName = dto.FullName.Trim(),
                 UserName = dto.UserName.Trim(),
                 Email = dto.Email?.Trim(),

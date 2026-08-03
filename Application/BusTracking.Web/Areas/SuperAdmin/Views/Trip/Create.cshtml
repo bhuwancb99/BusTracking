@@ -1,156 +1,138 @@
 @model BusTracking.Common.DTOs.Trip.CreateTripDto
 @{
-    ViewData["Title"] = "Create Trip";
+    ViewData["Title"] = "Create New Trip";
 }
 
-<div class="row">
-    <div class="col-lg-12">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
-                <i class="bi bi-plus-circle me-2 text-primary"></i>Create New Trip
-            </div>
-            <div class="card-body p-4">
-                @if (!ViewData.ModelState.IsValid)
-                {
-                    <div asp-validation-summary="All" class="alert alert-danger py-2 border-0"></div>
-                }
+<div class="container-fluid p-0">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold m-0 text-dark">
+                <i class="bi bi-bus-front text-primary me-2"></i>Create New Trip
+            </h2>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small text-muted">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index")" class="text-decoration-none text-muted">Trips</a></li>
+                    <li class="breadcrumb-item active text-primary" aria-current="page">Create Trip</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary rounded-3 px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
 
-                <div class="alert alert-info border-0 py-2 small mb-4">
-                    <i class="bi bi-info-circle me-1"></i>
-                    Creating a trip will <strong>automatically</strong> add all students assigned to the
-                    selected bus and all stops on the route. You can then manage boarding status per student.
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="card-body p-4">
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger py-2 border-0 rounded-3 mb-4" style="background-color: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                    <div asp-validation-summary="All"></div>
                 </div>
+            }
 
-                <form asp-area="SuperAdmin" asp-controller="Trip" asp-action="Create"
-                      method="post" id="createTripForm">
-                    @Html.AntiForgeryToken()
+            <div class="alert alert-info border-0 rounded-3 py-3 mb-4 bg-info-subtle text-info border-start border-4 border-info">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+                    <div>
+                        <strong>Automatic Roster Sync:</strong> Creating a trip will automatically associate assigned students and route stops for live boarding management.
+                    </div>
+                </div>
+            </div>
+
+            <form asp-action="Create" method="post" id="createTripForm">
+                @Html.AntiForgeryToken()
+
+                <!-- Section 1: Trip Schedule & Type -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-calendar-event me-2"></i>Schedule & Trip Category</h6>
                     <div class="row g-3">
-
-                        <!-- Trip Date -->
-                        <div class="col-md-4">
-                            <label asp-for="TripDate" class="form-label fw-semibold">
-                                Trip Date <span class="text-danger">*</span>
-                            </label>
-                            <input asp-for="TripDate" type="date" class="form-control"
+                        <div class="col-md-4 col-12">
+                            <label asp-for="TripDate" class="form-label fw-bold">Trip Date <span class="text-danger">*</span></label>
+                            <input asp-for="TripDate" type="date" class="form-control rounded-3"
                                    min="@DateTime.Today.AddDays(-7).ToString("yyyy-MM-dd")"
-                                   max="@DateTime.Today.AddDays(30).ToString("yyyy-MM-dd")" />
+                                   max="@DateTime.Today.AddDays(30).ToString("yyyy-MM-dd")" required />
                             <span asp-validation-for="TripDate" class="text-danger small"></span>
                         </div>
 
-                        <!-- Trip Type -->
-                        <div class="col-md-8">
-                            <label asp-for="TripType" class="form-label fw-semibold">
-                                Trip Type <span class="text-danger">*</span>
-                            </label>
-                            <div class="d-flex gap-3 mt-1 flex-nowrap">
+                        <div class="col-md-8 col-12">
+                            <label asp-for="TripType" class="form-label fw-bold">Trip Type <span class="text-danger">*</span></label>
+                            <div class="d-flex gap-3 mt-1 flex-wrap">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" asp-for="TripType"
-                                           value="Morning" id="typeMorning" />
-                                    <label class="form-check-label fw-semibold" for="typeMorning"
-                                           style="color:#e65100">
-                                        <i class="bi bi-sunrise me-1"></i>Morning
+                                    <input class="form-check-input" type="radio" asp-for="TripType" value="Morning" id="typeMorning" required />
+                                    <label class="form-check-label fw-semibold text-warning" for="typeMorning">
+                                        <i class="bi bi-sunrise me-1"></i>Morning Pickup
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" asp-for="TripType"
-                                           value="Evening" id="typeEvening" />
-                                    <label class="form-check-label fw-semibold" for="typeEvening"
-                                           style="color:#3949ab">
-                                        <i class="bi bi-sunset me-1"></i>Evening
+                                    <input class="form-check-input" type="radio" asp-for="TripType" value="Evening" id="typeEvening" />
+                                    <label class="form-check-label fw-semibold text-primary" for="typeEvening">
+                                        <i class="bi bi-sunset me-1"></i>Evening Drop
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" asp-for="TripType"
-                                           value="SpecialEvent" id="typeSpecialEvent" />
-                                    <label class="form-check-label fw-semibold" for="typeSpecialEvent"
-                                           style="color:#c2185b">
+                                    <input class="form-check-input" type="radio" asp-for="TripType" value="SpecialEvent" id="typeSpecialEvent" />
+                                    <label class="form-check-label fw-semibold text-danger" for="typeSpecialEvent">
                                         <i class="bi bi-star-fill me-1"></i>Special Event
                                     </label>
                                 </div>
                                 <div class="form-check">
-                                    <input class="form-check-input" type="radio" asp-for="TripType"
-                                           value="ExamRoute" id="typeExamRoute" />
-                                    <label class="form-check-label fw-semibold" for="typeExamRoute"
-                                           style="color:#00695c">
+                                    <input class="form-check-input" type="radio" asp-for="TripType" value="ExamRoute" id="typeExamRoute" />
+                                    <label class="form-check-label fw-semibold text-success" for="typeExamRoute">
                                         <i class="bi bi-journal-text me-1"></i>Exam Route
                                     </label>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Bus selector -->
-                        <div class="col-md-12">
-                            <label asp-for="BusId" class="form-label fw-semibold">
-                                Bus <span class="text-danger">*</span>
-                            </label>
-                            <select asp-for="BusId" id="busSelect" class="form-select"
-                                    asp-items="@(ViewBag.Buses as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])">
+                <!-- Section 2: Bus, Driver & Route Selection -->
+                <div class="mb-4 pt-3 border-top">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-diagram-3 me-2"></i>Resource Assignment</h6>
+                    <div class="row g-3">
+                        <div class="col-md-12 col-12">
+                            <label asp-for="BusId" class="form-label fw-bold">Select Bus <span class="text-danger">*</span></label>
+                            <select asp-for="BusId" id="busSelect" class="form-select rounded-3"
+                                    asp-items="@(ViewBag.Buses as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])" required>
                                 <option value="">-- Select a Bus --</option>
                             </select>
                             <span asp-validation-for="BusId" class="text-danger small"></span>
-                            <!-- Bus info preview -->
                             <div id="busInfoPreview" class="mt-2 d-none">
-                                <div class="p-2 bg-light rounded small d-flex gap-3" id="busInfoBox"></div>
+                                <div class="p-2 bg-light rounded-3 small d-flex gap-3 border" id="busInfoBox"></div>
                             </div>
                         </div>
 
-                        <!-- Driver selector — auto-filtered by bus assignment -->
-                        <div class="col-md-4">
-                            <label asp-for="DriverId" class="form-label fw-semibold">
-                                Driver <span class="text-danger">*</span>
-                            </label>
-                            <select asp-for="DriverId" id="driverSelect" class="form-select"
-                                    asp-items="@(ViewBag.Drivers as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])">
+                        <div class="col-md-6 col-12">
+                            <label asp-for="DriverId" class="form-label fw-bold">Assign Driver <span class="text-danger">*</span></label>
+                            <select asp-for="DriverId" id="driverSelect" class="form-select rounded-3"
+                                    asp-items="@(ViewBag.Drivers as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])" required>
                                 <option value="">-- Select a Driver --</option>
                             </select>
                             <span asp-validation-for="DriverId" class="text-danger small"></span>
                         </div>
 
-                        <!-- Route selector — auto-filled from bus -->
-                        <div class="col-md-4">
-                            <label asp-for="RouteId" class="form-label fw-semibold">
-                                Route <span class="text-danger">*</span>
-                            </label>
-                            <select asp-for="RouteId" id="routeSelect" class="form-select"
-                                    asp-items="@(ViewBag.Routes as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])">
+                        <div class="col-md-6 col-12">
+                            <label asp-for="RouteId" class="form-label fw-bold">Assign Route <span class="text-danger">*</span></label>
+                            <select asp-for="RouteId" id="routeSelect" class="form-select rounded-3"
+                                    asp-items="@(ViewBag.Routes as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])" required>
                                 <option value="">-- Select a Route --</option>
                             </select>
                             <span asp-validation-for="RouteId" class="text-danger small"></span>
-                            <small id="routeHint" class="text-muted d-none">
-                                <i class="bi bi-check-circle text-success me-1"></i>
-                                Auto-filled from bus assignment.
-                            </small>
                         </div>
 
-                        <!-- Stops preview (loaded after bus selected) -->
                         <div class="col-12" id="stopsPreview" style="display:none">
-                            <label class="form-label fw-semibold text-muted small">
-                                <i class="bi bi-signpost-split me-1"></i>Stops on this route
-                                (will be auto-added to trip)
-                            </label>
-                            <div id="stopsPreviewList" class="d-flex flex-wrap gap-2"></div>
+                            <label class="form-label fw-bold text-muted small"><i class="bi bi-geo-alt me-1"></i>Route Stops Preview</label>
+                            <div id="stopsPreviewList" class="d-flex flex-wrap gap-2 p-3 bg-light rounded-4 border"></div>
                         </div>
-
-                        <!-- Students preview -->
-                        <div class="col-12" id="studentsPreview" style="display:none">
-                            <label class="form-label fw-semibold text-muted small">
-                                <i class="bi bi-mortarboard me-1"></i>Students on this bus
-                                (will be auto-added to trip)
-                            </label>
-                            <div id="studentsPreviewList" class="d-flex flex-wrap gap-2"></div>
-                        </div>
-
                     </div>
+                </div>
 
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary px-4">
-                            <i class="bi bi-check2 me-1"></i>Create Trip
-                        </button>
-                        <a asp-area="SuperAdmin" asp-controller="Trip" asp-action="Index"
-                           class="btn btn-outline-secondary px-4">Cancel</a>
-                    </div>
-                </form>
-            </div>
+                <div class="d-flex justify-content-end gap-2 border-top pt-4">
+                    <a href="@Url.Action("Index")" class="btn btn-light rounded-3 px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary rounded-3 px-4 shadow-sm"><i class="bi bi-check-circle me-2"></i>Create Trip</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -158,7 +140,7 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        const areaPrefix = '/SuperAdmin/Trip';
+        const areaPrefix = '@Url.Action("Index").Replace("/Index", "")';
 
         async function loadStopsForRoute(routeId) {
             const stopsBox = document.getElementById('stopsPreviewList');
@@ -174,19 +156,15 @@
                 if (stops && stops.length > 0) {
                     stops.forEach(s => {
                         stopsBox.innerHTML +=
-                            `<span class="badge rounded-pill px-3 py-2"
-                                           style="background:#e8f0fe;color:#1a73e8;font-size:.8rem">
-                                         <i class="bi bi-geo-alt me-1"></i>
-                                         #${s.stopOrder} ${s.stopName}
-                                     </span>`;
+                            `<span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-2">
+                                <i class="bi bi-geo-alt me-1"></i>#${s.stopOrder} ${s.stopName}
+                             </span>`;
                     });
                     document.getElementById('stopsPreview').style.display = 'block';
                 } else {
                     document.getElementById('stopsPreview').style.display = 'none';
                 }
-            } catch (err) {
-                console.error(err);
-            }
+            } catch (err) { console.error(err); }
         }
 
         document.getElementById('busSelect').addEventListener('change', async function() {
@@ -204,7 +182,6 @@
                 return;
             }
 
-            // Fetch drivers for selected bus
             try {
                 const driverRes = await fetch(`${areaPrefix}/GetDriversForBus?busId=${busId}`);
                 const drivers = await driverRes.json();
@@ -215,7 +192,6 @@
                         opt.textContent = d.display;
                         driverSelect.appendChild(opt);
                     });
-                    // Auto-select first driver and trigger change
                     driverSelect.selectedIndex = 1;
                     driverSelect.dispatchEvent(new Event('change'));
                 }
@@ -242,7 +218,6 @@
 
             routeSelect.disabled = false;
 
-            // Fetch assigned routes for the bus
             try {
                 const routeRes = await fetch(`${areaPrefix}/GetRoutesForBus?busId=${busId}`);
                 const routes = await routeRes.json();

@@ -33,15 +33,19 @@
                 <span class="badge bg-success text-white">New Parent</span>
             </div>
             <div class="row g-3">
-                <div class="col-md-4 col-6">
+                <div class="col-md-3 col-6">
                     <small class="text-muted d-block">Full Name</small>
                     <span class="fw-bold text-dark">@newUser.FullName</span>
                 </div>
-                <div class="col-md-4 col-6">
+                <div class="col-md-3 col-6">
+                    <small class="text-muted d-block">Role</small>
+                    <span class="badge bg-info-subtle text-info border border-info-subtle font-monospace">@newUser.Role</span>
+                </div>
+                <div class="col-md-3 col-6">
                     <small class="text-muted d-block">Username / Email</small>
                     <span class="fw-semibold text-dark">@newUser.Email</span>
                 </div>
-                <div class="col-md-4 col-6">
+                <div class="col-md-3 col-6">
                     <small class="text-muted d-block">Password</small>
                     <div class="d-flex align-items-center gap-2">
                         <span id="pwdDisplay" class="fw-bold font-monospace text-dark">••••••••••••</span>
@@ -61,7 +65,7 @@
             <div class="col-md-7 col-lg-8">
                 <div class="input-group">
                     <span class="input-group-text bg-light border-0"><i class="bi bi-search text-muted"></i></span>
-                    <input type="text" name="search" value="@ViewBag.Search" class="form-control bg-light border-0" placeholder="Search by parent name, email, or phone..." />
+                    <input type="text" name="search" value="@ViewBag.Search" class="form-control bg-light border-0" placeholder="Search by parent name, email, or student..." />
                 </div>
             </div>
             <div class="col-md-5 col-lg-4 d-flex gap-2">
@@ -79,11 +83,11 @@
                 <tr class="text-uppercase fs-7 text-muted fw-bold">
                     <th style="width: 65px;" class="ps-4">Photo</th>
                     <th>Parent Name</th>
+                    <th>Username</th>
                     <th>Email</th>
-                    <th>Phone</th>
-                    <th>Linked Children</th>
+                    <th>Linked Students</th>
                     <th style="width: 100px;" class="text-center">Status</th>
-                    <th style="width: 100px;" class="text-center pe-4">Actions</th>
+                    <th style="width: 160px;" class="text-center pe-4">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -115,19 +119,23 @@
                                 }
                             </td>
                             <td class="fw-bold text-dark fs-6">@parent.FullName</td>
-                            <td class="text-secondary">@(string.IsNullOrWhiteSpace(parent.Email) ? "-" : parent.Email)</td>
-                            <td class="text-secondary">@(string.IsNullOrWhiteSpace(parent.PhoneNumber) ? "-" : parent.PhoneNumber)</td>
                             <td>
-                                @if (parent.Students.Count == 0)
+                                <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace px-2 py-1">@@@parent.UserName</span>
+                            </td>
+                            <td class="text-secondary">@(string.IsNullOrWhiteSpace(parent.Email) ? "-" : parent.Email)</td>
+                            <td>
+                                @if (parent.Students != null && parent.Students.Any())
                                 {
-                                    <span class="text-muted small">None linked</span>
+                                    @foreach (var st in parent.Students)
+                                    {
+                                        <span class="badge bg-info-subtle text-info border border-info-subtle me-1 mb-1">
+                                            <i class="bi bi-mortarboard me-1"></i>@st.FullName (@st.StudentCode)
+                                        </span>
+                                    }
                                 }
                                 else
                                 {
-                                    @foreach (var student in parent.Students)
-                                    {
-                                        <span class="badge bg-secondary-subtle text-dark border me-1 font-monospace">@student.FullName</span>
-                                    }
+                                    <span class="text-muted small">No students linked</span>
                                 }
                             </td>
                             <td class="text-center">
@@ -136,9 +144,18 @@
                                 </div>
                             </td>
                             <td class="text-center pe-4">
-                                <a href="@Url.Action("Edit", new { id = parent.UserId })" class="btn btn-outline-primary btn-sm rounded-3 px-2 py-1" title="Edit Parent">
+                                <a href="@Url.Action("Details", new { id = parent.UserId })" class="btn btn-outline-info btn-sm rounded-3 px-2 py-1 me-1" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="@Url.Action("Edit", new { id = parent.UserId })" class="btn btn-outline-primary btn-sm rounded-3 px-2 py-1 me-1" title="Edit Parent">
                                     <i class="bi bi-pencil-fill"></i>
                                 </a>
+                                <form asp-action="Delete" asp-route-id="@parent.UserId" method="post" class="d-inline" onsubmit="return confirm('Delete or deactivate parent \'@parent.FullName\'?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-3 px-2 py-1" title="Delete Parent">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     }

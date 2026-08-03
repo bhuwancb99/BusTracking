@@ -1,133 +1,149 @@
-@* SuperAdmin/Views/Driver/Details.cshtml — UPDATED *@
 @model BusTracking.Common.DTOs.Driver.DriverListDto
 @{
-    ViewData["Title"] = "Driver Details";
-    var thumbUrl = Model?.ProfileImageUrl?.Replace("_medium.webp", "_thumb.webp");
+    ViewData["Title"] = "Driver Details - " + Model.FullName;
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0"><i class="bi bi-person-video2 me-2 text-success"></i>Driver Profile</h4>
-    <div class="d-flex gap-2">
-        <a asp-area="SuperAdmin" asp-action="Edit" asp-route-id="@Model?.UserId" class="btn btn-outline-warning btn-sm"><i class="bi bi-pencil me-1"></i>Edit</a>
-        <a asp-area="SuperAdmin" asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left me-1"></i>Back</a>
+<div class="container-fluid p-0">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold m-0 text-dark">
+                <i class="bi bi-person-video2 text-primary me-2"></i>Driver Profile Details
+            </h2>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small text-muted">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index")" class="text-decoration-none text-muted">Drivers</a></li>
+                    <li class="breadcrumb-item active text-primary" aria-current="page">Driver Details</li>
+                </ol>
+            </nav>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="@Url.Action("Edit", new { id = Model.UserId })" class="btn btn-primary rounded-3 px-3 shadow-sm">
+                <i class="bi bi-pencil-fill me-1"></i> Edit Profile
+            </a>
+            <a href="@Url.Action("Index")" class="btn btn-outline-secondary rounded-3 px-3">
+                <i class="bi bi-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
     </div>
-</div>
 
-@if (Model is not null)
-{
-    <div class="row g-4">
-        <div class="col-lg-5">
-            <div class="card border-0 shadow-sm">
-                <div class="card-body p-4">
-                    <div class="text-center mb-4">
-                        <!-- ── Profile photo widget ── -->
-                        <div class="position-relative d-inline-block mb-3" id="imgWidget_@Model.UserId">
-                            @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+    @if (Model is not null)
+    {
+        <div class="row g-4">
+            <div class="col-lg-4 col-12">
+                <div class="card border-0 shadow-sm rounded-4 text-center p-4 h-100">
+                    <div class="position-relative d-inline-block mx-auto mb-3" id="imgWidget_@Model.UserId">
+                        @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+                        {
+                            <img id="imgWidget_@(Model.UserId)_preview" src="@Model.ProfileImageUrl" alt="@Model.FullName"
+                                 class="rounded-circle border shadow-sm"
+                                 style="width: 110px; height: 110px; object-fit: cover;"
+                                 onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
+                        }
+                        else
+                        {
+                            <img id="imgWidget_@(Model.UserId)_preview" src="/images/default-avatar.svg" alt="@Model.FullName"
+                                 class="rounded-circle border shadow-sm"
+                                 style="width: 110px; height: 110px; object-fit: cover;" />
+                        }
+                        <label for="imgInput_@Model.UserId"
+                               class="position-absolute bottom-0 end-0 btn btn-sm btn-primary rounded-circle p-1 shadow-sm"
+                               style="width:30px;height:30px;line-height:1;cursor:pointer;" title="Change photo">
+                            <i class="bi bi-camera-fill" style="font-size:0.8rem;"></i>
+                            <input type="file" id="imgInput_@Model.UserId" class="d-none"
+                                   accept="image/jpeg,image/png,image/webp"
+                                   onchange="uploadUserProfile(@Model.UserId, this, 'imgWidget_@Model.UserId')" />
+                        </label>
+                    </div>
+                    <div id="imgWidget_@(Model.UserId)_msg" class="small mb-2"></div>
+                    @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
+                    {
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-3 mb-3"
+                                onclick="deleteUserProfile(@Model.UserId, 'imgWidget_@Model.UserId')">
+                            <i class="bi bi-trash me-1"></i>Remove Photo
+                        </button>
+                    }
+
+                    <h4 class="fw-bold text-dark mb-1">@Model.FullName</h4>
+                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace px-3 py-1 mb-2">Driver</span>
+                    <div class="d-flex justify-content-center gap-2 mt-2">
+                        <span class="badge @(Model.IsActive ? "bg-success-subtle text-success border border-success-subtle" : "bg-danger-subtle text-danger border border-danger-subtle") rounded-pill px-3 py-2">
+                            <i class="bi bi-circle-fill me-1 fs-7"></i>@(Model.IsActive ? "Active Account" : "Inactive Account")
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-8 col-12">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-card-heading me-2"></i>Personal & License Information</h6>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6 col-12">
+                                <small class="text-muted d-block">Email Address</small>
+                                <span class="fw-semibold text-dark">@(string.IsNullOrWhiteSpace(Model.Email) ? "N/A" : Model.Email)</span>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <small class="text-muted d-block">Phone Number</small>
+                                <span class="fw-semibold text-dark">@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "N/A" : Model.PhoneNumber)</span>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <small class="text-muted d-block">License Number</small>
+                                <span class="fw-bold text-dark font-monospace">@(string.IsNullOrWhiteSpace(Model.LicenseNumber) ? "N/A" : Model.LicenseNumber)</span>
+                            </div>
+                            <div class="col-md-6 col-12">
+                                <small class="text-muted d-block">License Expiry</small>
+                                <span class="fw-semibold text-dark">@(string.IsNullOrWhiteSpace(Model.LicenseExpiry) ? "N/A" : Model.LicenseExpiry)</span>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3 pt-3 border-top"><i class="bi bi-bus-front me-2"></i>Assigned Bus & Vehicle Quick Assign</h6>
+                        <div class="p-3 bg-light-subtle rounded-4 border mb-3">
+                            @if (!string.IsNullOrEmpty(Model.BusName))
                             {
-                                <img id="imgWidget_@(Model.UserId)_preview" src="@Model.ProfileImageUrl" alt="@Model.FullName"
-                                     class="rounded-circle border shadow"
-                                     style="width:80px;height:80px;object-fit:cover;"
-                                     onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="rounded-circle bg-primary-subtle text-primary p-3 d-flex align-items-center justify-content-center border border-primary-subtle" style="width:48px; height:48px;">
+                                        <i class="bi bi-bus-front fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold text-dark fs-6">@Model.BusName</div>
+                                        <span class="badge bg-primary-subtle text-primary border border-primary-subtle font-monospace">@Model.BusNumber</span>
+                                    </div>
+                                </div>
                             }
                             else
                             {
-                                <img id="imgWidget_@(Model.UserId)_preview" src="/images/default-avatar.svg" alt="@Model.FullName"
-                                     class="rounded-circle border shadow"
-                                     style="width:80px;height:80px;object-fit:cover;" />
-                            }
-                            <label for="imgInput_@Model.UserId"
-                                   class="position-absolute bottom-0 end-0 btn btn-sm btn-primary rounded-circle p-1"
-                                   style="width:26px;height:26px;line-height:1;cursor:pointer;" title="Change photo">
-                                <i class="bi bi-camera-fill" style="font-size:0.7rem;"></i>
-                                <input type="file" id="imgInput_@Model.UserId" class="d-none"
-                                       accept="image/jpeg,image/png,image/webp"
-                                       onchange="uploadUserProfile(@Model.UserId, this, 'imgWidget_@Model.UserId')" />
-                            </label>
-                        </div>
-                        <div id="imgWidget_@(Model.UserId)_msg" class="small mb-2"></div>
-                        @if (!string.IsNullOrEmpty(Model.ProfileImageUrl))
-                        {
-                            <button type="button" class="btn btn-sm btn-outline-danger mb-3"
-                                    onclick="deleteUserProfile(@Model.UserId, 'imgWidget_@Model.UserId')">
-                                <i class="bi bi-trash me-1"></i>Remove Photo
-                            </button>
-                        }
-                        <h5 class="fw-bold mb-1">@Model.FullName</h5>
-                        <span class="badge bg-success-subtle text-success me-1">Driver</span>
-                        <span class="badge @(Model.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">
-                            @(Model.IsActive ? "Active" : "Inactive")
-                        </span>
-                    </div>
-                    <table class="table table-borderless small mb-0">
-                        <tr><th class="text-muted w-40">Email</th><td>@Model.Email</td></tr>
-                        <tr><th class="text-muted">Phone</th><td>@(Model.PhoneNumber ?? "–")</td></tr>
-                        <tr><th class="text-muted">License No.</th><td>@(Model.LicenseNumber ?? "–")</td></tr>
-                        <tr><th class="text-muted">Expiry</th><td>@(Model.LicenseExpiry ?? "–")</td></tr>
-                        <tr>
-                            <th class="text-muted">Password</th>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <span id="pwdMask" class="font-monospace">••••••••••</span>
-                                    <span id="pwdReal" class="font-monospace d-none text-danger small">(Reset in Edit)</span>
-                                    <button type="button" class="btn btn-sm btn-link p-0 text-muted" id="btnTogglePwd">
-                                        <i class="bi bi-eye" id="pwdEyeIcon"></i>
-                                    </button>
+                                <div class="text-muted py-2">
+                                    <i class="bi bi-info-circle me-1"></i>No bus currently assigned to this driver.
                                 </div>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-7">
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
-                    <i class="bi bi-bus-front me-2 text-primary"></i>Assigned Bus
-                </div>
-                <div class="card-body p-4">
-                    @if (Model.BusName is not null)
-                    {
-                        <div class="d-flex align-items-center gap-3 mb-3">
-                            <div class="p-3 bg-primary-subtle rounded-circle"><i class="bi bi-bus-front text-primary fs-4"></i></div>
-                            <div>
-                                <div class="fw-semibold">@Model.BusName</div>
-                                <span class="badge bg-primary-subtle text-primary">@Model.BusNumber</span>
+                            }
+                        </div>
+
+                        <div class="row g-2 align-items-center">
+                            <div class="col-md-8 col-12 position-relative">
+                                <input type="text" id="quickBusSearch" class="form-control rounded-3" placeholder="Type bus name or plate to assign..." autocomplete="off" />
+                                <div id="quickBusSug" class="dropdown-menu w-100 shadow-sm rounded-3"></div>
+                            </div>
+                            <div class="col-md-4 col-12 d-flex gap-2">
+                                <button type="button" class="btn btn-primary rounded-3 flex-fill" id="btnAssignBus"><i class="bi bi-check2 me-1"></i>Assign</button>
+                                @if (!string.IsNullOrEmpty(Model.BusName))
+                                {
+                                    <button type="button" class="btn btn-outline-danger rounded-3" id="btnRemoveBus" title="Unassign Bus"><i class="bi bi-x-lg"></i></button>
+                                }
                             </div>
                         </div>
-                    }
-                    else
-                    {
-
-                        <div class="text-center text-muted py-3"><i class="bi bi-bus-front fs-2 d-block mb-2"></i>No bus assigned.</div>
-                    }
-                    <hr class="my-3" />
-                    <div class="fw-semibold small mb-2">Quick Assign Bus</div>
-                    <div class="d-flex gap-2">
-                        <div class="position-relative flex-grow-1">
-                            <input type="text" id="quickBusSearch" class="form-control form-control-sm" placeholder="Type bus name…" autocomplete="off" />
-                            <div id="quickBusSug" class="dropdown-menu w-100 shadow-sm"></div>
-                        </div>
-                        <button class="btn btn-sm btn-primary" id="btnAssignBus"><i class="bi bi-check2"></i> Assign</button>
-                        <button class="btn btn-sm btn-outline-danger" id="btnRemoveBus"><i class="bi bi-x"></i></button>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-}
+    }
+</div>
 
 @Html.AntiForgeryToken()
 
 @section Scripts {
     <script>
         const _tok = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
-
-        document.getElementById('btnTogglePwd').addEventListener('click', function () {
-            const mask = document.getElementById('pwdMask'), real = document.getElementById('pwdReal'), icon = document.getElementById('pwdEyeIcon');
-            const hidden = mask.classList.contains('d-none');
-            mask.classList.toggle('d-none', !hidden); real.classList.toggle('d-none', hidden);
-            icon.className = hidden ? 'bi bi-eye-slash' : 'bi bi-eye';
-        });
 
         async function uploadUserProfile(userId, input, widgetId) {
             if (!input.files || !input.files[0]) return;
@@ -155,30 +171,78 @@
 
         const driverUserId = @(Model?.UserId ?? 0);
         let selBusId = null, t;
-        document.getElementById('quickBusSearch').addEventListener('input', function () {
-            clearTimeout(t); const q = this.value.trim();
-            if (q.length < 1) { hideSug(); return; }
-            t = setTimeout(() => fetchBuses(q), 250);
-        });
+
+        const busSearchInput = document.getElementById('quickBusSearch');
+        if (busSearchInput) {
+            busSearchInput.addEventListener('input', function () {
+                clearTimeout(t); const q = this.value.trim();
+                if (q.length < 1) { hideSug(); return; }
+                t = setTimeout(() => fetchBuses(q), 250);
+            });
+        }
+
         document.addEventListener('click', e => { if (!e.target.closest('#quickBusSearch,#quickBusSug')) hideSug(); });
+
         async function fetchBuses(q) {
-            const data = await (await fetch(`/SuperAdmin/Driver/SearchBuses?q=${encodeURIComponent(q)}`)).json();
-            const box = document.getElementById('quickBusSug'); box.innerHTML = '';
-            data.forEach(b => { const a = document.createElement('a'); a.className = 'dropdown-item'; a.href = '#'; a.textContent = b.display; a.addEventListener('click', e => { e.preventDefault(); selBusId = b.busId; document.getElementById('quickBusSearch').value = b.display; hideSug(); }); box.appendChild(a); });
+            const res = await fetch('@Url.Action("SearchBuses")?q=' + encodeURIComponent(q));
+            const data = await res.json();
+            const box = document.getElementById('quickBusSug');
+            box.innerHTML = '';
+            data.forEach(b => {
+                const a = document.createElement('a');
+                a.className = 'dropdown-item py-2';
+                a.href = '#';
+                a.textContent = b.display;
+                a.addEventListener('click', e => {
+                    e.preventDefault();
+                    selBusId = b.busId;
+                    document.getElementById('quickBusSearch').value = b.display;
+                    hideSug();
+                });
+                box.appendChild(a);
+            });
             if (data.length) box.classList.add('show');
         }
-        function hideSug() { document.getElementById('quickBusSug').classList.remove('show'); }
-        document.getElementById('btnAssignBus').addEventListener('click', async () => {
-            if (!selBusId) { busTrack.showToast('Select a bus first', 'warning'); return; }
-            const res = await fetch('/SuperAdmin/Driver/AssignBus', { method: 'POST', headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _tok() }, body: JSON.stringify({ driverUserId, busId: selBusId }) });
-            const data = await res.json(); busTrack.showToast(data.message, data.success ? 'success' : 'danger');
-            if (data.success) setTimeout(() => location.reload(), 800);
-        });
-        document.getElementById('btnRemoveBus').addEventListener('click', async () => {
-            if (!confirm('Remove bus assignment?')) return;
-            const res = await fetch('/SuperAdmin/Driver/AssignBus', { method: 'POST', headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _tok() }, body: JSON.stringify({ driverUserId, busId: null }) });
-            const data = await res.json(); busTrack.showToast(data.message, data.success ? 'success' : 'danger');
-            if (data.success) setTimeout(() => location.reload(), 800);
-        });
+
+        function hideSug() {
+            const box = document.getElementById('quickBusSug');
+            if (box) box.classList.remove('show');
+        }
+
+        const assignBtn = document.getElementById('btnAssignBus');
+        if (assignBtn) {
+            assignBtn.addEventListener('click', async () => {
+                if (!selBusId) { alert('Please select a bus from the dropdown search first.'); return; }
+                const res = await fetch('@Url.Action("AssignBus")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _tok() },
+                    body: JSON.stringify({ driverUserId, busId: selBusId })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message || 'Failed to assign bus.');
+                }
+            });
+        }
+
+        const removeBtn = document.getElementById('btnRemoveBus');
+        if (removeBtn) {
+            removeBtn.addEventListener('click', async () => {
+                if (!confirm('Unassign bus from this driver?')) return;
+                const res = await fetch('@Url.Action("AssignBus")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': _tok() },
+                    body: JSON.stringify({ driverUserId, busId: null })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message || 'Failed to unassign bus.');
+                }
+            });
+        }
     </script>
 }

@@ -26,11 +26,14 @@
 
 @if (newUser is not null)
 {
-    <div class="card border-0 shadow-sm rounded-4 mb-4 bg-success-subtle border-start border-4 border-success">
+    <div id="createdUserBanner" class="card border-0 shadow-sm rounded-4 mb-4 bg-success-subtle border-start border-4 border-success position-relative">
         <div class="card-body p-4">
             <div class="d-flex align-items-center justify-content-between mb-3">
                 <h6 class="fw-bold text-success mb-0"><i class="bi bi-check-circle-fill me-2"></i>Driver Account Created Successfully</h6>
-                <span class="badge bg-success text-white">New Driver</span>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-success text-white">New Driver</span>
+                    <button type="button" class="btn-close ms-2" onclick="closeCreatedBanner()" title="Close"></button>
+                </div>
             </div>
             <div class="row g-3">
                 <div class="col-md-3 col-6">
@@ -58,6 +61,7 @@
         </div>
     </div>
 }
+
 
 <div class="card border-0 shadow-sm rounded-4 mb-4">
     <div class="card-body p-3">
@@ -88,7 +92,7 @@
                     <th>License No.</th>
                     <th>Assigned Bus</th>
                     <th style="width: 100px;" class="text-center">Status</th>
-                    <th style="width: 100px;" class="text-center pe-4">Actions</th>
+                    <th style="width: 160px;" class="text-center pe-4">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -149,9 +153,18 @@
                                 </div>
                             </td>
                             <td class="text-center pe-4">
-                                <a href="@Url.Action("Edit", new { id = driver.UserId })" class="btn btn-outline-primary btn-sm rounded-3 px-2 py-1" title="Edit Driver">
+                                <a href="@Url.Action("Details", new { id = driver.UserId })" class="btn btn-outline-info btn-sm rounded-3 px-2 py-1 me-1" title="View Details">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="@Url.Action("Edit", new { id = driver.UserId })" class="btn btn-outline-primary btn-sm rounded-3 px-2 py-1 me-1" title="Edit Driver">
                                     <i class="bi bi-pencil-fill"></i>
                                 </a>
+                                <form asp-action="Delete" asp-route-id="@driver.UserId" method="post" class="d-inline" onsubmit="return confirm('Deactivate/Delete driver \'@driver.FullName\'?')">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-3 px-2 py-1" title="Delete Driver">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     }
@@ -200,6 +213,11 @@
         function copyPwd() {
             navigator.clipboard.writeText(document.getElementById('pwdValue').value);
             alert('Password copied!');
+        }
+
+        function closeCreatedBanner() {
+            const banner = document.getElementById('createdUserBanner');
+            if (banner) banner.remove();
         }
     </script>
 }

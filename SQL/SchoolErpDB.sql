@@ -1078,6 +1078,7 @@ INSERT INTO Roles (RoleName, Description) VALUES
 ('SuperAdmin',      'Full system access'),
 ('BusCoordinator',  'Sub-admin with limited permissions assigned by SuperAdmin'),
 ('Driver',          'Mobile app user – manages bus trips'),
+('Teacher',         'Web user – academic staff / class teacher'),
 ('Parent',          'Web user – tracks kids and manages availability'),
 ('Student',         'Web user – tracks bus and manages own availability');
 GO

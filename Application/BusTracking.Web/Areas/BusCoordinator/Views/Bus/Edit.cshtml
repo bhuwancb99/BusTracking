@@ -1,118 +1,139 @@
 @model BusTracking.Common.DTOs.Bus.UpdateBusDto
-@using BusTracking.Web.Helpers
 @{
     ViewData["Title"] = "Edit Bus";
-    if (!PermissionHelper.Can(User, "bus.edit")) { Context.Response.Redirect("/BusCoordinator/Bus"); return; }
+    int busId = ViewBag.BusId ?? 0;
 }
 
-<div class="row">
-    <div class="col-lg-12">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
-                <i class="bi bi-pencil me-2 text-warning"></i>Edit Bus
-            </div>
-            <div class="card-body p-4">
+<div class="container-fluid p-0">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold m-0 text-dark">
+                <i class="bi bi-bus-front text-primary me-2"></i>Edit Bus
+            </h2>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small text-muted">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index")" class="text-decoration-none text-muted">Buses</a></li>
+                    <li class="breadcrumb-item active text-primary" aria-current="page">Edit Bus</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary rounded-3 px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="card-body p-4">
+            <form asp-action="Edit" asp-route-id="@busId" method="post" id="editForm">
+                @Html.AntiForgeryToken()
+
                 @if (!ViewData.ModelState.IsValid)
                 {
-                    <div asp-validation-summary="All" class="alert alert-danger py-2 border-0"></div>
+                    <div class="alert alert-danger py-2 border-0 rounded-3 mb-4" style="background-color: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                        <div asp-validation-summary="All"></div>
+                    </div>
                 }
-                <form asp-area="BusCoordinator" asp-action="Edit" asp-route-id="@ViewBag.BusId" method="post">
-                    @Html.AntiForgeryToken()
+
+                <!-- Section 1: Bus Information -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-bus-front me-2"></i>Bus Identification & Capacity</h6>
                     <div class="row g-3">
-                        <div class="col-md-4">
-                            <label asp-for="BusName" class="form-label fw-semibold">Bus Name <span class="text-danger">*</span></label>
-                            <input asp-for="BusName" class="form-control" />
+                        <div class="col-md-4 col-12">
+                            <label asp-for="BusName" class="form-label fw-bold">Bus Name <span class="text-danger">*</span></label>
+                            <input asp-for="BusName" class="form-control rounded-3" required />
                             <span asp-validation-for="BusName" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="BusNumber" class="form-label fw-semibold">Bus Number <span class="text-danger">*</span></label>
-                            <input asp-for="BusNumber" class="form-control" />
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="BusNumber" class="form-label fw-bold">Bus Number / Plate <span class="text-danger">*</span></label>
+                            <input asp-for="BusNumber" class="form-control rounded-3" required />
                             <span asp-validation-for="BusNumber" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="Capacity" class="form-label fw-semibold">Capacity</label>
-                            <input asp-for="Capacity" type="number" min="1" class="form-control" />
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="Capacity" class="form-label fw-bold">Seating Capacity</label>
+                            <input asp-for="Capacity" type="number" min="1" class="form-control rounded-3" />
+                            <span asp-validation-for="Capacity" class="text-danger small"></span>
                         </div>
-                        <!-- ── Bus Type dropdown ── -->
-                        <div class="col-md-4">
-                            <label asp-for="BusTypeId" class="form-label fw-semibold">Bus Type <span class="text-danger">*</span></label>
-                            <select asp-for="BusTypeId" class="form-select"
-                                    asp-items="@(ViewBag.BusTypes as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])">
+                    </div>
+                </div>
+
+                <!-- Section 2: Assignments & Status -->
+                <div class="mb-4 pt-3 border-top">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-diagram-3 me-2"></i>Bus Type, Assignments & Status</h6>
+                    <div class="row g-3">
+                        <div class="col-md-3 col-12">
+                            <label asp-for="BusTypeId" class="form-label fw-bold">Bus Type <span class="text-danger">*</span></label>
+                            <select asp-for="BusTypeId" class="form-select rounded-3"
+                                    asp-items="@(ViewBag.BusTypes as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])" required>
                                 <option value="">-- Select Bus Type --</option>
                             </select>
                             <span asp-validation-for="BusTypeId" class="text-danger small"></span>
                         </div>
-                        <!-- ── Multi-Route selection ── -->
-                        <div class="col-md-4">
-                            <label asp-for="RouteIds" class="form-label fw-semibold">
+
+                        <div class="col-md-3 col-12">
+                            <label asp-for="RouteIds" class="form-label fw-bold">
                                 Assign Routes <span class="text-danger">*</span>
-                                <small class="text-muted fw-normal ms-1">(Hold Ctrl/Cmd to select multiple)</small>
+                                <small class="text-muted fw-normal ms-1">(Hold Ctrl to select multiple)</small>
                             </label>
-                            <select asp-for="RouteIds" class="form-select" multiple style="min-height: 110px;"
+                            <select asp-for="RouteIds" class="form-select rounded-3" multiple style="min-height: 110px;"
                                     asp-items="@(ViewBag.Routes as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])">
                             </select>
                             <span asp-validation-for="RouteIds" class="text-danger small"></span>
                         </div>
 
-                        <!-- ── Multi-Driver selection ── -->
-                        <div class="col-md-4">
-                            <label asp-for="DriverUserIds" class="form-label fw-semibold">
+                        <div class="col-md-3 col-12">
+                            <label asp-for="DriverUserIds" class="form-label fw-bold">
                                 Assign Drivers <span class="text-muted fw-normal">(Optional)</span>
-                                <small class="text-muted fw-normal ms-1">(Hold Ctrl/Cmd to select multiple)</small>
+                                <small class="text-muted fw-normal ms-1">(Hold Ctrl to select multiple)</small>
                             </label>
-                            <select asp-for="DriverUserIds" class="form-select" multiple style="min-height: 110px;"
+                            <select asp-for="DriverUserIds" class="form-select rounded-3" multiple style="min-height: 110px;"
                                     asp-items="@(ViewBag.Drivers as List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem> ?? [])">
                             </select>
                             <span asp-validation-for="DriverUserIds" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">Status</label>
-                            <div class="d-flex gap-3 mt-1">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="IsActive"
-                                           value="true" id="isActiveTrue" @(Model.IsActive ? "checked" : "") />
-                                    <label class="form-check-label text-success fw-semibold" for="isActiveTrue">
-                                        <i class="bi bi-check-circle me-1"></i>Active
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="IsActive"
-                                           value="false" id="isActiveFalse" @(!Model.IsActive ? "checked" : "") />
-                                    <label class="form-check-label text-danger fw-semibold" for="isActiveFalse">
-                                        <i class="bi bi-x-circle me-1"></i>Inactive
-                                    </label>
+
+                        <div class="col-md-3 col-12">
+                            <label class="form-label fw-bold">Active Status</label>
+                            <div class="form-control rounded-3 d-flex align-items-center justify-content-between bg-light" style="min-height: 48px;">
+                                <span class="fw-semibold text-secondary small">Is Active</span>
+                                <div class="form-check form-switch mb-0">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" style="width: 40px; height: 20px; cursor: pointer;" />
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- ── Compliance & Maintenance Dates ── -->
-                    <h6 class="fw-semibold text-muted mt-4 mb-2"><i class="bi bi-shield-check me-1"></i>Compliance & Maintenance Dates</h6>
+                <!-- Section 3: Compliance & Maintenance -->
+                <div class="mb-4 pt-3 border-top">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-shield-check me-2"></i>Compliance & Maintenance Dates</h6>
                     <div class="row g-3">
-                        <div class="col-md-4">
-                            <label asp-for="InsuranceExpiryDate" class="form-label fw-semibold">Insurance Expiry Date</label>
-                            <input asp-for="InsuranceExpiryDate" type="date" class="form-control" />
+                        <div class="col-md-3 col-6">
+                            <label asp-for="InsuranceExpiryDate" class="form-label fw-bold">Insurance Expiry</label>
+                            <input asp-for="InsuranceExpiryDate" type="date" class="form-control rounded-3" />
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="FitnessExpiryDate" class="form-label fw-semibold">Fitness Certificate Expiry</label>
-                            <input asp-for="FitnessExpiryDate" type="date" class="form-control" />
+                        <div class="col-md-3 col-6">
+                            <label asp-for="FitnessExpiryDate" class="form-label fw-bold">Fitness Certificate Expiry</label>
+                            <input asp-for="FitnessExpiryDate" type="date" class="form-control rounded-3" />
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="PucExpiryDate" class="form-label fw-semibold">PUC Expiry Date</label>
-                            <input asp-for="PucExpiryDate" type="date" class="form-control" />
+                        <div class="col-md-3 col-6">
+                            <label asp-for="PucExpiryDate" class="form-label fw-bold">PUC Expiry Date</label>
+                            <input asp-for="PucExpiryDate" type="date" class="form-control rounded-3" />
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="LastServiceDate" class="form-label fw-semibold">Last Service / Maintenance Date</label>
-                            <input asp-for="LastServiceDate" type="date" class="form-control" />
+                        <div class="col-md-3 col-6">
+                            <label asp-for="LastServiceDate" class="form-label fw-bold">Last Maintenance Date</label>
+                            <input asp-for="LastServiceDate" type="date" class="form-control rounded-3" />
                         </div>
                     </div>
+                </div>
 
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="submit" class="btn btn-warning px-4"><i class="bi bi-check2 me-1"></i>Update Bus</button>
-                        <a asp-area="BusCoordinator" asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
-                    </div>
-                </form>
-            </div>
+                <div class="d-flex justify-content-end gap-2 border-top pt-4">
+                    <a href="@Url.Action("Index")" class="btn btn-light rounded-3 px-4">Cancel</a>
+                    <button type="submit" class="btn btn-primary rounded-3 px-4 shadow-sm"><i class="bi bi-save me-2"></i>Save Changes</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -120,4 +141,3 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-

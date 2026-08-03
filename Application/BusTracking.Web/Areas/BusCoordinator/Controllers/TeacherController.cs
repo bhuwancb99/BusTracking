@@ -32,6 +32,18 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            if (!PermissionHelper.Can(User, "teachers.view", HttpContext))
+                return Forbid();
+
+            var result = await _teacherService.GetTeacherByIdAsync(id);
+            if (!result.Success || result.Data == null) return NotFound();
+
+            return View(result.Data);
+        }
+
+        [HttpGet]
         public IActionResult Create()
         {
             if (!PermissionHelper.Can(User, "teachers.add", HttpContext))
@@ -48,23 +60,58 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
 
             model.SchoolId = CurrentSchoolId;
 
+            if (string.IsNullOrWhiteSpace(model.Password))
+            {
+                model.Password = "Teacher123!";
+            }
+
             if (!ModelState.IsValid)
                 return View(model);
 
-            string? avatarUrl = null;
-            if (profileImage != null && profileImage.Length > 0)
-            {
-                avatarUrl = await _imageService.SaveProfileImageAsync(profileImage, 0, "Teacher", null);
-            }
-
-            var result = await _teacherService.CreateTeacherAsync(model, avatarUrl);
-            if (!result.Success)
+            var result = await _teacherService.CreateTeacherAsync(model, null);
+            if (!result.Success || result.Data == null)
             {
                 ModelState.AddModelError("", result.Message);
                 return View(model);
             }
 
-            TempData["SuccessMessage"] = "Teacher registered successfully.";
+            if (profileImage != null && profileImage.Length > 0)
+            {
+                try
+                {
+                    var avatarUrl = await _imageService.SaveProfileImageAsync(profileImage, result.Data.UserId, "Teacher", null);
+                    var updateDto = new UpdateTeacherDto
+                    {
+                        TeacherId = result.Data.TeacherId,
+                        FullName = result.Data.FullName,
+                        UserName = result.Data.UserName,
+                        Email = result.Data.Email,
+                        PhoneNumber = result.Data.PhoneNumber,
+                        EmployeeCode = result.Data.EmployeeCode,
+                        Qualification = result.Data.Qualification,
+                        Designation = result.Data.Designation,
+                        Department = result.Data.Department,
+                        JoiningDate = result.Data.JoiningDate,
+                        Gender = result.Data.Gender,
+                        EmergencyContact = result.Data.EmergencyContact,
+                        IsActive = result.Data.IsActive
+                    };
+                    await _teacherService.UpdateTeacherAsync(updateDto, avatarUrl);
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Teacher created, but image upload failed: " + ex.Message);
+                }
+            }
+
+            TempData["CreatedUser"] = System.Text.Json.JsonSerializer.Serialize(new CreatedUserResultDto
+            {
+                FullName = result.Data.FullName,
+                Role = "Teacher",
+                Email = string.IsNullOrEmpty(result.Data.Email) ? result.Data.UserName : result.Data.Email,
+                PlainPassword = model.Password
+            });
+
             return RedirectToAction(nameof(Index));
         }
 
@@ -112,7 +159,19 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             string? avatarUrl = null;
             if (profileImage != null && profileImage.Length > 0)
             {
-                avatarUrl = await _imageService.SaveProfileImageAsync(profileImage, 0, "Teacher", null);
+                try
+                {
+                    var teacherRecord = await _teacherService.GetTeacherByIdAsync(model.TeacherId);
+                    if (teacherRecord.Success && teacherRecord.Data != null)
+                    {
+                        avatarUrl = await _imageService.SaveProfileImageAsync(profileImage, teacherRecord.Data.UserId, "Teacher", teacherRecord.Data.ProfileImageUrl);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", "Image upload failed: " + ex.Message);
+                    return View(model);
+                }
             }
 
             var result = await _teacherService.UpdateTeacherAsync(model, avatarUrl);
@@ -134,6 +193,46 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
 
             var result = await _teacherService.ToggleTeacherStatusAsync(id);
             return Json(new { success = result.Success, isActive = result.Data, message = result.Message });
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(int id)
+        {
+            if (!PermissionHelper.Can(User, "teachers.edit", HttpContext))
+                return Json(new { success = false, message = "Access denied." });
+
+            var teacher = await _teacherService.GetTeacherByIdAsync(id);
+            if (!teacher.Success || teacher.Data == null)
+                return Json(new { success = false, message = "Teacher not found." });
+
+            string newPassword = "Pass" + Random.Shared.Next(100000, 999999) + "!";
+            var updateDto = new UpdateTeacherDto
+            {
+                TeacherId = teacher.Data.TeacherId,
+                FullName = teacher.Data.FullName,
+                UserName = teacher.Data.UserName,
+                Email = teacher.Data.Email,
+                PhoneNumber = teacher.Data.PhoneNumber,
+                EmployeeCode = teacher.Data.EmployeeCode,
+                Qualification = teacher.Data.Qualification,
+                Designation = teacher.Data.Designation,
+                Department = teacher.Data.Department,
+                JoiningDate = teacher.Data.JoiningDate,
+                Gender = teacher.Data.Gender,
+                EmergencyContact = teacher.Data.EmergencyContact,
+                Password = newPassword,
+                IsActive = teacher.Data.IsActive
+            };
+
+            var r = await _teacherService.UpdateTeacherAsync(updateDto);
+            return Json(new
+            {
+                success = r.Success,
+                message = r.Message,
+                password = newPassword,
+                fullName = teacher.Data.FullName,
+                email = string.IsNullOrEmpty(teacher.Data.Email) ? teacher.Data.UserName : teacher.Data.Email
+            });
         }
 
         [HttpGet]
