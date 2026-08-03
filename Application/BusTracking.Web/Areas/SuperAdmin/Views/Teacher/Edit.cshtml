@@ -1,0 +1,227 @@
+@model BusTracking.Common.DTOs.Teacher.UpdateTeacherDto
+@{
+    ViewData["Title"] = "Edit Teacher Profile";
+    string? currentPhoto = ViewBag.ProfileImageUrl;
+    int userId = ViewBag.UserId ?? 0;
+}
+
+<div class="container-fluid p-0">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold m-0 text-dark">
+                <i class="bi bi-person-gear text-primary me-2"></i>Edit Teacher Profile
+            </h2>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small text-muted">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index")" class="text-decoration-none text-muted">Teachers</a></li>
+                    <li class="breadcrumb-item active text-primary" aria-current="page">Edit Teacher</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary rounded-3 px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="card-body p-4">
+            <form asp-action="Edit" method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="TeacherId" />
+
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger py-2 border-0 rounded-3 mb-4" style="background-color: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                        <div asp-validation-summary="All"></div>
+                    </div>
+                }
+
+                <!-- Section 1: Account Credentials -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-shield-lock me-2"></i>Account Credentials</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4 col-12">
+                            <label asp-for="FullName" class="form-label fw-bold">Full Name <span class="text-danger">*</span></label>
+                            <input asp-for="FullName" class="form-control rounded-3" required />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="UserName" class="form-label fw-bold">Username <span class="text-danger">*</span></label>
+                            <input asp-for="UserName" id="UserNameInput" class="form-control rounded-3" required autocomplete="off" />
+                            <span asp-validation-for="UserName" class="text-danger small"></span>
+                            <div id="usernameCheckMsg" class="small mt-1"></div>
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="Password" class="form-label fw-bold">Password (Optional)</label>
+                            <input asp-for="Password" type="password" class="form-control rounded-3" placeholder="Leave blank to keep unchanged" />
+                            <span asp-validation-for="Password" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Contact & Designation -->
+                <div class="mb-4 pt-3 border-top">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-briefcase me-2"></i>Designation & Contact Details</h6>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4 col-12">
+                            <label asp-for="Email" class="form-label fw-bold">Email Address</label>
+                            <input asp-for="Email" type="email" class="form-control rounded-3" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="PhoneNumber" class="form-label fw-bold">Phone Number</label>
+                            <input asp-for="PhoneNumber" class="form-control rounded-3" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="EmployeeCode" class="form-label fw-bold">Employee Code (Optional)</label>
+                            <input asp-for="EmployeeCode" class="form-control rounded-3" />
+                            <span asp-validation-for="EmployeeCode" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-4 col-12">
+                            <label asp-for="Designation" class="form-label fw-bold">Designation</label>
+                            <input asp-for="Designation" class="form-control rounded-3" />
+                            <span asp-validation-for="Designation" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="Department" class="form-label fw-bold">Department</label>
+                            <input asp-for="Department" class="form-control rounded-3" />
+                            <span asp-validation-for="Department" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="Qualification" class="form-label fw-bold">Qualification</label>
+                            <input asp-for="Qualification" class="form-control rounded-3" />
+                            <span asp-validation-for="Qualification" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Personal Details & Status -->
+                <div class="mb-4 pt-3 border-top">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-person me-2"></i>Personal Details & Status</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4 col-12">
+                            <label asp-for="Gender" class="form-label fw-bold">Gender</label>
+                            <select asp-for="Gender" class="form-select rounded-3">
+                                <option value="">-- Select Gender --</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="EmergencyContact" class="form-label fw-bold">Emergency Contact</label>
+                            <input asp-for="EmergencyContact" class="form-control rounded-3" />
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <label class="form-label fw-bold">Account Status</label>
+                            <div class="form-control rounded-3 d-flex align-items-center justify-content-between bg-light">
+                                <span class="fw-semibold text-secondary small">Active Status</span>
+                                <div class="form-check form-switch mb-0">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" style="width: 40px; height: 20px; cursor: pointer;" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Photo Upload -->
+                <div class="mb-4 pt-3 border-top">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-image me-2"></i>Profile Image</h6>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="border border-dashed rounded-3 p-4 text-center position-relative bg-light-subtle" style="cursor: pointer; border-style: dashed !important; border-color: #3d5af1 !important;">
+                                <input type="file" id="profileImage" name="profileImage" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer;" accept="image/*" onchange="previewFile(this, 'profilePreview', 'profileFileName')" />
+                                <div class="upload-content d-flex align-items-center justify-content-center gap-3">
+                                    <i class="bi bi-cloud-arrow-up-fill text-primary fs-3"></i>
+                                    <span class="fw-semibold text-secondary" id="profileFileName">Choose new profile photo...</span>
+                                </div>
+                                <div id="profilePreview" class="mt-2 @(string.IsNullOrEmpty(currentPhoto) ? "d-none" : "")">
+                                    <img src="@currentPhoto" class="rounded-circle border border-secondary shadow-sm" style="width: 60px; height: 60px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
+                                    @if (!string.IsNullOrEmpty(currentPhoto))
+                                    {
+                                        <div class="text-secondary small mt-1">Current Active Photo</div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 border-top pt-4">
+                    <a href="@Url.Action("Index")" class="btn btn-light rounded-3 px-4">Cancel</a>
+                    <button type="submit" id="submitBtn" class="btn btn-primary rounded-3 px-4 shadow-sm"><i class="bi bi-save me-2"></i>Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            var timeout = null;
+            $('#UserNameInput').on('keyup input', function() {
+                var val = $(this).val().trim();
+                var currentUserId = '@userId';
+                clearTimeout(timeout);
+
+                if (val.length === 0) {
+                    $('#usernameCheckMsg').text('');
+                    $('#submitBtn').prop('disabled', false);
+                    return;
+                }
+
+                timeout = setTimeout(function() {
+                    $.ajax({
+                        url: '@Url.Action("CheckUsername")',
+                        type: 'GET',
+                        data: { userName: val, excludeUserId: currentUserId },
+                        success: function(res) {
+                            if (res.success) {
+                                $('#usernameCheckMsg').html('<i class="bi bi-check-circle-fill me-1"></i>Username is available').removeClass('text-danger').addClass('text-success');
+                                $('#submitBtn').prop('disabled', false);
+                            } else {
+                                $('#usernameCheckMsg').html('<i class="bi bi-x-circle-fill me-1"></i>' + res.message).removeClass('text-success').addClass('text-danger');
+                                $('#submitBtn').prop('disabled', true);
+                            }
+                        }
+                    });
+                }, 400);
+            });
+        });
+
+        function previewFile(input, previewId, nameId) {
+            const file = input.files[0];
+            const previewDiv = document.getElementById(previewId);
+            const nameSpan = document.getElementById(nameId);
+            if (file) {
+                nameSpan.textContent = file.name;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewDiv.querySelector('img').src = e.target.result;
+                    previewDiv.classList.remove('d-none');
+                    const helper = previewDiv.querySelector('.text-secondary');
+                    if (helper) helper.textContent = "New Selected Photo";
+                };
+                reader.readAsDataURL(file);
+            } else {
+                nameSpan.textContent = "Choose profile image...";
+                previewDiv.classList.add('d-none');
+            }
+        }
+    </script>
+}

@@ -39,6 +39,7 @@ public class AppDbContext : DbContext
     public DbSet<NotificationSetting> NotificationSettings { get; set; }
     public DbSet<DeviceToken> DeviceTokens { get; set; }
     public DbSet<Feedback> Feedbacks { get; set; }
+    public DbSet<Teacher> Teachers { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
     public DbSet<AppConfiguration> AppConfigurations { get; set; }
     public DbSet<GlobalConfiguration> GlobalConfigurations { get; set; }
@@ -61,7 +62,10 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Permission>().ToTable("Permissions");
         modelBuilder.Entity<User>().ToTable("Users");
         modelBuilder.Entity<PasswordResetToken>().ToTable("PasswordResetTokens");
-        modelBuilder.Entity<SubAdminPermission>().ToTable("SubAdminPermissions");
+        modelBuilder.Entity<SubAdminPermission>().ToTable("SubAdminPermissions").HasKey(sp => new { sp.UserId, sp.PermissionId });
+        modelBuilder.Entity<BusRouteMapping>().ToTable("BusRouteMappings").HasKey(brm => new { brm.BusId, brm.RouteId });
+        modelBuilder.Entity<BusDriverMapping>().ToTable("BusDriverMappings").HasKey(bdm => new { bdm.BusId, bdm.DriverUserId });
+        modelBuilder.Entity<ParentStudent>().ToTable("ParentStudents").HasKey(ps => new { ps.ParentId, ps.StudentId });
         modelBuilder.Entity<BusRoute>().ToTable("Routes");
         modelBuilder.Entity<Stop>().ToTable("Stops");
         modelBuilder.Entity<Bus>().ToTable("Buses");
@@ -71,7 +75,6 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<StudentDetail>().ToTable("Students");
         modelBuilder.Entity<StandardMaster>().ToTable("StandardMasters");
         modelBuilder.Entity<ParentDetail>().ToTable("Parents");
-        modelBuilder.Entity<ParentStudent>().ToTable("ParentStudents");
         modelBuilder.Entity<StudentAvailability>().ToTable("StudentAvailabilities");
         modelBuilder.Entity<BusTrip>().ToTable("BusTrips");
         modelBuilder.Entity<TripStopEvent>().ToTable("TripStopEvents");
@@ -86,8 +89,6 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<GlobalConfiguration>().ToTable("GlobalConfigurations");
         modelBuilder.Entity<Logger>().ToTable("Logger");
         modelBuilder.Entity<BusFuelLog>().ToTable("BusFuelLogs");
-        modelBuilder.Entity<BusRouteMapping>().ToTable("BusRouteMappings");
-        modelBuilder.Entity<BusDriverMapping>().ToTable("BusDriverMappings");
 
         // ── Unique indexes ────────────────────────────────────────────
         modelBuilder.Entity<School>().HasIndex(s => s.SchoolCode).IsUnique();

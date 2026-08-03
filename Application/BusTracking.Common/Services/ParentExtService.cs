@@ -84,7 +84,7 @@ namespace BusTracking.Common.Services
             {
                 var student = await _db.Students.FirstOrDefaultAsync(s => s.StudentCode == code.Trim());
                 if (student is not null)
-                    _db.ParentStudents.Add(new ParentStudent { ParentId = parent.ParentId, StudentId = student.StudentId });
+                    _db.ParentStudents.Add(new ParentStudent { ParentId = parent.ParentId, StudentId = student.StudentId, Relationship = "Parent" });
             }
             await _db.SaveChangesAsync();
 
@@ -141,7 +141,7 @@ namespace BusTracking.Common.Services
             {
                 var student = await _db.Students.FirstOrDefaultAsync(s => s.StudentCode == code.Trim());
                 if (student is not null)
-                    _db.ParentStudents.Add(new ParentStudent { ParentId = p.ParentId, StudentId = student.StudentId });
+                    _db.ParentStudents.Add(new ParentStudent { ParentId = p.ParentId, StudentId = student.StudentId, Relationship = "Parent" });
             }
             await _db.SaveChangesAsync();
             return ApiResponse<bool>.Ok(true, "Parent updated.");

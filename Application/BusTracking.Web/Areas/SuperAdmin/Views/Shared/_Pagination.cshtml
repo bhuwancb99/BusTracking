@@ -1,4 +1,4 @@
-﻿@* ── _Pagination.cshtml ──────────────────────────────────────────────
+@* ── _Pagination.cshtml ──────────────────────────────────────────────
    Usage: <partial name="_Pagination" model="Model" />
    Preserves every current query-string parameter (search, status,
    platform, busId, date, etc.) across page links — only "page" changes.
@@ -7,10 +7,42 @@
 @model dynamic
 
 @{
-    int currentPage = (int)(Model?.PageNumber ?? 1);
-    int totalPages = (int)(Model?.TotalPages ?? 1);
-    int totalCount = (int)(Model?.TotalCount ?? 0);
-    int pageSize = (int)(Model?.PageSize ?? 10);
+    int currentPage = 1;
+    int totalPages = 1;
+    int totalCount = 0;
+    int pageSize = 10;
+
+    try
+    {
+        if (Model != null)
+        {
+            var t = (object)Model;
+            var propPage = t.GetType().GetProperty("PageNumber");
+            if (propPage != null) currentPage = Convert.ToInt32(propPage.GetValue(t));
+            else if (ViewBag.CurrentPage != null) currentPage = Convert.ToInt32(ViewBag.CurrentPage);
+
+            var propTotalPages = t.GetType().GetProperty("TotalPages");
+            if (propTotalPages != null) totalPages = Convert.ToInt32(propTotalPages.GetValue(t));
+            else if (ViewBag.TotalPages != null) totalPages = Convert.ToInt32(ViewBag.TotalPages);
+
+            var propTotalCount = t.GetType().GetProperty("TotalCount");
+            if (propTotalCount != null) totalCount = Convert.ToInt32(propTotalCount.GetValue(t));
+            else if (ViewBag.TotalItems != null) totalCount = Convert.ToInt32(ViewBag.TotalItems);
+            else if (ViewBag.TotalCount != null) totalCount = Convert.ToInt32(ViewBag.TotalCount);
+
+            var propPageSize = t.GetType().GetProperty("PageSize");
+            if (propPageSize != null) pageSize = Convert.ToInt32(propPageSize.GetValue(t));
+            else if (ViewBag.PageSize != null) pageSize = Convert.ToInt32(ViewBag.PageSize);
+        }
+    }
+    catch
+    {
+        currentPage = ViewBag.CurrentPage != null ? Convert.ToInt32(ViewBag.CurrentPage) : 1;
+        totalPages = ViewBag.TotalPages != null ? Convert.ToInt32(ViewBag.TotalPages) : 1;
+        totalCount = ViewBag.TotalItems != null ? Convert.ToInt32(ViewBag.TotalItems) : (ViewBag.TotalCount != null ? Convert.ToInt32(ViewBag.TotalCount) : 0);
+        pageSize = ViewBag.PageSize != null ? Convert.ToInt32(ViewBag.PageSize) : 10;
+    }
+
     string action = (string)(ViewContext.RouteData.Values["action"] ?? "Index");
     var pageNums = PaginationHelper.GetPageNumbers(currentPage, totalPages);
 

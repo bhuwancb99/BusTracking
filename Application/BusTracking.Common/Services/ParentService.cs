@@ -121,7 +121,7 @@ namespace BusTracking.Common.Services
                 UserId = user.UserId
             }; _db.Parents.Add(parent); await _db.SaveChangesAsync();
             foreach (var code in dto.StudentCodes.Where(c => !string.IsNullOrWhiteSpace(c)).Distinct())
-            { var s = await _db.Students.FirstOrDefaultAsync(x => x.StudentCode == code.Trim()); if (s is not null) _db.ParentStudents.Add(new ParentStudent { ParentId = parent.ParentId, StudentId = s.StudentId }); }
+            { var s = await _db.Students.FirstOrDefaultAsync(x => x.StudentCode == code.Trim()); if (s is not null) _db.ParentStudents.Add(new ParentStudent { ParentId = parent.ParentId, StudentId = s.StudentId, Relationship = "Parent" }); }
             await _db.SaveChangesAsync();
             if (dto.SendEmail && !string.IsNullOrWhiteSpace(dto.Email)) await _email.SendAsync(dto.Email!, "Your Parent Account", $"<p>Hi {dto.FullName},</p><p>Username: <b>{dto.UserName}</b><br/>Password: <b>{password}</b></p>");
             return ApiResponse<CreatedUserResultDto>.Ok(new CreatedUserResultDto
@@ -157,7 +157,7 @@ namespace BusTracking.Common.Services
             }
             _db.ParentStudents.RemoveRange(p.ParentStudents);
             foreach (var code in dto.StudentCodes.Where(c => !string.IsNullOrWhiteSpace(c)).Distinct())
-            { var s = await _db.Students.FirstOrDefaultAsync(x => x.StudentCode == code.Trim()); if (s is not null) _db.ParentStudents.Add(new ParentStudent { ParentId = p.ParentId, StudentId = s.StudentId }); }
+            { var s = await _db.Students.FirstOrDefaultAsync(x => x.StudentCode == code.Trim()); if (s is not null) _db.ParentStudents.Add(new ParentStudent { ParentId = p.ParentId, StudentId = s.StudentId, Relationship = "Parent" }); }
             await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Updated.");
         }
         public async Task<ApiResponse<bool>> DeleteAsync(int userId)

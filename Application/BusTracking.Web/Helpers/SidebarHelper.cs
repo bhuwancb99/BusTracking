@@ -11,6 +11,7 @@ public static class SidebarHelper
         {
             AppConstants.RoleSuperAdmin => SuperAdminMenu(),
             AppConstants.RoleBusCoordinator => CoordinatorMenu(user),
+            AppConstants.RoleTeacher => TeacherMenu(),
             AppConstants.RoleDriver => DriverMenu(),
             AppConstants.RoleParent => ParentMenu(),
             AppConstants.RoleStudent => StudentMenu(),
@@ -24,6 +25,7 @@ public static class SidebarHelper
         new() { Label = "App Config",       Icon = "bi-sliders",         Controller = "AppConfig",      Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Bus Types",        Icon = "bi-truck-front",     Controller = "BusType",        Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Bus Coordinators", Icon = "bi-person-badge",    Controller = "SubAdmin",       Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "Teachers",         Icon = "bi-person-workspace",Controller = "Teacher",        Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Routes",           Icon = "bi-map",             Controller = "Route",          Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Buses",            Icon = "bi-bus-front",       Controller = "Bus",            Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Drivers",          Icon = "bi-person-video2",   Controller = "Driver",         Action = "Index",   Area = "SuperAdmin" },
@@ -54,7 +56,7 @@ public static class SidebarHelper
         };
 
         // ── Order mirrors SuperAdmin sidebar exactly ──────────────────
-        // Dashboard → App Config → Sub-Admins → Routes → Buses → Bus Types
+        // Dashboard → App Config → Sub-Admins → Teachers → Routes → Buses → Bus Types
         // → Drivers → Parents → Students → Fuel & Mileage → Analytics & Reports → Trips → Notifications → Help & Support
 
         if (Has("appconfig.view"))
@@ -65,6 +67,9 @@ public static class SidebarHelper
 
         if (Has("subadmin.view"))
             menu.Add(new() { Label = "Sub-Admins", Icon = "bi-person-badge", Controller = "SubAdmin", Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("teachers.view") || Has("ManageTeachers"))
+            menu.Add(new() { Label = "Teachers", Icon = "bi-person-workspace", Controller = "Teacher", Action = "Index", Area = "BusCoordinator" });
 
         if (Has("route.view"))
             menu.Add(new() { Label = "Routes", Icon = "bi-map", Controller = "Route", Action = "Index", Area = "BusCoordinator" });
@@ -104,6 +109,14 @@ public static class SidebarHelper
 
         return menu;
     }
+
+    private static List<SidebarMenuItem> TeacherMenu() =>
+    [
+        new() { Label = "Dashboard",     Icon = "bi-speedometer2",   Controller = "Dashboard",    Action = "Index", Area = "Teacher" },
+        new() { Label = "Notifications", Icon = "bi-bell",           Controller = "Notification", Action = "Index", Area = "Teacher" },
+    ];
+
+    // ── Driver ──────────────────────────────────────────────────────────
 
     // ── Driver ──────────────────────────────────────────────────────────
     private static List<SidebarMenuItem> DriverMenu() =>

@@ -22,6 +22,7 @@ namespace BusTracking.API.Controllers
         private readonly IStandardService _standard;
         private readonly AppDbContext _db;
         private readonly IImageService _img;         // ← NEW
+        private readonly ITeacherService _teacher;
 
         private const int MAX_BUS_IMAGES = 5;               // ← NEW
 
@@ -30,11 +31,11 @@ namespace BusTracking.API.Controllers
             IStudentService student, IParentService parent, ISubAdminService subAdmin,
             ITripService trip, IFeedbackService feedback, INotificationService notif,
             IDashboardService dash, IAppConfigService config, IStandardService standard, AppDbContext db,
-            IImageService img)                               // ← NEW
+            IImageService img, ITeacherService teacher)                               // ← NEW
         {
             _bus = bus; _route = route; _driver = driver; _student = student;
             _parent = parent; _subAdmin = subAdmin; _trip = trip; _feedback = feedback;
-            _notif = notif; _dash = dash; _config = config; _standard = standard; _db = db; _img = img;
+            _notif = notif; _dash = dash; _config = config; _standard = standard; _db = db; _img = img; _teacher = teacher;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -882,6 +883,52 @@ namespace BusTracking.API.Controllers
             user.UpdatedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
             return Ok(ApiResponse<bool>.Ok(true, "Photo removed."));
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // TEACHERS
+        // ════════════════════════════════════════════════════════════
+
+        [HttpGet("teachers")]
+        public async Task<IActionResult> GetTeachers([FromQuery] int? schoolId, [FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            var targetSchoolId = schoolId ?? CurrentSchoolId;
+            var result = await _teacher.GetTeachersAsync(targetSchoolId, search, page, pageSize);
+            return Ok(new { success = true, data = result });
+        }
+
+        [HttpGet("teachers/{id:int}")]
+        public async Task<IActionResult> GetTeacherById(int id)
+        {
+            var result = await _teacher.GetTeacherByIdAsync(id);
+            return result.Success ? Ok(result) : NotFound(result);
+        }
+
+        [HttpPost("teachers")]
+        public async Task<IActionResult> CreateTeacher([FromBody] CreateTeacherDto dto)
+        {
+            if (!dto.SchoolId.HasValue || dto.SchoolId.Value <= 0)
+            {
+                dto.SchoolId = CurrentSchoolId;
+            }
+            var result = await _teacher.CreateTeacherAsync(dto);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPut("teachers/{id:int}")]
+        public async Task<IActionResult> UpdateTeacher(int id, [FromBody] UpdateTeacherDto dto)
+        {
+            dto.TeacherId = id;
+            var result = await _teacher.UpdateTeacherAsync(dto);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPatch("teachers/{id:int}/status")]
+        [HttpPost("teachers/{id:int}/toggle-status")]
+        public async Task<IActionResult> ToggleTeacherStatus(int id)
+        {
+            var result = await _teacher.ToggleTeacherStatusAsync(id);
+            return result.Success ? Ok(result) : BadRequest(result);
         }
 
         private static int ExtractIndex(string url)

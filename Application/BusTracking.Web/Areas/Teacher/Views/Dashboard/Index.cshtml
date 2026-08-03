@@ -1,0 +1,68 @@
+@{
+    ViewData["Title"] = "Teacher Dashboard";
+    var teacher = ViewBag.Teacher as BusTracking.Common.DTOs.Teacher.TeacherDto;
+    int unreadNotifications = ViewBag.UnreadNotifications ?? 0;
+}
+
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-white" style="background: linear-gradient(135deg, #3d5af1 0%, #2241d7 100%);">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <img src="@(teacher?.ProfileImageUrl ?? "/images/default-avatar.svg")" class="rounded-circle border border-2 border-white shadow" style="width: 65px; height: 65px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
+                    <div>
+                        <h3 class="fw-bold mb-1">Welcome back, @(teacher?.FullName ?? User.Identity?.Name)!</h3>
+                        <p class="mb-0 text-white-50">@(string.IsNullOrWhiteSpace(teacher?.Designation) ? "Teacher" : teacher?.Designation) • @(string.IsNullOrWhiteSpace(teacher?.Department) ? "General" : teacher?.Department) Department</p>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="@Url.Action("Index", "Notification", new { area = "Teacher" })" class="btn btn-light rounded-pill px-4 fw-semibold position-relative">
+                        <i class="bi bi-bell me-2"></i>Notifications
+                        @if (unreadNotifications > 0)
+                        {
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                @unreadNotifications
+                            </span>
+                        }
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4 col-12">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="fw-bold text-secondary m-0">Teacher Profile Info</h6>
+                <i class="bi bi-person-badge text-primary fs-4"></i>
+            </div>
+            <div class="mb-2"><span class="text-muted small d-block">Employee Code</span><strong>@(string.IsNullOrWhiteSpace(teacher?.EmployeeCode) ? "N/A" : teacher?.EmployeeCode)</strong></div>
+            <div class="mb-2"><span class="text-muted small d-block">Qualification</span><strong>@(string.IsNullOrWhiteSpace(teacher?.Qualification) ? "N/A" : teacher?.Qualification)</strong></div>
+            <div><span class="text-muted small d-block">Contact Phone</span><strong>@(string.IsNullOrWhiteSpace(teacher?.PhoneNumber) ? "N/A" : teacher?.PhoneNumber)</strong></div>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-12">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="fw-bold text-secondary m-0">Classroom Modules</h6>
+                <i class="bi bi-easel text-success fs-4"></i>
+            </div>
+            <p class="text-muted small mb-3">Classroom Attendance, Class Section Switcher, and Student Roster features will be accessible here.</p>
+            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-semibold">Classroom Attendance Ready</span>
+        </div>
+    </div>
+
+    <div class="col-md-4 col-12">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="fw-bold text-secondary m-0">System Notifications</h6>
+                <i class="bi bi-bell-fill text-warning fs-4"></i>
+            </div>
+            <h2 class="fw-bold text-dark mb-1">@unreadNotifications <span class="fs-6 text-muted font-normal">Unread</span></h2>
+            <p class="text-muted small mb-0">Stay informed with real-time broadcast and school notices.</p>
+        </div>
+    </div>
+</div>

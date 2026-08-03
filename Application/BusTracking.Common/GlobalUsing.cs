@@ -19,6 +19,7 @@ global using BusTracking.Common.DTOs.Standard;
 global using BusTracking.Common.DTOs.Stop;
 global using BusTracking.Common.DTOs.Student;
 global using BusTracking.Common.DTOs.SubAdmin;
+global using BusTracking.Common.DTOs.Teacher;
 global using BusTracking.Common.DTOs.Trip;
 global using BusTracking.Common.DTOs.User;
 global using BusTracking.Common.Entities;

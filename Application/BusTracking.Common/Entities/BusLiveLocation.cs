@@ -4,7 +4,7 @@ namespace BusTracking.Common.Entities
     {
         public int? SchoolId { get; set; }
 
-        [Key] public long LocationId { get; set; }
+        [Key] public int LocationId { get; set; }
         public int TripId { get; set; }
         public int BusId { get; set; }
         [Column(TypeName = "decimal(10,7)")] public decimal Latitude { get; set; }

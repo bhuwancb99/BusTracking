@@ -21,15 +21,16 @@ namespace BusTracking.API.Controllers
         private readonly IParentService _parent;
         private readonly IStudentService _student;
         private readonly IStandardService _standard;
+        private readonly ITeacherService _teacher;
 
         public CoordinatorController(AppDbContext db, IDashboardService dash, ITripService trip,
             ISubAdminService subAdmin, IAppConfigService appConfig, IFeedbackService feedback,
-            INotificationService notif, IImageService img, IRouteService route, IBusService bus, IDriverService driver, IParentService parent, IStudentService student, IStandardService standard)
+            INotificationService notif, IImageService img, IRouteService route, IBusService bus, IDriverService driver, IParentService parent, IStudentService student, IStandardService standard, ITeacherService teacher)
         {
             _db = db; _dash = dash; _trip = trip;
             _subAdmin = subAdmin; _appConfig = appConfig;
             _feedback = feedback; _notif = notif; _img = img; _route = route; _bus = bus; _driver = driver; _parent = parent; _student = student;
-            _standard = standard;
+            _standard = standard; _teacher = teacher;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -695,6 +696,53 @@ namespace BusTracking.API.Controllers
             RequirePermission("notification.manage");
             var r = await _notif.MarkAllAsReadAsync(CurrentUserId);
             return Ok(r);
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // TEACHERS
+        // ════════════════════════════════════════════════════════════
+
+        [HttpGet("teachers")]
+        public async Task<IActionResult> GetTeachers([FromQuery] string? search, [FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+        {
+            RequirePermission("teachers.view");
+            var result = await _teacher.GetTeachersAsync(CurrentSchoolId, search, page, pageSize);
+            return Ok(new { success = true, data = result });
+        }
+
+        [HttpGet("teachers/{id:int}")]
+        public async Task<IActionResult> GetTeacherById(int id)
+        {
+            RequirePermission("teachers.view");
+            var result = await _teacher.GetTeacherByIdAsync(id);
+            return result.Success ? Ok(result) : NotFound(result);
+        }
+
+        [HttpPost("teachers")]
+        public async Task<IActionResult> CreateTeacher([FromBody] CreateTeacherDto dto)
+        {
+            RequirePermission("teachers.add");
+            dto.SchoolId = CurrentSchoolId;
+            var result = await _teacher.CreateTeacherAsync(dto);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPut("teachers/{id:int}")]
+        public async Task<IActionResult> UpdateTeacher(int id, [FromBody] UpdateTeacherDto dto)
+        {
+            RequirePermission("teachers.edit");
+            dto.TeacherId = id;
+            var result = await _teacher.UpdateTeacherAsync(dto);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPatch("teachers/{id:int}/status")]
+        [HttpPost("teachers/{id:int}/toggle-status")]
+        public async Task<IActionResult> ToggleTeacherStatus(int id)
+        {
+            RequirePermission("teachers.edit");
+            var result = await _teacher.ToggleTeacherStatusAsync(id);
+            return result.Success ? Ok(result) : BadRequest(result);
         }
 
 

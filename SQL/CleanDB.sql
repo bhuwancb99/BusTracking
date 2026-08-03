@@ -49,6 +49,7 @@ BEGIN TRY
     IF OBJECT_ID('Sections', 'U') IS NOT NULL DELETE FROM Sections;
     IF OBJECT_ID('AcademicYears', 'U') IS NOT NULL DELETE FROM AcademicYears;
     IF OBJECT_ID('StandardMasters', 'U') IS NOT NULL DELETE FROM StandardMasters;
+    IF OBJECT_ID('Teachers', 'U') IS NOT NULL DELETE FROM Teachers;
     IF OBJECT_ID('DriverDetails', 'U') IS NOT NULL DELETE FROM DriverDetails;
     IF OBJECT_ID('BusRouteMappings', 'U') IS NOT NULL DELETE FROM BusRouteMappings;
     IF OBJECT_ID('BusDriverMappings', 'U') IS NOT NULL DELETE FROM BusDriverMappings;
@@ -149,6 +150,7 @@ IF OBJECT_ID('Students', 'U') IS NOT NULL DROP TABLE Students;
 IF OBJECT_ID('Sections', 'U') IS NOT NULL DROP TABLE Sections;
 IF OBJECT_ID('AcademicYears', 'U') IS NOT NULL DROP TABLE AcademicYears;
 IF OBJECT_ID('StandardMasters', 'U') IS NOT NULL DROP TABLE StandardMasters;
+IF OBJECT_ID('Teachers', 'U') IS NOT NULL DROP TABLE Teachers;
 IF OBJECT_ID('DriverDetails', 'U') IS NOT NULL DROP TABLE DriverDetails;
 IF OBJECT_ID('BusRouteMappings', 'U') IS NOT NULL DROP TABLE BusRouteMappings;
 IF OBJECT_ID('BusDriverMappings', 'U') IS NOT NULL DROP TABLE BusDriverMappings;

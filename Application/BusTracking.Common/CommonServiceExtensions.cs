@@ -45,6 +45,7 @@ public static class CommonServiceExtensions
         services.AddScoped<IDriverTripWebService, DriverTripWebService>();
         services.AddScoped<IGlobalConfigService, GlobalConfigService>();
         services.AddScoped<IGeographicService, GeographicService>();
+        services.AddScoped<ITeacherService, TeacherService>();
         services.AddSingleton<IFcmPushNotificationService, FcmPushNotificationService>();
 
         return services;

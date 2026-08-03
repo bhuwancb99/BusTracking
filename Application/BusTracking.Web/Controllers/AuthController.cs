@@ -155,7 +155,8 @@ public class AuthController : Controller
         "SystemAdmin" => Redirect("/SystemAdmin/Dashboard/Index"),
         "SuperAdmin" => Redirect("/SuperAdmin/Dashboard/Index"),
         "BusCoordinator" => Redirect("/BusCoordinator/Dashboard/Index"),
-        "Driver" => Redirect("/Driver/Dashboard/Index"),   // ← ADDED
+        "Teacher" => Redirect("/Teacher/Dashboard/Index"),
+        "Driver" => Redirect("/Driver/Dashboard/Index"),
         "Parent" => Redirect("/Parent/Dashboard/Index"),
         "Student" => Redirect("/Student/Dashboard/Index"),
         _ => RedirectToAction(nameof(Login))

@@ -1,66 +1,105 @@
 @model BusTracking.Common.DTOs.Student.UpdateStudentDto
 @{
-    ViewData["Title"] = "Edit Student";
+    ViewData["Title"] = "Edit Student Profile";
+    int studentId = ViewBag.StudentId ?? 0;
 }
 
-<div class="row">
-    <div class="col-lg-12">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
-                <i class="bi bi-pencil me-2 text-warning"></i>Edit Student
-            </div>
-            <div class="card-body p-4">
+<div class="container-fluid p-0">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold m-0 text-dark">
+                <i class="bi bi-person-gear text-primary me-2"></i>Edit Student Profile
+            </h2>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small text-muted">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index")" class="text-decoration-none text-muted">Students</a></li>
+                    <li class="breadcrumb-item active text-primary" aria-current="page">Edit Student</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary rounded-3 px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="card-body p-4">
+            <form asp-action="Edit" asp-route-id="@studentId" method="post" id="editForm">
+                @Html.AntiForgeryToken()
+
                 @if (!ViewData.ModelState.IsValid)
                 {
-                    <div asp-validation-summary="All" class="alert alert-danger py-2 border-0"></div>
+                    <div class="alert alert-danger py-2 border-0 rounded-3 mb-4" style="background-color: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                        <div asp-validation-summary="All"></div>
+                    </div>
                 }
-                <form asp-area="SuperAdmin" asp-action="Edit" asp-route-id="@ViewBag.StudentId" method="post">
-                    @Html.AntiForgeryToken()
-                    <div class="row g-3">
 
-                        <div class="col-md-4">
-                            <label asp-for="FullName" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
-                            <input asp-for="FullName" class="form-control" />
+                <!-- Section 1: Account Credentials -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-shield-lock me-2"></i>Account Credentials</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4 col-12">
+                            <label asp-for="FullName" class="form-label fw-bold">Full Name <span class="text-danger">*</span></label>
+                            <input asp-for="FullName" class="form-control rounded-3" required />
                             <span asp-validation-for="FullName" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="UserName" class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <input asp-for="UserName" class="form-control" id="usernameInput" autocomplete="off" />
-                            </div>
+                        <div class="col-md-4 col-12">
+                            <label asp-for="UserName" class="form-label fw-bold">Username <span class="text-danger">*</span></label>
+                            <input asp-for="UserName" id="UserNameInput" class="form-control rounded-3" required autocomplete="off" />
                             <span asp-validation-for="UserName" class="text-danger small"></span>
-                            <div id="usernameMsg" class="small mt-1"></div>
+                            <div id="usernameCheckMsg" class="small mt-1"></div>
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="Email" class="form-label fw-semibold">Email <span class="text-muted fw-normal">(Optional)</span></label>
-                            <input asp-for="Email" type="email" class="form-control" placeholder="student@email.com" />
+                        <div class="col-md-4 col-12">
+                            <label asp-for="NewPassword" class="form-label fw-bold">New Password <span class="text-muted fw-normal">(Optional)</span></label>
+                            <input asp-for="NewPassword" type="password" class="form-control rounded-3" placeholder="Leave blank to keep unchanged" />
+                            <span asp-validation-for="NewPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Student Details -->
+                <div class="mb-4 pt-3 border-top">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-mortarboard me-2"></i>Student Details</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4 col-12">
+                            <label asp-for="Email" class="form-label fw-bold">Email Address</label>
+                            <input asp-for="Email" type="email" class="form-control rounded-3" />
                             <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number</label>
-                            <input asp-for="PhoneNumber" class="form-control" />
+                        <div class="col-md-4 col-12">
+                            <label asp-for="PhoneNumber" class="form-label fw-bold">Phone Number</label>
+                            <input asp-for="PhoneNumber" class="form-control rounded-3" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="StudentCode" class="form-label fw-semibold">Student Code <span class="text-danger">*</span></label>
-                            <input asp-for="StudentCode" class="form-control" />
+                        <div class="col-md-4 col-12">
+                            <label asp-for="StudentCode" class="form-label fw-bold">Student Code <span class="text-danger">*</span></label>
+                            <input asp-for="StudentCode" class="form-control rounded-3" />
                             <span asp-validation-for="StudentCode" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="StandardId" class="form-label fw-semibold">Class / Standard</label>
-                            <select asp-for="StandardId" class="form-select" asp-items="ViewBag.Standards">
+                    </div>
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-4 col-12">
+                            <label asp-for="StandardId" class="form-label fw-bold">Class / Standard</label>
+                            <select asp-for="StandardId" class="form-select rounded-3" asp-items="ViewBag.Standards">
                                 <option value="">-- Select Class --</option>
                             </select>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- Bus autocomplete -->
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">Assign Bus</label>
+                <!-- Section 3: Bus & Route Assignment -->
+                <div class="mb-4 pt-3 border-top">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-bus-front me-2"></i>Bus & Route Assignment</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4 col-12">
+                            <label class="form-label fw-bold">Assign Bus</label>
                             <div class="position-relative">
-                                <input type="text" id="busSearch" class="form-control"
+                                <input type="text" id="busSearch" class="form-control rounded-3"
                                        value="@(ViewBag.BusDisplay as string ?? "")"
                                        placeholder="Type bus name or number…" autocomplete="off" />
                                 <input type="hidden" asp-for="BusId" id="busIdInput" />
-                                <div id="busSuggestions" class="dropdown-menu w-100 shadow-sm"></div>
+                                <div id="busSuggestions" class="dropdown-menu w-100 shadow-sm rounded-3"></div>
                             </div>
                             <div id="busSelected" class="mt-1">
                                 @if (Model?.BusId.HasValue == true)
@@ -76,21 +115,9 @@
                                 }
                             </div>
                         </div>
-
-                        <!-- Stop dropdown -->
-                        <div class="col-md-4">
-                            <label asp-for="NewPassword" class="form-label fw-semibold">New Password <span class="text-danger fst-italic ms-1" style="font-size:0.82rem;">(leave blank to keep current)</span></label>
-                            <div class="input-group">
-                                <input asp-for="NewPassword" type="password" class="form-control" placeholder="Enter new password" id="pwdInputNew" autocomplete="new-password" />
-                                <button type="button" class="btn btn-outline-secondary" onclick="toggleNewPwd()"><i class="bi bi-eye" id="eyeIconNew"></i></button>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <label asp-for="StopId" class="form-label fw-semibold">
-                                Assign Stop
-                                <small class="text-muted fw-normal ms-1">(auto-loads from bus route)</small>
-                            </label>
-                            <select asp-for="StopId" id="stopSelect" class="form-select" disabled>
+                        <div class="col-md-4 col-12">
+                            <label asp-for="StopId" class="form-label fw-bold">Assign Stop <small class="text-muted fw-normal ms-1">(auto-loads from bus)</small></label>
+                            <select asp-for="StopId" id="stopSelect" class="form-select rounded-3" disabled>
                                 <option value="">-- Select a bus first --</option>
                             </select>
                             <div id="stopHint" class="mt-1 small">
@@ -104,68 +131,57 @@
                                 }
                             </div>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- ── Transport Fee Tracking ── -->
-                        <div class="col-12">
-                            <h6 class="fw-semibold text-muted mt-2 mb-0"><i class="bi bi-cash-coin me-1"></i>Transport Fee</h6>
-                        </div>
-                        <div class="col-md-4">
-                            <label asp-for="TransportFeeStatus" class="form-label fw-semibold">Fee Status</label>
-                            <select asp-for="TransportFeeStatus" class="form-select">
+                <!-- Section 4: Transport Fee -->
+                <div class="mb-4 pt-3 border-top">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-cash-coin me-2"></i>Transport Fee</h6>
+                    <div class="row g-3">
+                        <div class="col-md-4 col-12">
+                            <label asp-for="TransportFeeStatus" class="form-label fw-bold">Fee Status</label>
+                            <select asp-for="TransportFeeStatus" class="form-select rounded-3">
                                 <option value="@BusTracking.Common.Enums.TransportFeeStatus.Paid">Paid</option>
                                 <option value="@BusTracking.Common.Enums.TransportFeeStatus.Pending">Pending</option>
                                 <option value="@BusTracking.Common.Enums.TransportFeeStatus.Expired">Expired</option>
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="FeeExpiryDate" class="form-label fw-semibold">Fee Expiry Date</label>
-                            <input asp-for="FeeExpiryDate" type="date" class="form-control" />
+                        <div class="col-md-4 col-12">
+                            <label asp-for="FeeExpiryDate" class="form-label fw-bold">Fee Expiry Date</label>
+                            <input asp-for="FeeExpiryDate" type="date" class="form-control rounded-3" />
                         </div>
-
-                        <!-- Status -->
-                        <div class="col-12">
-                            <label class="form-label fw-semibold">Status</label>
-                            <div class="d-flex gap-3 mt-1">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="IsActive" value="true"
-                                           id="isActiveTrue" @(Model?.IsActive == true ? "checked" : "") />
-                                    <label class="form-check-label text-success fw-semibold" for="isActiveTrue">
-                                        <i class="bi bi-check-circle me-1"></i>Active
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="IsActive" value="false"
-                                           id="isActiveFalse" @(Model?.IsActive == false ? "checked" : "") />
-                                    <label class="form-check-label text-danger fw-semibold" for="isActiveFalse">
-                                        <i class="bi bi-x-circle me-1"></i>Inactive
-                                    </label>
+                        <div class="col-md-4 col-12">
+                            <label class="form-label fw-bold">Account Status</label>
+                            <div class="form-control rounded-3 d-flex align-items-center justify-content-between bg-light">
+                                <span class="fw-semibold text-secondary small">Active Status</span>
+                                <div class="form-check form-switch mb-0">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" style="width: 40px; height: 20px; cursor: pointer;" />
                                 </div>
                             </div>
                         </div>
-
                     </div>
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="submit" class="btn btn-warning px-4"><i class="bi bi-check2 me-1"></i>Update Student</button>
-                        <a asp-area="SuperAdmin" asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
-                        <button type="button" class="btn btn-outline-danger px-4 ms-auto" onclick="confirmResetPassword()">
-                            <i class="bi bi-key me-1"></i>Reset Password
-                        </button>
-                    </div>
-                </form>
+                </div>
 
-                <div id="pwdResult" class="mt-3" style="display:none;">
-                    <div class="alert alert-success border-0 d-flex align-items-start gap-3">
-                        <i class="bi bi-shield-check fs-4 text-success mt-1"></i>
-                        <div>
-                            <div class="fw-semibold mb-1">Password Reset Successfully</div>
-                            <div class="mb-1 small text-muted">New password for <span id="pwdName" class="fw-semibold text-dark"></span></div>
-                            <div class="d-flex align-items-center gap-2 mt-2">
-                                <code id="pwdValue" class="fs-5 px-3 py-1 bg-white border rounded text-danger fw-bold"></code>
-                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyPwd()" title="Copy">
-                                    <i class="bi bi-clipboard"></i>
-                                </button>
-                            </div>
-                            <div class="text-muted small mt-2"><i class="bi bi-exclamation-triangle me-1 text-warning"></i>Copy this password now — it will not be shown again.</div>
+                <div class="d-flex justify-content-end gap-2 border-top pt-4">
+                    <a href="@Url.Action("Index")" class="btn btn-light rounded-3 px-4">Cancel</a>
+                    <button type="submit" id="submitBtn" class="btn btn-primary rounded-3 px-4 shadow-sm"><i class="bi bi-save me-2"></i>Save Changes</button>
+                    <button type="button" class="btn btn-outline-danger rounded-3 px-3 ms-auto" onclick="confirmResetPassword()">
+                        <i class="bi bi-key me-1"></i>Reset Password
+                    </button>
+                </div>
+            </form>
+
+            <div id="pwdResult" class="mt-4" style="display:none;">
+                <div class="alert alert-success border-0 rounded-4 d-flex align-items-start gap-3 bg-success-subtle border-start border-4 border-success">
+                    <i class="bi bi-shield-check fs-3 text-success mt-1"></i>
+                    <div>
+                        <div class="fw-bold mb-1 text-success">Password Reset Successfully</div>
+                        <div class="mb-1 small text-muted">New generated password for <span id="pwdName" class="fw-bold text-dark"></span>:</div>
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            <code id="pwdValue" class="fs-5 px-3 py-1 bg-white border rounded text-danger fw-bold font-monospace"></code>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle" onclick="copyPwd()" title="Copy Password">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -177,54 +193,78 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        const AREA         = 'SuperAdmin';
-        const currentBusId  = @Html.Raw(Model?.BusId?.ToString() ?? "null");
-        const currentStopId = @Html.Raw(Model?.StopId?.ToString() ?? "null");
+        var currentBusId  = @Html.Raw(Model?.BusId?.ToString() ?? "null");
+        var currentStopId = @Html.Raw(Model?.StopId?.ToString() ?? "null");
+        var studentId = '@studentId';
 
-        // ── On page load: if bus already assigned, load stops ───────────────
-        window.addEventListener('DOMContentLoaded', async () => {
-            if (!currentBusId) return;
-            await loadStops(currentBusId, currentStopId);
-        });
+        document.addEventListener('DOMContentLoaded', function() {
+            if (currentBusId) loadStops(currentBusId, currentStopId);
 
-        // ── Bus autocomplete ──────────────────────────────────────────────────
-        let busTimer;
-        document.getElementById('busSearch').addEventListener('input', function () {
-            clearTimeout(busTimer);
-            const q = this.value.trim();
-            if (q.length < 1) { hideBusSug(); return; }
-            busTimer = setTimeout(() => fetchBuses(q), 250);
-        });
-        document.addEventListener('click', e => {
-            if (!e.target.closest('#busSearch,#busSuggestions')) hideBusSug();
-        });
+            // Username check
+            var input = document.getElementById('UserNameInput');
+            var msg = document.getElementById('usernameCheckMsg');
+            var btn = document.getElementById('submitBtn');
+            var timeout = null;
 
-        async function fetchBuses(q) {
-            const data = await (await fetch(`/SuperAdmin/Student/SearchBuses?q=${encodeURIComponent(q)}`)).json();
-            const box  = document.getElementById('busSuggestions');
-            box.innerHTML = '';
-            if (!data.length) { hideBusSug(); return; }
-            data.forEach(b => {
-                const a = document.createElement('a');
-                a.className = 'dropdown-item'; a.href = '#';
-                a.textContent = b.display;
-                a.addEventListener('click', e => { e.preventDefault(); selectBus(b); });
-                box.appendChild(a);
+            if (input) {
+                input.addEventListener('input', function() {
+                    var val = input.value.trim();
+                    clearTimeout(timeout);
+                    if (val.length === 0) { if (msg) msg.textContent = ''; if (btn) btn.disabled = false; return; }
+                    timeout = setTimeout(function() {
+                        fetch('/Auth/CheckUsername?userName=' + encodeURIComponent(val) + '&excludeUserId=' + studentId)
+                            .then(function(r) { return r.json(); })
+                            .then(function(res) {
+                                if (res.success) {
+                                    if (msg) { msg.className = 'small mt-1 text-success'; msg.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Username is available'; }
+                                    if (btn) btn.disabled = false;
+                                } else {
+                                    if (msg) { msg.className = 'small mt-1 text-danger'; msg.innerHTML = '<i class="bi bi-x-circle-fill me-1"></i>' + res.message; }
+                                    if (btn) btn.disabled = true;
+                                }
+                            }).catch(function() { if (btn) btn.disabled = false; });
+                    }, 400);
+                });
+            }
+
+            // Bus autocomplete
+            var busTimer;
+            var busSearch = document.getElementById('busSearch');
+            if (busSearch) {
+                busSearch.addEventListener('input', function() {
+                    clearTimeout(busTimer);
+                    var q = this.value.trim();
+                    if (q.length < 1) { hideBusSug(); return; }
+                    busTimer = setTimeout(function() { fetchBuses(q); }, 250);
+                });
+            }
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('#busSearch,#busSuggestions')) hideBusSug();
             });
-            box.classList.add('show');
+        });
+
+        function fetchBuses(q) {
+            fetch('@Url.Action("SearchBuses")?q=' + encodeURIComponent(q))
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var box = document.getElementById('busSuggestions');
+                    box.innerHTML = '';
+                    if (!data.length) { hideBusSug(); return; }
+                    data.forEach(function(b) {
+                        var a = document.createElement('a');
+                        a.className = 'dropdown-item'; a.href = '#'; a.textContent = b.display;
+                        a.addEventListener('click', function(e) { e.preventDefault(); selectBus(b); });
+                        box.appendChild(a);
+                    });
+                    box.classList.add('show');
+                });
         }
 
         function selectBus(b) {
             document.getElementById('busIdInput').value = b.busId;
-            document.getElementById('busSearch').value  = b.display;
-            document.getElementById('busSelected').innerHTML =
-                `<span class="badge bg-primary-subtle text-primary">
-                     <i class="bi bi-bus-front me-1"></i>${b.display}
-                 </span>
-                 <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-1"
-                         onclick="clearBus()">Remove</button>`;
+            document.getElementById('busSearch').value = b.display;
+            document.getElementById('busSelected').innerHTML = '<span class="badge bg-primary-subtle text-primary"><i class="bi bi-bus-front me-1"></i>' + b.display + '</span> <button type="button" class="btn btn-sm btn-link text-danger p-0 ms-1" onclick="clearBus()">Remove</button>';
             hideBusSug();
-            // Reset stop then reload
             document.getElementById('stopSelect').innerHTML = '<option value="">Loading stops…</option>';
             loadStops(b.busId, null);
         }
@@ -233,130 +273,76 @@
 
         function clearBus() {
             document.getElementById('busIdInput').value = '';
-            document.getElementById('busSearch').value  = '';
+            document.getElementById('busSearch').value = '';
             document.getElementById('busSelected').innerHTML = '<span class="text-muted small">No bus assigned.</span>';
-            const sel = document.getElementById('stopSelect');
+            var sel = document.getElementById('stopSelect');
             sel.innerHTML = '<option value="">-- Select a bus first --</option>';
-            sel.disabled  = true;
-            document.getElementById('stopHint').innerHTML =
-                '<span class="text-muted"><i class="bi bi-info-circle me-1"></i>Select a bus to see available stops.</span>';
+            sel.disabled = true;
+            document.getElementById('stopHint').innerHTML = '<span class="text-muted"><i class="bi bi-info-circle me-1"></i>Select a bus to see available stops.</span>';
         }
 
-        // ── Stop loader ───────────────────────────────────────────────────────
-        async function loadStops(busId, preSelectId) {
-            const sel  = document.getElementById('stopSelect');
-            const hint = document.getElementById('stopHint');
+        function loadStops(busId, preSelectId) {
+            var sel = document.getElementById('stopSelect');
+            var hint = document.getElementById('stopHint');
             sel.innerHTML = '<option value="">Loading stops…</option>';
-            sel.disabled  = false;
-
-            try {
-                const data = await (await fetch(`/SuperAdmin/Student/SearchStops?busId=${busId}`)).json();
-
-                if (!data || data.length === 0) {
-                    sel.innerHTML = '<option value="">No stops — this bus has no route assigned</option>';
-                    sel.disabled  = true;
-                    hint.innerHTML =
-                        `<span class="text-warning">
-                             <i class="bi bi-exclamation-triangle me-1"></i>
-                             No stops found. <a href="/SuperAdmin/Bus/Edit/${busId}" target="_blank">Edit this bus</a>
-                             to assign a route first.
-                         </span>`;
-                    return;
-                }
-
-                sel.innerHTML = '<option value="">-- No stop (optional) --</option>';
-                data.forEach(s => {
-                    const opt        = document.createElement('option');
-                    opt.value        = s.stopId;
-                    opt.textContent  = `Stop #${s.stopOrder} — ${s.stopName}`;
-                    if (s.morningTime) opt.textContent += `  🌅 ${s.morningTime}`;
-                    sel.appendChild(opt);
-                });
-
-                // Pre-select current stop
-                if (preSelectId) {
-                    sel.value = preSelectId;
-                    if (!sel.value) {
-                        // stopId not in list — add it as fallback
-                        const opt = document.createElement('option');
-                        opt.value = preSelectId; opt.textContent = `Stop ID: ${preSelectId}`;
-                        opt.selected = true;
-                        sel.appendChild(opt);
+            sel.disabled = false;
+            fetch('@Url.Action("SearchStops")?busId=' + busId)
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (!data || data.length === 0) {
+                        sel.innerHTML = '<option value="">No stops — this bus has no route assigned</option>';
+                        sel.disabled = true;
+                        hint.innerHTML = '<span class="text-warning"><i class="bi bi-exclamation-triangle me-1"></i>No stops found. Edit this bus to assign a route first.</span>';
+                        return;
                     }
-                }
-
-                hint.innerHTML =
-                    `<span class="text-success">
-                         <i class="bi bi-check-circle me-1"></i>${data.length} stop(s) available on this route.
-                     </span>`;
-            } catch (err) {
-                sel.innerHTML = '<option value="">Error loading stops</option>';
-                sel.disabled  = true;
-                hint.innerHTML = '<span class="text-danger"><i class="bi bi-x-circle me-1"></i>Could not load stops.</span>';
-            }
+                    sel.innerHTML = '<option value="">-- No stop (optional) --</option>';
+                    data.forEach(function(s) {
+                        var opt = document.createElement('option');
+                        opt.value = s.stopId;
+                        opt.textContent = 'Stop #' + s.stopOrder + ' — ' + s.stopName + (s.morningTime ? '  🌅 ' + s.morningTime : '');
+                        sel.appendChild(opt);
+                    });
+                    if (preSelectId) {
+                        sel.value = preSelectId;
+                        if (!sel.value) {
+                            var opt = document.createElement('option');
+                            opt.value = preSelectId; opt.textContent = 'Stop ID: ' + preSelectId;
+                            opt.selected = true;
+                            sel.appendChild(opt);
+                        }
+                    }
+                    hint.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>' + data.length + ' stop(s) available on this route.</span>';
+                })
+                .catch(function() {
+                    sel.innerHTML = '<option value="">Error loading stops</option>';
+                    sel.disabled = true;
+                    hint.innerHTML = '<span class="text-danger"><i class="bi bi-x-circle me-1"></i>Could not load stops.</span>';
+                });
         }
 
         function confirmResetPassword() {
             if (!confirm('Reset password for this student? A new password will be generated and shown once.')) return;
-            doResetPassword();
-        }
-        async function doResetPassword() {
-            const id = @ViewBag.StudentId;
-            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-            const res = await fetch(`/SuperAdmin/Student/ResetPassword?id=${id}`, {
+            var token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+            fetch('@Url.Action("ResetPassword")?id=' + studentId, {
                 method: 'POST',
-                headers: { 'RequestVerificationToken': token }
+                headers: { 'RequestVerificationToken': token || '' }
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    document.getElementById('pwdName').textContent = data.fullName + ' (' + data.email + ')';
+                    document.getElementById('pwdValue').textContent = data.password;
+                    document.getElementById('pwdResult').style.display = '';
+                    document.getElementById('pwdResult').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    alert('Error: ' + data.message);
+                }
             });
-            const data = await res.json();
-            if (data.success) {
-                document.getElementById('pwdName').textContent = data.fullName + ' (' + data.email + ')';
-                document.getElementById('pwdValue').textContent = data.password;
-                document.getElementById('pwdResult').style.display = '';
-                document.getElementById('pwdResult').scrollIntoView({ behavior: 'smooth' });
-            } else {
-                alert('Error: ' + data.message);
-            }
         }
+
         function copyPwd() {
             navigator.clipboard.writeText(document.getElementById('pwdValue').textContent);
-        }
-        function toggleNewPwd() { const inp = document.getElementById('pwdInputNew'); const icon = document.getElementById('eyeIconNew'); inp.type = inp.type === 'password' ? 'text' : 'password'; icon.className = inp.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash'; }
-        // ── Username live-check (keyup, min 5 chars) ────────────────────────────
-        const _unInput   = document.getElementById('usernameInput');
-        const _unMsg     = document.getElementById('usernameMsg');
-        const _currentId = @ViewBag.StudentId;
-        let   _unTimer   = null;
-
-        _unInput.addEventListener('keyup', () => {
-            clearTimeout(_unTimer);
-            _unTimer = setTimeout(liveCheckUsername, 350);
-        });
-
-        async function liveCheckUsername() {
-            const val = _unInput.value.trim();
-            _unMsg.innerHTML = '';
-            _unMsg.className = 'small mt-1';
-            if (val.length === 0) return;
-            if (val.length < 5) {
-                _unMsg.innerHTML  = '<i class="bi bi-exclamation-circle me-1"></i>Username must have at least 5 characters';
-                _unMsg.className  = 'small mt-1 text-danger';
-                return;
-            }
-            try {
-                const res  = await fetch(`/Auth/CheckUsername?userName=${encodeURIComponent(val)}&excludeUserId=${_currentId}`);
-                if (!res.ok) return;
-                const data = await res.json();
-                if (!data.success) {
-                    _unMsg.innerHTML = `<i class="bi bi-x-circle me-1"></i>The username <strong>${escHtml(val)}</strong> is already taken`;
-                    _unMsg.className = 'small mt-1 text-danger';
-                } else {
-                    _unMsg.innerHTML = `<i class="bi bi-check-circle me-1"></i><strong>${escHtml(val)}</strong> is available`;
-                    _unMsg.className = 'small mt-1 text-success fw-semibold';
-                }
-            } catch (_) { /* network error — silent */ }
-        }
-        function escHtml(s) {
-            return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            alert('Password copied!');
         }
     </script>
 }

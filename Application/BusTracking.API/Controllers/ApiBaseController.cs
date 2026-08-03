@@ -10,5 +10,7 @@ namespace BusTracking.API.Controllers
             User.FindFirstValue(ClaimTypes.Role) ?? "";
         protected string CurrentTimeZoneInfoId =>
             User.FindFirstValue("time_zone_id") ?? User.FindFirstValue("TimeZoneInfoId") ?? "India Standard Time";
+        protected int? CurrentSchoolId =>
+            int.TryParse(User.FindFirstValue("school_id") ?? User.FindFirstValue("SchoolId"), out var sid) ? sid : null;
     }
 }

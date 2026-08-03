@@ -4,7 +4,7 @@ namespace BusTracking.Common.Entities
     {
         public int? SchoolId { get; set; }
 
-        [Key] public long AuditLogId { get; set; }
+        [Key, Column("LogId")] public int AuditLogId { get; set; }
         public int? UserId { get; set; }
         [Required, MaxLength(100)] public string Action { get; set; } = "";
         [MaxLength(100)] public string? EntityName { get; set; }

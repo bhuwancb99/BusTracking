@@ -1,187 +1,205 @@
-@* ════════════════════════════════════════════════════════════
-   Driver/Index.cshtml
-   ════════════════════════════════════════════════════════════ *@
 @model BusTracking.Common.DTOs.Common.PagedResult<BusTracking.Common.DTOs.Driver.DriverListDto>
 @{
-    ViewData["Title"] = "Drivers";
-}
-
-@{
+    ViewData["Title"] = "Drivers Directory";
     var created = TempData["CreatedUser"] as string;
     BusTracking.Common.DTOs.User.CreatedUserResultDto? newUser = null;
     if (!string.IsNullOrEmpty(created))
         newUser = System.Text.Json.JsonSerializer.Deserialize<BusTracking.Common.DTOs.User.CreatedUserResultDto>(created);
 }
 
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+    <div>
+        <h2 class="fw-bold m-0 text-dark">
+            <i class="bi bi-person-video2 text-primary me-2"></i>Drivers Directory
+        </h2>
+        <nav aria-label="breadcrumb" class="mt-1">
+            <ol class="breadcrumb mb-0 small text-muted">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                <li class="breadcrumb-item active text-primary" aria-current="page">Drivers</li>
+            </ol>
+        </nav>
+    </div>
+    <a href="@Url.Action("Create")" class="btn btn-primary rounded-3 shadow-sm px-4">
+        <i class="bi bi-plus-lg me-2"></i>Register New Driver
+    </a>
+</div>
+
 @if (newUser is not null)
 {
-    <div class="alert alert-success border-0 shadow-sm mb-4">
-        @* <h6 class="fw-bold mb-3"><i class="bi bi-check-circle-fill me-2"></i>Driver Created Successfully</h6> *@
-        <div class="row g-2">
-            <div class="col-md-6">
-                <div class="bg-white rounded p-3 border">
-                    <div class="text-muted small mb-1">Full Name</div>
-                    <div class="fw-semibold">@newUser.FullName</div>
-                </div>
+    <div class="card border-0 shadow-sm rounded-4 mb-4 bg-success-subtle border-start border-4 border-success">
+        <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="fw-bold text-success mb-0"><i class="bi bi-check-circle-fill me-2"></i>Driver Account Created Successfully</h6>
+                <span class="badge bg-success text-white">New Driver</span>
             </div>
-            <div class="col-md-6">
-                <div class="bg-white rounded p-3 border">
-                    <div class="text-muted small mb-1">Role</div>
-                    <div class="fw-semibold"><span class="badge bg-success-subtle text-success">@newUser.Role</span></div>
+            <div class="row g-3">
+                <div class="col-md-3 col-6">
+                    <small class="text-muted d-block">Full Name</small>
+                    <span class="fw-bold text-dark">@newUser.FullName</span>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="bg-white rounded p-3 border">
-                    <div class="text-muted small mb-1">Username (Email)</div>
-                    <div class="fw-semibold">@newUser.Email</div>
+                <div class="col-md-3 col-6">
+                    <small class="text-muted d-block">Role</small>
+                    <span class="badge bg-success-subtle text-success border border-success-subtle font-monospace">@newUser.Role</span>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="bg-white rounded p-3 border">
-                    <div class="text-muted small mb-1">Password</div>
+                <div class="col-md-3 col-6">
+                    <small class="text-muted d-block">Username / Email</small>
+                    <span class="fw-semibold text-dark">@newUser.Email</span>
+                </div>
+                <div class="col-md-3 col-6">
+                    <small class="text-muted d-block">Password</small>
                     <div class="d-flex align-items-center gap-2">
-                        <span id="pwdDisplay" class="fw-semibold font-monospace">••••••••••••</span>
-                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="togglePwd()">
-                            <i class="bi bi-eye" id="pwdEye"></i>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-primary" onclick="copyPwd()">
-                            <i class="bi bi-clipboard"></i>
-                        </button>
+                        <span id="pwdDisplay" class="fw-bold font-monospace text-dark">••••••••••••</span>
+                        <button type="button" class="btn btn-sm btn-light rounded-circle" onclick="togglePwd()"><i class="bi bi-eye" id="pwdEye"></i></button>
+                        <button type="button" class="btn btn-sm btn-light rounded-circle" onclick="copyPwd()"><i class="bi bi-clipboard"></i></button>
                     </div>
                     <input type="hidden" id="pwdValue" value="@newUser.PlainPassword" />
                 </div>
             </div>
         </div>
-        @* <div class="mt-3 small text-muted"><i class="bi bi-exclamation-triangle me-1"></i>Save this password now — it will not be shown again.</div> *@
     </div>
 }
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0"><i class="bi bi-person-video2 me-2 text-success"></i>Drivers</h4>
-    <a asp-area="SuperAdmin" asp-controller="Driver" asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-circle me-1"></i>Add Driver</a>
-</div>
-
-<!-- Status filter -->
-<div class="card border-0 shadow-sm mb-3">
-    <div class="card-body py-2 px-4 d-flex align-items-center gap-4 flex-wrap">
-        <span class="fw-semibold small text-muted">Filter:</span>
-        <form asp-area="SuperAdmin" asp-action="Index" method="get" class="d-flex align-items-center gap-3 flex-wrap flex-grow-1">
-            <div class="d-flex gap-3">
-                @foreach (var s in new[] { ("Active", "Active"), ("Inactive", "Inactive"), ("Both", "Both") })
-                {
-                    <div class="form-check mb-0">
-                        <input class="form-check-input" type="radio" name="status" value="@s.Item1" id="st_@s.Item1"
-                        @(ViewBag.Status as string == s.Item1 ? "checked" : "") onchange="this.form.submit()" />
-                        <label class="form-check-label small" for="st_@s.Item1">@s.Item2</label>
-                    </div>
-                }
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-3">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-7 col-lg-8">
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" name="search" value="@ViewBag.Search" class="form-control bg-light border-0" placeholder="Search by driver name, email, license number, or phone..." />
+                </div>
             </div>
-            <input type="text" name="search" value="@ViewBag.Search" class="form-control form-control-sm ms-auto" style="max-width:260px" placeholder="Search name or email…" />
-            <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-search"></i></button>
-            @if (!string.IsNullOrEmpty(ViewBag.Search as string))
-            {
-                <a asp-area="SuperAdmin" asp-action="Index" asp-route-status="@ViewBag.Status" class="btn btn-sm btn-outline-danger"><i class="bi bi-x"></i></a>
-            }
+            <div class="col-md-5 col-lg-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill rounded-3"><i class="bi bi-filter me-1"></i>Filter</button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary rounded-3"><i class="bi bi-arrow-counterclockwise"></i> Reset</a>
+            </div>
         </form>
     </div>
 </div>
 
-<div class="card border-0 shadow-sm">
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0">
-                <thead class="table-light">
-                    <tr><th>#</th><th>Name</th><th>Email</th><th>Phone</th><th>Bus</th><th>License</th>@* <th>Expiry</th> *@<th>Status</th><th class="text-end pe-4">Actions</th></tr>
-                </thead>
-                <tbody>
-                    @if (Model?.Items.Count == 0)
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light-subtle border-bottom">
+                <tr class="text-uppercase fs-7 text-muted fw-bold">
+                    <th style="width: 65px;" class="ps-4">Photo</th>
+                    <th>Driver Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>License No.</th>
+                    <th>Assigned Bus</th>
+                    <th style="width: 100px;" class="text-center">Status</th>
+                    <th style="width: 100px;" class="text-center pe-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model?.Items.Count == 0)
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="bi bi-person-x text-secondary opacity-50 display-4"></i>
+                            <p class="mt-2 mb-0 fw-semibold fs-6">No drivers found</p>
+                            <span class="small">Try adjusting your search criteria or register a new driver.</span>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var driver in Model?.Items ?? [])
                     {
-                        <tr><td colspan="9" class="text-center text-muted py-5"><i class="bi bi-person-slash fs-1 d-block mb-2"></i>No drivers found.</td></tr>
-                    }
-                    @foreach (var (d, i) in (Model?.Items ?? []).Select((x, i) => (x, i + 1 + (Model!.PageNumber - 1) * Model.PageSize)))
-                    {
-                        <tr id="row-driver-@d.UserId">
-                            <td class="ps-3 text-muted small">@i</td>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    @if (!string.IsNullOrWhiteSpace(d.ProfileImageUrl))
-                                    {
-                                        <img src="@d.ProfileImageUrl" alt="@d.FullName" class="rounded-circle border" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
-                                    }
-                                    else
-                                    {
-                                        <img src="/images/default-avatar.svg" alt="@d.FullName" class="rounded-circle border" style="width: 32px; height: 32px; object-fit: cover;" />
-                                    }
-                                    <span class="fw-semibold">@d.FullName</span>
-                                </div>
-                            </td>
-                            <td class="text-muted small">@d.Email</td>
-                            <td class="small">@(d.PhoneNumber ?? "–")</td>
-                            <td>
-                                @if (d.BusName is not null)
+                        <tr>
+                            <td class="ps-4">
+                                @if (!string.IsNullOrEmpty(driver.ProfileImageUrl))
                                 {
-                                    <span class="badge bg-primary-subtle text-primary">@d.BusNumber</span><span class="ms-1 small">@d.BusName</span>
+                                    <img src="@driver.ProfileImageUrl" alt="@driver.FullName" class="rounded-circle border shadow-sm" style="width: 42px; height: 42px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
                                 }
                                 else
                                 {
-
-                                    <span class="text-muted small">–</span>
+                                    <div class="rounded-circle bg-primary-subtle text-primary fw-bold d-flex align-items-center justify-content-center border" style="width: 42px; height: 42px; font-size: 1rem;">
+                                        @(string.IsNullOrEmpty(driver.FullName) ? "D" : driver.FullName.Substring(0, 1).ToUpper())
+                                    </div>
                                 }
                             </td>
-                            <td class="small">@(d.LicenseNumber ?? "–")</td>
-                           @*  <td class="small">@(d.LicenseExpiry ?? "–")</td> *@
+                            <td class="fw-bold text-dark fs-6">@driver.FullName</td>
+                            <td class="text-secondary">@(string.IsNullOrWhiteSpace(driver.Email) ? "-" : driver.Email)</td>
+                            <td class="text-secondary">@(string.IsNullOrWhiteSpace(driver.PhoneNumber) ? "-" : driver.PhoneNumber)</td>
                             <td>
-                                <span class="badge @(d.IsActive ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger")">
-                                    @(d.IsActive ? "Active" : "Inactive")
-                                </span>
+                                @if (string.IsNullOrWhiteSpace(driver.LicenseNumber))
+                                {
+                                    <span class="text-muted small">-</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary-subtle text-dark border font-monospace">@driver.LicenseNumber</span>
+                                }
                             </td>
-                            <td class="text-end pe-3">
-                                <a asp-area="SuperAdmin" asp-action="Details" asp-route-id="@d.UserId" class="btn btn-sm btn-outline-info me-1" title="View"><i class="bi bi-eye"></i></a>
-                                <a asp-area="SuperAdmin" asp-action="Edit" asp-route-id="@d.UserId" class="btn btn-sm btn-outline-warning me-1" title="Edit"><i class="bi bi-pencil"></i></a>
-                                <button class="btn btn-sm @(d.IsActive ? "btn-outline-secondary" : "btn-outline-success") me-1 btn-toggle"
-                                        data-id="@d.UserId" data-url="/SuperAdmin/Driver/Toggle"
-                                        title="@(d.IsActive ? "Deactivate" : "Activate")">
-                                    <i class="bi @(d.IsActive ? "bi-toggle-on" : "bi-toggle-off")"></i>
-                                </button>
-                                <form asp-area="SuperAdmin" asp-action="Delete" asp-route-id="@d.UserId" method="post" class="d-inline"
-                                      onsubmit="return confirm('Mark @d.FullName as inactive?')">
-                                    @Html.AntiForgeryToken()
-                                    <button class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
-                                </form>
+                            <td>
+                                @if (!string.IsNullOrEmpty(driver.BusName))
+                                {
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle me-1">@driver.BusNumber</span>
+                                    <span class="small text-dark fw-semibold">@driver.BusName</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">Unassigned</span>
+                                }
+                            </td>
+                            <td class="text-center">
+                                <div class="form-check form-switch d-inline-block">
+                                    <input type="checkbox" class="form-check-input driver-toggle" style="cursor: pointer; width: 38px; height: 20px;" data-id="@driver.UserId" @(driver.IsActive ? "checked" : "") />
+                                </div>
+                            </td>
+                            <td class="text-center pe-4">
+                                <a href="@Url.Action("Edit", new { id = driver.UserId })" class="btn btn-outline-primary btn-sm rounded-3 px-2 py-1" title="Edit Driver">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
                             </td>
                         </tr>
                     }
-                </tbody>
-            </table>
-        </div>
-        <div class="px-4 py-2"><partial name="_Pagination" model="Model" /></div>
+                }
+            </tbody>
+        </table>
     </div>
 </div>
 
+<partial name="_Pagination" model="Model" />
+
 @section Scripts {
     <script>
-        document.querySelectorAll('.btn-toggle').forEach(btn => {
-            btn.addEventListener('click', async function() {
-                const id  = this.dataset.id;
-                const url = this.dataset.url;
-                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
-                const res = await fetch(`${url}?id=${id}`, {method:'POST',headers:{'RequestVerificationToken':token||''}});
-                const data = await res.json();
-                if (data.success) { busTrack.showToast(data.message,'success'); setTimeout(()=>location.reload(),700); }
-                else busTrack.showToast(data.message,'danger');
+        $(document).ready(function() {
+            $('.driver-toggle').change(function() {
+                var driverId = $(this).data('id');
+                var isChecked = $(this).is(':checked');
+                var $checkbox = $(this);
+
+                $.ajax({
+                    url: '@Url.Action("Toggle")',
+                    type: 'POST',
+                    data: { id: driverId },
+                    success: function(response) {
+                        if (!response.success) {
+                            $checkbox.prop('checked', !isChecked);
+                            alert(response.message || 'Failed to update status.');
+                        }
+                    },
+                    error: function() {
+                        $checkbox.prop('checked', !isChecked);
+                        alert('An error occurred while updating status.');
+                    }
+                });
             });
         });
-        // Password reveal in created card
+
         function togglePwd() {
-            const el   = document.getElementById('pwdDisplay');
-            const val  = document.getElementById('pwdValue').value;
+            const el = document.getElementById('pwdDisplay');
+            const val = document.getElementById('pwdValue').value;
             const icon = document.getElementById('pwdEye');
             if (el.textContent.includes('•')) { el.textContent = val; icon.className = 'bi bi-eye-slash'; }
             else { el.textContent = '••••••••••••'; icon.className = 'bi bi-eye'; }
         }
+
         function copyPwd() {
             navigator.clipboard.writeText(document.getElementById('pwdValue').value);
-            busTrack.showToast('Password copied!', 'success');
+            alert('Password copied!');
         }
     </script>
 }

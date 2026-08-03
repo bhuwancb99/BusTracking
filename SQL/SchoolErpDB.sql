@@ -341,6 +341,27 @@ CREATE TABLE DriverDetails (
 );
 GO
 
+-- 18.1 TEACHERS
+CREATE TABLE Teachers (
+    SchoolId         INT           NULL,
+    TeacherId        INT           NOT NULL IDENTITY(1,1),
+    UserId           INT           NOT NULL,
+    EmployeeCode     NVARCHAR(50)  NULL,
+    Qualification    NVARCHAR(150) NULL,
+    Designation      NVARCHAR(100) NULL,
+    Department       NVARCHAR(100) NULL,
+    JoiningDate      DATE          NULL,
+    Gender           NVARCHAR(20)  NULL,
+    EmergencyContact NVARCHAR(20)  NULL,
+    CreatedAt        DATETIME2     NOT NULL CONSTRAINT DF_Teachers_CreatedAt DEFAULT GETUTCDATE(),
+    UpdatedAt        DATETIME2     NOT NULL CONSTRAINT DF_Teachers_UpdatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_Teachers PRIMARY KEY (TeacherId),
+    CONSTRAINT FK_Teachers_Users FOREIGN KEY (UserId) REFERENCES Users(UserId),
+    CONSTRAINT FK_Teachers_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId),
+    CONSTRAINT UQ_Teachers_UserId UNIQUE (UserId)
+);
+GO
+
 -- ============================================================
 -- PART 5: STUDENTS & PARENTS
 -- ============================================================
@@ -392,7 +413,7 @@ CREATE TABLE ParentStudents (
     SchoolId         INT          NULL,
     ParentId         INT          NOT NULL,
     StudentId        INT          NOT NULL,
-    Relationship     NVARCHAR(50) NOT NULL CONSTRAINT DF_ParentStudents_Relationship DEFAULT 'Parent',
+    Relationship     NVARCHAR(50) NULL CONSTRAINT DF_ParentStudents_Relationship DEFAULT 'Parent',
     IsPrimaryContact BIT          NOT NULL CONSTRAINT DF_ParentStudents_IsPrimary DEFAULT 1,
     CreatedAt        DATETIME2    NOT NULL CONSTRAINT DF_ParentStudents_CreatedAt DEFAULT GETUTCDATE(),
     CONSTRAINT PK_ParentStudents PRIMARY KEY (ParentId, StudentId),
@@ -410,13 +431,12 @@ CREATE TABLE StudentAvailabilities (
     FromDate         DATE          NOT NULL,
     ToDate           DATE          NOT NULL,
     AvailabilityType NVARCHAR(20)  NOT NULL,
-    Reason           NVARCHAR(500) NULL,
+    Remarks          NVARCHAR(500) NULL,
     CreatedAt        DATETIME2     NOT NULL CONSTRAINT DF_StudentAvailabilities_CreatedAt DEFAULT GETUTCDATE(),
-    UpdatedAt        DATETIME2     NOT NULL CONSTRAINT DF_StudentAvailabilities_UpdatedAt DEFAULT GETUTCDATE(),
-    CreatedBy        INT           NOT NULL,
+    MarkedBy         INT           NOT NULL,
     CONSTRAINT PK_StudentAvailabilities PRIMARY KEY (AvailabilityId),
     CONSTRAINT FK_StudentAvailabilities_Students FOREIGN KEY (StudentId) REFERENCES Students(StudentId) ON DELETE CASCADE,
-    CONSTRAINT FK_StudentAvailabilities_Users FOREIGN KEY (CreatedBy) REFERENCES Users(UserId),
+    CONSTRAINT FK_StudentAvailabilities_Users FOREIGN KEY (MarkedBy) REFERENCES Users(UserId),
     CONSTRAINT FK_StudentAvailabilities_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId)
 );
 GO
@@ -431,17 +451,19 @@ CREATE TABLE BusTrips (
     TripId    INT           NOT NULL IDENTITY(1,1),
     BusId     INT           NOT NULL,
     DriverId  INT           NOT NULL,
+    RouteId   INT           NULL,
     TripType  NVARCHAR(20)  NOT NULL,
     TripDate  DATE          NOT NULL,
     Status    NVARCHAR(20)  NOT NULL CONSTRAINT DF_BusTrips_Status DEFAULT 'Scheduled',
-    StartTime DATETIME2     NULL,
-    EndTime   DATETIME2     NULL,
+    StartedAt DATETIME2     NULL,
+    EndedAt   DATETIME2     NULL,
     Remarks   NVARCHAR(500) NULL,
     CreatedAt DATETIME2     NOT NULL CONSTRAINT DF_BusTrips_CreatedAt DEFAULT GETUTCDATE(),
     UpdatedAt DATETIME2     NOT NULL CONSTRAINT DF_BusTrips_UpdatedAt DEFAULT GETUTCDATE(),
     CONSTRAINT PK_BusTrips PRIMARY KEY (TripId),
     CONSTRAINT FK_BusTrips_Buses FOREIGN KEY (BusId) REFERENCES Buses(BusId),
     CONSTRAINT FK_BusTrips_Users FOREIGN KEY (DriverId) REFERENCES Users(UserId),
+    CONSTRAINT FK_BusTrips_Routes FOREIGN KEY (RouteId) REFERENCES Routes(RouteId),
     CONSTRAINT UQ_Bus_TripInstance UNIQUE (BusId, TripDate, TripType),
     CONSTRAINT FK_BusTrips_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId)
 );
@@ -475,14 +497,15 @@ GO
 
 -- 26. TRIP STOP EVENTS
 CREATE TABLE TripStopEvents (
-    SchoolId        INT       NULL,
-    EventId         INT       NOT NULL IDENTITY(1,1),
-    TripId          INT       NOT NULL,
-    StopId          INT       NOT NULL,
-    ActualArrival   DATETIME2 NULL,
-    ActualDeparture DATETIME2 NULL,
-    CreatedAt       DATETIME2 NOT NULL CONSTRAINT DF_TripStopEvents_CreatedAt DEFAULT GETUTCDATE(),
-    CONSTRAINT PK_TripStopEvents PRIMARY KEY (EventId),
+    SchoolId        INT          NULL,
+    TripStopEventId INT          NOT NULL IDENTITY(1,1),
+    TripId          INT          NOT NULL,
+    StopId          INT          NOT NULL,
+    ReachedAt       DATETIME2    NULL,
+    DepartedAt      DATETIME2    NULL,
+    Status          NVARCHAR(20) NOT NULL CONSTRAINT DF_TripStopEvents_Status DEFAULT 'Pending',
+    CreatedAt       DATETIME2    NOT NULL CONSTRAINT DF_TripStopEvents_CreatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_TripStopEvents PRIMARY KEY (TripStopEventId),
     CONSTRAINT FK_TripStopEvents_BusTrips FOREIGN KEY (TripId) REFERENCES BusTrips(TripId) ON DELETE CASCADE,
     CONSTRAINT FK_TripStopEvents_Stops FOREIGN KEY (StopId) REFERENCES Stops(StopId),
     CONSTRAINT UQ_Trip_Stop UNIQUE (TripId, StopId),
@@ -492,17 +515,17 @@ GO
 
 -- 27. STUDENT TRIP STATUS
 CREATE TABLE StudentTripStatus (
-    SchoolId       INT          NULL,
-    StatusId       INT          NOT NULL IDENTITY(1,1),
-    TripId         INT          NOT NULL,
-    StudentId      INT          NOT NULL,
-    StopId         INT          NOT NULL,
-    BoardingStatus NVARCHAR(20) NOT NULL CONSTRAINT DF_StudentTripStatus_Status DEFAULT 'Pending',
-    BoardedAt      DATETIME2    NULL,
-    DroppedAt      DATETIME2    NULL,
-    UpdatedAt      DATETIME2    NOT NULL CONSTRAINT DF_StudentTripStatus_UpdatedAt DEFAULT GETUTCDATE(),
-    UpdatedBy      INT          NULL,
-    CONSTRAINT PK_StudentTripStatus PRIMARY KEY (StatusId),
+    SchoolId            INT          NULL,
+    StudentTripStatusId INT          NOT NULL IDENTITY(1,1),
+    TripId              INT          NOT NULL,
+    StudentId           INT          NOT NULL,
+    StopId              INT          NOT NULL,
+    BoardingStatus      NVARCHAR(20) NOT NULL CONSTRAINT DF_StudentTripStatus_Status DEFAULT 'Pending',
+    BoardedAt           DATETIME2    NULL,
+    DroppedAt           DATETIME2    NULL,
+    UpdatedAt           DATETIME2    NOT NULL CONSTRAINT DF_StudentTripStatus_UpdatedAt DEFAULT GETUTCDATE(),
+    UpdatedBy           INT          NULL,
+    CONSTRAINT PK_StudentTripStatus PRIMARY KEY (StudentTripStatusId),
     CONSTRAINT FK_StudentTripStatus_BusTrips FOREIGN KEY (TripId) REFERENCES BusTrips(TripId) ON DELETE CASCADE,
     CONSTRAINT FK_StudentTripStatus_Students FOREIGN KEY (StudentId) REFERENCES Students(StudentId),
     CONSTRAINT FK_StudentTripStatus_Stops FOREIGN KEY (StopId) REFERENCES Stops(StopId),
@@ -514,6 +537,7 @@ GO
 
 -- 28. BUS LIVE LOCATION
 CREATE TABLE BusLiveLocation (
+    SchoolId   INT           NULL,
     LocationId INT           NOT NULL IDENTITY(1,1),
     TripId     INT           NOT NULL,
     BusId      INT           NOT NULL,
@@ -524,41 +548,45 @@ CREATE TABLE BusLiveLocation (
     RecordedAt DATETIME2     NOT NULL CONSTRAINT DF_BusLiveLocation_RecordedAt DEFAULT GETUTCDATE(),
     CONSTRAINT PK_BusLiveLocation PRIMARY KEY (LocationId),
     CONSTRAINT FK_BusLiveLocation_BusTrips FOREIGN KEY (TripId) REFERENCES BusTrips(TripId) ON DELETE CASCADE,
-    CONSTRAINT FK_BusLiveLocation_Buses FOREIGN KEY (BusId) REFERENCES Buses(BusId)
+    CONSTRAINT FK_BusLiveLocation_Buses FOREIGN KEY (BusId) REFERENCES Buses(BusId),
+    CONSTRAINT FK_BusLiveLocation_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId)
 );
 GO
 
 -- 29. BUS IMAGES
 CREATE TABLE BusImages (
-    SchoolId  INT           NULL,
-    Id        INT           NOT NULL IDENTITY(1,1),
-    BusId     INT           NOT NULL,
-    ImageUrl  NVARCHAR(500) NOT NULL,
-    CreatedAt DATETIME2     NOT NULL CONSTRAINT DF_BusImages_CreatedAt DEFAULT GETUTCDATE(),
-    UpdatedAt DATETIME2     NOT NULL CONSTRAINT DF_BusImages_UpdatedAt DEFAULT GETUTCDATE(),
-    CONSTRAINT PK_BusImages PRIMARY KEY (Id),
+    SchoolId     INT           NULL,
+    BusImageId   INT           NOT NULL IDENTITY(1,1),
+    BusId        INT           NOT NULL,
+    ImageUrl     NVARCHAR(500) NOT NULL,
+    DisplayOrder INT           NOT NULL CONSTRAINT DF_BusImages_DisplayOrder DEFAULT 0,
+    IsPrimary    BIT           NOT NULL CONSTRAINT DF_BusImages_IsPrimary DEFAULT 0,
+    UploadedAt   DATETIME2     NOT NULL CONSTRAINT DF_BusImages_UploadedAt DEFAULT GETUTCDATE(),
+    UploadedBy   INT           NULL,
+    CONSTRAINT PK_BusImages PRIMARY KEY (BusImageId),
     CONSTRAINT FK_BusImages_Buses FOREIGN KEY (BusId) REFERENCES Buses(BusId) ON DELETE CASCADE,
+    CONSTRAINT FK_BusImages_Users FOREIGN KEY (UploadedBy) REFERENCES Users(UserId),
     CONSTRAINT FK_BusImages_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId)
 );
 GO
 
 -- 30. BUS FUEL LOGS
 CREATE TABLE BusFuelLogs (
-    SchoolId     INT             NULL,
-    FuelLogId    INT             NOT NULL IDENTITY(1,1),
-    BusId        INT             NOT NULL,
-    DriverUserId INT             NOT NULL,
-    RefuelDate   DATETIME2       NOT NULL CONSTRAINT DF_BusFuelLogs_RefuelDate DEFAULT GETUTCDATE(),
-    Liters       DECIMAL(10,2)   NOT NULL,
-    TotalCost    DECIMAL(10,2)   NOT NULL,
-    Odometer     DECIMAL(10,2)   NOT NULL,
-    ReceiptImage NVARCHAR(500)   NULL,
-    Remarks      NVARCHAR(500)   NULL,
-    CreatedAt    DATETIME2       NOT NULL CONSTRAINT DF_BusFuelLogs_CreatedAt DEFAULT GETUTCDATE(),
-    UpdatedAt    DATETIME2       NOT NULL CONSTRAINT DF_BusFuelLogs_UpdatedAt DEFAULT GETUTCDATE(),
+    SchoolId        INT             NULL,
+    FuelLogId       INT             NOT NULL IDENTITY(1,1),
+    BusId           INT             NOT NULL,
+    DriverId        INT             NULL,
+    FuelDate        DATE            NOT NULL,
+    FuelLiters      DECIMAL(10,2)   NOT NULL,
+    TotalCost       DECIMAL(10,2)   NOT NULL,
+    OdometerReading DECIMAL(10,2)   NOT NULL,
+    ReceiptImage    NVARCHAR(500)   NULL,
+    Notes           NVARCHAR(500)   NULL,
+    CreatedAt       DATETIME2       NOT NULL CONSTRAINT DF_BusFuelLogs_CreatedAt DEFAULT GETUTCDATE(),
+    UpdatedAt       DATETIME2       NOT NULL CONSTRAINT DF_BusFuelLogs_UpdatedAt DEFAULT GETUTCDATE(),
     CONSTRAINT PK_BusFuelLogs PRIMARY KEY (FuelLogId),
     CONSTRAINT FK_BusFuelLogs_Buses FOREIGN KEY (BusId) REFERENCES Buses(BusId) ON DELETE CASCADE,
-    CONSTRAINT FK_BusFuelLogs_Users FOREIGN KEY (DriverUserId) REFERENCES Users(UserId),
+    CONSTRAINT FK_BusFuelLogs_Users FOREIGN KEY (DriverId) REFERENCES Users(UserId),
     CONSTRAINT FK_BusFuelLogs_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId)
 );
 GO
@@ -685,10 +713,13 @@ CREATE TABLE Notifications (
     NotificationId  INT            NOT NULL IDENTITY(1,1),
     RecipientUserId INT            NOT NULL,
     Title           NVARCHAR(200)  NOT NULL,
-    Message         NVARCHAR(1000) NOT NULL,
+    Body            NVARCHAR(1000) NOT NULL,
     NotificationType NVARCHAR(50)  NOT NULL,
+    ReferenceId     INT            NULL,
+    ReferenceType   NVARCHAR(50)   NULL,
     IsRead          BIT            NOT NULL CONSTRAINT DF_Notifications_IsRead DEFAULT 0,
-    CreatedAt       DATETIME2      NOT NULL CONSTRAINT DF_Notifications_CreatedAt DEFAULT GETUTCDATE(),
+    SentAt          DATETIME2      NOT NULL CONSTRAINT DF_Notifications_SentAt DEFAULT GETUTCDATE(),
+    ReadAt          DATETIME2      NULL,
     CONSTRAINT PK_Notifications PRIMARY KEY (NotificationId),
     CONSTRAINT FK_Notifications_Users FOREIGN KEY (RecipientUserId) REFERENCES Users(UserId) ON DELETE CASCADE,
     CONSTRAINT FK_Notifications_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId)
@@ -733,12 +764,17 @@ CREATE TABLE Feedbacks (
     SchoolId    INT            NULL,
     FeedbackId  INT            NOT NULL IDENTITY(1,1),
     UserId      INT            NOT NULL,
+    Category    NVARCHAR(50)   NULL,
+    Email       NVARCHAR(255)  NULL,
+    PhoneNumber NVARCHAR(20)   NULL,
     Subject     NVARCHAR(200)  NOT NULL,
-    Message     NVARCHAR(2000) NOT NULL,
+    Description NVARCHAR(2000) NOT NULL,
     Status      NVARCHAR(20)   NOT NULL CONSTRAINT DF_Feedbacks_Status DEFAULT 'Open',
     AdminReply  NVARCHAR(2000) NULL,
     RepliedBy   INT            NULL,
     RepliedAt   DATETIME2      NULL,
+    ResolvedBy  INT            NULL,
+    ResolvedAt  DATETIME2      NULL,
     CreatedAt   DATETIME2      NOT NULL CONSTRAINT DF_Feedbacks_CreatedAt DEFAULT GETUTCDATE(),
     UpdatedAt   DATETIME2      NOT NULL CONSTRAINT DF_Feedbacks_UpdatedAt DEFAULT GETUTCDATE(),
     CONSTRAINT PK_Feedbacks PRIMARY KEY (FeedbackId),
@@ -768,14 +804,23 @@ GO
 
 -- 41. LOGGER
 CREATE TABLE Logger (
-    LogId       INT            NOT NULL IDENTITY(1,1),
-    Timestamp   DATETIME2      NOT NULL CONSTRAINT DF_Logger_Timestamp DEFAULT GETUTCDATE(),
-    LogLevel    NVARCHAR(20)   NOT NULL,
-    Message     NVARCHAR(MAX)  NOT NULL,
-    Exception   NVARCHAR(MAX)  NULL,
-    LoggerName  NVARCHAR(250)  NULL,
-    SchoolId    INT            NULL,
-    UserId      INT            NULL,
+    LogId              INT            NOT NULL IDENTITY(1,1),
+    Timestamp          DATETIME2      NOT NULL CONSTRAINT DF_Logger_Timestamp DEFAULT GETUTCDATE(),
+    LogLevel           NVARCHAR(20)   NULL,
+    Message            NVARCHAR(MAX)  NULL,
+    Exception          NVARCHAR(MAX)  NULL,
+    LoggerName         NVARCHAR(250)  NULL,
+    SchoolId           INT            NULL,
+    UserId             INT            NULL,
+    Platform           NVARCHAR(50)   NULL,
+    ExceptionMessage   NVARCHAR(MAX)  NULL,
+    StackTrace         NVARCHAR(MAX)  NULL,
+    RequestUrl         NVARCHAR(2083) NULL,
+    Username           NVARCHAR(256)  NULL,
+    Role               NVARCHAR(50)   NULL,
+    ModuleName         NVARCHAR(100)  NULL,
+    ActionName         NVARCHAR(100)  NULL,
+    AdditionalDetails  NVARCHAR(MAX)  NULL,
     CONSTRAINT PK_Logger PRIMARY KEY (LogId)
 );
 GO
@@ -1040,6 +1085,10 @@ GO
 -- 4. SEED PERMISSIONS CATALOGUE
 INSERT INTO Permissions (ModuleName, PermissionKey, Description) VALUES
 ('Dashboard',           'dashboard.view',           'View dashboard'),
+('Teachers',            'teachers.view',            'View teachers directory and details'),
+('Teachers',            'teachers.add',             'Register new teacher account'),
+('Teachers',            'teachers.edit',            'Edit teacher profile and toggle active status'),
+('Teachers',            'teachers.delete',          'Delete teacher profile'),
 ('AppConfig',           'appconfig.view',           'View app configurations'),
 ('AppConfig',           'appconfig.add',            'Add app configuration'),
 ('AppConfig',           'appconfig.edit',           'Edit app configuration'),

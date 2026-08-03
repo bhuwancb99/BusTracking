@@ -1,102 +1,127 @@
-@* ── Driver/Edit.cshtml ──────────────────────────────────── *@
 @model BusTracking.Common.DTOs.Driver.UpdateDriverDto
 @{
-    ViewData["Title"] = "Edit Driver";
+    ViewData["Title"] = "Edit Driver Profile";
+    int driverId = ViewBag.DriverId ?? 0;
 }
 
-<div class="row">
-    <div class="col-lg-12">
-        <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white fw-semibold border-0 pt-4 px-4">
-                <i class="bi bi-pencil me-2 text-warning"></i>Edit Driver
-            </div>
-            <div class="card-body p-4">
+<div class="container-fluid p-0">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h2 class="fw-bold m-0 text-dark">
+                <i class="bi bi-person-gear text-primary me-2"></i>Edit Driver Profile
+            </h2>
+            <nav aria-label="breadcrumb" class="mt-1">
+                <ol class="breadcrumb mb-0 small text-muted">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index")" class="text-decoration-none text-muted">Drivers</a></li>
+                    <li class="breadcrumb-item active text-primary" aria-current="page">Edit Driver</li>
+                </ol>
+            </nav>
+        </div>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary rounded-3 px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="card-body p-4">
+            <form asp-action="Edit" asp-route-id="@driverId" method="post" id="editForm">
+                @Html.AntiForgeryToken()
+
                 @if (!ViewData.ModelState.IsValid)
                 {
-                    <div asp-validation-summary="All" class="alert alert-danger py-2 border-0"></div>
+                    <div class="alert alert-danger py-2 border-0 rounded-3 mb-4" style="background-color: rgba(239, 68, 68, 0.15); color: #ef4444;">
+                        <div asp-validation-summary="All"></div>
+                    </div>
                 }
-                <form asp-area="SuperAdmin" asp-action="Edit" asp-route-id="@ViewBag.DriverId" method="post" id="editForm">
-                    @Html.AntiForgeryToken()
+
+                <!-- Section 1: Account Credentials -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-shield-lock me-2"></i>Account Credentials</h6>
                     <div class="row g-3">
-                        <div class="col-md-4">
-                            <label asp-for="FullName" class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
-                            <input asp-for="FullName" class="form-control" />
+                        <div class="col-md-4 col-12">
+                            <label asp-for="FullName" class="form-label fw-bold">Full Name <span class="text-danger">*</span></label>
+                            <input asp-for="FullName" class="form-control rounded-3" required />
                             <span asp-validation-for="FullName" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-4">
-                            <label asp-for="UserName" class="form-label fw-semibold">Username <span class="text-danger">*</span></label>
-                            <div class="input-group">
-                                <input asp-for="UserName" class="form-control" id="usernameInput" autocomplete="off" />
-                            </div>
-                            <span asp-validation-for="UserName" class="text-danger small"></span>
-                            <div id="usernameMsg" class="small mt-1"></div>
-                        </div>
-                        <div class="col-md-4">
-                            <label asp-for="Email" class="form-label fw-semibold">Email <span class="text-muted fw-normal">(Optional)</span></label>
-                            <input asp-for="Email" type="email" class="form-control" placeholder="driver@email.com" />
-                        </div>
-                        <div class="col-md-4">
-                            <label asp-for="PhoneNumber" class="form-label fw-semibold">Phone Number</label>
-                            <input asp-for="PhoneNumber" class="form-control" />
-                        </div>
-                        <div class="col-md-4">
-                            <label asp-for="NewPassword" class="form-label fw-semibold">New Password <span class="text-danger fst-italic ms-1" style="font-size:0.82rem;">(leave blank to keep current)</span></label>
-                            <div class="input-group">
-                                <input asp-for="NewPassword" type="password" class="form-control" placeholder="Enter new password" id="pwdInput2" autocomplete="new-password" />
-                                <button type="button" class="btn btn-outline-secondary" onclick="toggleNewPwd()"><i class="bi bi-eye" id="eyeIcon2"></i></button>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <label asp-for="LicenseNumber" class="form-label fw-semibold">License Number</label>
-                            <input asp-for="LicenseNumber" class="form-control" />
-                        </div>
-                        <div class="col-md-4">
-                            <label asp-for="LicenseExpiry" class="form-label fw-semibold">License Expiry</label>
-                            <input asp-for="LicenseExpiry" type="date" class="form-control" />
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">Status</label>
-                            <div class="d-flex gap-3 mt-1">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="IsActive" value="true" id="isActiveTrue"
-                                    @(Model.IsActive ? "checked" : "") />
-                                    <label class="form-check-label text-success fw-semibold" for="isActiveTrue">
-                                        <i class="bi bi-check-circle me-1"></i>Active
-                                    </label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="IsActive" value="false" id="isActiveFalse"
-                                    @(!Model.IsActive ? "checked" : "") />
-                                    <label class="form-check-label text-danger fw-semibold" for="isActiveFalse">
-                                        <i class="bi bi-x-circle me-1"></i>Inactive
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="submit" class="btn btn-warning px-4"><i class="bi bi-check2 me-1"></i>Update Driver</button>
-                        <a asp-area="SuperAdmin" asp-action="Index" class="btn btn-outline-secondary px-4">Cancel</a>
-                        <button type="button" class="btn btn-outline-danger px-4 ms-auto" onclick="confirmResetPassword()">
-                            <i class="bi bi-key me-1"></i>Reset Password
-                        </button>
-                    </div>
-                </form>
 
-                @* {{-- Reset Password Result --}} *@
-                <div id="pwdResult" class="mt-3" style="display:none;">
-                    <div class="alert alert-success border-0 d-flex align-items-start gap-3">
-                        <i class="bi bi-shield-check fs-4 text-success mt-1"></i>
-                        <div>
-                            <div class="fw-semibold mb-1">Password Reset Successfully</div>
-                            <div class="mb-1 small text-muted">New password for <span id="pwdName" class="fw-semibold text-dark"></span></div>
-                            <div class="d-flex align-items-center gap-2 mt-2">
-                                <code id="pwdValue" class="fs-5 px-3 py-1 bg-white border rounded text-danger fw-bold"></code>
-                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyPwd()" title="Copy">
-                                    <i class="bi bi-clipboard"></i>
-                                </button>
+                        <div class="col-md-4 col-12">
+                            <label asp-for="UserName" class="form-label fw-bold">Username <span class="text-danger">*</span></label>
+                            <input asp-for="UserName" id="UserNameInput" class="form-control rounded-3" required autocomplete="off" />
+                            <span asp-validation-for="UserName" class="text-danger small"></span>
+                            <div id="usernameCheckMsg" class="small mt-1"></div>
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="NewPassword" class="form-label fw-bold">New Password <span class="text-muted fw-normal">(Optional)</span></label>
+                            <input asp-for="NewPassword" type="password" class="form-control rounded-3" placeholder="Leave blank to keep unchanged" />
+                            <span asp-validation-for="NewPassword" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Contact & License Details -->
+                <div class="mb-4 pt-3 border-top">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-card-heading me-2"></i>Contact & License Details</h6>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4 col-12">
+                            <label asp-for="Email" class="form-label fw-bold">Email Address</label>
+                            <input asp-for="Email" type="email" class="form-control rounded-3" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="PhoneNumber" class="form-label fw-bold">Phone Number</label>
+                            <input asp-for="PhoneNumber" class="form-control rounded-3" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="LicenseNumber" class="form-label fw-bold">License Number</label>
+                            <input asp-for="LicenseNumber" class="form-control rounded-3" />
+                            <span asp-validation-for="LicenseNumber" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-4 col-12">
+                            <label asp-for="LicenseExpiry" class="form-label fw-bold">License Expiry Date</label>
+                            <input asp-for="LicenseExpiry" type="date" class="form-control rounded-3" />
+                            <span asp-validation-for="LicenseExpiry" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <label class="form-label fw-bold">Account Status</label>
+                            <div class="form-control rounded-3 d-flex align-items-center justify-content-between bg-light">
+                                <span class="fw-semibold text-secondary small">Active Status</span>
+                                <div class="form-check form-switch mb-0">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" style="width: 40px; height: 20px; cursor: pointer;" />
+                                </div>
                             </div>
-                            <div class="text-muted small mt-2"><i class="bi bi-exclamation-triangle me-1 text-warning"></i>Copy this password now — it will not be shown again.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 border-top pt-4">
+                    <a href="@Url.Action("Index")" class="btn btn-light rounded-3 px-4">Cancel</a>
+                    <button type="submit" id="submitBtn" class="btn btn-primary rounded-3 px-4 shadow-sm"><i class="bi bi-save me-2"></i>Save Changes</button>
+                    <button type="button" class="btn btn-outline-danger rounded-3 px-3 ms-auto" onclick="confirmResetPassword()">
+                        <i class="bi bi-key me-1"></i>Reset Password
+                    </button>
+                </div>
+            </form>
+
+            <div id="pwdResult" class="mt-4" style="display:none;">
+                <div class="alert alert-success border-0 rounded-4 d-flex align-items-start gap-3 bg-success-subtle border-start border-4 border-success">
+                    <i class="bi bi-shield-check fs-3 text-success mt-1"></i>
+                    <div>
+                        <div class="fw-bold mb-1 text-success">Password Reset Successfully</div>
+                        <div class="mb-1 small text-muted">New generated password for <span id="pwdName" class="fw-bold text-dark"></span>:</div>
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            <code id="pwdValue" class="fs-5 px-3 py-1 bg-white border rounded text-danger fw-bold font-monospace"></code>
+                            <button type="button" class="btn btn-sm btn-outline-secondary rounded-circle" onclick="copyPwd()" title="Copy Password">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -108,20 +133,61 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        const vs = document.getElementById('valSummary');
-        if (vs && vs.querySelector('li,span:not(:empty)')) vs.style.display='';
-        document.getElementById('editForm').addEventListener('submit',()=>{ if(vs) vs.style.display=''; });
+        document.addEventListener('DOMContentLoaded', function() {
+            var input = document.getElementById('UserNameInput');
+            var msg = document.getElementById('usernameCheckMsg');
+            var btn = document.getElementById('submitBtn');
+            var driverId = '@driverId';
+            var timeout = null;
+
+            if (input) {
+                input.addEventListener('input', function() {
+                    var val = input.value.trim();
+                    clearTimeout(timeout);
+
+                    if (val.length === 0) {
+                        if (msg) msg.textContent = '';
+                        if (btn) btn.disabled = false;
+                        return;
+                    }
+
+                    timeout = setTimeout(function() {
+                        fetch('/Auth/CheckUsername?userName=' + encodeURIComponent(val) + '&excludeUserId=' + driverId)
+                            .then(function(r) { return r.json(); })
+                            .then(function(res) {
+                                if (res.success) {
+                                    if (msg) {
+                                        msg.className = 'small mt-1 text-success';
+                                        msg.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Username is available';
+                                    }
+                                    if (btn) btn.disabled = false;
+                                } else {
+                                    if (msg) {
+                                        msg.className = 'small mt-1 text-danger';
+                                        msg.innerHTML = '<i class="bi bi-x-circle-fill me-1"></i>' + res.message;
+                                    }
+                                    if (btn) btn.disabled = true;
+                                }
+                            })
+                            .catch(function() {
+                                if (btn) btn.disabled = false;
+                            });
+                    }, 400);
+                });
+            }
+        });
 
         function confirmResetPassword() {
             if (!confirm('Reset password for this driver? A new password will be generated and shown once.')) return;
             doResetPassword();
         }
+
         async function doResetPassword() {
-            const id = @ViewBag.DriverId;
-            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-            const res = await fetch(`/SuperAdmin/Driver/ResetPassword?id=${id}`, {
+            const id = '@driverId';
+            const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+            const res = await fetch(`@Url.Action("ResetPassword")?id=${id}`, {
                 method: 'POST',
-                headers: { 'RequestVerificationToken': token }
+                headers: { 'RequestVerificationToken': token || '' }
             });
             const data = await res.json();
             if (data.success) {
@@ -133,46 +199,10 @@
                 alert('Error: ' + data.message);
             }
         }
+
         function copyPwd() {
             navigator.clipboard.writeText(document.getElementById('pwdValue').textContent);
-        }
-        function toggleNewPwd() { const inp = document.getElementById('pwdInput2'); const icon = document.getElementById('eyeIcon2'); inp.type = inp.type === 'password' ? 'text' : 'password'; icon.className = inp.type === 'password' ? 'bi bi-eye' : 'bi bi-eye-slash'; }
-        // ── Username live-check (keyup, min 5 chars) ────────────────────────────
-        const _unInput   = document.getElementById('usernameInput');
-        const _unMsg     = document.getElementById('usernameMsg');
-        const _currentId = @ViewBag.DriverId;
-        let   _unTimer   = null;
-
-        _unInput.addEventListener('keyup', () => {
-            clearTimeout(_unTimer);
-            _unTimer = setTimeout(liveCheckUsername, 350);
-        });
-
-        async function liveCheckUsername() {
-            const val = _unInput.value.trim();
-            _unMsg.innerHTML = '';
-            _unMsg.className = 'small mt-1';
-            if (val.length === 0) return;
-            if (val.length < 5) {
-                _unMsg.innerHTML  = '<i class="bi bi-exclamation-circle me-1"></i>Username must have at least 5 characters';
-                _unMsg.className  = 'small mt-1 text-danger';
-                return;
-            }
-            try {
-                const res  = await fetch(`/Auth/CheckUsername?userName=${encodeURIComponent(val)}&excludeUserId=${_currentId}`);
-                if (!res.ok) return;
-                const data = await res.json();
-                if (!data.success) {
-                    _unMsg.innerHTML = `<i class="bi bi-x-circle me-1"></i>The username <strong>${escHtml(val)}</strong> is already taken`;
-                    _unMsg.className = 'small mt-1 text-danger';
-                } else {
-                    _unMsg.innerHTML = `<i class="bi bi-check-circle me-1"></i><strong>${escHtml(val)}</strong> is available`;
-                    _unMsg.className = 'small mt-1 text-success fw-semibold';
-                }
-            } catch (_) { /* network error — silent */ }
-        }
-        function escHtml(s) {
-            return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            alert('Password copied!');
         }
     </script>
 }

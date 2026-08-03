@@ -6,6 +6,7 @@ namespace BusTracking.Common.Helpers
         public const string RoleSuperAdmin = "SuperAdmin";
         public const string RoleBusCoordinator = "BusCoordinator";
         public const string RoleDriver = "Driver";
+        public const string RoleTeacher = "Teacher";
         public const string RoleParent = "Parent";
         public const string RoleStudent = "Student";
 

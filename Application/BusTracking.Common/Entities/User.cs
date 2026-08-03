@@ -28,6 +28,7 @@ namespace BusTracking.Common.Entities
         public StudentDetail? StudentDetail { get; set; }
         public ParentDetail? ParentDetail { get; set; }
         public DriverDetail? DriverDetail { get; set; }
+        public Teacher? Teacher { get; set; }
         public ICollection<PasswordResetToken> PasswordResetTokens { get; set; } = [];
         public ICollection<SubAdminPermission> SubAdminPermissions { get; set; } = [];
         public ICollection<Notification> Notifications { get; set; } = [];
