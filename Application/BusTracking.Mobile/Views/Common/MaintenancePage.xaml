@@ -4,48 +4,69 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}"
     Shell.FlyoutBehavior="Disabled"
     Shell.NavBarIsVisible="False"
     Shell.TabBarIsVisible="False">
 
     <ContentPage.Behaviors>
-        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource Primary}, Dark=#0a0e1a}" StatusBarStyle="LightContent" />
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource PageBg}, Dark={StaticResource PageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </ContentPage.Behaviors>
 
     <Grid>
-        <Grid.Background>
-            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                <GradientStop Offset="0.0" Color="{AppThemeBinding Light={StaticResource Primary}, Dark=#0a0e1a}" />
-                <GradientStop Offset="0.4" Color="{AppThemeBinding Light=#1a3a9e, Dark=#0d1630}" />
-                <GradientStop Offset="1.0" Color="{AppThemeBinding Light=#0d1630, Dark=#060a18}" />
-            </LinearGradientBrush>
-        </Grid.Background>
-
+        <!--  ══════ LOADING STATE (shown first while checking config) ══════  -->
         <VerticalStackLayout
+            x:Name="LoadingPanel"
+            HorizontalOptions="Center"
+            IsVisible="True"
+            Spacing="20"
+            VerticalOptions="Center">
+
+            <ActivityIndicator
+                HeightRequest="48"
+                IsRunning="True"
+                WidthRequest="48"
+                Color="{StaticResource Primary}" />
+
+            <Label
+                FontSize="15"
+                HorizontalOptions="Center"
+                Text="Checking system status..."
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark={StaticResource TextPrimaryDark}}" />
+        </VerticalStackLayout>
+
+        <!--  ══════ MAINTENANCE STATE (shown if maintenance mode is ON) ══════  -->
+        <VerticalStackLayout
+            x:Name="MaintenancePanel"
             Padding="32,0"
             HorizontalOptions="Center"
+            IsVisible="False"
             Spacing="0"
             VerticalOptions="Center">
 
-            <!--  Glowing circle behind icon  -->
+            <!--  Icon Badge  -->
             <Border
                 Margin="0,0,0,8"
-                BackgroundColor="#1affffff"
-                HeightRequest="120"
+                BackgroundColor="{AppThemeBinding Light=#F0F4FF,
+                                                  Dark=#1A2440}"
+                HeightRequest="110"
                 HorizontalOptions="Center"
                 StrokeShape="Ellipse"
                 StrokeThickness="0"
-                WidthRequest="120">
+                WidthRequest="110">
                 <Border
-                    BackgroundColor="#33ffffff"
-                    HeightRequest="90"
+                    BackgroundColor="{AppThemeBinding Light=#E0E9FF,
+                                                      Dark=#253358}"
+                    HeightRequest="80"
                     HorizontalOptions="Center"
                     StrokeShape="Ellipse"
                     StrokeThickness="0"
                     VerticalOptions="Center"
-                    WidthRequest="90">
+                    WidthRequest="80">
                     <Label
-                        FontSize="44"
+                        FontSize="40"
                         HorizontalOptions="Center"
                         Text="🔧"
                         VerticalOptions="Center" />
@@ -57,68 +78,73 @@
                 Margin="0,20,0,0"
                 FontAttributes="Bold"
                 FontFamily="InterSemiBold"
-                FontSize="26"
+                FontSize="24"
                 HorizontalOptions="Center"
                 HorizontalTextAlignment="Center"
                 Text="Under Maintenance"
-                TextColor="White" />
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark={StaticResource TextPrimaryDark}}" />
 
             <!--  Subtitle message  -->
             <Label
                 x:Name="MessageLabel"
                 Margin="0,12,0,0"
-                FontSize="15"
+                FontSize="14"
                 HorizontalOptions="Center"
                 HorizontalTextAlignment="Center"
                 LineBreakMode="WordWrap"
                 MaximumWidthRequest="320"
-                Opacity="0.8"
                 Text="We are under maintenance. Please check back soon."
-                TextColor="White" />
+                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                            Dark={StaticResource TextSecondaryDark}}" />
 
-            <!--  Decorative divider line  -->
-            <BoxView
-                Margin="0,28,0,28"
-                BackgroundColor="#22ffffff"
-                HeightRequest="1"
-                HorizontalOptions="Fill"
-                WidthRequest="200" />
-
-            <!--  Info card  -->
+            <!--  Info Card  -->
             <Border
+                Margin="0,28,0,0"
                 Padding="20,16"
-                BackgroundColor="#12ffffff"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
                 HorizontalOptions="Center"
                 MaximumWidthRequest="340"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 16"
-                StrokeThickness="0">
-                <VerticalStackLayout Spacing="12">
+                StrokeThickness="1">
+                <Border.Shadow>
+                    <Shadow
+                        Brush="Black"
+                        Opacity="0.08"
+                        Radius="12"
+                        Offset="0,4" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="14">
                     <Label
-                        FontSize="14"
+                        FontSize="13"
                         HorizontalTextAlignment="Center"
                         LineBreakMode="WordWrap"
-                        Opacity="0.7"
                         Text="Our team is working hard to get things back up and running. Thank you for your patience!"
-                        TextColor="White" />
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
 
                     <ActivityIndicator
-                        HeightRequest="28"
+                        HeightRequest="24"
                         IsRunning="True"
-                        WidthRequest="28"
-                        Color="White" />
+                        WidthRequest="24"
+                        Color="{StaticResource Primary}" />
                 </VerticalStackLayout>
             </Border>
 
-            <!--  Retry button  -->
+            <!--  Retry Button  -->
             <Button
                 x:Name="RetryButton"
-                Margin="0,32,0,0"
-                BackgroundColor="#22ffffff"
+                Margin="0,28,0,0"
+                BackgroundColor="{StaticResource Primary}"
                 Clicked="OnRetryClicked"
                 CornerRadius="14"
                 FontAttributes="Bold"
                 FontSize="15"
-                HeightRequest="50"
+                HeightRequest="48"
                 HorizontalOptions="Center"
                 Text="Retry"
                 TextColor="White"

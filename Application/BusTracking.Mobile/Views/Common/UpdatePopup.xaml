@@ -119,17 +119,13 @@
                 <Button
                     x:Name="LaterButton"
                     Grid.Column="0"
-                    BackgroundColor="Transparent"
-                    BorderColor="{AppThemeBinding Light={StaticResource BorderColor},
-                                                  Dark={StaticResource BorderColorDark}}"
-                    BorderWidth="1.5"
+                    BackgroundColor="{StaticResource Primary}"
                     Clicked="OnLaterClicked"
                     CornerRadius="12"
                     FontAttributes="Bold"
                     HeightRequest="48"
                     Text="Later"
-                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                Dark={StaticResource TextSecondaryDark}}" />
+                    TextColor="White" />
 
                 <!--  Update Now button  -->
                 <Button

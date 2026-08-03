@@ -291,16 +291,16 @@
         ══════════════════════════════════════════════════════════
     -->
     <ShellContent
-        ContentTemplate="{DataTemplate auth:LoginPage}"
+        ContentTemplate="{DataTemplate common:MaintenancePage}"
         FlyoutItemIsVisible="False"
-        Route="Login"
+        Route="Maintenance"
         Shell.FlyoutBehavior="Disabled"
         Shell.NavBarIsVisible="False" />
 
     <ShellContent
-        ContentTemplate="{DataTemplate common:MaintenancePage}"
+        ContentTemplate="{DataTemplate auth:LoginPage}"
         FlyoutItemIsVisible="False"
-        Route="Maintenance"
+        Route="Login"
         Shell.FlyoutBehavior="Disabled"
         Shell.NavBarIsVisible="False" />
 
