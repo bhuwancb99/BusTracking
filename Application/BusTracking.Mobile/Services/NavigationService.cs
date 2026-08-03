@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Services
+namespace BusTracking.Mobile.Services
 {
     public class NavigationService : INavigationService
     {
@@ -20,6 +20,7 @@
             {
                 Constants.Roles.SuperAdmin => "//AdminDashboard",
                 Constants.Roles.BusCoordinator => "//CoordinatorDashboard",
+                Constants.Roles.Teacher => "//TeacherDashboard",
                 Constants.Roles.Parent => "//ParentDashboard",
                 Constants.Roles.Student => "//StudentDashboard",
                 Constants.Roles.Driver => "//DriverDashboard",

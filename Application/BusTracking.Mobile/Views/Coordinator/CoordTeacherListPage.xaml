@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.Coordinator.CoordTeacherListPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:models="clr-namespace:BusTracking.Mobile.Models.Teacher"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
+    x:DataType="vm:CoordTeacherListViewModel"
+    x:TypeArguments="vm:CoordTeacherListViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
+
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
+    </views:ViewBase.Behaviors>
+
+    <Shell.TitleView>
+        <Grid Padding="0,0,8,0" ColumnDefinitions="*,Auto">
+            <Label
+                Grid.Column="0"
+                FontAttributes="Bold"
+                FontSize="18"
+                Text="Teachers"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}"
+                VerticalOptions="Center" />
+            <Border
+                Grid.Column="1"
+                Padding="8"
+                BackgroundColor="White"
+                IsVisible="{Binding CanAdd}"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0"
+                VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding AddCommand}" />
+                </Border.GestureRecognizers>
+                <Image
+                    HeightRequest="20"
+                    Source="add.png"
+                    WidthRequest="20">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                    </Image.Behaviors>
+                </Image>
+            </Border>
+        </Grid>
+    </Shell.TitleView>
+
+    <Grid RowDefinitions="Auto,*">
+        <!--  Search Card  -->
+        <Border
+            Grid.Row="0"
+            Margin="12,12,12,8"
+            Padding="12,8"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                              Dark={StaticResource CardBgDark}}"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                     Dark={StaticResource BorderColorDark}}"
+            StrokeShape="RoundRectangle 12"
+            StrokeThickness="1">
+            <Grid ColumnDefinitions="*,Auto">
+                <Entry
+                    Grid.Column="0"
+                    Placeholder="{Binding SearchPlaceholder}"
+                    ReturnCommand="{Binding SearchCommand}"
+                    Text="{Binding SearchText}"
+                    VerticalOptions="Center" />
+                <Button
+                    Grid.Column="1"
+                    Margin="8,0,0,0"
+                    Padding="12,0"
+                    Command="{Binding SearchCommand}"
+                    CornerRadius="8"
+                    HeightRequest="38"
+                    Text="Search" />
+            </Grid>
+        </Border>
+
+        <!--  List View  -->
+        <RefreshView
+            Grid.Row="1"
+            Command="{Binding LoadCommand}"
+            IsRefreshing="{Binding IsBusy}">
+            <CollectionView ItemsSource="{Binding Items}">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout
+                        Padding="30"
+                        HorizontalOptions="Center"
+                        Spacing="8"
+                        VerticalOptions="Center">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalTextAlignment="Center"
+                            Text="No Teachers Found"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                        <Label
+                            FontSize="12"
+                            HorizontalTextAlignment="Center"
+                            Text="Tap + above to register a new teacher account."
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:TeacherItem">
+                        <Border
+                            Margin="12,6"
+                            Padding="16"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                              Dark={StaticResource CardBgDark}}"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                     Dark={StaticResource BorderColorDark}}"
+                            StrokeShape="RoundRectangle 14"
+                            StrokeThickness="1">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordTeacherListViewModel}}, Path=SelectCommand}" CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                                <Border
+                                    Grid.Column="0"
+                                    BackgroundColor="#e0e7ff"
+                                    HeightRequest="44"
+                                    HorizontalOptions="Center"
+                                    StrokeShape="RoundRectangle 22"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center"
+                                    WidthRequest="44">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        HorizontalOptions="Center"
+                                        Text="{Binding InitialsDisplay}"
+                                        TextColor="#3730a3"
+                                        VerticalOptions="Center" />
+                                </Border>
+
+                                <VerticalStackLayout
+                                    Grid.Column="1"
+                                    Spacing="2"
+                                    VerticalOptions="Center">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="15"
+                                        Text="{Binding FullName}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                    Dark={StaticResource TextPrimaryDark}}" />
+                                    <Label
+                                        FontSize="12"
+                                        Text="{Binding DesignationDisplay}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                                    Dark={StaticResource TextSecondaryDark}}" />
+                                    <Label
+                                        FontSize="11"
+                                        Text="{Binding DepartmentDisplay}"
+                                        TextColor="#64748b" />
+                                </VerticalStackLayout>
+
+                                <Border
+                                    Grid.Column="2"
+                                    Padding="8,4"
+                                    BackgroundColor="{Binding StatusBgColor}"
+                                    StrokeShape="RoundRectangle 8"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="11"
+                                        Text="{Binding StatusLabel}"
+                                        TextColor="{Binding StatusTextColor}" />
+                                </Border>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+
+</views:ViewBase>

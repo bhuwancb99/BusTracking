@@ -13,6 +13,7 @@
     xmlns:parent="clr-namespace:BusTracking.Mobile.Views.Parent"
     xmlns:shared="clr-namespace:BusTracking.Mobile.Views.Shared"
     xmlns:student="clr-namespace:BusTracking.Mobile.Views.Student"
+    xmlns:teacher="clr-namespace:BusTracking.Mobile.Views.Teacher"
     FlyoutBehavior="Flyout"
     FlyoutWidth="270"
     Shell.BackgroundColor="{AppThemeBinding Light={StaticResource NavBarBg},
@@ -532,5 +533,26 @@
         ContentTemplate="{DataTemplate driver:DriverNotificationPage}"
         FlyoutItemIsVisible="False"
         Route="DriverNotification" />
+
+    <!--  Teacher Dashboard  -->
+    <ShellContent
+        Title="Dashboard"
+        ContentTemplate="{DataTemplate teacher:TeacherDashboardPage}"
+        FlyoutItemIsVisible="False"
+        Route="TeacherDashboard" />
+
+    <!--  SuperAdmin Teachers List  -->
+    <ShellContent
+        Title="Teachers"
+        ContentTemplate="{DataTemplate admin:AdminTeacherListPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminTeacherList" />
+
+    <!--  Coordinator Teachers List  -->
+    <ShellContent
+        Title="Teachers"
+        ContentTemplate="{DataTemplate coord:CoordTeacherListPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordTeacherList" />
 
 </Shell>

@@ -207,6 +207,7 @@ public partial class AppShell : Shell
         {
             Constants.Roles.SuperAdmin => SuperAdminMenu(),
             Constants.Roles.BusCoordinator => CoordinatorMenu(permissionsJson),
+            Constants.Roles.Teacher => TeacherMenu(),
             Constants.Roles.Parent => ParentMenu(),
             Constants.Roles.Student => StudentMenu(),
             Constants.Roles.Driver => DriverMenu(),
@@ -224,13 +225,13 @@ public partial class AppShell : Shell
         new() { IconSvg = "route.png",        IconColor = _svgImageColor, Title = "Routes",           Route = "AdminRouteList"       },
         new() { IconSvg = "bus.png",          IconColor = _svgImageColor, Title = "Buses",            Route = "AdminBusList"         },
         new() { IconSvg = "driver.png",       IconColor = _svgImageColor, Title = "Drivers",          Route = "AdminDriverList"      },
+        new() { IconSvg = "teacher.png",      IconColor = _svgImageColor, Title = "Teachers",         Route = "AdminTeacherList"     },
         new() { IconSvg = "parent.png",       IconColor = _svgImageColor, Title = "Parents",          Route = "AdminParentList"      },
         new() { IconSvg = "student.png",      IconColor = _svgImageColor, Title = "Students",         Route = "AdminStudentList"     },
         new() { IconSvg = "fuel_pump.png",   IconColor = _svgImageColor, Title = "Fuel & Mileage",   Route = "AdminFuelLogList"     },
         new() { IconSvg = "trip.png",         IconColor = _svgImageColor, Title = "Trips",            Route = "AdminTripList"        },
         new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications",    Route = "AdminNotificationList" },
         new() { IconSvg = "help.png",         IconColor = _svgImageColor, Title = "Help & Support",   Route = "AdminFeedbackList"     },
-
     ];
 
     private static List<FlyoutMenuItem> CoordinatorMenu(string permissionsJson)
@@ -267,6 +268,8 @@ public partial class AppShell : Shell
             menu.Add(new() { IconSvg = "bus.png", IconColor = _svgImageColor, Title = "Buses", Route = "CoordBusList" });
         if (Has("driver.view"))
             menu.Add(new() { IconSvg = "driver.png", IconColor = _svgImageColor, Title = "Drivers", Route = "CoordDriverList" });
+        if (Has("teacher.view") || Has("teachers.view") || Has("student.view"))
+            menu.Add(new() { IconSvg = "teacher.png", IconColor = _svgImageColor, Title = "Teachers", Route = "CoordTeacherList" });
         if (Has("parent.view"))
             menu.Add(new() { IconSvg = "parent.png", IconColor = _svgImageColor, Title = "Parents", Route = "CoordParentList" });
         if (Has("student.view"))
@@ -282,6 +285,13 @@ public partial class AppShell : Shell
 
         return menu;
     }
+
+    private static List<FlyoutMenuItem> TeacherMenu() =>
+    [
+        new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "Dashboard",        Route = "TeacherDashboard"     },
+        new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",       Route = "Profile"              },
+        new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications",    Route = "TeacherNotification"  },
+    ];
 
     private static List<FlyoutMenuItem> ParentMenu() =>
     [
@@ -347,6 +357,7 @@ public partial class AppShell : Shell
     {
         Constants.Roles.SuperAdmin => "Super Admin",
         Constants.Roles.BusCoordinator => "Coordinator",
+        Constants.Roles.Teacher => "Teacher",
         Constants.Roles.Driver => "Driver",
         Constants.Roles.Parent => "Parent",
         Constants.Roles.Student => "Student",

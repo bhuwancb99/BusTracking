@@ -98,6 +98,7 @@ namespace BusTracking.Mobile
             Routing.RegisterRoute("AdminRouteForm", typeof(AdminRouteFormPage));
             Routing.RegisterRoute("AdminBusForm", typeof(AdminBusFormPage));
             Routing.RegisterRoute("AdminDriverForm", typeof(AdminDriverFormPage));
+            Routing.RegisterRoute("AdminTeacherForm", typeof(AdminTeacherFormPage));
             Routing.RegisterRoute("AdminParentForm", typeof(AdminParentFormPage));
             Routing.RegisterRoute("AdminStudentForm", typeof(AdminStudentFormPage));
             Routing.RegisterRoute("AdminTripForm", typeof(AdminTripFormPage));
@@ -108,6 +109,7 @@ namespace BusTracking.Mobile
             Routing.RegisterRoute("AdminCoordinatorDetail", typeof(AdminCoordinatorDetailPage));
             Routing.RegisterRoute("AdminStudentDetail", typeof(AdminStudentDetailPage));
             Routing.RegisterRoute("AdminDriverDetail", typeof(AdminDriverDetailPage));
+            Routing.RegisterRoute("AdminTeacherDetail", typeof(AdminTeacherDetailPage));
             Routing.RegisterRoute("AdminRouteDetail", typeof(AdminRouteDetailPage));
             Routing.RegisterRoute("AdminTripDetail", typeof(AdminTripDetailPage));
             Routing.RegisterRoute("AdminParentDetail", typeof(AdminParentDetailPage));
@@ -118,6 +120,7 @@ namespace BusTracking.Mobile
             // ── Coordinator — Form pages ──────────────────────────────────────
             Routing.RegisterRoute("CoordBusForm", typeof(CoordBusFormPage));
             Routing.RegisterRoute("CoordDriverForm", typeof(CoordDriverFormPage));
+            Routing.RegisterRoute("CoordTeacherForm", typeof(CoordTeacherFormPage));
             Routing.RegisterRoute("CoordRouteForm", typeof(CoordRouteFormPage));
             Routing.RegisterRoute("CoordStudentForm", typeof(CoordStudentFormPage));
             Routing.RegisterRoute("CoordTripForm", typeof(CoordTripFormPage));
@@ -132,6 +135,7 @@ namespace BusTracking.Mobile
             // ── Coordinator — Detail pages ────────────────────────────────────
             Routing.RegisterRoute("CoordBusDetail", typeof(CoordBusDetailPage));
             Routing.RegisterRoute("CoordDriverDetail", typeof(CoordDriverDetailPage));
+            Routing.RegisterRoute("CoordTeacherDetail", typeof(CoordTeacherDetailPage));
             Routing.RegisterRoute("CoordParentDetail", typeof(CoordParentDetailPage));
             Routing.RegisterRoute("CoordParentForm", typeof(CoordParentFormPage));
             Routing.RegisterRoute("CoordStudentDetail", typeof(CoordStudentDetailPage));
@@ -171,6 +175,7 @@ namespace BusTracking.Mobile
             s.AddTransient<IDashboardService, DashboardService>();
             s.AddTransient<IBusService, BusService>();
             s.AddTransient<IDriverService, DriverService>();
+            s.AddTransient<ITeacherService, TeacherService>();
             s.AddTransient<IStudentService, StudentService>();
             s.AddTransient<IParentService, ParentService>();
             s.AddTransient<ICoordinatorService, CoordinatorService>();
@@ -202,6 +207,9 @@ namespace BusTracking.Mobile
             s.AddTransient<AdminDriverListViewModel>();
             s.AddTransient<AdminDriverFormViewModel>();
             s.AddTransient<AdminDriverDetailViewModel>();
+            s.AddTransient<AdminTeacherListViewModel>();
+            s.AddTransient<AdminTeacherFormViewModel>();
+            s.AddTransient<AdminTeacherDetailViewModel>();
             s.AddTransient<AdminStudentListViewModel>();
             s.AddTransient<AdminStudentFormViewModel>();
             s.AddTransient<AdminStudentDetailViewModel>();
@@ -234,6 +242,9 @@ namespace BusTracking.Mobile
             s.AddTransient<CoordDriverListViewModel>();
             s.AddTransient<CoordDriverFormViewModel>();
             s.AddTransient<CoordDriverDetailViewModel>();
+            s.AddTransient<CoordTeacherListViewModel>();
+            s.AddTransient<CoordTeacherFormViewModel>();
+            s.AddTransient<CoordTeacherDetailViewModel>();
             s.AddTransient<CoordParentListViewModel>();
             s.AddTransient<CoordParentDetailViewModel>();
             s.AddTransient<CoordParentFormViewModel>();
@@ -257,6 +268,9 @@ namespace BusTracking.Mobile
             s.AddTransient<CoordFeedbackDetailViewModel>();
             s.AddTransient<CoordNotificationListViewModel>();
             s.AddTransient<CoordNotificationDetailViewModel>();
+
+            // Teacher
+            s.AddTransient<TeacherDashboardViewModel>();
 
             // Driver
             s.AddTransient<DriverDashboardViewModel>();
@@ -307,6 +321,9 @@ namespace BusTracking.Mobile
             s.AddTransient<AdminDriverListPage>();
             s.AddTransient<AdminDriverFormPage>();
             s.AddTransient<AdminDriverDetailPage>();
+            s.AddTransient<AdminTeacherListPage>();
+            s.AddTransient<AdminTeacherFormPage>();
+            s.AddTransient<AdminTeacherDetailPage>();
             s.AddTransient<AdminStudentListPage>();
             s.AddTransient<AdminStudentFormPage>();
             s.AddTransient<AdminStudentDetailPage>();
@@ -318,6 +335,14 @@ namespace BusTracking.Mobile
             s.AddTransient<AdminCoordinatorDetailPage>();
             s.AddTransient<AdminTripListPage>();
             s.AddTransient<AdminTripFormPage>();
+
+            // Coordinator
+            s.AddTransient<CoordTeacherListPage>();
+            s.AddTransient<CoordTeacherFormPage>();
+            s.AddTransient<CoordTeacherDetailPage>();
+
+            // Teacher
+            s.AddTransient<TeacherDashboardPage>();
             s.AddTransient<AdminTripDetailPage>();
             s.AddTransient<AdminConfigListPage>();
             s.AddTransient<AdminConfigFormPage>();

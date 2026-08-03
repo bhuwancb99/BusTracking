@@ -224,6 +224,54 @@ namespace BusTracking.Common.Services
             return ApiResponse<bool>.Ok(teacher.User.IsActive, $"Teacher status updated to {(teacher.User.IsActive ? "Active" : "Inactive")}.");
         }
 
+        public async Task<ApiResponse<bool>> DeleteTeacherAsync(int teacherId)
+        {
+            var teacher = await _db.Teachers
+                .Include(t => t.User)
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(t => t.TeacherId == teacherId);
+
+            if (teacher == null) return ApiResponse<bool>.Fail("Teacher record not found.");
+
+            _db.Teachers.Remove(teacher);
+            if (teacher.User != null)
+            {
+                _db.Users.Remove(teacher.User);
+            }
+            await _db.SaveChangesAsync();
+            return ApiResponse<bool>.Ok(true, "Teacher deleted successfully.");
+        }
+
+        public async Task<ApiResponse<CreatedUserResultDto>> ResetPasswordAsync(int teacherId)
+        {
+            var teacher = await _db.Teachers
+                .Include(t => t.User)
+                .IgnoreQueryFilters()
+                .FirstOrDefaultAsync(t => t.TeacherId == teacherId);
+
+            if (teacher == null || teacher.User == null)
+                return ApiResponse<CreatedUserResultDto>.Fail("Teacher user account not found.");
+
+            var newPassword = _pwd.GenerateRandomPassword(8);
+            var (hash, salt) = _pwd.HashPassword(newPassword);
+
+            teacher.User.PasswordHash = hash;
+            teacher.User.PasswordSalt = salt;
+            teacher.User.UpdatedAt = DateTime.UtcNow;
+
+            await _db.SaveChangesAsync();
+
+            return ApiResponse<CreatedUserResultDto>.Ok(new CreatedUserResultDto
+            {
+                UserId = teacher.UserId,
+                UserName = teacher.User.UserName,
+                PlainPassword = newPassword,
+                GeneratedPassword = newPassword,
+                FullName = teacher.User.FullName,
+                Role = "Teacher"
+            }, "Teacher password reset successfully.");
+        }
+
         public async Task<ApiResponse<bool>> CheckUsernameAvailabilityAsync(string userName, int? excludeUserId = null)
         {
             if (string.IsNullOrWhiteSpace(userName))

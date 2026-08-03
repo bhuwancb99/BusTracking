@@ -931,6 +931,20 @@ namespace BusTracking.API.Controllers
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
+        [HttpDelete("teachers/{id:int}")]
+        public async Task<IActionResult> DeleteTeacher(int id)
+        {
+            var result = await _teacher.DeleteTeacherAsync(id);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("teachers/{id:int}/reset-password")]
+        public async Task<IActionResult> ResetTeacherPassword(int id)
+        {
+            var result = await _teacher.ResetPasswordAsync(id);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
         private static int ExtractIndex(string url)
         {
             try { var p = Path.GetFileNameWithoutExtension(url).Split('_'); return int.TryParse(p[^1], out var n) ? n : 0; }

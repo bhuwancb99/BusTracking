@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.Coordinator.CoordTeacherFormPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
+    Title="{Binding Title}"
+    x:DataType="vm:CoordTeacherFormViewModel"
+    x:TypeArguments="vm:CoordTeacherFormViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+            <Border
+                Padding="16"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <VerticalStackLayout Spacing="12">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="15"
+                        Text="Account Information"
+                        TextColor="{StaticResource Primary}" />
+
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Full Name *" />
+                    <Entry Placeholder="e.g. Dr. Robert Smith" Text="{Binding FullName}" />
+
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Username *" />
+                    <Entry Placeholder="e.g. robert.smith" Text="{Binding UserName}" />
+
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Password" />
+                    <Entry
+                        IsPassword="True"
+                        Placeholder="Password for account"
+                        Text="{Binding Password}" />
+
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Email Address" />
+                    <Entry
+                        Keyboard="Email"
+                        Placeholder="teacher@school.com"
+                        Text="{Binding Email}" />
+
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Phone Number" />
+                    <Entry
+                        Keyboard="Telephone"
+                        Placeholder="+1 555-0199"
+                        Text="{Binding PhoneNumber}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Border
+                Padding="16"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <VerticalStackLayout Spacing="12">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="15"
+                        Text="Academic Details"
+                        TextColor="{StaticResource Primary}" />
+
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Employee Code" />
+                    <Entry Placeholder="e.g. TCH-2024" Text="{Binding EmployeeCode}" />
+
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Designation" />
+                    <Entry Placeholder="e.g. Senior Lecturer" Text="{Binding Designation}" />
+
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Department" />
+                    <Entry Placeholder="e.g. Mathematics" Text="{Binding Department}" />
+
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Qualification" />
+                    <Entry Placeholder="e.g. M.Sc. Mathematics, B.Ed." Text="{Binding Qualification}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Button
+                Margin="0,8,0,24"
+                Command="{Binding SaveCommand}"
+                CornerRadius="12"
+                FontAttributes="Bold"
+                HeightRequest="48"
+                Text="Save Teacher Account" />
+        </VerticalStackLayout>
+    </ScrollView>
+
+</views:ViewBase>

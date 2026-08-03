@@ -8,6 +8,8 @@ namespace BusTracking.Common.Interfaces
         Task<ApiResponse<TeacherDto>> CreateTeacherAsync(CreateTeacherDto dto, string? profileImageUrl = null);
         Task<ApiResponse<TeacherDto>> UpdateTeacherAsync(UpdateTeacherDto dto, string? profileImageUrl = null);
         Task<ApiResponse<bool>> ToggleTeacherStatusAsync(int teacherId);
+        Task<ApiResponse<bool>> DeleteTeacherAsync(int teacherId);
+        Task<ApiResponse<CreatedUserResultDto>> ResetPasswordAsync(int teacherId);
         Task<ApiResponse<bool>> CheckUsernameAvailabilityAsync(string userName, int? excludeUserId = null);
     }
 }

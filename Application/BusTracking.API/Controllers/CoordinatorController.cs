@@ -745,6 +745,22 @@ namespace BusTracking.API.Controllers
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
+        [HttpDelete("teachers/{id:int}")]
+        public async Task<IActionResult> DeleteTeacher(int id)
+        {
+            RequirePermission("teachers.delete");
+            var result = await _teacher.DeleteTeacherAsync(id);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("teachers/{id:int}/reset-password")]
+        public async Task<IActionResult> ResetTeacherPassword(int id)
+        {
+            RequirePermission("teachers.edit");
+            var result = await _teacher.ResetPasswordAsync(id);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
 
         private void RequirePermission(string key)
         {

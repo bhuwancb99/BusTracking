@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminTeacherDetailPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
+    Title="Teacher Details"
+    x:DataType="vm:AdminTeacherDetailViewModel"
+    x:TypeArguments="vm:AdminTeacherDetailViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
+
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
+    </views:ViewBase.Behaviors>
+
+    <Shell.TitleView>
+        <Grid
+            Padding="0,0,8,0"
+            ColumnDefinitions="*,Auto,Auto"
+            ColumnSpacing="8">
+            <Label
+                Grid.Column="0"
+                FontAttributes="Bold"
+                FontSize="17"
+                Text="Teacher Details"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}"
+                VerticalOptions="Center" />
+            <Border
+                Grid.Column="1"
+                Padding="7"
+                BackgroundColor="White"
+                IsVisible="{Binding CanEdit}"
+                StrokeShape="RoundRectangle 18"
+                StrokeThickness="0"
+                VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding EditCommand}" />
+                </Border.GestureRecognizers>
+                <Image
+                    HeightRequest="18"
+                    HorizontalOptions="Center"
+                    Source="edit.png"
+                    VerticalOptions="Center"
+                    WidthRequest="18">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                    </Image.Behaviors>
+                </Image>
+            </Border>
+            <Border
+                Grid.Column="2"
+                Padding="7"
+                BackgroundColor="{StaticResource Danger}"
+                IsVisible="{Binding CanDelete}"
+                StrokeShape="RoundRectangle 18"
+                StrokeThickness="0"
+                VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding DeleteCommand}" />
+                </Border.GestureRecognizers>
+                <Image
+                    HeightRequest="18"
+                    HorizontalOptions="Center"
+                    Source="delete.png"
+                    VerticalOptions="Center"
+                    WidthRequest="18">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="White" />
+                    </Image.Behaviors>
+                </Image>
+            </Border>
+        </Grid>
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="16">
+
+            <!--  Error Banner  -->
+            <Border
+                Padding="12,10"
+                BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight},
+                                                  Dark={StaticResource ErrorBannerBgDark}}"
+                IsVisible="{Binding HasError}"
+                Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
+                                         Dark={StaticResource ErrorBannerBorderDark}}"
+                StrokeShape="RoundRectangle 8">
+                <Label
+                    FontSize="13"
+                    Text="{Binding ErrorMessage}"
+                    TextColor="{StaticResource Danger}" />
+            </Border>
+
+            <!--  Header Profile Card  -->
+            <Border
+                Padding="20"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 16"
+                StrokeThickness="1">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                    <Border
+                        Grid.Column="0"
+                        BackgroundColor="#e0e7ff"
+                        HeightRequest="56"
+                        HorizontalOptions="Center"
+                        StrokeShape="RoundRectangle 28"
+                        StrokeThickness="0"
+                        VerticalOptions="Center"
+                        WidthRequest="56">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="20"
+                            HorizontalOptions="Center"
+                            Text="{Binding Teacher.InitialsDisplay}"
+                            TextColor="#3730a3"
+                            VerticalOptions="Center" />
+                    </Border>
+
+                    <VerticalStackLayout
+                        Grid.Column="1"
+                        Spacing="2"
+                        VerticalOptions="Center">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="18"
+                            Text="{Binding Teacher.FullName}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                        <Label
+                            FontSize="13"
+                            Text="{Binding Teacher.DesignationDisplay}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                        <Label
+                            FontSize="12"
+                            Text="{Binding Teacher.DepartmentDisplay}"
+                            TextColor="#64748b" />
+                    </VerticalStackLayout>
+
+                    <Border
+                        Grid.Column="2"
+                        Padding="10,6"
+                        BackgroundColor="{Binding Teacher.StatusBgColor}"
+                        StrokeShape="RoundRectangle 12"
+                        StrokeThickness="0"
+                        VerticalOptions="Center">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding ToggleStatusCommand}" />
+                        </Border.GestureRecognizers>
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            Text="{Binding Teacher.StatusLabel}"
+                            TextColor="{Binding Teacher.StatusTextColor}" />
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!--  Details Card  -->
+            <Border
+                Padding="16"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 14"
+                StrokeThickness="1">
+                <VerticalStackLayout Spacing="12">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="15"
+                        Text="Information"
+                        TextColor="{StaticResource Primary}" />
+
+                    <Grid
+                        ColumnDefinitions="Auto,*"
+                        ColumnSpacing="12"
+                        RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+                        RowSpacing="10">
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            FontAttributes="Bold"
+                            Text="Username:" />
+                        <Label
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Text="{Binding Teacher.UserName}" />
+
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            FontAttributes="Bold"
+                            Text="Employee Code:" />
+                        <Label
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Text="{Binding Teacher.EmployeeCode, FallbackValue='–'}" />
+
+                        <Label
+                            Grid.Row="2"
+                            Grid.Column="0"
+                            FontAttributes="Bold"
+                            Text="Email:" />
+                        <Label
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            Text="{Binding Teacher.Email, FallbackValue='–'}" />
+
+                        <Label
+                            Grid.Row="3"
+                            Grid.Column="0"
+                            FontAttributes="Bold"
+                            Text="Phone:" />
+                        <Label
+                            Grid.Row="3"
+                            Grid.Column="1"
+                            Text="{Binding Teacher.PhoneNumber, FallbackValue='–'}" />
+
+                        <Label
+                            Grid.Row="4"
+                            Grid.Column="0"
+                            FontAttributes="Bold"
+                            Text="Qualification:" />
+                        <Label
+                            Grid.Row="4"
+                            Grid.Column="1"
+                            Text="{Binding Teacher.Qualification, FallbackValue='–'}" />
+
+                        <Label
+                            Grid.Row="5"
+                            Grid.Column="0"
+                            FontAttributes="Bold"
+                            Text="Emergency Contact:" />
+                        <Label
+                            Grid.Row="5"
+                            Grid.Column="1"
+                            Text="{Binding Teacher.EmergencyContact, FallbackValue='–'}" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Action Buttons Grid  -->
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="10">
+                <Button
+                    Grid.Column="0"
+                    Command="{Binding EditCommand}"
+                    CornerRadius="10"
+                    FontAttributes="Bold"
+                    HeightRequest="44"
+                    IsVisible="{Binding CanEdit}"
+                    Text="Edit" />
+                <Button
+                    Grid.Column="1"
+                    BackgroundColor="#0284c7"
+                    Command="{Binding ResetPasswordCommand}"
+                    CornerRadius="10"
+                    FontAttributes="Bold"
+                    HeightRequest="44"
+                    IsVisible="{Binding CanEdit}"
+                    Text="Reset Pwd"
+                    TextColor="White" />
+                <Button
+                    Grid.Column="2"
+                    BackgroundColor="{StaticResource Danger}"
+                    Command="{Binding DeleteCommand}"
+                    CornerRadius="10"
+                    FontAttributes="Bold"
+                    HeightRequest="44"
+                    IsVisible="{Binding CanDelete}"
+                    Text="Delete"
+                    TextColor="White" />
+            </Grid>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</views:ViewBase>

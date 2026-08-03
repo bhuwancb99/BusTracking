@@ -100,6 +100,13 @@ public static class Constants
         public const string CoordinatorPerms = "/api/admin/coordinators/{0}/permissions";
         public const string AllPermissions = "/api/admin/permissions";
 
+        // Teachers
+        public const string Teachers = "/api/admin/teachers";
+        public const string TeacherById = "/api/admin/teachers/{0}";
+        public const string TeacherToggle = "/api/admin/teachers/{0}/toggle-status";
+        public const string TeacherDelete = "/api/admin/teachers/{0}";
+        public const string TeacherReset = "/api/admin/teachers/{0}/reset-password";
+
         // Trips
         public const string Trips = "/api/admin/trips";
         public const string TripById = "/api/admin/trips/{0}";
@@ -163,6 +170,13 @@ public static class Constants
         public const string StudentById = "/api/coordinator/students/{0}";
         public const string StudentSearch = "/api/coordinator/students/search";
 
+        // Teachers
+        public const string Teachers = "/api/coordinator/teachers";
+        public const string TeacherById = "/api/coordinator/teachers/{0}";
+        public const string TeacherToggle = "/api/coordinator/teachers/{0}/toggle-status";
+        public const string TeacherDelete = "/api/coordinator/teachers/{0}";
+        public const string TeacherReset = "/api/coordinator/teachers/{0}/reset-password";
+
         public const string SubAdmins = "/api/coordinator/subadmins";
         public const string SubAdminById = "/api/coordinator/subadmins/{0}";
         public const string SubAdminToggle = "/api/coordinator/subadmins/{0}/toggle";
@@ -186,6 +200,13 @@ public static class Constants
         public const string CoordNotifications = "/api/coordinator/notifications";
         public const string CoordNotifMarkRead = "/api/coordinator/notifications/{0}/read";
         public const string CoordNotifMarkAllRead = "/api/coordinator/notifications/read-all";
+    }
+
+    // ── Teacher ───────────────────────────────────────────────────────────
+    public static class Teacher
+    {
+        public const string Profile = "/api/teacher/profile";
+        public const string Notifications = "/api/teacher/notifications";
     }
 
     // ── Driver ────────────────────────────────────────────────────────────
@@ -292,5 +313,6 @@ public static class Constants
         public const string Parent = "Parent";
         public const string Student = "Student";
         public const string Driver = "Driver";
+        public const string Teacher = "Teacher";
     }
 }
