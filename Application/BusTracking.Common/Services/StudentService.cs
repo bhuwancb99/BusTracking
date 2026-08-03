@@ -194,7 +194,20 @@ namespace BusTracking.Common.Services
         { var s = await _db.Students.FirstOrDefaultAsync(x => x.StudentId == dto.StudentId); if (s is null) return ApiResponse<bool>.Fail("Not found."); s.BusId = dto.BusId; s.StopId = dto.StopId; s.UpdatedAt = DateTime.UtcNow; await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Bus assigned."); }
         public async Task<ApiResponse<bool>> SetAvailabilityAsync(CreateAvailabilityDto dto, int markedBy)
         {
-            if (!DateOnly.TryParse(dto.FromDate, out var from) || !DateOnly.TryParse(dto.ToDate, out var to)) return ApiResponse<bool>.Fail("Invalid date.");
+            if (!DateOnly.TryParse(dto.FromDate, out var from) || !DateOnly.TryParse(dto.ToDate, out var to))
+                return ApiResponse<bool>.Fail("Invalid date format.");
+
+            if (from > to)
+                return ApiResponse<bool>.Fail("From Date cannot be after To Date.");
+
+            var hasOverlap = await _db.StudentAvailabilities.AnyAsync(a =>
+                a.StudentId == dto.StudentId &&
+                a.FromDate <= to &&
+                a.ToDate >= from);
+
+            if (hasOverlap)
+                return ApiResponse<bool>.Fail("An availability or leave record already exists for the selected date range.");
+
             _db.StudentAvailabilities.Add(new StudentAvailability
             {
                 StudentId = dto.StudentId,
@@ -204,8 +217,55 @@ namespace BusTracking.Common.Services
                 Remarks = dto.Remarks,
                 MarkedBy = markedBy
             });
-            await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Saved.");
+            await _db.SaveChangesAsync();
+            return ApiResponse<bool>.Ok(true, "Availability record saved successfully.");
         }
+
+        public async Task<ApiResponse<bool>> UpdateAvailabilityAsync(UpdateAvailabilityDto dto, int markedBy)
+        {
+            if (!DateOnly.TryParse(dto.FromDate, out var from) || !DateOnly.TryParse(dto.ToDate, out var to))
+                return ApiResponse<bool>.Fail("Invalid date format.");
+
+            if (from > to)
+                return ApiResponse<bool>.Fail("From Date cannot be after To Date.");
+
+            var entity = await _db.StudentAvailabilities.FirstOrDefaultAsync(a => a.AvailabilityId == dto.AvailabilityId);
+            if (entity == null)
+                return ApiResponse<bool>.Fail("Availability record not found.");
+
+            var hasOverlap = await _db.StudentAvailabilities.AnyAsync(a =>
+                a.StudentId == dto.StudentId &&
+                a.AvailabilityId != dto.AvailabilityId &&
+                a.FromDate <= to &&
+                a.ToDate >= from);
+
+            if (hasOverlap)
+                return ApiResponse<bool>.Fail("An availability or leave record already exists for the selected date range.");
+
+            entity.AvailabilityType = dto.AvailabilityType;
+            entity.FromDate = from;
+            entity.ToDate = to;
+            entity.Remarks = dto.Remarks;
+            entity.MarkedBy = markedBy;
+
+            await _db.SaveChangesAsync();
+            return ApiResponse<bool>.Ok(true, "Availability record updated successfully.");
+        }
+
+        public async Task<ApiResponse<bool>> DeleteAvailabilityAsync(int availabilityId, int studentId)
+        {
+            var entity = await _db.StudentAvailabilities.FirstOrDefaultAsync(a => a.AvailabilityId == availabilityId);
+            if (entity == null)
+                return ApiResponse<bool>.Fail("Availability record not found.");
+
+            if (studentId > 0 && entity.StudentId != studentId)
+                return ApiResponse<bool>.Fail("Unauthorized to delete this record.");
+
+            _db.StudentAvailabilities.Remove(entity);
+            await _db.SaveChangesAsync();
+            return ApiResponse<bool>.Ok(true, "Availability record deleted successfully.");
+        }
+
         public async Task<ApiResponse<List<AvailabilityDto>>> GetAvailabilitiesAsync(int studentId)
         {
             var today = DateOnly.FromDateTime(DateTime.UtcNow);

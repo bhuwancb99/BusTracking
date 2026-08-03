@@ -43,5 +43,36 @@ namespace BusTracking.Web.Areas.Student.Controllers
             TempData[r.Success ? "SuccessMessage" : "ErrorMessage"] = r.Message;
             return RedirectToAction(nameof(Availability));
         }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateAvailability(UpdateAvailabilityDto m)
+        {
+            var student = await _db.Students.FirstOrDefaultAsync(s => s.UserId == UserId);
+            if (student == null)
+            {
+                TempData["ErrorMessage"] = "Student profile not found.";
+                return RedirectToAction(nameof(Availability));
+            }
+
+            m.StudentId = student.StudentId;
+            var r = await _s.UpdateAvailabilityAsync(m, UserId);
+            TempData[r.Success ? "SuccessMessage" : "ErrorMessage"] = r.Message;
+            return RedirectToAction(nameof(Availability));
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAvailability(int availabilityId)
+        {
+            var student = await _db.Students.FirstOrDefaultAsync(s => s.UserId == UserId);
+            if (student == null)
+            {
+                TempData["ErrorMessage"] = "Student profile not found.";
+                return RedirectToAction(nameof(Availability));
+            }
+
+            var r = await _s.DeleteAvailabilityAsync(availabilityId, student.StudentId);
+            TempData[r.Success ? "SuccessMessage" : "ErrorMessage"] = r.Message;
+            return RedirectToAction(nameof(Availability));
+        }
     }
 }

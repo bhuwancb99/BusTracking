@@ -11,6 +11,8 @@ namespace BusTracking.Common.Interfaces
         Task<ApiResponse<bool>> ToggleActiveAsync(int studentId);
         Task<ApiResponse<bool>> AssignBusAsync(AssignBusToStudentDto dto);
         Task<ApiResponse<bool>> SetAvailabilityAsync(CreateAvailabilityDto dto, int markedBy);
+        Task<ApiResponse<bool>> UpdateAvailabilityAsync(UpdateAvailabilityDto dto, int markedBy);
+        Task<ApiResponse<bool>> DeleteAvailabilityAsync(int availabilityId, int studentId);
         Task<ApiResponse<List<AvailabilityDto>>> GetAvailabilitiesAsync(int studentId);
         Task<ApiResponse<List<StudentSearchDto>>> SearchAsync(string? query);
         Task<ApiResponse<CreatedUserResultDto>> ResetPasswordAsync(int studentId);

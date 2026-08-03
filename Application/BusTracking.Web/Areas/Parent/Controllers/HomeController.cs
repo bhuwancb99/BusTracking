@@ -57,6 +57,22 @@ namespace BusTracking.Web.Areas.Parent.Controllers
             return RedirectToAction(nameof(Availability), new { studentId = m.StudentId });
         }
 
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateAvailability(UpdateAvailabilityDto m)
+        {
+            var r = await _s.UpdateAvailabilityAsync(m, UserId);
+            TempData[r.Success ? "SuccessMessage" : "ErrorMessage"] = r.Message;
+            return RedirectToAction(nameof(Availability), new { studentId = m.StudentId });
+        }
+
+        [HttpPost, ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteAvailability(int availabilityId, int studentId)
+        {
+            var r = await _s.DeleteAvailabilityAsync(availabilityId, studentId);
+            TempData[r.Success ? "SuccessMessage" : "ErrorMessage"] = r.Message;
+            return RedirectToAction(nameof(Availability), new { studentId = studentId });
+        }
+
         // ── GET /Parent/Home/MyChildren ───────────────────────────────
         [HttpGet]
         public async Task<IActionResult> MyChildren()
