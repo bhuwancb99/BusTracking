@@ -17,12 +17,17 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
         {
             if (pageSize <= 0) pageSize = 10;
 
-            var query = _db.Schools.Include(s => s.TimeZone).IgnoreQueryFilters().AsQueryable();
+            var query = _db.Schools
+                .Include(s => s.TimeZone)
+                .Include(s => s.Country)
+                .Include(s => s.Region)
+                .IgnoreQueryFilters()
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var s = search.Trim();
-                query = query.Where(sc => sc.SchoolName.Contains(s) || sc.SchoolCode.Contains(s) || sc.PrincipalName.Contains(s));
+                query = query.Where(sc => sc.SchoolName.Contains(s) || sc.SchoolCode.Contains(s) || sc.PrincipalName.Contains(s) || (sc.City != null && sc.City.Contains(s)));
             }
 
             int totalItems = await query.CountAsync();
@@ -44,16 +49,21 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
-            await PopulateTimeZonesViewBagAsync();
+            await PopulateDropdownsViewBagAsync();
             return View();
         }
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(School school, IFormFile? logoFile)
         {
+            ModelState.Remove(nameof(school.Country));
+            ModelState.Remove(nameof(school.Region));
+            ModelState.Remove(nameof(school.TimeZone));
+            ModelState.Remove(nameof(school.Users));
+
             if (!ModelState.IsValid)
             {
-                await PopulateTimeZonesViewBagAsync();
+                await PopulateDropdownsViewBagAsync(school.CountryId, school.RegionId);
                 return View(school);
             }
 
@@ -61,10 +71,21 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
             var exists = await _db.Schools.IgnoreQueryFilters().AnyAsync(s => s.SchoolCode == school.SchoolCode.Trim());
             if (exists)
             {
-                ModelState.AddModelError("SchoolCode", "School Code already exists. Please choose a unique school code.");
-                await PopulateTimeZonesViewBagAsync();
+                ModelState.AddModelError("SchoolCode", "School Code already exists.");
+                await PopulateDropdownsViewBagAsync(school.CountryId, school.RegionId);
                 return View(school);
             }
+
+            school.SchoolName = school.SchoolName.Trim();
+            school.SchoolCode = school.SchoolCode.Trim();
+            school.SchoolAddress = school.SchoolAddress.Trim();
+            school.ContactNumber = school.ContactNumber.Trim();
+            school.EmailAddress = school.EmailAddress.Trim();
+            school.PrincipalName = school.PrincipalName.Trim();
+            school.Website = school.Website?.Trim();
+            school.City = school.City?.Trim();
+            school.CreatedAt = DateTime.UtcNow;
+            school.UpdatedAt = DateTime.UtcNow;
 
             if (school.TimeZoneId.HasValue && school.TimeZoneId.Value > 0)
             {
@@ -75,19 +96,10 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
                 }
             }
 
-            school.SchoolName = school.SchoolName.Trim();
-            school.SchoolCode = school.SchoolCode.Trim();
-            school.SchoolAddress = school.SchoolAddress.Trim();
-            school.ContactNumber = school.ContactNumber.Trim();
-            school.EmailAddress = school.EmailAddress.Trim();
-            school.PrincipalName = school.PrincipalName.Trim();
-            school.Website = school.Website?.Trim();
-            school.CreatedAt = DateTime.UtcNow;
-            school.UpdatedAt = DateTime.UtcNow;
-
             _db.Schools.Add(school);
             await _db.SaveChangesAsync();
 
+            // Logo Upload Handler
             if (logoFile != null && logoFile.Length > 0)
             {
                 try
@@ -98,41 +110,36 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
                 }
                 catch (Exception ex)
                 {
-                    ModelState.AddModelError("", "Logo upload failed: " + ex.Message);
-                    await PopulateTimeZonesViewBagAsync();
-                    return View(school);
+                    TempData["ErrorMessage"] = "School created, but logo upload failed: " + ex.Message;
                 }
             }
 
-            // Clone default AppConfigurations (from SchoolId = 1) for the new school
-            if (school.SchoolId != 1)
+            // Copy default AppConfigurations from School #1 template if available
+            var masterConfigs = await _db.AppConfigurations
+                .IgnoreQueryFilters()
+                .Where(c => c.SchoolId == 1)
+                .ToListAsync();
+
+            if (masterConfigs.Count > 0 && school.SchoolId != 1)
             {
-                var masterConfigs = await _db.AppConfigurations
-                    .IgnoreQueryFilters()
-                    .Where(c => c.SchoolId == 1)
-                    .ToListAsync();
-
-                if (masterConfigs.Count > 0)
+                var newSchoolConfigs = masterConfigs.Select(c => new AppConfiguration
                 {
-                    var newSchoolConfigs = masterConfigs.Select(c => new AppConfiguration
-                    {
-                        SchoolId = school.SchoolId,
-                        ConfigKey = c.ConfigKey,
-                        ConfigValue = c.ConfigValue,
-                        Description = c.Description,
-                        Platform = c.Platform,
-                        IsActive = c.IsActive,
-                        CreatedBy = c.CreatedBy,
-                        CreatedAt = DateTime.UtcNow,
-                        UpdatedAt = DateTime.UtcNow
-                    }).ToList();
+                    SchoolId = school.SchoolId,
+                    ConfigKey = c.ConfigKey,
+                    ConfigValue = c.ConfigValue,
+                    Description = c.Description,
+                    Platform = c.Platform,
+                    IsActive = c.IsActive,
+                    CreatedBy = c.CreatedBy,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                }).ToList();
 
-                    await _db.AppConfigurations.AddRangeAsync(newSchoolConfigs);
-                    await _db.SaveChangesAsync();
-                }
+                await _db.AppConfigurations.AddRangeAsync(newSchoolConfigs);
+                await _db.SaveChangesAsync();
             }
 
-            TempData["SuccessMessage"] = "School created successfully with default App Configurations.";
+            TempData["SuccessMessage"] = "School created successfully with location and default App Configurations.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -141,7 +148,8 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
         {
             var school = await _db.Schools.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.SchoolId == id);
             if (school == null) return NotFound();
-            await PopulateTimeZonesViewBagAsync();
+
+            await PopulateDropdownsViewBagAsync(school.CountryId, school.RegionId);
             return View(school);
         }
 
@@ -151,9 +159,14 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
             var school = await _db.Schools.IgnoreQueryFilters().FirstOrDefaultAsync(s => s.SchoolId == id);
             if (school == null) return NotFound();
 
+            ModelState.Remove(nameof(model.Country));
+            ModelState.Remove(nameof(model.Region));
+            ModelState.Remove(nameof(model.TimeZone));
+            ModelState.Remove(nameof(model.Users));
+
             if (!ModelState.IsValid)
             {
-                await PopulateTimeZonesViewBagAsync();
+                await PopulateDropdownsViewBagAsync(model.CountryId, model.RegionId);
                 return View(model);
             }
 
@@ -163,7 +176,7 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
             if (exists)
             {
                 ModelState.AddModelError("SchoolCode", "School Code already exists.");
-                await PopulateTimeZonesViewBagAsync();
+                await PopulateDropdownsViewBagAsync(model.CountryId, model.RegionId);
                 return View(model);
             }
 
@@ -177,7 +190,7 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
                 catch (Exception ex)
                 {
                     ModelState.AddModelError("", "Logo upload failed: " + ex.Message);
-                    await PopulateTimeZonesViewBagAsync();
+                    await PopulateDropdownsViewBagAsync(model.CountryId, model.RegionId);
                     return View(model);
                 }
             }
@@ -191,6 +204,10 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
                     school.TimeZoneInfoId = tzItem.WindowsTimeZoneId;
                 }
             }
+            else
+            {
+                school.TimeZoneId = null;
+            }
 
             school.SchoolName = model.SchoolName.Trim();
             school.SchoolCode = model.SchoolCode.Trim();
@@ -199,6 +216,9 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
             school.EmailAddress = model.EmailAddress.Trim();
             school.PrincipalName = model.PrincipalName.Trim();
             school.Website = model.Website?.Trim();
+            school.CountryId = model.CountryId;
+            school.RegionId = model.RegionId;
+            school.City = model.City?.Trim();
             school.IsActive = model.IsActive;
             school.UpdatedAt = DateTime.UtcNow;
 
@@ -207,14 +227,42 @@ namespace BusTracking.Web.Areas.SystemAdmin.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private async Task PopulateTimeZonesViewBagAsync()
+        [HttpGet]
+        public async Task<IActionResult> GetRegionsByCountry(int countryId)
         {
-            var list = await _db.TimeZoneMasters.Where(t => t.IsActive).OrderBy(t => t.DisplayOrder).ToListAsync();
-            ViewBag.TimeZones = list.Select(t => new SelectListItem
+            var regions = await _db.RegionMasters.AsNoTracking()
+                .Where(r => r.CountryId == countryId && r.IsActive)
+                .OrderBy(r => r.RegionName)
+                .Select(r => new { r.RegionId, r.RegionName, r.RegionCode })
+                .ToListAsync();
+
+            return Json(new { success = true, data = regions });
+        }
+
+        private async Task PopulateDropdownsViewBagAsync(int? countryId = null, int? regionId = null)
+        {
+            var timeZones = await _db.TimeZoneMasters.Where(t => t.IsActive).OrderBy(t => t.DisplayOrder).ToListAsync();
+            ViewBag.TimeZones = timeZones.Select(t => new SelectListItem
             {
                 Value = t.TimeZoneId.ToString(),
                 Text = t.TimeZoneName
             }).ToList();
+
+            var countries = await _db.CountryMasters.Where(c => c.IsActive).OrderBy(c => c.CountryName).ToListAsync();
+            ViewBag.Countries = new SelectList(countries, "CountryId", "CountryName", countryId);
+
+            if (countryId.HasValue && countryId.Value > 0)
+            {
+                var regions = await _db.RegionMasters
+                    .Where(r => r.CountryId == countryId.Value && r.IsActive)
+                    .OrderBy(r => r.RegionName)
+                    .ToListAsync();
+                ViewBag.Regions = new SelectList(regions, "RegionId", "RegionName", regionId);
+            }
+            else
+            {
+                ViewBag.Regions = new SelectList(Enumerable.Empty<SelectListItem>(), "Value", "Text");
+            }
         }
 
         [HttpPost]

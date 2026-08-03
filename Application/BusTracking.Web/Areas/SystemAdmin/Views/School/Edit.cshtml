@@ -8,7 +8,7 @@
         <div class="card-header bg-primary text-white p-4 d-flex align-items-center justify-content-between">
             <div>
                 <h4 class="mb-1 fw-bold"><i class="bi bi-building-gear me-2"></i>Edit School</h4>
-                <p class="mb-0 text-white-50 small">Update school configuration, contact information, and time zone</p>
+                <p class="mb-0 text-white-50 small">Update school configuration, location details, and time zone</p>
             </div>
             <div class="d-flex align-items-center gap-2">
                 @if (Model.SchoolId != 1)
@@ -37,86 +37,131 @@
                     </div>
                 }
 
-                <div class="row g-4 mb-4">
-                    <div class="col-md-4 col-12">
-                        <label asp-for="SchoolName" class="form-label fw-bold">School Name <span class="text-danger">*</span></label>
-                        <input asp-for="SchoolName" class="form-control form-control-lg rounded-3" required />
-                        <span asp-validation-for="SchoolName" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-md-4 col-12">
-                        <label asp-for="SchoolCode" class="form-label fw-bold">School Code <span class="text-danger">*</span></label>
-                        <input asp-for="SchoolCode" class="form-control form-control-lg rounded-3" required />
-                        <span asp-validation-for="SchoolCode" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-md-4 col-12">
-                        <label asp-for="PrincipalName" class="form-label fw-bold">Principal Name <span class="text-danger">*</span></label>
-                        <input asp-for="PrincipalName" class="form-control form-control-lg rounded-3" required />
-                        <span asp-validation-for="PrincipalName" class="text-danger small"></span>
-                    </div>
-                </div>
-
-                <div class="row g-4 mb-4">
-                    <div class="col-md-4 col-12">
-                        <label asp-for="ContactNumber" class="form-label fw-bold">Contact Number <span class="text-danger">*</span></label>
-                        <input asp-for="ContactNumber" class="form-control form-control-lg rounded-3" required />
-                        <span asp-validation-for="ContactNumber" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-md-4 col-12">
-                        <label asp-for="EmailAddress" class="form-label fw-bold">Email Address <span class="text-danger">*</span></label>
-                        <input asp-for="EmailAddress" type="email" class="form-control form-control-lg rounded-3" required />
-                        <span asp-validation-for="EmailAddress" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-md-4 col-12">
-                        <label asp-for="Website" class="form-label fw-bold">Website</label>
-                        <input asp-for="Website" type="url" class="form-control form-control-lg rounded-3" placeholder="https://example.com" />
-                        <span asp-validation-for="Website" class="text-danger small"></span>
-                    </div>
-                </div>
-
-                <div class="row g-4 mb-4">
-                    <div class="col-md-4 col-12">
-                        <label asp-for="TimeZoneId" class="form-label fw-bold">School Time Zone</label>
-                        <select asp-for="TimeZoneId" asp-items="(List<SelectListItem>)ViewBag.TimeZones" class="form-select form-select-lg rounded-3">
-                            <option value="">-- Select Time Zone --</option>
-                        </select>
-                        <span asp-validation-for="TimeZoneId" class="text-danger small"></span>
-                    </div>
-
-                    <div class="col-md-6 col-12">
-                        <label for="logoFile" class="form-label fw-bold">School Logo</label>
-                        <div class="premium-file-upload border border-dashed rounded-3 p-3 text-center position-relative bg-light-subtle" style="cursor: pointer; border-style: dashed !important; border-color: #3d5af1 !important; transition: background-color 0.2s;">
-                            <input type="file" id="logoFile" name="logoFile" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer;" accept="image/*" onchange="previewFile(this, 'logoPreview', 'logoFileName')" />
-                            <div class="upload-content d-flex align-items-center justify-content-center gap-3">
-                                <i class="bi bi-cloud-arrow-up-fill text-primary fs-3"></i>
-                                <span class="fw-semibold text-secondary" id="logoFileName">Choose new logo image...</span>
-                            </div>
-                            <div id="logoPreview" class="mt-2 @(string.IsNullOrEmpty(Model.SchoolLogo) ? "d-none" : "")">
-                                <img src="@Model.SchoolLogo" class="rounded-circle border border-secondary shadow-sm" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
-                                @if (!string.IsNullOrEmpty(Model.SchoolLogo))
-                                {
-                                    <div class="text-secondary small mt-1">Current Active Logo</div>
-                                }
-                            </div>
+                <!-- Section 1: Basic School Details -->
+                <div class="mb-4">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-info-circle me-2"></i>Basic Information</h6>
+                    <div class="row g-4">
+                        <div class="col-md-4 col-12">
+                            <label asp-for="SchoolName" class="form-label fw-bold">School Name <span class="text-danger">*</span></label>
+                            <input asp-for="SchoolName" class="form-control form-control-lg rounded-3" required />
+                            <span asp-validation-for="SchoolName" class="text-danger small"></span>
                         </div>
-                    </div>
 
-                    <div class="col-md-2 col-12 d-flex align-items-end">
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" asp-for="IsActive" id="IsActiveSwitch" style="cursor: pointer; width: 45px; height: 22px;">
-                            <label class="form-check-label ms-2 fw-semibold fs-6" for="IsActiveSwitch">Active</label>
+                        <div class="col-md-4 col-12">
+                            <label asp-for="SchoolCode" class="form-label fw-bold">School Code <span class="text-danger">*</span></label>
+                            <input asp-for="SchoolCode" class="form-control form-control-lg rounded-3" required />
+                            <span asp-validation-for="SchoolCode" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="PrincipalName" class="form-label fw-bold">Principal Name <span class="text-danger">*</span></label>
+                            <input asp-for="PrincipalName" class="form-control form-control-lg rounded-3" required />
+                            <span asp-validation-for="PrincipalName" class="text-danger small"></span>
                         </div>
                     </div>
                 </div>
 
-                <div class="row g-4 mb-4">
-                    <div class="col-12">
-                        <label asp-for="SchoolAddress" class="form-label fw-bold">School Address <span class="text-danger">*</span></label>
-                        <textarea asp-for="SchoolAddress" class="form-control rounded-3" rows="3" required></textarea>
-                        <span asp-validation-for="SchoolAddress" class="text-danger small"></span>
+                <!-- Section 2: Geographic & Location Details -->
+                <div class="mb-4 pt-2 border-top">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3 mt-3"><i class="bi bi-geo-alt me-2"></i>Location & Region</h6>
+                    <div class="row g-4">
+                        <div class="col-md-4 col-12">
+                            <label asp-for="CountryId" class="form-label fw-bold">Country</label>
+                            <select asp-for="CountryId" id="countryDropdown" asp-items="ViewBag.Countries" class="form-select form-select-lg rounded-3">
+                                <option value="">-- Select Country --</option>
+                            </select>
+                            <span asp-validation-for="CountryId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="RegionId" class="form-label fw-bold">State / Region</label>
+                            <select asp-for="RegionId" id="regionDropdown" asp-items="ViewBag.Regions" class="form-select form-select-lg rounded-3">
+                                <option value="">-- Select State / Region --</option>
+                            </select>
+                            <span asp-validation-for="RegionId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="City" class="form-label fw-bold">City / Town</label>
+                            <input asp-for="City" class="form-control form-control-lg rounded-3" placeholder="e.g. Dubai or Mumbai" />
+                            <span asp-validation-for="City" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Contact & Configuration -->
+                <div class="mb-4 pt-2 border-top">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3 mt-3"><i class="bi bi-telephone me-2"></i>Contact & Configuration</h6>
+                    <div class="row g-4">
+                        <div class="col-md-4 col-12">
+                            <label asp-for="ContactNumber" class="form-label fw-bold">Contact Number <span class="text-danger">*</span></label>
+                            <input asp-for="ContactNumber" class="form-control form-control-lg rounded-3" required />
+                            <span asp-validation-for="ContactNumber" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="EmailAddress" class="form-label fw-bold">Email Address <span class="text-danger">*</span></label>
+                            <input asp-for="EmailAddress" type="email" class="form-control form-control-lg rounded-3" required />
+                            <span asp-validation-for="EmailAddress" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-4 col-12">
+                            <label asp-for="Website" class="form-label fw-bold">Website</label>
+                            <input asp-for="Website" type="url" class="form-control form-control-lg rounded-3" placeholder="https://example.com" />
+                            <span asp-validation-for="Website" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mt-1">
+                        <div class="col-md-6 col-12">
+                            <label asp-for="TimeZoneId" class="form-label fw-bold">School Time Zone</label>
+                            <select asp-for="TimeZoneId" asp-items="(List<SelectListItem>)ViewBag.TimeZones" class="form-select form-select-lg rounded-3">
+                                <option value="">-- Select Time Zone --</option>
+                            </select>
+                            <span asp-validation-for="TimeZoneId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6 col-12">
+                            <label class="form-label fw-bold">Account Status</label>
+                            <div class="form-control form-control-lg rounded-3 d-flex align-items-center justify-content-between bg-body">
+                                <span class="fw-semibold text-secondary fs-6">Active / Enable Access</span>
+                                <div class="form-check form-switch mb-0">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" style="width: 44px; height: 22px; cursor: pointer;" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Logo Upload & Address -->
+                <div class="mb-4 pt-2 border-top">
+                    <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3 mt-3"><i class="bi bi-card-image me-2"></i>Logo & Address Details</h6>
+                    <div class="row g-4 mb-4">
+                        <div class="col-12">
+                            <label for="logoFile" class="form-label fw-bold">School Logo</label>
+                            <div class="premium-file-upload border border-dashed rounded-3 p-4 text-center position-relative bg-light-subtle" style="cursor: pointer; border-style: dashed !important; border-color: #3d5af1 !important;">
+                                <input type="file" id="logoFile" name="logoFile" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer;" accept="image/*" onchange="previewFile(this, 'logoPreview', 'logoFileName')" />
+                                <div class="upload-content d-flex align-items-center justify-content-center gap-3">
+                                    <i class="bi bi-cloud-arrow-up-fill text-primary fs-3"></i>
+                                    <span class="fw-semibold text-secondary" id="logoFileName">Choose new logo image (PNG, JPG or WebP - max. 5MB)</span>
+                                </div>
+                                <div id="logoPreview" class="mt-2 @(string.IsNullOrEmpty(Model.SchoolLogo) ? "d-none" : "")">
+                                    <img src="@Model.SchoolLogo" class="rounded-circle border border-secondary shadow-sm" style="width: 50px; height: 50px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.svg';" />
+                                    @if (!string.IsNullOrEmpty(Model.SchoolLogo))
+                                    {
+                                        <div class="text-secondary small mt-1">Current Active Logo</div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-12">
+                            <label asp-for="SchoolAddress" class="form-label fw-bold">School Address <span class="text-danger">*</span></label>
+                            <textarea asp-for="SchoolAddress" class="form-control rounded-3" rows="3" required></textarea>
+                            <span asp-validation-for="SchoolAddress" class="text-danger small"></span>
+                        </div>
                     </div>
                 </div>
 
@@ -151,5 +196,61 @@
                 previewDiv.classList.add('d-none');
             }
         }
+
+        // Fetch & sync region dropdown state
+        function syncRegionState(selectedRegionId = null) {
+            const countryId = document.getElementById('countryDropdown').value;
+            const regionSelect = document.getElementById('regionDropdown');
+
+            if (!countryId) {
+                regionSelect.disabled = false;
+                regionSelect.innerHTML = '<option value="">-- Select State / Region --</option>';
+                return;
+            }
+
+            regionSelect.innerHTML = '<option value="">-- Loading States / Regions... --</option>';
+            regionSelect.disabled = true;
+
+            fetch('@Url.Action("GetRegionsByCountry")?countryId=' + countryId)
+                .then(res => res.json())
+                .then(data => {
+                    regionSelect.innerHTML = '';
+                    if (data.success && data.data && data.data.length > 0) {
+                        regionSelect.disabled = false;
+                        regionSelect.innerHTML = '<option value="">-- Select State / Region --</option>';
+                        data.data.forEach(item => {
+                            const opt = document.createElement('option');
+                            opt.value = item.regionId;
+                            opt.textContent = item.regionName + (item.regionCode ? ' (' + item.regionCode + ')' : '');
+                            if (selectedRegionId && parseInt(selectedRegionId) === item.regionId) {
+                                opt.selected = true;
+                            }
+                            regionSelect.appendChild(opt);
+                        });
+                    } else {
+                        // Country has no regions in DB: Disable dropdown & submit null RegionId
+                        regionSelect.disabled = true;
+                        regionSelect.innerHTML = '<option value="">-- No Regions Available (N/A) --</option>';
+                    }
+                })
+                .catch(() => {
+                    regionSelect.disabled = false;
+                    regionSelect.innerHTML = '<option value="">-- Select State / Region --</option>';
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Check state on initial page load / refresh
+            const initialCountryId = document.getElementById('countryDropdown').value;
+            const initialRegionId = '@Model.RegionId';
+            if (initialCountryId) {
+                syncRegionState(initialRegionId);
+            }
+
+            // On Country change
+            document.getElementById('countryDropdown').addEventListener('change', function () {
+                syncRegionState();
+            });
+        });
     </script>
 }

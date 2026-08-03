@@ -47,7 +47,7 @@
                 </div>
 
                 <div class="row g-4 mb-4">
-                    <div class="col-md-4 col-12">
+                    <div class="col-md-3 col-12">
                         <label asp-for="SchoolId" class="form-label fw-bold">Assign School <span class="text-danger">*</span></label>
                         <select asp-for="SchoolId" asp-items="ViewBag.Schools" class="form-select form-select-lg rounded-3" required>
                             <option value="">-- Select School --</option>
@@ -55,21 +55,31 @@
                         <span asp-validation-for="SchoolId" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-4 col-12">
+                    <div class="col-md-3 col-12">
                         <label asp-for="Email" class="form-label fw-bold">Email Address</label>
                         <input asp-for="Email" type="email" class="form-control form-control-lg rounded-3" />
                         <span asp-validation-for="Email" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-4 col-12">
+                    <div class="col-md-3 col-12">
                         <label asp-for="PhoneNumber" class="form-label fw-bold">Phone Number</label>
                         <input asp-for="PhoneNumber" class="form-control form-control-lg rounded-3" />
                         <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
                     </div>
+
+                    <div class="col-md-3 col-12">
+                        <label class="form-label fw-bold">Account Status</label>
+                        <div class="form-control form-control-lg rounded-3 d-flex align-items-center justify-content-between bg-body">
+                            <span class="fw-semibold text-secondary fs-6">Active Status</span>
+                            <div class="form-check form-switch mb-0">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" style="width: 44px; height: 22px; cursor: pointer;" />
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="row g-4 mb-4">
-                    <div class="col-md-8 col-12">
+                    <div class="col-12">
                         <label for="profileImage" class="form-label fw-bold">Profile Image (Optional)</label>
                         <div class="premium-file-upload border border-dashed rounded-3 p-3 text-center position-relative bg-light-subtle" style="cursor: pointer; border-style: dashed !important; border-color: #3d5af1 !important; transition: background-color 0.2s;">
                             <input type="file" id="profileImage" name="profileImage" class="position-absolute top-0 start-0 w-100 h-100 opacity-0" style="cursor: pointer;" accept="image/*" onchange="previewFile(this, 'profilePreview', 'profileFileName')" />
@@ -85,13 +95,6 @@
                                     <div class="text-secondary small mt-1">Current Active Photo</div>
                                 }
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4 col-12 d-flex align-items-end">
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" asp-for="IsActive" id="IsActiveSwitch" style="cursor: pointer; width: 45px; height: 22px;">
-                            <label class="form-check-label ms-2 fw-semibold fs-6" for="IsActiveSwitch">Active Account</label>
                         </div>
                     </div>
                 </div>

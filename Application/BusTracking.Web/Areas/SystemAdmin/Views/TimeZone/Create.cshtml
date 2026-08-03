@@ -27,41 +27,44 @@
 
                 <div class="row g-4 mb-4">
                     <div class="col-md-8 col-12">
-                        <label asp-for="TimeZoneName" class="form-label fw-bold">Time Zone Display Name</label>
+                        <label asp-for="TimeZoneName" class="form-label fw-bold">Time Zone Display Name <span class="text-danger">*</span></label>
                         <input asp-for="TimeZoneName" class="form-control form-control-lg rounded-3" placeholder="e.g. (UTC+05:30) India Standard Time - New Delhi" required />
                         <span asp-validation-for="TimeZoneName" class="text-danger small"></span>
                     </div>
 
                     <div class="col-md-4 col-12">
-                        <label asp-for="UtcOffset" class="form-label fw-bold">UTC Offset</label>
+                        <label asp-for="UtcOffset" class="form-label fw-bold">UTC Offset <span class="text-danger">*</span></label>
                         <input asp-for="UtcOffset" class="form-control form-control-lg rounded-3" placeholder="e.g. +05:30" required />
                         <span asp-validation-for="UtcOffset" class="text-danger small"></span>
                     </div>
                 </div>
 
                 <div class="row g-4 mb-4">
-                    <div class="col-md-4 col-12">
-                        <label asp-for="IanaTimeZoneId" class="form-label fw-bold">IANA TimeZone ID</label>
+                    <div class="col-md-3 col-12">
+                        <label asp-for="IanaTimeZoneId" class="form-label fw-bold">IANA TimeZone ID <span class="text-danger">*</span></label>
                         <input asp-for="IanaTimeZoneId" class="form-control form-control-lg rounded-3" placeholder="e.g. Asia/Kolkata" required />
                         <span asp-validation-for="IanaTimeZoneId" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-4 col-12">
-                        <label asp-for="WindowsTimeZoneId" class="form-label fw-bold">Windows TimeZone ID</label>
+                    <div class="col-md-3 col-12">
+                        <label asp-for="WindowsTimeZoneId" class="form-label fw-bold">Windows TimeZone ID <span class="text-danger">*</span></label>
                         <input asp-for="WindowsTimeZoneId" class="form-control form-control-lg rounded-3" placeholder="e.g. India Standard Time" required />
                         <span asp-validation-for="WindowsTimeZoneId" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-2 col-6">
-                        <label asp-for="DisplayOrder" class="form-label fw-bold">Display Order</label>
+                    <div class="col-md-3 col-12">
+                        <label asp-for="DisplayOrder" class="form-label fw-bold">Display Order <span class="text-danger">*</span></label>
                         <input asp-for="DisplayOrder" type="number" class="form-control form-control-lg rounded-3" required />
                         <span asp-validation-for="DisplayOrder" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-2 col-6 d-flex align-items-end">
-                        <div class="form-check form-switch mb-2">
-                            <input class="form-check-input" type="checkbox" asp-for="IsActive" id="IsActiveSwitch" style="cursor: pointer; width: 45px; height: 22px;">
-                            <label class="form-check-label ms-2 fw-semibold fs-6" for="IsActiveSwitch">Active</label>
+                    <div class="col-md-3 col-12">
+                        <label class="form-label fw-bold">Status</label>
+                        <div class="form-control form-control-lg rounded-3 d-flex align-items-center justify-content-between bg-body">
+                            <span class="fw-semibold text-secondary fs-6">Active Status</span>
+                            <div class="form-check form-switch mb-0">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" style="width: 44px; height: 22px; cursor: pointer;" checked />
+                            </div>
                         </div>
                     </div>
                 </div>

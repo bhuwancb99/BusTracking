@@ -20,39 +20,40 @@
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3" role="alert"></div>
 
                 <div class="row g-4 mb-4">
-                    <div class="col-md-5 col-12">
-                        <label asp-for="CountryId" class="form-label fw-semibold">Country <span class="text-danger">*</span></label>
+                    <div class="col-md-3 col-12">
+                        <label asp-for="CountryId" class="form-label fw-bold">Country <span class="text-danger">*</span></label>
                         <select asp-for="CountryId" class="form-select form-select-lg rounded-3" asp-items="ViewBag.Countries" required>
                             <option value="">-- Select Country --</option>
                         </select>
                         <span asp-validation-for="CountryId" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-5 col-12">
-                        <label asp-for="RegionName" class="form-label fw-semibold">Region / State Name <span class="text-danger">*</span></label>
+                    <div class="col-md-3 col-12">
+                        <label asp-for="RegionName" class="form-label fw-bold">Region / State Name <span class="text-danger">*</span></label>
                         <input asp-for="RegionName" class="form-control form-control-lg rounded-3" placeholder="e.g. Dubai or Maharashtra" required />
                         <span asp-validation-for="RegionName" class="text-danger small"></span>
                     </div>
 
-                    <div class="col-md-2 col-12">
-                        <label asp-for="RegionCode" class="form-label fw-semibold">Region Code</label>
+                    <div class="col-md-3 col-12">
+                        <label asp-for="RegionCode" class="form-label fw-bold">Region Code</label>
                         <input asp-for="RegionCode" class="form-control form-control-lg rounded-3 text-uppercase" placeholder="e.g. DU" maxlength="20" />
                         <span asp-validation-for="RegionCode" class="text-danger small"></span>
                     </div>
-                </div>
 
-                <div class="row g-4 mb-4">
-                    <div class="col-12">
-                        <div class="form-check form-switch">
-                            <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" checked />
-                            <label class="form-check-label fw-semibold fs-6" for="isActiveSwitch">Active & Available in System</label>
+                    <div class="col-md-3 col-12">
+                        <label class="form-label fw-bold">Status</label>
+                        <div class="form-control form-control-lg rounded-3 d-flex align-items-center justify-content-between bg-body">
+                            <span class="fw-semibold text-secondary fs-6">Active Status</span>
+                            <div class="form-check form-switch mb-0">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" style="width: 44px; height: 22px; cursor: pointer;" checked />
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="d-flex align-items-center justify-content-end gap-2 border-top pt-4 mt-2">
                     <a asp-action="Index" asp-route-countryId="@Model?.CountryId" class="btn btn-light rounded-pill px-4">Cancel</a>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm">Save Region</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm"><i class="bi bi-check-circle me-2"></i>Save Region</button>
                 </div>
             </form>
         </div>

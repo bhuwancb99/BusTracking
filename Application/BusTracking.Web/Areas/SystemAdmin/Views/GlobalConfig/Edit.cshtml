@@ -22,15 +22,25 @@
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-3"></div>
 
                 <div class="row g-4 mb-4">
-                    <div class="col-md-6 col-12">
+                    <div class="col-md-4 col-12">
                         <label class="form-label fw-bold">Configuration Key</label>
                         <input type="text" value="@key" class="form-control form-control-lg rounded-3 bg-light text-muted" readonly />
                     </div>
 
-                    <div class="col-md-6 col-12">
+                    <div class="col-md-4 col-12">
                         <label asp-for="Description" class="form-label fw-bold">Description</label>
                         <input asp-for="Description" class="form-control form-control-lg rounded-3" placeholder="Describe the purpose of this configuration..." />
                         <span asp-validation-for="Description" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-md-4 col-12">
+                        <label class="form-label fw-bold">Status</label>
+                        <div class="form-control form-control-lg rounded-3 d-flex align-items-center justify-content-between bg-body">
+                            <span class="fw-semibold text-secondary fs-6">Active Status</span>
+                            <div class="form-check form-switch mb-0">
+                                <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" style="width: 44px; height: 22px; cursor: pointer;" />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -40,14 +50,9 @@
                     <span asp-validation-for="GlobalConfigValue" class="text-danger small"></span>
                 </div>
 
-                <div class="form-check form-switch mb-4">
-                    <input asp-for="IsActive" class="form-check-input" type="checkbox" id="isActiveSwitch" />
-                    <label class="form-check-label fw-semibold fs-6" for="isActiveSwitch">Active</label>
-                </div>
-
                 <div class="d-flex justify-content-end gap-2 border-top pt-4 mt-2">
                     <a href="@Url.Action("Index", "GlobalConfig", new { area = "SystemAdmin" })" class="btn btn-light rounded-pill px-4">Cancel</a>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm"><i class="bi bi-check-circle me-2"></i>Update Configuration</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 shadow-sm"><i class="bi bi-save me-2"></i>Update Configuration</button>
                 </div>
             </form>
         </div>

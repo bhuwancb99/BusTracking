@@ -13,7 +13,7 @@
 <div class="premium-card rounded-4 border-0 p-4 mb-4">
     <form method="get" class="row g-2 align-items-center">
         <div class="col-md-6">
-            <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Search by name, code or principal..." />
+            <input type="text" name="search" value="@ViewBag.Search" class="form-control" placeholder="Search by name, code, principal, or city..." />
         </div>
         <div class="col-md-3">
             <button type="submit" class="btn btn-primary w-100 rounded-3"><i class="bi bi-search me-2"></i>Search</button>
@@ -32,6 +32,7 @@
                     <th style="width: 80px;">Logo</th>
                     <th>School Code</th>
                     <th>School Name</th>
+                    <th>Location</th>
                     <th>Principal</th>
                     <th>Contact</th>
                     <th>Time Zone</th>
@@ -43,7 +44,7 @@
                 @if (Model.Count == 0)
                 {
                     <tr>
-                        <td colspan="8" class="text-center text-secondary py-5">
+                        <td colspan="9" class="text-center text-secondary py-5">
                             <i class="bi bi-inbox text-muted" style="font-size: 2.5rem;"></i>
                             <p class="mt-2">No schools found.</p>
                         </td>
@@ -53,6 +54,12 @@
                 {
                     @foreach (var school in Model)
                     {
+                        var locationParts = new List<string>();
+                        if (!string.IsNullOrWhiteSpace(school.City)) locationParts.Add(school.City);
+                        if (school.Region != null) locationParts.Add(school.Region.RegionName);
+                        if (school.Country != null) locationParts.Add(school.Country.CountryName);
+                        string locationDisplay = locationParts.Count > 0 ? string.Join(", ", locationParts) : "-";
+
                         <tr>
                             <td class="text-center">
                                 @if (!string.IsNullOrEmpty(school.SchoolLogo))
@@ -66,6 +73,11 @@
                             </td>
                             <td class="fw-semibold text-primary">@school.SchoolCode</td>
                             <td class="fw-semibold">@school.SchoolName</td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="bi bi-geo-alt me-1 text-danger"></i>@locationDisplay
+                                </span>
+                            </td>
                             <td>@school.PrincipalName</td>
                             <td>@school.ContactNumber</td>
                             <td>
@@ -100,16 +112,22 @@
         $(document).ready(function() {
             $('.school-toggle').change(function() {
                 var schoolId = $(this).data('id');
-                var token = $('input[name="__RequestVerificationToken"]').val();
+                var isChecked = $(this).is(':checked');
+                var $checkbox = $(this);
+
                 $.ajax({
                     url: '@Url.Action("ToggleActive", "School", new { area = "SystemAdmin" })',
                     type: 'POST',
-                    data: { id: schoolId, __RequestVerificationToken: token },
-                    success: function(res) {
-                        // optional alert/notification logic
+                    data: { id: schoolId },
+                    success: function(response) {
+                        if (!response.success) {
+                            $checkbox.prop('checked', !isChecked);
+                            alert('Failed to update school status.');
+                        }
                     },
                     error: function() {
-                        alert('An error occurred. Please try again.');
+                        $checkbox.prop('checked', !isChecked);
+                        alert('An error occurred while updating status.');
                     }
                 });
             });
