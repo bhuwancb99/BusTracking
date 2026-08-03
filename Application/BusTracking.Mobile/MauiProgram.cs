@@ -271,6 +271,7 @@ namespace BusTracking.Mobile
 
             // Teacher
             s.AddTransient<TeacherDashboardViewModel>();
+            s.AddTransient<TeacherNotificationViewModel>();
 
             // Driver
             s.AddTransient<DriverDashboardViewModel>();
@@ -343,6 +344,7 @@ namespace BusTracking.Mobile
 
             // Teacher
             s.AddTransient<TeacherDashboardPage>();
+            s.AddTransient<TeacherNotificationPage>();
             s.AddTransient<AdminTripDetailPage>();
             s.AddTransient<AdminConfigListPage>();
             s.AddTransient<AdminConfigFormPage>();

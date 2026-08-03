@@ -534,12 +534,17 @@
         FlyoutItemIsVisible="False"
         Route="DriverNotification" />
 
-    <!--  Teacher Dashboard  -->
+    <!--  Teacher Dashboard & Notifications  -->
     <ShellContent
         Title="Dashboard"
         ContentTemplate="{DataTemplate teacher:TeacherDashboardPage}"
         FlyoutItemIsVisible="False"
         Route="TeacherDashboard" />
+    <ShellContent
+        Title="Notifications"
+        ContentTemplate="{DataTemplate teacher:TeacherNotificationPage}"
+        FlyoutItemIsVisible="False"
+        Route="TeacherNotification" />
 
     <!--  SuperAdmin Teachers List  -->
     <ShellContent
