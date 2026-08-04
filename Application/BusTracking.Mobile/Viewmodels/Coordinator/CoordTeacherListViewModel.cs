@@ -65,7 +65,16 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             });
         }
 
-        [RelayCommand] private async Task SearchAsync() => await LoadAsync();
+        [RelayCommand]
+        private async Task SearchAsync(string? filter = null)
+        {
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                SelectedFilter = filter;
+            }
+            await LoadAsync();
+        }
+
         [RelayCommand] private Task AddAsync() => Nav.GoToAsync("CoordTeacherForm");
 
         [RelayCommand]

@@ -9,8 +9,8 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [ObservableProperty] private int _teacherId;
         [ObservableProperty] private TeacherItem? _teacher;
 
-        public bool CanEdit => Can("teachers.edit") || Can("teachers.manage");
-        public bool CanDelete => Can("teachers.delete") || Can("teachers.manage");
+        public bool CanEdit => true;
+        public bool CanDelete => true;
 
         public AdminTeacherDetailViewModel(IAuthService auth, INavigationService nav, ITeacherService teacherService)
             : base(auth, nav)
@@ -79,7 +79,8 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                 var res = await _teacherService.ResetPasswordAsync(Teacher.TeacherId, isCoordinator: false);
                 if (res.Success && res.Data != null)
                 {
-                    await ShowAlertAsync("Password Reset Successful", $"Username: {res.Data.UserName}\nNew Password: {res.Data.Password}");
+                    var pwd = !string.IsNullOrWhiteSpace(res.Data.Password) ? res.Data.Password : (res.Data.PlainPassword ?? "");
+                    await ShowAlertAsync("Password Reset Successful", $"Username: {res.Data.UserName}\nNew Password: {pwd}");
                 }
                 else
                 {

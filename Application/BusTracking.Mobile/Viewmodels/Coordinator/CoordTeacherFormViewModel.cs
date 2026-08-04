@@ -16,6 +16,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [ObservableProperty] private string _email = "";
         [ObservableProperty] private string _phoneNumber = "";
         [ObservableProperty] private string _password = "";
+        [ObservableProperty] private string _newPassword = "";
         [ObservableProperty] private string _employeeCode = "";
         [ObservableProperty] private string _qualification = "";
         [ObservableProperty] private string _designation = "";
@@ -104,6 +105,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             {
                 if (IsEditMode)
                 {
+                    var effectivePwd = !string.IsNullOrWhiteSpace(NewPassword) ? NewPassword.Trim() : (string.IsNullOrWhiteSpace(Password) ? null : Password.Trim());
                     var req = new UpdateTeacherRequest
                     {
                         TeacherId = TeacherId,
@@ -111,7 +113,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                         UserName = UserName.Trim(),
                         Email = Email.Trim(),
                         PhoneNumber = PhoneNumber.Trim(),
-                        Password = string.IsNullOrWhiteSpace(Password) ? null : Password.Trim(),
+                        Password = effectivePwd,
                         EmployeeCode = EmployeeCode.Trim(),
                         Qualification = Qualification.Trim(),
                         Designation = Designation.Trim(),

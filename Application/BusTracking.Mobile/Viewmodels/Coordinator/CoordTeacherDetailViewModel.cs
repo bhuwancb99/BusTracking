@@ -79,7 +79,8 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
                 var res = await _teacherService.ResetPasswordAsync(Teacher.TeacherId, isCoordinator: true);
                 if (res.Success && res.Data != null)
                 {
-                    await ShowAlertAsync("Password Reset Successful", $"Username: {res.Data.UserName}\nNew Password: {res.Data.Password}");
+                    var pwd = !string.IsNullOrWhiteSpace(res.Data.Password) ? res.Data.Password : (res.Data.PlainPassword ?? "");
+                    await ShowAlertAsync("Password Reset Successful", $"Username: {res.Data.UserName}\nNew Password: {pwd}");
                 }
                 else
                 {

@@ -7,6 +7,7 @@
     xmlns:models="clr-namespace:BusTracking.Mobile.Models.Teacher"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
+    Title="Teachers"
     x:DataType="vm:CoordTeacherListViewModel"
     x:TypeArguments="vm:CoordTeacherListViewModel"
     BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
@@ -49,78 +50,172 @@
         </Grid>
     </Shell.TitleView>
 
-    <Grid RowDefinitions="Auto,*">
-        <!--  Search Card  -->
+    <Grid RowDefinitions="Auto,Auto,*,Auto">
+        <!--  Search Card with Filter Chips  -->
         <Border
             Grid.Row="0"
-            Margin="12,12,12,8"
-            Padding="12,8"
+            Margin="5,14,5,8"
+            Padding="14,12"
             BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                               Dark={StaticResource CardBgDark}}"
             Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                      Dark={StaticResource BorderColorDark}}"
             StrokeShape="RoundRectangle 12"
             StrokeThickness="1">
-            <Grid ColumnDefinitions="*,Auto">
-                <Entry
-                    Grid.Column="0"
-                    Placeholder="{Binding SearchPlaceholder}"
-                    ReturnCommand="{Binding SearchCommand}"
-                    Text="{Binding SearchText}"
-                    VerticalOptions="Center" />
-                <Button
-                    Grid.Column="1"
-                    Margin="8,0,0,0"
-                    Padding="12,0"
-                    Command="{Binding SearchCommand}"
-                    CornerRadius="8"
-                    HeightRequest="38"
-                    Text="Search" />
-            </Grid>
-        </Border>
+            <VerticalStackLayout Spacing="10">
+                <Border Style="{StaticResource SearchBarBorder}">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="6">
+                        <Image
+                            Grid.Column="0"
+                            HeightRequest="18"
+                            Source="search.png"
+                            VerticalOptions="Center"
+                            WidthRequest="18">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextMutedDark}}" />
+                            </Image.Behaviors>
+                        </Image>
+                        <Entry
+                            Grid.Column="1"
+                            Placeholder="{Binding SearchPlaceholder}"
+                            ReturnCommand="{Binding SearchCommand}"
+                            Text="{Binding SearchText}" />
+                        <ImageButton
+                            Grid.Column="2"
+                            Padding="8"
+                            BackgroundColor="{StaticResource Primary}"
+                            Command="{Binding SearchCommand}"
+                            CornerRadius="8"
+                            HeightRequest="36"
+                            HorizontalOptions="End"
+                            Source="search.png"
+                            WidthRequest="36">
+                            <ImageButton.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="White" />
+                            </ImageButton.Behaviors>
+                        </ImageButton>
+                    </Grid>
+                </Border>
 
-        <!--  List View  -->
-        <RefreshView
-            Grid.Row="1"
-            Command="{Binding LoadCommand}"
-            IsRefreshing="{Binding IsBusy}">
-            <CollectionView ItemsSource="{Binding Items}">
-                <CollectionView.EmptyView>
-                    <VerticalStackLayout
-                        Padding="30"
-                        HorizontalOptions="Center"
-                        Spacing="8"
-                        VerticalOptions="Center">
-                        <Label
-                            FontAttributes="Bold"
-                            FontSize="16"
-                            HorizontalTextAlignment="Center"
-                            Text="No Teachers Found"
-                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                        Dark={StaticResource TextSecondaryDark}}" />
+                <HorizontalStackLayout Spacing="8">
+                    <Border
+                        Padding="14,6"
+                        BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Active'}"
+                        StrokeShape="RoundRectangle 16"
+                        StrokeThickness="0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SearchCommand}" CommandParameter="Active" />
+                        </Border.GestureRecognizers>
                         <Label
                             FontSize="12"
-                            HorizontalTextAlignment="Center"
-                            Text="Tap + above to register a new teacher account."
-                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                        Dark={StaticResource TextSecondaryDark}}" />
-                    </VerticalStackLayout>
-                </CollectionView.EmptyView>
+                            Text="Active"
+                            TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Active'}" />
+                    </Border>
+                    <Border
+                        Padding="14,6"
+                        BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Inactive'}"
+                        StrokeShape="RoundRectangle 16"
+                        StrokeThickness="0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SearchCommand}" CommandParameter="Inactive" />
+                        </Border.GestureRecognizers>
+                        <Label
+                            FontSize="12"
+                            Text="Inactive"
+                            TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Inactive'}" />
+                    </Border>
+                    <Border
+                        Padding="14,6"
+                        BackgroundColor="{Binding SelectedFilter, Converter={StaticResource FilterChipColorConverter}, ConverterParameter='Both'}"
+                        StrokeShape="RoundRectangle 16"
+                        StrokeThickness="0">
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Command="{Binding SearchCommand}" CommandParameter="Both" />
+                        </Border.GestureRecognizers>
+                        <Label
+                            FontSize="12"
+                            Text="Both"
+                            TextColor="{Binding SelectedFilter, Converter={StaticResource FilterChipTextConverter}, ConverterParameter='Both'}" />
+                    </Border>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </Border>
+
+        <!--  Error Banner  -->
+        <Border
+            Grid.Row="1"
+            Margin="5,0"
+            IsVisible="{Binding HasError}"
+            Style="{StaticResource ErrorBannerBorder}">
+            <Label
+                FontSize="13"
+                Text="{Binding ErrorMessage}"
+                TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
+                                            Dark={StaticResource ErrorTextDark}}" />
+        </Border>
+
+        <!--  Empty View  -->
+        <VerticalStackLayout
+            Grid.Row="2"
+            HorizontalOptions="Center"
+            IsVisible="{Binding IsEmpty}"
+            Spacing="14"
+            VerticalOptions="Center">
+            <Border
+                BackgroundColor="#e0e7ff"
+                HeightRequest="72"
+                HorizontalOptions="Center"
+                StrokeShape="RoundRectangle 36"
+                StrokeThickness="0"
+                WidthRequest="72">
+                <Image
+                    HeightRequest="36"
+                    HorizontalOptions="Center"
+                    Source="teacher.png"
+                    VerticalOptions="Center"
+                    WidthRequest="36">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                    </Image.Behaviors>
+                </Image>
+            </Border>
+            <Label
+                FontAttributes="Bold"
+                FontSize="16"
+                HorizontalOptions="Center"
+                Text="No teachers found"
+                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                            Dark={StaticResource TextSecondaryDark}}" />
+            <Button
+                Padding="24,0"
+                Command="{Binding AddCommand}"
+                HorizontalOptions="Center"
+                IsVisible="{Binding CanAdd}"
+                Style="{StaticResource PrimaryButton}"
+                Text="+ Add Teacher" />
+        </VerticalStackLayout>
+
+        <!--  Teachers List  -->
+        <RefreshView
+            Grid.Row="2"
+            Margin="5,4,5,0"
+            Command="{Binding LoadCommand}"
+            IsRefreshing="{Binding IsBusy}">
+            <CollectionView
+                ItemsSource="{Binding Items}"
+                RemainingItemsThreshold="3"
+                RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}"
+                SelectionMode="None">
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:TeacherItem">
-                        <Border
-                            Margin="12,6"
-                            Padding="16"
-                            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
-                                                              Dark={StaticResource CardBgDark}}"
-                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                                     Dark={StaticResource BorderColorDark}}"
-                            StrokeShape="RoundRectangle 14"
-                            StrokeThickness="1">
+                        <Border Style="{StaticResource ListItemBorder}">
                             <Border.GestureRecognizers>
                                 <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordTeacherListViewModel}}, Path=SelectCommand}" CommandParameter="{Binding .}" />
                             </Border.GestureRecognizers>
-                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+                            <Grid
+                                Padding="14"
+                                ColumnDefinitions="Auto,*,Auto"
+                                ColumnSpacing="12">
                                 <Border
                                     Grid.Column="0"
                                     BackgroundColor="#e0e7ff"
@@ -132,6 +227,7 @@
                                     WidthRequest="44">
                                     <Label
                                         FontAttributes="Bold"
+                                        FontSize="14"
                                         HorizontalOptions="Center"
                                         Text="{Binding InitialsDisplay}"
                                         TextColor="#3730a3"
@@ -140,7 +236,7 @@
 
                                 <VerticalStackLayout
                                     Grid.Column="1"
-                                    Spacing="2"
+                                    Spacing="4"
                                     VerticalOptions="Center">
                                     <Label
                                         FontAttributes="Bold"
@@ -148,34 +244,47 @@
                                         Text="{Binding FullName}"
                                         TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                                     Dark={StaticResource TextPrimaryDark}}" />
-                                    <Label
-                                        FontSize="12"
-                                        Text="{Binding DesignationDisplay}"
-                                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                                    Dark={StaticResource TextSecondaryDark}}" />
-                                    <Label
-                                        FontSize="11"
-                                        Text="{Binding DepartmentDisplay}"
-                                        TextColor="#64748b" />
+                                    <Label Style="{StaticResource SubLabel}" Text="{Binding DesignationDisplay}" />
+                                    <Border
+                                        Padding="6,2"
+                                        BackgroundColor="#f1f5f9"
+                                        HorizontalOptions="Start"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 8">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="10"
+                                            Text="{Binding DepartmentDisplay}"
+                                            TextColor="#475569" />
+                                    </Border>
                                 </VerticalStackLayout>
 
-                                <Border
+                                <VerticalStackLayout
                                     Grid.Column="2"
-                                    Padding="8,4"
-                                    BackgroundColor="{Binding StatusBgColor}"
-                                    StrokeShape="RoundRectangle 8"
-                                    StrokeThickness="0"
+                                    Spacing="8"
                                     VerticalOptions="Center">
-                                    <Label
-                                        FontAttributes="Bold"
-                                        FontSize="11"
-                                        Text="{Binding StatusLabel}"
-                                        TextColor="{Binding StatusTextColor}" />
-                                </Border>
+                                    <Border
+                                        Padding="8,3"
+                                        BackgroundColor="{Binding StatusBgColor}"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 20">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="10"
+                                            Text="{Binding StatusLabel}"
+                                            TextColor="{Binding StatusTextColor}" />
+                                    </Border>
+                                </VerticalStackLayout>
                             </Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
+                <CollectionView.Footer>
+                    <ActivityIndicator
+                        Margin="0,8"
+                        IsRunning="{Binding CanLoadMore}"
+                        IsVisible="{Binding CanLoadMore}" />
+                </CollectionView.Footer>
             </CollectionView>
         </RefreshView>
     </Grid>

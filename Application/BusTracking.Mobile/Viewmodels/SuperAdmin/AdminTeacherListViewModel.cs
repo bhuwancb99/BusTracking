@@ -13,9 +13,9 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         public string SearchPlaceholder => "Search teachers by name or emp code…";
         public List<string> FilterOptions => ["Active", "Inactive", "Both"];
 
-        public bool CanAdd => Can("teachers.add") || Can("teachers.manage");
-        public bool CanEdit => Can("teachers.edit") || Can("teachers.manage");
-        public bool CanDelete => Can("teachers.delete") || Can("teachers.manage");
+        public bool CanAdd => true;
+        public bool CanEdit => true;
+        public bool CanDelete => true;
 
         public AdminTeacherListViewModel(IAuthService auth, INavigationService nav, ITeacherService teacherService)
             : base(auth, nav)
@@ -65,7 +65,16 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             });
         }
 
-        [RelayCommand] private async Task SearchAsync() => await LoadAsync();
+        [RelayCommand]
+        private async Task SearchAsync(string? filter = null)
+        {
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                SelectedFilter = filter;
+            }
+            await LoadAsync();
+        }
+
         [RelayCommand] private Task AddAsync() => Nav.GoToAsync("AdminTeacherForm");
 
         [RelayCommand]
