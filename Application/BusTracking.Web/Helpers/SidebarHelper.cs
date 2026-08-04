@@ -23,6 +23,8 @@ public static class SidebarHelper
     [
         new() { Label = "Dashboard",        Icon = "bi-speedometer2",    Controller = "Dashboard",      Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "App Config",       Icon = "bi-sliders",         Controller = "AppConfig",      Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "Academic Years",   Icon = "bi-calendar-event",  Controller = "AcademicYear",   Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "Classes/Standards",   Icon = "bi bi-bookmark-star",  Controller = "Standard",   Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Bus Types",        Icon = "bi-truck-front",     Controller = "BusType",        Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Bus Coordinators", Icon = "bi-person-badge",    Controller = "SubAdmin",       Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Teachers",         Icon = "bi-person-workspace",Controller = "Teacher",        Action = "Index",   Area = "SuperAdmin" },
@@ -62,13 +64,19 @@ public static class SidebarHelper
         if (Has("appconfig.view"))
             menu.Add(new() { Label = "App Config", Icon = "bi-sliders", Controller = "AppConfig", Action = "Index", Area = "BusCoordinator" });
 
+        if (Has("academicyear.view"))
+            menu.Add(new() { Label = "Academic Years", Icon = "bi-calendar-event", Controller = "AcademicYear", Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("standard.view"))
+            menu.Add(new() { Label = "Classes/Standards", Icon = "bi bi-bookmark-star", Controller = "Standard", Action = "Index", Area = "BusCoordinator" });
+
         if (Has("bustype.view"))
             menu.Add(new() { Label = "Bus Types", Icon = "bi-truck-front", Controller = "BusType", Action = "Index", Area = "BusCoordinator" });
 
         if (Has("subadmin.view"))
             menu.Add(new() { Label = "Sub-Admins", Icon = "bi-person-badge", Controller = "SubAdmin", Action = "Index", Area = "BusCoordinator" });
 
-        if (Has("teachers.view") || Has("ManageTeachers"))
+        if (Has("teachers.view"))
             menu.Add(new() { Label = "Teachers", Icon = "bi-person-workspace", Controller = "Teacher", Action = "Index", Area = "BusCoordinator" });
 
         if (Has("route.view"))

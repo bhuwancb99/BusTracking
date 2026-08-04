@@ -1,6 +1,7 @@
 global using BusTracking.Mobile.Database;
 global using BusTracking.Mobile.Helpers;
 global using BusTracking.Mobile.Interfaces;
+global using BusTracking.Mobile.Models;
 global using BusTracking.Mobile.Models.AppConfig;
 global using BusTracking.Mobile.Models.Auth;
 global using BusTracking.Mobile.Models.Bus;

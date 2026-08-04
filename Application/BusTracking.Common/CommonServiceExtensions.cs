@@ -46,6 +46,7 @@ public static class CommonServiceExtensions
         services.AddScoped<IGlobalConfigService, GlobalConfigService>();
         services.AddScoped<IGeographicService, GeographicService>();
         services.AddScoped<ITeacherService, TeacherService>();
+        services.AddScoped<IAcademicYearService, AcademicYearService>();
         services.AddSingleton<IFcmPushNotificationService, FcmPushNotificationService>();
 
         return services;

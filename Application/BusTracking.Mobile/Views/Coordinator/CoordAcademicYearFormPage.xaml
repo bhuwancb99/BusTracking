@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.Coordinator.CoordAcademicYearFormPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:common="clr-namespace:BusTracking.Mobile.Views.Common"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
+    Title="{Binding Title}"
+    x:DataType="vm:CoordAcademicYearFormViewModel"
+    x:TypeArguments="vm:CoordAcademicYearFormViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
+
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
+    </views:ViewBase.Behaviors>
+
+    <Shell.TitleView>
+        <Label
+            FontAttributes="Bold"
+            FontSize="17"
+            Text="{Binding Title}"
+            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                        Dark=White}"
+            VerticalOptions="Center" />
+    </Shell.TitleView>
+
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout Padding="16,16,16,32" Spacing="14">
+
+                <!--  Error Banner  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight},
+                                                      Dark={StaticResource ErrorBannerBgDark}}"
+                    IsVisible="{Binding HasError}"
+                    Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
+                                             Dark={StaticResource ErrorBannerBorderDark}}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <Label
+                        Padding="12,10"
+                        FontSize="13"
+                        Text="{Binding ErrorMessage}"
+                        TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
+                                                    Dark={StaticResource ErrorTextDark}}" />
+                </Border>
+
+                <!--  Year Name  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="1">
+                    <VerticalStackLayout Padding="16" Spacing="8">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Academic Year Name" />
+                                    <Span Text="*" TextColor="{StaticResource Danger}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Entry
+                            BackgroundColor="Transparent"
+                            Placeholder="e.g. 2026-2027"
+                            Text="{Binding YearName}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Start Date Card  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="1">
+                    <VerticalStackLayout Padding="16" Spacing="8">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            Text="Start Date"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                        <Border
+                            BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                                              Dark={StaticResource PageBgDark}}"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                     Dark={StaticResource BorderColorDark}}"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="1">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenStartDateCalendarCommand}" />
+                            </Border.GestureRecognizers>
+                            <Grid Padding="12,10" ColumnDefinitions="*,Auto">
+                                <Label
+                                    Grid.Column="0"
+                                    FontSize="14"
+                                    Text="{Binding StartDate, StringFormat='{0:dd MMM yyyy}'}"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                Dark={StaticResource TextPrimaryDark}}"
+                                    VerticalOptions="Center" />
+                                <Image
+                                    Grid.Column="1"
+                                    HeightRequest="18"
+                                    Source="calendar_icon.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="18">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  End Date Card  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="1">
+                    <VerticalStackLayout Padding="16" Spacing="8">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            Text="End Date"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                        <Border
+                            BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                                              Dark={StaticResource PageBgDark}}"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                     Dark={StaticResource BorderColorDark}}"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="1">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenEndDateCalendarCommand}" />
+                            </Border.GestureRecognizers>
+                            <Grid Padding="12,10" ColumnDefinitions="*,Auto">
+                                <Label
+                                    Grid.Column="0"
+                                    FontSize="14"
+                                    Text="{Binding EndDate, StringFormat='{0:dd MMM yyyy}'}"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                Dark={StaticResource TextPrimaryDark}}"
+                                    VerticalOptions="Center" />
+                                <Image
+                                    Grid.Column="1"
+                                    HeightRequest="18"
+                                    Source="calendar_icon.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="18">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource TextMuted}, Dark={StaticResource TextSecondaryDark}}" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Grid>
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Active Status  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="1">
+                    <Grid Padding="16" ColumnDefinitions="*,Auto">
+                        <Label
+                            Grid.Column="0"
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            Text="Active Status"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}"
+                            VerticalOptions="Center" />
+                        <Switch
+                            Grid.Column="1"
+                            IsToggled="{Binding IsActive}"
+                            OnColor="{StaticResource Primary}"
+                            ThumbColor="White"
+                            VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!--  Set as Current Active Session  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="1">
+                    <Grid Padding="16" ColumnDefinitions="*,Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="14"
+                                Text="Set as Current Session"
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                            Dark={StaticResource TextPrimaryDark}}" />
+                            <Label
+                                FontSize="12"
+                                Text="Makes this session the active working session"
+                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                            Dark={StaticResource TextSecondaryDark}}" />
+                        </VerticalStackLayout>
+                        <Switch
+                            Grid.Column="1"
+                            IsToggled="{Binding SetAsCurrent}"
+                            OnColor="{StaticResource Primary}"
+                            ThumbColor="White"
+                            VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!--  Action Buttons  -->
+                <Grid
+                    Margin="0,8,0,0"
+                    ColumnDefinitions="*,*"
+                    ColumnSpacing="12">
+                    <Button
+                        Grid.Column="0"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                          Dark={StaticResource CardBgDark}}"
+                        BorderColor="{AppThemeBinding Light={StaticResource BorderColor},
+                                                      Dark={StaticResource BorderColorDark}}"
+                        BorderWidth="1.5"
+                        Command="{Binding CancelCommand}"
+                        CornerRadius="10"
+                        FontAttributes="Bold"
+                        HeightRequest="50"
+                        Text="Cancel"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                    <Button
+                        Grid.Column="1"
+                        BackgroundColor="{StaticResource Primary}"
+                        Command="{Binding SaveCommand}"
+                        CornerRadius="10"
+                        FontAttributes="Bold"
+                        HeightRequest="50"
+                        TextColor="White">
+                        <Button.Triggers>
+                            <DataTrigger
+                                Binding="{Binding IsBusy}"
+                                TargetType="Button"
+                                Value="True">
+                                <Setter Property="Text" Value="Saving..." />
+                                <Setter Property="IsEnabled" Value="False" />
+                            </DataTrigger>
+                            <DataTrigger
+                                Binding="{Binding IsEditMode}"
+                                TargetType="Button"
+                                Value="True">
+                                <Setter Property="Text" Value="Update Session" />
+                            </DataTrigger>
+                            <DataTrigger
+                                Binding="{Binding IsEditMode}"
+                                TargetType="Button"
+                                Value="False">
+                                <Setter Property="Text" Value="Add Session" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
+                </Grid>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!--  Shared Calendar Popups  -->
+        <common:CalendarPickerPopup
+            Title="Select Start Date"
+            IsOpen="{Binding IsStartDateCalendarOpen, Mode=TwoWay}"
+            SelectedDate="{Binding StartDate, Mode=TwoWay}" />
+        <common:CalendarPickerPopup
+            Title="Select End Date"
+            IsOpen="{Binding IsEndDateCalendarOpen, Mode=TwoWay}"
+            SelectedDate="{Binding EndDate, Mode=TwoWay}" />
+    </Grid>
+</views:ViewBase>

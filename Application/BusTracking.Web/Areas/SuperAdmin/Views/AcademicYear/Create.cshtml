@@ -1,0 +1,77 @@
+@model BusTracking.Common.DTOs.AcademicYear.CreateAcademicYearRequest
+@{
+    ViewData["Title"] = "New Academic Year";
+    var startVal = Model.StartDate != default ? Model.StartDate.ToString("yyyy-MM-dd") : "";
+    var endVal = Model.EndDate != default ? Model.EndDate.ToString("yyyy-MM-dd") : "";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+    <div>
+        <h2 class="fw-bold m-0 text-dark">
+            <i class="bi bi-calendar-plus text-primary me-2"></i>New Academic Year
+        </h2>
+        <nav aria-label="breadcrumb" class="mt-1">
+            <ol class="breadcrumb mb-0 small text-muted">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="@Url.Action("Index")" class="text-decoration-none text-muted">Academic Years</a></li>
+                <li class="breadcrumb-item active text-primary" aria-current="page">New Academic Year</li>
+            </ol>
+        </nav>
+    </div>
+    <a href="@Url.Action("Index")" class="btn btn-outline-secondary rounded-3 px-4">
+        <i class="bi bi-arrow-left me-2"></i>Back to List
+    </a>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-body p-4">
+        <form method="post" asp-action="Create">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 mb-4"></div>
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label asp-for="YearName" class="form-label fw-bold small text-muted">Academic Year Name <span class="text-danger">*</span></label>
+                    <input asp-for="YearName" class="form-control form-control-lg rounded-3" placeholder="e.g. 2026-2027" />
+                    <span asp-validation-for="YearName" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="StartDate" class="form-label fw-bold small text-muted">Start Date <span class="text-danger">*</span></label>
+                    <input type="date" id="StartDate" name="StartDate" value="@startVal" class="form-control form-control-lg rounded-3" required />
+                    <span asp-validation-for="StartDate" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label asp-for="EndDate" class="form-label fw-bold small text-muted">End Date <span class="text-danger">*</span></label>
+                    <input type="date" id="EndDate" name="EndDate" value="@endVal" class="form-control form-control-lg rounded-3" required />
+                    <span asp-validation-for="EndDate" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                    <div class="form-check form-switch mb-2">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="IsActiveSwitch">
+                        <label class="form-check-label fw-bold text-dark" for="IsActiveSwitch">Active Status</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6 mt-4">
+                    <div class="form-check form-switch mb-2">
+                        <input asp-for="SetAsCurrent" class="form-check-input" type="checkbox" role="switch" id="SetAsCurrentSwitch">
+                        <label class="form-check-label fw-bold text-dark" for="SetAsCurrentSwitch">Set as Active Current Academic Session</label>
+                    </div>
+                    <small class="text-muted d-block ms-4">Setting this as current will update the active session context for this school.</small>
+                </div>
+            </div>
+
+            <hr class="my-4" />
+
+            <div class="d-flex justify-content-end gap-2">
+                <a href="@Url.Action("Index")" class="btn btn-light rounded-3 px-4">Cancel</a>
+                <button type="submit" class="btn btn-primary rounded-3 px-4 fw-bold">
+                    <i class="bi bi-check-lg me-1"></i> Save Academic Year
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

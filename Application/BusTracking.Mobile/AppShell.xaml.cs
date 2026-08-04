@@ -219,7 +219,8 @@ public partial class AppShell : Shell
         new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "Dashboard",        Route = "AdminDashboard"       },
         new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",       Route = "Profile"              },
         new() { IconSvg = "config.png",       IconColor = _svgImageColor, Title = "App Config",       Route = "AdminConfigList"      },
-        new() { IconSvg = "config.png",       IconColor = _svgImageColor, Title = "Standard Master",  Route = "AdminStandardList"    },
+        new() { IconSvg = "academicyear.png", IconColor = _svgImageColor, Title = "Academic Years",   Route = "AdminAcademicYearList" },
+        new() { IconSvg = "standard.png",     IconColor = _svgImageColor, Title = "Standard Master",  Route = "AdminStandardList"    },
         new() { IconSvg = "bus.png",          IconColor = _svgImageColor, Title = "Bus Types",        Route = "AdminBusTypeList"      },
         new() { IconSvg = "coordinator.png",  IconColor = _svgImageColor, Title = "Bus Coordinators", Route = "AdminCoordinatorList" },
         new() { IconSvg = "route.png",        IconColor = _svgImageColor, Title = "Routes",           Route = "AdminRouteList"       },
@@ -256,8 +257,10 @@ public partial class AppShell : Shell
 
         if (Has("appconfig.view"))
             menu.Add(new() { IconSvg = "config.png", IconColor = _svgImageColor, Title = "App Config", Route = "CoordConfigList" });
-        if (Has("student.view"))
-            menu.Add(new() { IconSvg = "config.png", IconColor = _svgImageColor, Title = "Standard Master", Route = "CoordStandardList" });
+        if (Has("academicyear.view"))
+            menu.Add(new() { IconSvg = "academicyear.png", IconColor = _svgImageColor, Title = "Academic Years", Route = "CoordAcademicYearList" });
+        if (Has("standard.view") || Has("student.view"))
+            menu.Add(new() { IconSvg = "standard.png", IconColor = _svgImageColor, Title = "Standard Master", Route = "CoordStandardList" });
         if (Has("bustype.manage") || Has("bus.view"))
             menu.Add(new() { IconSvg = "bus.png", IconColor = _svgImageColor, Title = "Bus Types", Route = "CoordBusTypeList" });
         if (Has("subadmin.view"))

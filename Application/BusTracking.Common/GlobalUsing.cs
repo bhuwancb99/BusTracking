@@ -1,4 +1,5 @@
 global using BusTracking.Common.Data;
+global using BusTracking.Common.DTOs.AcademicYear;
 global using BusTracking.Common.DTOs.AppConfig;
 global using BusTracking.Common.DTOs.Assign;
 global using BusTracking.Common.DTOs.Auth;
@@ -26,6 +27,7 @@ global using BusTracking.Common.Entities;
 global using BusTracking.Common.Enums;
 global using BusTracking.Common.Helpers;
 global using BusTracking.Common.Interfaces;
+global using BusTracking.Common.Models;
 global using BusTracking.Common.Services;
 global using FirebaseAdmin.Messaging;
 global using MailKit.Net.Smtp;

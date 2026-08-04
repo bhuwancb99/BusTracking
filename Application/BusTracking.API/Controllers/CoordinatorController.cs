@@ -22,15 +22,16 @@ namespace BusTracking.API.Controllers
         private readonly IStudentService _student;
         private readonly IStandardService _standard;
         private readonly ITeacherService _teacher;
+        private readonly IAcademicYearService _academicYear;
 
         public CoordinatorController(AppDbContext db, IDashboardService dash, ITripService trip,
             ISubAdminService subAdmin, IAppConfigService appConfig, IFeedbackService feedback,
-            INotificationService notif, IImageService img, IRouteService route, IBusService bus, IDriverService driver, IParentService parent, IStudentService student, IStandardService standard, ITeacherService teacher)
+            INotificationService notif, IImageService img, IRouteService route, IBusService bus, IDriverService driver, IParentService parent, IStudentService student, IStandardService standard, ITeacherService teacher, IAcademicYearService academicYear)
         {
             _db = db; _dash = dash; _trip = trip;
             _subAdmin = subAdmin; _appConfig = appConfig;
             _feedback = feedback; _notif = notif; _img = img; _route = route; _bus = bus; _driver = driver; _parent = parent; _student = student;
-            _standard = standard; _teacher = teacher;
+            _standard = standard; _teacher = teacher; _academicYear = academicYear;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -758,6 +759,62 @@ namespace BusTracking.API.Controllers
         {
             RequirePermission("teachers.edit");
             var result = await _teacher.ResetPasswordAsync(id);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // ACADEMIC YEARS
+        // ════════════════════════════════════════════════════════════
+
+        [HttpGet("academicyears")]
+        public async Task<IActionResult> GetAcademicYears([FromQuery] int? schoolId)
+        {
+            RequirePermission("academicyear.view");
+            int targetSchoolId = schoolId ?? CurrentSchoolId ?? 1;
+            var years = await _academicYear.GetAcademicYearsAsync(targetSchoolId);
+            return Ok(ApiResponse<List<BusTracking.Common.DTOs.AcademicYear.AcademicYearDto>>.Ok(years));
+        }
+
+        [HttpGet("academicyears/active")]
+        public async Task<IActionResult> GetActiveAcademicYear([FromQuery] int? schoolId)
+        {
+            int targetSchoolId = schoolId ?? CurrentSchoolId ?? 1;
+            var active = await _academicYear.GetActiveSessionAsync(targetSchoolId);
+            return Ok(ApiResponse<BusTracking.Common.DTOs.AcademicYear.AcademicYearDto?>.Ok(active));
+        }
+
+        [HttpPost("academicyears")]
+        public async Task<IActionResult> CreateAcademicYear([FromBody] BusTracking.Common.DTOs.AcademicYear.CreateAcademicYearRequest request)
+        {
+            RequirePermission("academicyear.add");
+            if (request.SchoolId <= 0) request.SchoolId = CurrentSchoolId ?? 1;
+            var result = await _academicYear.CreateAcademicYearAsync(request, User.Identity?.Name);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPut("academicyears/{id:int}")]
+        public async Task<IActionResult> UpdateAcademicYear(int id, [FromBody] BusTracking.Common.DTOs.AcademicYear.UpdateAcademicYearRequest request)
+        {
+            RequirePermission("academicyear.edit");
+            request.AcademicYearId = id;
+            var result = await _academicYear.UpdateAcademicYearAsync(request, User.Identity?.Name);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("academicyears/{id:int}/set-active")]
+        public async Task<IActionResult> SetActiveAcademicYear(int id, [FromQuery] int? schoolId)
+        {
+            RequirePermission("academicyear.edit");
+            int targetSchoolId = schoolId ?? CurrentSchoolId ?? 1;
+            var result = await _academicYear.SetActiveAcademicYearAsync(targetSchoolId, id, User.Identity?.Name);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("academicyears/{id:int}/toggle-status")]
+        public async Task<IActionResult> ToggleAcademicYearStatus(int id)
+        {
+            RequirePermission("academicyear.edit");
+            var result = await _academicYear.ToggleAcademicYearStatusAsync(id, User.Identity?.Name);
             return result.Success ? Ok(result) : BadRequest(result);
         }
 

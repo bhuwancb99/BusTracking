@@ -18,7 +18,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             ViewBag.Status = status;
             ViewBag.CurrentUserId = UserId;   // view uses this to hide edit/delete/toggle for own row
             var result = await _sa.GetAllAsync(page, search, normalised);
-            return View(result);
+            return View(result.Data ?? new BusTracking.Common.DTOs.Common.PagedResult<BusTracking.Common.DTOs.SubAdmin.SubAdminListDto>());
         }
 
         // GET /BusCoordinator/SubAdmin/Details/{id}
@@ -75,11 +75,11 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             var permIds = await _sa.GetPermissionIdsAsync(id);
             return View(new UpdateSubAdminDto
             {
-                FullName      = r.Data!.FullName,
-                UserName    = r.Data!.UserName,
-                Email       = r.Data.Email,
-                PhoneNumber   = r.Data.PhoneNumber,
-                IsActive      = r.Data.IsActive,
+                FullName = r.Data!.FullName,
+                UserName = r.Data!.UserName,
+                Email = r.Data.Email,
+                PhoneNumber = r.Data.PhoneNumber,
+                IsActive = r.Data.IsActive,
                 PermissionIds = permIds
             });
         }
@@ -142,7 +142,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
                 r.Message,
                 password = r.Data?.PlainPassword,
                 fullName = r.Data?.FullName,
-                email    = r.Data?.Email
+                email = r.Data?.Email
             });
         }
     }

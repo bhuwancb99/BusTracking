@@ -47,6 +47,7 @@ public class AppDbContext : DbContext
     public DbSet<BusFuelLog> BusFuelLogs { get; set; }
     public DbSet<BusRouteMapping> BusRouteMappings { get; set; }
     public DbSet<BusDriverMapping> BusDriverMappings { get; set; }
+    public DbSet<AcademicYear> AcademicYears { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -89,8 +90,10 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<GlobalConfiguration>().ToTable("GlobalConfigurations");
         modelBuilder.Entity<Logger>().ToTable("Logger");
         modelBuilder.Entity<BusFuelLog>().ToTable("BusFuelLogs");
+        modelBuilder.Entity<AcademicYear>().ToTable("AcademicYears");
 
         // ── Unique indexes ────────────────────────────────────────────
+        modelBuilder.Entity<AcademicYear>().HasIndex(a => new { a.SchoolId, a.YearName }).IsUnique();
         modelBuilder.Entity<School>().HasIndex(s => s.SchoolCode).IsUnique();
         modelBuilder.Entity<SystemAdministrator>().HasIndex(s => s.UserName).IsUnique();
         modelBuilder.Entity<GlobalConfiguration>().HasIndex(g => g.GlobalConfigKey).IsUnique();
@@ -263,6 +266,8 @@ public class AppDbContext : DbContext
                     if (prop.Metadata.ClrType == typeof(DateTime) || prop.Metadata.ClrType == typeof(DateTime?))
                     {
                         var propName = prop.Metadata.Name;
+
+                        // Creation audit fields (auto-populated only when adding a new record and value is not set)
                         var isCreated = propName.Equals("CreatedAt", StringComparison.OrdinalIgnoreCase) ||
                                        propName.Equals("RecordedAt", StringComparison.OrdinalIgnoreCase) ||
                                        propName.Equals("UploadedAt", StringComparison.OrdinalIgnoreCase) ||
@@ -270,30 +275,19 @@ public class AppDbContext : DbContext
                                        propName.Equals("SentAt", StringComparison.OrdinalIgnoreCase) ||
                                        propName.Equals("LoggedAt", StringComparison.OrdinalIgnoreCase);
 
+                        // Modification audit fields (auto-updated on insert/update)
                         var isUpdated = propName.Equals("UpdatedAt", StringComparison.OrdinalIgnoreCase) ||
                                        propName.Equals("LastModifiedAt", StringComparison.OrdinalIgnoreCase);
 
-                        var isTripEvent = propName.Equals("StartedAt", StringComparison.OrdinalIgnoreCase) ||
-                                          propName.Equals("EndedAt", StringComparison.OrdinalIgnoreCase) ||
-                                          propName.Equals("ReachedAt", StringComparison.OrdinalIgnoreCase) ||
-                                          propName.Equals("DepartedAt", StringComparison.OrdinalIgnoreCase) ||
-                                          propName.Equals("LastLoginAt", StringComparison.OrdinalIgnoreCase);
-
                         if (entry.State == EntityState.Added && isCreated)
                         {
-                            prop.CurrentValue = schoolNow;
+                            if (prop.CurrentValue == null || (prop.CurrentValue is DateTime dt && dt == default))
+                            {
+                                prop.CurrentValue = schoolNow;
+                            }
                         }
                         else if (isUpdated)
                         {
-                            prop.CurrentValue = schoolNow;
-                        }
-                        else if (isTripEvent)
-                        {
-                            prop.CurrentValue = schoolNow;
-                        }
-                        else if (prop.CurrentValue is DateTime dt && dt != default)
-                        {
-                            // Convert any UTC or approximate UTC datetime to logged-in user's school timezone local time
                             prop.CurrentValue = schoolNow;
                         }
                     }

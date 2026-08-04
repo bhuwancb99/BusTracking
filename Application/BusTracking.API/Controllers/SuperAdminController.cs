@@ -23,6 +23,7 @@ namespace BusTracking.API.Controllers
         private readonly AppDbContext _db;
         private readonly IImageService _img;         // ← NEW
         private readonly ITeacherService _teacher;
+        private readonly IAcademicYearService _academicYear;
 
         private const int MAX_BUS_IMAGES = 5;               // ← NEW
 
@@ -31,11 +32,11 @@ namespace BusTracking.API.Controllers
             IStudentService student, IParentService parent, ISubAdminService subAdmin,
             ITripService trip, IFeedbackService feedback, INotificationService notif,
             IDashboardService dash, IAppConfigService config, IStandardService standard, AppDbContext db,
-            IImageService img, ITeacherService teacher)                               // ← NEW
+            IImageService img, ITeacherService teacher, IAcademicYearService academicYear)
         {
             _bus = bus; _route = route; _driver = driver; _student = student;
             _parent = parent; _subAdmin = subAdmin; _trip = trip; _feedback = feedback;
-            _notif = notif; _dash = dash; _config = config; _standard = standard; _db = db; _img = img; _teacher = teacher;
+            _notif = notif; _dash = dash; _config = config; _standard = standard; _db = db; _img = img; _teacher = teacher; _academicYear = academicYear;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -942,6 +943,57 @@ namespace BusTracking.API.Controllers
         public async Task<IActionResult> ResetTeacherPassword(int id)
         {
             var result = await _teacher.ResetPasswordAsync(id);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // ACADEMIC YEARS
+        // ════════════════════════════════════════════════════════════
+
+        [HttpGet("academicyears")]
+        public async Task<IActionResult> GetAcademicYears([FromQuery] int? schoolId)
+        {
+            int targetSchoolId = schoolId ?? CurrentSchoolId ?? 1;
+            var years = await _academicYear.GetAcademicYearsAsync(targetSchoolId);
+            return Ok(ApiResponse<List<BusTracking.Common.DTOs.AcademicYear.AcademicYearDto>>.Ok(years));
+        }
+
+        [HttpGet("academicyears/active")]
+        public async Task<IActionResult> GetActiveAcademicYear([FromQuery] int? schoolId)
+        {
+            int targetSchoolId = schoolId ?? CurrentSchoolId ?? 1;
+            var active = await _academicYear.GetActiveSessionAsync(targetSchoolId);
+            return Ok(ApiResponse<BusTracking.Common.DTOs.AcademicYear.AcademicYearDto?>.Ok(active));
+        }
+
+        [HttpPost("academicyears")]
+        public async Task<IActionResult> CreateAcademicYear([FromBody] BusTracking.Common.DTOs.AcademicYear.CreateAcademicYearRequest request)
+        {
+            if (request.SchoolId <= 0) request.SchoolId = CurrentSchoolId ?? 1;
+            var result = await _academicYear.CreateAcademicYearAsync(request, User.Identity?.Name);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPut("academicyears/{id:int}")]
+        public async Task<IActionResult> UpdateAcademicYear(int id, [FromBody] BusTracking.Common.DTOs.AcademicYear.UpdateAcademicYearRequest request)
+        {
+            request.AcademicYearId = id;
+            var result = await _academicYear.UpdateAcademicYearAsync(request, User.Identity?.Name);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("academicyears/{id:int}/set-active")]
+        public async Task<IActionResult> SetActiveAcademicYear(int id, [FromQuery] int? schoolId)
+        {
+            int targetSchoolId = schoolId ?? CurrentSchoolId ?? 1;
+            var result = await _academicYear.SetActiveAcademicYearAsync(targetSchoolId, id, User.Identity?.Name);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("academicyears/{id:int}/toggle-status")]
+        public async Task<IActionResult> ToggleAcademicYearStatus(int id)
+        {
+            var result = await _academicYear.ToggleAcademicYearStatusAsync(id, User.Identity?.Name);
             return result.Success ? Ok(result) : BadRequest(result);
         }
 

@@ -327,6 +327,11 @@
         FlyoutItemIsVisible="False"
         Route="AdminConfigList" />
     <ShellContent
+        Title="Academic Years"
+        ContentTemplate="{DataTemplate admin:AdminAcademicYearPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminAcademicYearList" />
+    <ShellContent
         Title="Standard Master"
         ContentTemplate="{DataTemplate admin:AdminStandardListPage}"
         FlyoutItemIsVisible="False"
@@ -398,6 +403,11 @@
         ContentTemplate="{DataTemplate coord:CoordConfigListPage}"
         FlyoutItemIsVisible="False"
         Route="CoordConfigList" />
+    <ShellContent
+        Title="Academic Years"
+        ContentTemplate="{DataTemplate coord:CoordAcademicYearPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordAcademicYearList" />
     <ShellContent
         Title="Standard Master"
         ContentTemplate="{DataTemplate coord:CoordStandardListPage}"
