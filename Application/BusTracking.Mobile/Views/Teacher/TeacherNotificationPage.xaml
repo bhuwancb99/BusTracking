@@ -24,7 +24,7 @@
                 Grid.Column="0"
                 FontAttributes="Bold"
                 FontSize="18"
-                Text="Teacher Notifications"
+                Text="Notifications"
                 TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                             Dark=White}"
                 VerticalOptions="Center" />

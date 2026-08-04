@@ -6,11 +6,13 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
 
         [ObservableProperty] private TeacherItem? _profile;
         [ObservableProperty] private string _greetingMessage = "Welcome!";
+        [ObservableProperty] private string _welcomeText = "Welcome Back!";
+        [ObservableProperty] private string _todayDate = DateTime.Now.ToString("dddd, dd MMMM yyyy");
 
         public TeacherDashboardViewModel(IAuthService auth, INavigationService nav, ITeacherService teacherService)
             : base(auth, nav)
         {
-            Title = "Teacher Dashboard";
+            Title = "Teacher Portal";
             _teacherService = teacherService;
         }
 
@@ -27,11 +29,25 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
                 };
 
                 Profile = await _teacherService.GetMyProfileAsync();
+                if (Profile != null && !string.IsNullOrWhiteSpace(Profile.FullName))
+                {
+                    WelcomeText = $"{GreetingMessage} {Profile.FullName.Split(' ')[0]}";
+                }
+                else
+                {
+                    WelcomeText = $"{GreetingMessage} Teacher";
+                }
+
+                TodayDate = DateTime.Now.ToString("dddd, dd MMMM yyyy");
+                await CheckNotificationPermissionAsync();
             });
         }
 
         [RelayCommand]
-        private async Task GoToProfileAsync() => await Nav.GoToAsync("Profile");
+        private async Task GoToProfileAsync() => await Nav.GoToAsync("//Profile");
+
+        [RelayCommand]
+        private async Task GoToNotificationAsync() => await Nav.GoToAsync("//TeacherNotification");
 
         [RelayCommand]
         private async Task RefreshAsync() => await InitializeAsync();
