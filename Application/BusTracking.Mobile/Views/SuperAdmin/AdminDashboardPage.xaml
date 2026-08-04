@@ -17,17 +17,55 @@
     </views:ViewBase.Behaviors>
 
     <Shell.TitleView>
-        <Grid Padding="0,0,10,0" ColumnDefinitions="*,Auto">
+        <Grid Padding="0,0,8,0" ColumnDefinitions="Auto,*,Auto">
+            <!--  Title  -->
             <Label
                 Grid.Column="0"
                 FontAttributes="Bold"
-                FontSize="18"
+                FontSize="16"
                 Text="Dashboard"
                 TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                             Dark=White}"
                 VerticalOptions="Center" />
-            <Grid
+
+            <!--  Center Session Picker Pill  -->
+            <Border
                 Grid.Column="1"
+                Margin="5,0"
+                Padding="8,0"
+                BackgroundColor="{AppThemeBinding Light=#EFF6FF,
+                                                  Dark=#1E293B}"
+                HeightRequest="30"
+                HorizontalOptions="Center"
+                Stroke="{AppThemeBinding Light={StaticResource Primary},
+                                         Dark=#3B82F6}"
+                StrokeShape="RoundRectangle 15"
+                StrokeThickness="1"
+                VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding SelectSessionCommand}" />
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="4" VerticalOptions="Center">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        LineBreakMode="NoWrap"
+                        Text="{Binding SelectedSessionName}"
+                        TextColor="{AppThemeBinding Light={StaticResource Primary},
+                                                    Dark=#60A5FA}"
+                        VerticalOptions="Center" />
+                    <Label
+                        FontSize="10"
+                        Text="▼"
+                        TextColor="{AppThemeBinding Light={StaticResource Primary},
+                                                    Dark=#60A5FA}"
+                        VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
+
+            <!--  Notification Bell Icon  -->
+            <Grid
+                Grid.Column="2"
                 HeightRequest="32"
                 HorizontalOptions="End"
                 VerticalOptions="Center"

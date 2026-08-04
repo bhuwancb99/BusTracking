@@ -1,6 +1,6 @@
-namespace BusTracking.Mobile.Models
+﻿namespace BusTracking.Mobile.Models.Trip
 {
-    public class StudentTripStatusDto
+    public class TripStudentStatusDto
     {
         public int StudentId { get; set; }
         public string StudentCode { get; set; } = "";

@@ -17,15 +17,23 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             Title = "Academic Years";
         }
 
+        public override async Task InitializeAsync() => await LoadAcademicYearsAsync();
+        public override async Task RefreshOnReturnAsync() => await LoadAcademicYearsAsync();
+
         [RelayCommand]
         private async Task LoadAcademicYearsAsync()
         {
             await RunAsync(async () =>
             {
                 var list = await _academicYearService.GetAcademicYearsAsync(isCoordinator: true);
-                AcademicYears = new ObservableCollection<AcademicYearItem>(list);
+                // Must update ObservableCollection on UI thread — background thread updates
+                // silently fail in release/direct-run (race condition masked by debugger timing)
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    AcademicYears = new ObservableCollection<AcademicYearItem>(list);
+                });
             });
-            IsRefreshing = false;
+            await MainThread.InvokeOnMainThreadAsync(() => IsRefreshing = false);
         }
 
         [RelayCommand]
@@ -46,24 +54,31 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [RelayCommand]
         private async Task SetActiveSessionAsync(AcademicYearItem item)
         {
-            if (!CanEdit || item == null || item.IsCurrent) return;
+            if (item == null || item.IsCurrent) return;
 
             bool confirm = await ConfirmAsync("Active Session", $"Set {item.YearName} as the current active academic session?", "Set Active", "Cancel");
             if (!confirm) return;
 
+            bool success = false;
             await RunAsync(async () =>
             {
                 var res = await _academicYearService.SetActiveAcademicYearAsync(item.AcademicYearId, isCoordinator: true);
                 if (res.Success)
                 {
-                    await ShowToastAsync("Active session updated successfully.");
-                    await LoadAcademicYearsAsync();
+                    success = true;
                 }
                 else
                 {
                     SetError(res.Message);
                 }
             });
+
+            // Reload OUTSIDE RunAsync so IsBusy guard does not block the inner call
+            if (success)
+            {
+                await ShowToastAsync("Active session updated successfully.");
+                await LoadAcademicYearsAsync();
+            }
         }
     }
 }

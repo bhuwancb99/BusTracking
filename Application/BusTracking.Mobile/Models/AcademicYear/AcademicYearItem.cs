@@ -1,4 +1,4 @@
-namespace BusTracking.Mobile.Models
+﻿namespace BusTracking.Mobile.Models.AcademicYear
 {
     public class AcademicYearItem
     {
