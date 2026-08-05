@@ -6,6 +6,8 @@ namespace BusTracking.Common.DTOs.Section
         public int StandardId { get; set; }
         public string StandardName { get; set; } = string.Empty;
         public string SectionName { get; set; } = "A";
+        public int? ClassTeacherId { get; set; }
+        public string? ClassTeacherName { get; set; }
         public bool IsDefault { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }

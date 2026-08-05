@@ -391,6 +391,26 @@
         ContentTemplate="{DataTemplate admin:AdminFeedbackListPage}"
         FlyoutItemIsVisible="False"
         Route="AdminFeedbackList" />
+    <ShellContent
+        Title="Class Sections"
+        ContentTemplate="{DataTemplate admin:AdminSectionListPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminSectionList" />
+    <ShellContent
+        Title="Subject Master"
+        ContentTemplate="{DataTemplate admin:AdminSubjectListPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminSubjectList" />
+    <ShellContent
+        Title="Class Subject &amp; Teacher Mapping"
+        ContentTemplate="{DataTemplate admin:AdminClassMappingListPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminClassMappingList" />
+    <ShellContent
+        Title="Attendance"
+        ContentTemplate="{DataTemplate admin:AdminAttendancePage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminAttendance" />
 
     <!--  Coordinator  -->
     <ShellContent
@@ -413,6 +433,26 @@
         ContentTemplate="{DataTemplate coord:CoordStandardListPage}"
         FlyoutItemIsVisible="False"
         Route="CoordStandardList" />
+    <ShellContent
+        Title="Class Sections"
+        ContentTemplate="{DataTemplate coord:CoordSectionListPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordSectionList" />
+    <ShellContent
+        Title="Subject Master"
+        ContentTemplate="{DataTemplate coord:CoordSubjectListPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordSubjectList" />
+    <ShellContent
+        Title="Class Subject &amp; Teacher Mapping"
+        ContentTemplate="{DataTemplate coord:CoordClassMappingListPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordClassMappingList" />
+    <ShellContent
+        Title="Attendance"
+        ContentTemplate="{DataTemplate coord:CoordAttendancePage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordAttendance" />
     <ShellContent
         Title="Bus Types"
         ContentTemplate="{DataTemplate coord:CoordBusTypeListPage}"

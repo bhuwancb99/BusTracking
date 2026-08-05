@@ -21,8 +21,13 @@ namespace BusTracking.Common.Entities
 
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
+        public int? ClassTeacherId { get; set; }
+
         [ForeignKey(nameof(StandardId))]
         public virtual StandardMaster Standard { get; set; } = null!;
+
+        [ForeignKey(nameof(ClassTeacherId))]
+        public virtual Teacher? ClassTeacher { get; set; }
 
         [ForeignKey(nameof(SchoolId))]
         public virtual School? School { get; set; }

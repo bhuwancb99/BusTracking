@@ -220,7 +220,11 @@ public partial class AppShell : Shell
         new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",       Route = "Profile"              },
         new() { IconSvg = "config.png",       IconColor = _svgImageColor, Title = "App Config",       Route = "AdminConfigList"      },
         new() { IconSvg = "academicyear.png", IconColor = _svgImageColor, Title = "Academic Years",   Route = "AdminAcademicYearList" },
-        new() { IconSvg = "standard.png",     IconColor = _svgImageColor, Title = "Standard Master",  Route = "AdminStandardList"    },
+        new() { IconSvg = "standard.png",     IconColor = _svgImageColor, Title = "Classes/Standards",  Route = "AdminStandardList"    },
+        new() { IconSvg = "section.png",      IconColor = _svgImageColor, Title = "Sections",   Route = "AdminSectionList"     },
+        new() { IconSvg = "subject.png",      IconColor = _svgImageColor, Title = "Subjects",   Route = "AdminSubjectList"     },
+        new() { IconSvg = "class_mapping.png",IconColor = _svgImageColor, Title = "Class Mapping", Route = "AdminClassMappingList" },
+        new() { IconSvg = "calendar_check.png",IconColor = _svgImageColor, Title = "Daily Attendance", Route = "AdminAttendance" },
         new() { IconSvg = "bus.png",          IconColor = _svgImageColor, Title = "Bus Types",        Route = "AdminBusTypeList"      },
         new() { IconSvg = "coordinator.png",  IconColor = _svgImageColor, Title = "Bus Coordinators", Route = "AdminCoordinatorList" },
         new() { IconSvg = "route.png",        IconColor = _svgImageColor, Title = "Routes",           Route = "AdminRouteList"       },
@@ -260,7 +264,15 @@ public partial class AppShell : Shell
         if (Has("academicyear.view"))
             menu.Add(new() { IconSvg = "academicyear.png", IconColor = _svgImageColor, Title = "Academic Years", Route = "CoordAcademicYearList" });
         if (Has("standard.view") || Has("student.view"))
-            menu.Add(new() { IconSvg = "standard.png", IconColor = _svgImageColor, Title = "Standard Master", Route = "CoordStandardList" });
+            menu.Add(new() { IconSvg = "standard.png", IconColor = _svgImageColor, Title = "Classes/Standards", Route = "CoordStandardList" });
+        if (Has("section.view"))
+            menu.Add(new() { IconSvg = "section.png", IconColor = _svgImageColor, Title = "Sections", Route = "CoordSectionList" });
+        if (Has("subject.view"))
+            menu.Add(new() { IconSvg = "subject.png", IconColor = _svgImageColor, Title = "Subjects", Route = "CoordSubjectList" });
+        if (Has("classmapping.view"))
+            menu.Add(new() { IconSvg = "class_mapping.png", IconColor = _svgImageColor, Title = "Class Mapping", Route = "CoordClassMappingList" });
+        if (Has("attendance.view"))
+            menu.Add(new() { IconSvg = "calendar_check.png", IconColor = _svgImageColor, Title = "Daily Attendance", Route = "CoordAttendance" });
         if (Has("bustype.manage") || Has("bus.view"))
             menu.Add(new() { IconSvg = "bus.png", IconColor = _svgImageColor, Title = "Bus Types", Route = "CoordBusTypeList" });
         if (Has("subadmin.view"))

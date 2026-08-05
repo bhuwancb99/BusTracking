@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Common.DTOs.Attendance
+namespace BusTracking.Common.DTOs.Attendance
 {
     public class FaceAttendanceScanRequestDto
     {
@@ -7,6 +7,7 @@
         public int? SectionId { get; set; }
         public int? SubjectId { get; set; }
         public DateTime Date { get; set; }
+        public DateTime AttendanceDate { get => Date; set => Date = value; }
         public string Base64Image { get; set; } = string.Empty;
     }
 }

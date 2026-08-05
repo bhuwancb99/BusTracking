@@ -14,7 +14,10 @@ namespace BusTracking.Common.Services
         public async Task<ApiResponse<List<SectionDto>>> GetSectionsByStandardAsync(int standardId)
         {
             var schoolId = _currentUser.SchoolId;
-            var query = _db.Sections.AsNoTracking().Where(s => s.StandardId == standardId);
+            var query = _db.Sections.AsNoTracking()
+                .Include(s => s.Standard)
+                .Include(s => s.ClassTeacher).ThenInclude(t => t.User)
+                .Where(s => s.StandardId == standardId);
 
             if (schoolId.HasValue)
             {
@@ -27,8 +30,10 @@ namespace BusTracking.Common.Services
                 {
                     SectionId = s.SectionId,
                     StandardId = s.StandardId,
-                    StandardName = s.Standard.StandardName,
+                    StandardName = s.Standard != null ? s.Standard.StandardName : string.Empty,
                     SectionName = s.SectionName,
+                    ClassTeacherId = s.ClassTeacherId,
+                    ClassTeacherName = s.ClassTeacher != null && s.ClassTeacher.User != null ? s.ClassTeacher.User.FullName : null,
                     IsDefault = s.IsDefault,
                     IsActive = s.IsActive,
                     CreatedAt = s.CreatedAt
@@ -49,7 +54,10 @@ namespace BusTracking.Common.Services
 
         public async Task<ApiResponse<SectionDto>> GetByIdAsync(int sectionId)
         {
-            var s = await _db.Sections.Include(x => x.Standard).FirstOrDefaultAsync(x => x.SectionId == sectionId);
+            var s = await _db.Sections
+                .Include(x => x.Standard)
+                .Include(x => x.ClassTeacher).ThenInclude(t => t.User)
+                .FirstOrDefaultAsync(x => x.SectionId == sectionId);
             if (s is null)
                 return ApiResponse<SectionDto>.Fail("Section not found.");
 
@@ -59,6 +67,8 @@ namespace BusTracking.Common.Services
                 StandardId = s.StandardId,
                 StandardName = s.Standard?.StandardName ?? string.Empty,
                 SectionName = s.SectionName,
+                ClassTeacherId = s.ClassTeacherId,
+                ClassTeacherName = s.ClassTeacher != null && s.ClassTeacher.User != null ? s.ClassTeacher.User.FullName : null,
                 IsDefault = s.IsDefault,
                 IsActive = s.IsActive,
                 CreatedAt = s.CreatedAt
@@ -83,6 +93,7 @@ namespace BusTracking.Common.Services
                 SchoolId = schoolId,
                 StandardId = dto.StandardId,
                 SectionName = sectionName,
+                ClassTeacherId = dto.ClassTeacherId > 0 ? dto.ClassTeacherId : null,
                 IsDefault = dto.IsDefault || sectionName == "A",
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
@@ -92,12 +103,24 @@ namespace BusTracking.Common.Services
             _db.Sections.Add(entity);
             await _db.SaveChangesAsync();
 
+            string? teacherName = null;
+            if (entity.ClassTeacherId.HasValue)
+            {
+                teacherName = await _db.Teachers.AsNoTracking()
+                    .Include(t => t.User)
+                    .Where(t => t.TeacherId == entity.ClassTeacherId.Value)
+                    .Select(t => t.User.FullName)
+                    .FirstOrDefaultAsync();
+            }
+
             return ApiResponse<SectionDto>.Ok(new SectionDto
             {
                 SectionId = entity.SectionId,
                 StandardId = entity.StandardId,
                 StandardName = standard.StandardName,
                 SectionName = entity.SectionName,
+                ClassTeacherId = entity.ClassTeacherId,
+                ClassTeacherName = teacherName,
                 IsDefault = entity.IsDefault,
                 IsActive = entity.IsActive,
                 CreatedAt = entity.CreatedAt
@@ -120,6 +143,7 @@ namespace BusTracking.Common.Services
                 s.SectionName = newName;
             }
 
+            s.ClassTeacherId = dto.ClassTeacherId > 0 ? dto.ClassTeacherId : null;
             s.IsActive = dto.IsActive;
             s.UpdatedAt = DateTime.UtcNow;
 
@@ -165,7 +189,9 @@ namespace BusTracking.Common.Services
             if (standard is null)
                 return ApiResponse<SectionDto>.Fail("Standard not found.");
 
-            var existingA = await _db.Sections.FirstOrDefaultAsync(s => s.StandardId == standardId && s.SectionName == "A");
+            var existingA = await _db.Sections
+                .Include(s => s.ClassTeacher).ThenInclude(t => t.User)
+                .FirstOrDefaultAsync(s => s.StandardId == standardId && s.SectionName == "A");
             if (existingA != null)
             {
                 return ApiResponse<SectionDto>.Ok(new SectionDto
@@ -174,6 +200,8 @@ namespace BusTracking.Common.Services
                     StandardId = existingA.StandardId,
                     StandardName = standard.StandardName,
                     SectionName = existingA.SectionName,
+                    ClassTeacherId = existingA.ClassTeacherId,
+                    ClassTeacherName = existingA.ClassTeacher != null && existingA.ClassTeacher.User != null ? existingA.ClassTeacher.User.FullName : null,
                     IsDefault = existingA.IsDefault,
                     IsActive = existingA.IsActive,
                     CreatedAt = existingA.CreatedAt

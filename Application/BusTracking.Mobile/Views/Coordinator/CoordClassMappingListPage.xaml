@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.Coordinator.CoordClassMappingListPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:models="clr-namespace:BusTracking.Mobile.Models.ClassMapping"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
+    x:DataType="vm:CoordClassMappingListViewModel"
+    x:TypeArguments="vm:CoordClassMappingListViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
+
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
+    </views:ViewBase.Behaviors>
+
+    <Shell.TitleView>
+        <Grid Padding="0,0,8,0" ColumnDefinitions="*,Auto">
+            <Label
+                Grid.Column="0"
+                FontAttributes="Bold"
+                FontSize="18"
+                Text="Class Subject &amp; Teacher Mapping"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}"
+                VerticalOptions="Center" />
+            <Border
+                Grid.Column="1"
+                Padding="8"
+                BackgroundColor="White"
+                IsVisible="{Binding CanAdd}"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0"
+                VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding AddCommand}" />
+                </Border.GestureRecognizers>
+                <Image
+                    HeightRequest="20"
+                    Source="add.png"
+                    WidthRequest="20">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                    </Image.Behaviors>
+                </Image>
+            </Border>
+        </Grid>
+    </Shell.TitleView>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!--  Top Filter Card  -->
+        <Border
+            Grid.Row="0"
+            Margin="12,12,12,6"
+            Padding="14,10"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                              Dark={StaticResource CardBgDark}}"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                     Dark={StaticResource BorderColorDark}}"
+            StrokeShape="RoundRectangle 12"
+            StrokeThickness="1">
+            <Grid
+                ColumnDefinitions="*,*"
+                ColumnSpacing="12"
+                RowDefinitions="Auto"
+                RowSpacing="8">
+                <!--  Academic Session Picker  -->
+                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="11"
+                        Text="Session"
+                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                    Dark={StaticResource TextMutedDark}}" />
+                    <Picker
+                        FontSize="13"
+                        ItemDisplayBinding="{Binding YearName}"
+                        ItemsSource="{Binding AcademicYears}"
+                        SelectedItem="{Binding SelectedYear}" />
+                </VerticalStackLayout>
+
+                <!--  Class/Standard Picker  -->
+                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="11"
+                        Text="Class / Standard"
+                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                    Dark={StaticResource TextMutedDark}}" />
+                    <Picker
+                        FontSize="13"
+                        ItemDisplayBinding="{Binding StandardName}"
+                        ItemsSource="{Binding Standards}"
+                        SelectedItem="{Binding SelectedStandard}" />
+                </VerticalStackLayout>
+            </Grid>
+        </Border>
+
+        <!--  Mappings List  -->
+        <RefreshView
+            Grid.Row="1"
+            Margin="12,4,12,0"
+            Command="{Binding RefreshCommand}"
+            IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView ItemsSource="{Binding Items}">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout
+                        Padding="30"
+                        HorizontalOptions="Center"
+                        Spacing="12"
+                        VerticalOptions="Center">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="16"
+                            HorizontalOptions="Center"
+                            Text="No Mappings Found"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark=White}" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:ClassMappingItem">
+                        <Border
+                            Margin="0,4"
+                            Padding="14,12"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                              Dark={StaticResource CardBgDark}}"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                     Dark={StaticResource BorderColorDark}}"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="1">
+                            <Grid
+                                ColumnDefinitions="*,Auto"
+                                ColumnSpacing="12"
+                                VerticalOptions="Center">
+
+                                <!--  Mapping Details  -->
+                                <VerticalStackLayout
+                                    Grid.Column="0"
+                                    Spacing="4"
+                                    VerticalOptions="Center">
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="15"
+                                            Text="{Binding SubjectName}"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                        Dark=White}" />
+                                        <Border
+                                            Padding="6,2"
+                                            BackgroundColor="{AppThemeBinding Light=#e0f2fe,
+                                                                              Dark=#075985}"
+                                            StrokeShape="RoundRectangle 6">
+                                            <Label
+                                                FontAttributes="Bold"
+                                                FontSize="11"
+                                                Text="{Binding SectionName, StringFormat='Sec: {0}'}"
+                                                TextColor="{AppThemeBinding Light=#0369a1,
+                                                                            Dark=#e0f2fe}" />
+                                        </Border>
+                                    </HorizontalStackLayout>
+                                    <Label
+                                        FontSize="13"
+                                        Text="{Binding TeacherName, StringFormat='Teacher: {0}'}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                                    Dark=#94a3b8}" />
+                                    <Label
+                                        FontSize="11"
+                                        Text="{Binding StandardName, StringFormat='Class: {0}'}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                    Dark={StaticResource TextMutedDark}}" />
+                                </VerticalStackLayout>
+
+                                <!--  Delete / Unassign Icon  -->
+                                <Image
+                                    Grid.Column="1"
+                                    HeightRequest="20"
+                                    Source="delete.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="20">
+                                    <Image.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordClassMappingListViewModel}}, Path=DeleteCommand}" CommandParameter="{Binding .}" />
+                                    </Image.GestureRecognizers>
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+    </Grid>
+
+</views:ViewBase>

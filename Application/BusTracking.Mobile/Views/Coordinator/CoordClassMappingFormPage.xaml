@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.Coordinator.CoordClassMappingFormPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
+    x:DataType="vm:CoordClassMappingFormViewModel"
+    x:TypeArguments="vm:CoordClassMappingFormViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
+
+    <ScrollView Padding="16">
+        <VerticalStackLayout Spacing="16">
+            <Border
+                Padding="16"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                StrokeShape="RoundRectangle 12">
+                <VerticalStackLayout Spacing="14">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        Text="Academic Session *" />
+                    <Picker
+                        Title="-- Select Academic Session --"
+                        ItemDisplayBinding="{Binding YearName}"
+                        ItemsSource="{Binding AcademicYears}"
+                        SelectedItem="{Binding SelectedYear}" />
+
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        Text="Class / Standard *" />
+                    <Picker
+                        Title="-- Select Standard --"
+                        ItemDisplayBinding="{Binding StandardName}"
+                        ItemsSource="{Binding Standards}"
+                        SelectedItem="{Binding SelectedStandard}" />
+
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        Text="Section *" />
+                    <Picker
+                        Title="-- Select Section --"
+                        ItemDisplayBinding="{Binding SectionName, StringFormat='Section {0}'}"
+                        ItemsSource="{Binding Sections}"
+                        SelectedItem="{Binding SelectedSection}" />
+
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        Text="Subject *" />
+                    <Picker
+                        Title="-- Select Subject --"
+                        ItemDisplayBinding="{Binding DisplayName}"
+                        ItemsSource="{Binding Subjects}"
+                        SelectedItem="{Binding SelectedSubject}" />
+
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        Text="Teacher *" />
+                    <Picker
+                        Title="-- Select Teacher --"
+                        ItemDisplayBinding="{Binding FullName}"
+                        ItemsSource="{Binding Teachers}"
+                        SelectedItem="{Binding SelectedTeacher}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button
+                    Grid.Column="0"
+                    BackgroundColor="{StaticResource BorderColor}"
+                    Command="{Binding CancelCommand}"
+                    Text="Cancel"
+                    TextColor="{StaticResource TextPrimary}" />
+                <Button
+                    Grid.Column="1"
+                    BackgroundColor="{StaticResource Primary}"
+                    Command="{Binding SaveCommand}"
+                    Text="Save"
+                    TextColor="White" />
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+</views:ViewBase>

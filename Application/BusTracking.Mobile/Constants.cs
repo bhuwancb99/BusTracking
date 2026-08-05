@@ -136,6 +136,27 @@ public static class Constants
         public const string NotifRead = "/api/admin/notifications/{0}/read";
         public const string NotifReadAll = "/api/admin/notifications/read-all";
         public const string NotifSend = "/api/admin/notifications/send";
+
+        // Sections
+        public const string SectionsByStandard = "/api/admin/sections/by-standard/{0}";
+        public const string Sections = "/api/admin/sections";
+        public const string SectionById = "/api/admin/sections/{0}";
+        public const string SectionToggle = "/api/admin/sections/{0}/toggle";
+
+        // Subjects
+        public const string Subjects = "/api/admin/subjects";
+        public const string SubjectById = "/api/admin/subjects/{0}";
+        public const string SubjectToggle = "/api/admin/subjects/{0}/toggle";
+
+        // Class Mapping
+        public const string ClassMapping = "/api/admin/class-mapping";
+        public const string ClassMappingDelete = "/api/admin/class-mapping/{0}";
+
+        // Attendance
+        public const string AttendanceStudents   = "/api/admin/attendance/students";
+        public const string AttendanceManualBatch = "/api/admin/attendance/manual-batch";
+        public const string AttendanceFaceScan    = "/api/admin/attendance/face-scan";
+        public const string AttendanceReport      = "/api/admin/attendance/report";
     }
 
     // ── AcademicYear  →  role-based endpoints (Admin vs Coordinator) ──────
@@ -225,6 +246,27 @@ public static class Constants
         public const string CoordNotifications = "/api/coordinator/notifications";
         public const string CoordNotifMarkRead = "/api/coordinator/notifications/{0}/read";
         public const string CoordNotifMarkAllRead = "/api/coordinator/notifications/read-all";
+
+        // Sections
+        public const string SectionsByStandard = "/api/coordinator/sections/by-standard/{0}";
+        public const string Sections = "/api/coordinator/sections";
+        public const string SectionById = "/api/coordinator/sections/{0}";
+        public const string SectionToggle = "/api/coordinator/sections/{0}/toggle";
+
+        // Subjects
+        public const string Subjects = "/api/coordinator/subjects";
+        public const string SubjectById = "/api/coordinator/subjects/{0}";
+        public const string SubjectToggle = "/api/coordinator/subjects/{0}/toggle";
+
+        // Class Mapping
+        public const string ClassMapping = "/api/coordinator/class-mapping";
+        public const string ClassMappingDelete = "/api/coordinator/class-mapping/{0}";
+
+        // Attendance
+        public const string AttendanceStudents   = "/api/coordinator/attendance/students";
+        public const string AttendanceManualBatch = "/api/coordinator/attendance/manual-batch";
+        public const string AttendanceFaceScan    = "/api/coordinator/attendance/face-scan";
+        public const string AttendanceReport      = "/api/coordinator/attendance/report";
     }
 
     // ── Teacher  →  TeacherController  [Route("api/teacher")] ─────────────

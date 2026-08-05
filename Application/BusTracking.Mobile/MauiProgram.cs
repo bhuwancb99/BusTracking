@@ -103,6 +103,9 @@ namespace BusTracking.Mobile
             Routing.RegisterRoute("AdminStudentForm", typeof(AdminStudentFormPage));
             Routing.RegisterRoute("AdminTripForm", typeof(AdminTripFormPage));
             Routing.RegisterRoute("AdminFuelLogForm", typeof(AdminFuelLogFormPage));
+            Routing.RegisterRoute("AdminSectionForm", typeof(AdminSectionFormPage));
+            Routing.RegisterRoute("AdminSubjectForm", typeof(AdminSubjectFormPage));
+            Routing.RegisterRoute("AdminClassMappingForm", typeof(AdminClassMappingFormPage));
 
             // ── Super Admin — Detail pages ────────────────────────────────────
             Routing.RegisterRoute("AdminBusDetail", typeof(AdminBusDetailPage));
@@ -131,6 +134,9 @@ namespace BusTracking.Mobile
             Routing.RegisterRoute("CoordFeedbackDetail", typeof(CoordFeedbackDetailPage));
             Routing.RegisterRoute("CoordNotificationDetail", typeof(CoordNotificationDetailPage));
             Routing.RegisterRoute("CoordFuelLogForm", typeof(CoordFuelLogFormPage));
+            Routing.RegisterRoute("CoordSectionForm", typeof(CoordSectionFormPage));
+            Routing.RegisterRoute("CoordSubjectForm", typeof(CoordSubjectFormPage));
+            Routing.RegisterRoute("CoordClassMappingForm", typeof(CoordClassMappingFormPage));
 
             // ── Coordinator — Detail pages ────────────────────────────────────
             Routing.RegisterRoute("CoordBusDetail", typeof(CoordBusDetailPage));
@@ -191,6 +197,9 @@ namespace BusTracking.Mobile
             s.AddTransient<IFuelLogService, FuelLogService>();
             s.AddTransient<IAcademicYearService, AcademicYearService>();
             s.AddTransient<IAttendanceMobileService, AttendanceMobileService>();
+            s.AddTransient<ISectionService, SectionService>();
+            s.AddTransient<ISubjectService, SubjectService>();
+            s.AddTransient<IClassMappingService, ClassMappingService>();
         }
 
         // ── ViewModels ────────────────────────────────────────────────────────
@@ -238,6 +247,13 @@ namespace BusTracking.Mobile
             s.AddTransient<AdminNotificationDetailViewModel>();
             s.AddTransient<AdminFeedbackListViewModel>();
             s.AddTransient<AdminFeedbackDetailViewModel>();
+            s.AddTransient<AdminSectionListViewModel>();
+            s.AddTransient<AdminSectionFormViewModel>();
+            s.AddTransient<AdminSubjectListViewModel>();
+            s.AddTransient<AdminSubjectFormViewModel>();
+            s.AddTransient<AdminClassMappingListViewModel>();
+            s.AddTransient<AdminClassMappingFormViewModel>();
+            s.AddTransient<AdminAttendanceViewModel>();
 
             // BusCoordinator
             s.AddTransient<CoordinatorDashboardViewModel>();
@@ -275,6 +291,13 @@ namespace BusTracking.Mobile
             s.AddTransient<CoordFeedbackDetailViewModel>();
             s.AddTransient<CoordNotificationListViewModel>();
             s.AddTransient<CoordNotificationDetailViewModel>();
+            s.AddTransient<CoordSectionListViewModel>();
+            s.AddTransient<CoordSectionFormViewModel>();
+            s.AddTransient<CoordSubjectListViewModel>();
+            s.AddTransient<CoordSubjectFormViewModel>();
+            s.AddTransient<CoordClassMappingListViewModel>();
+            s.AddTransient<CoordClassMappingFormViewModel>();
+            s.AddTransient<CoordAttendanceViewModel>();
 
             // Teacher
             s.AddTransient<TeacherDashboardViewModel>();
@@ -368,9 +391,17 @@ namespace BusTracking.Mobile
             s.AddTransient<AdminNotificationDetailPage>();
             s.AddTransient<AdminFeedbackListPage>();
             s.AddTransient<AdminFeedbackDetailPage>();
+            s.AddTransient<AdminSectionListPage>();
+            s.AddTransient<AdminSectionFormPage>();
+            s.AddTransient<AdminSubjectListPage>();
+            s.AddTransient<AdminSubjectFormPage>();
+            s.AddTransient<AdminClassMappingListPage>();
+            s.AddTransient<AdminClassMappingFormPage>();
+            s.AddTransient<AdminAttendancePage>();
 
             // Coordinator
             s.AddTransient<CoordinatorDashboardPage>();
+            s.AddTransient<CoordAttendancePage>();
             s.AddTransient<CoordBusListPage>();
             s.AddTransient<CoordBusFormPage>();
             s.AddTransient<CoordBusDetailPage>();
@@ -400,6 +431,12 @@ namespace BusTracking.Mobile
             s.AddTransient<CoordFeedbackDetailPage>();
             s.AddTransient<CoordNotificationListPage>();
             s.AddTransient<CoordNotificationDetailPage>();
+            s.AddTransient<CoordSectionListPage>();
+            s.AddTransient<CoordSectionFormPage>();
+            s.AddTransient<CoordSubjectListPage>();
+            s.AddTransient<CoordSubjectFormPage>();
+            s.AddTransient<CoordClassMappingListPage>();
+            s.AddTransient<CoordClassMappingFormPage>();
 
             // Driver
             s.AddTransient<DriverDashboardPage>();

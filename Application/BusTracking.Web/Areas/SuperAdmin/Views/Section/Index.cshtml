@@ -55,6 +55,7 @@
                     <th style="width: 80px;" class="ps-4">ID</th>
                     <th>Section Name</th>
                     <th>Class / Standard</th>
+                    <th>Class Teacher</th>
                     <th style="width: 140px;" class="text-center">Default Section</th>
                     <th style="width: 100px;" class="text-center">Status</th>
                     <th style="width: 120px;" class="text-center pe-4">Actions</th>
@@ -64,7 +65,7 @@
                 @if (Model == null || Model.Count == 0)
                 {
                     <tr>
-                        <td colspan="6" class="text-center py-5 text-muted">
+                        <td colspan="7" class="text-center py-5 text-muted">
                             <i class="bi bi-diagram-3 text-secondary opacity-50 display-4"></i>
                             <p class="mt-2 mb-0 fw-semibold fs-6">No sections found for selected class</p>
                             <span class="small">Select a class standard above or add a new section.</span>
@@ -81,6 +82,16 @@
                             </td>
                             <td class="fw-bold text-dark fs-6">Section @sec.SectionName</td>
                             <td class="text-muted fw-semibold">@sec.StandardName</td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(sec.ClassTeacherName))
+                                {
+                                    <span class="fw-bold text-dark"><i class="bi bi-person-badge text-primary me-1"></i>@sec.ClassTeacherName</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-light text-muted border">Not Assigned</span>
+                                }
+                            </td>
                             <td class="text-center">
                                 @if (sec.IsDefault)
                                 {

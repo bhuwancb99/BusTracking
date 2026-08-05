@@ -229,14 +229,15 @@ GO
 
 -- 13. CLASS SECTIONS (Auto Section 'A' Rule)
 CREATE TABLE Sections (
-    SectionId   INT           NOT NULL IDENTITY(1,1),
-    SchoolId    INT           NOT NULL,
-    StandardId  INT           NOT NULL,
-    SectionName NVARCHAR(50)  NOT NULL CONSTRAINT DF_Sections_SectionName DEFAULT 'A',
-    IsDefault   BIT           NOT NULL CONSTRAINT DF_Sections_IsDefault DEFAULT 1,
-    IsActive    BIT           NOT NULL CONSTRAINT DF_Sections_IsActive DEFAULT 1,
-    CreatedAt   DATETIME2     NOT NULL CONSTRAINT DF_Sections_CreatedAt DEFAULT GETUTCDATE(),
-    UpdatedAt   DATETIME2     NOT NULL CONSTRAINT DF_Sections_UpdatedAt DEFAULT GETUTCDATE(),
+    SectionId      INT           NOT NULL IDENTITY(1,1),
+    SchoolId       INT           NOT NULL,
+    StandardId     INT           NOT NULL,
+    ClassTeacherId INT           NULL,
+    SectionName    NVARCHAR(50)  NOT NULL CONSTRAINT DF_Sections_SectionName DEFAULT 'A',
+    IsDefault      BIT           NOT NULL CONSTRAINT DF_Sections_IsDefault DEFAULT 1,
+    IsActive       BIT           NOT NULL CONSTRAINT DF_Sections_IsActive DEFAULT 1,
+    CreatedAt      DATETIME2     NOT NULL CONSTRAINT DF_Sections_CreatedAt DEFAULT GETUTCDATE(),
+    UpdatedAt      DATETIME2     NOT NULL CONSTRAINT DF_Sections_UpdatedAt DEFAULT GETUTCDATE(),
     CONSTRAINT PK_Sections PRIMARY KEY (SectionId),
     CONSTRAINT FK_Sections_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId),
     CONSTRAINT FK_Sections_StandardMasters FOREIGN KEY (StandardId) REFERENCES StandardMasters(StandardId) ON DELETE CASCADE,
@@ -417,6 +418,9 @@ CREATE TABLE Teachers (
     CONSTRAINT FK_Teachers_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId),
     CONSTRAINT UQ_Teachers_UserId UNIQUE (UserId)
 );
+GO
+
+ALTER TABLE Sections ADD CONSTRAINT FK_Sections_Teachers FOREIGN KEY (ClassTeacherId) REFERENCES Teachers(TeacherId);
 GO
 
 -- 18.2 CLASS SUBJECT TEACHER MAPPINGS

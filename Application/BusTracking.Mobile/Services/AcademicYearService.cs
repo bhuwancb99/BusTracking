@@ -9,13 +9,13 @@ namespace BusTracking.Mobile.Services
             _api = api;
         }
 
-        public async Task<List<AcademicYearItem>> GetAcademicYearsAsync(bool isCoordinator = false)
+        public async Task<List<AcademicYearItem>> GetAcademicYearsAsync(bool isCoordinator = false, bool isAdmin = false)
         {
             var res = await _api.GetAsync<List<AcademicYearItem>>(Constants.AcademicYear.Base(isCoordinator));
             return res.Success && res.Data != null ? res.Data : new List<AcademicYearItem>();
         }
 
-        public async Task<AcademicYearItem?> GetActiveAcademicYearAsync(bool isCoordinator = false)
+        public async Task<AcademicYearItem?> GetActiveAcademicYearAsync(bool isCoordinator = false, bool isAdmin = false)
         {
             var res = await _api.GetAsync<AcademicYearItem>(Constants.AcademicYear.Active(isCoordinator));
             return res.Success ? res.Data : null;

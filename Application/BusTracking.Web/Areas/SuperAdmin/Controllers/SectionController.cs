@@ -5,11 +5,13 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
     {
         private readonly ISectionService _sectionService;
         private readonly IStandardService _standardService;
+        private readonly ITeacherService _teacherService;
 
-        public SectionController(ISectionService sectionService, IStandardService standardService)
+        public SectionController(ISectionService sectionService, IStandardService standardService, ITeacherService teacherService)
         {
             _sectionService = sectionService;
             _standardService = standardService;
+            _teacherService = teacherService;
         }
 
         public async Task<IActionResult> Index(int? standardId)
@@ -33,6 +35,9 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             var standards = (await _standardService.GetActiveStandardsAsync()).Data ?? new();
             ViewBag.Standards = standards;
 
+            var teachersPaged = await _teacherService.GetTeachersAsync(null, null, 1, 200);
+            ViewBag.Teachers = teachersPaged.Items ?? new();
+
             return View(new CreateSectionDto { StandardId = standardId, SectionName = "B" });
         }
 
@@ -44,6 +49,8 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             {
                 var stdResult = await _standardService.GetByIdAsync(dto.StandardId);
                 ViewBag.Standard = stdResult.Data;
+                ViewBag.Standards = (await _standardService.GetActiveStandardsAsync()).Data ?? new();
+                ViewBag.Teachers = (await _teacherService.GetTeachersAsync(null, null, 1, 200)).Items ?? new();
                 return View(dto);
             }
 
@@ -52,6 +59,8 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             {
                 var stdResult = await _standardService.GetByIdAsync(dto.StandardId);
                 ViewBag.Standard = stdResult.Data;
+                ViewBag.Standards = (await _standardService.GetActiveStandardsAsync()).Data ?? new();
+                ViewBag.Teachers = (await _teacherService.GetTeachersAsync(null, null, 1, 200)).Items ?? new();
                 ModelState.AddModelError("", r.Message);
                 return View(dto);
             }
@@ -69,9 +78,14 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             var standards = (await _standardService.GetActiveStandardsAsync()).Data ?? new();
             ViewBag.Standards = standards;
 
+            var teachersPaged = await _teacherService.GetTeachersAsync(null, null, 1, 200);
+            ViewBag.Teachers = teachersPaged.Items ?? new();
+
             var dto = new UpdateSectionDto
             {
+                SectionId = res.Data.SectionId,
                 SectionName = res.Data.SectionName,
+                ClassTeacherId = res.Data.ClassTeacherId,
                 IsActive = res.Data.IsActive
             };
             ViewBag.SectionId = id;
@@ -87,6 +101,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.Standards = (await _standardService.GetActiveStandardsAsync()).Data ?? new();
+                ViewBag.Teachers = (await _teacherService.GetTeachersAsync(null, null, 1, 200)).Items ?? new();
                 ViewBag.SectionId = id;
                 ViewBag.StandardId = standardId;
                 return View(dto);
@@ -97,6 +112,7 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             {
                 ModelState.AddModelError("", r.Message);
                 ViewBag.Standards = (await _standardService.GetActiveStandardsAsync()).Data ?? new();
+                ViewBag.Teachers = (await _teacherService.GetTeachersAsync(null, null, 1, 200)).Items ?? new();
                 ViewBag.SectionId = id;
                 ViewBag.StandardId = standardId;
                 return View(dto);

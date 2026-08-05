@@ -41,6 +41,20 @@
                         <span asp-validation-for="SectionName" class="text-danger small"></span>
                     </div>
 
+                    <div class="mb-3">
+                        <label asp-for="ClassTeacherId" class="form-label fw-bold">Class Teacher (Optional)</label>
+                        <select asp-for="ClassTeacherId" class="form-select rounded-3">
+                            <option value="">-- Select Class Teacher --</option>
+                            @if (ViewBag.Teachers is List<BusTracking.Common.DTOs.Teacher.TeacherDto> teachers)
+                            {
+                                @foreach (var t in teachers)
+                                {
+                                    <option value="@t.TeacherId" selected="@(t.TeacherId == Model.ClassTeacherId ? "selected" : null)">@t.FullName (@t.Email)</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
                     <div class="mb-4 form-check form-switch">
                         <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch">
                         <label class="form-check-label fw-semibold" for="isActiveSwitch">Active Status</label>
