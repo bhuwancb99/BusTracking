@@ -244,6 +244,63 @@ CREATE TABLE Sections (
 );
 GO
 
+-- Trigger: Automatic Section 'A' Rule on Standard Creation
+CREATE OR ALTER TRIGGER trg_StandardMasters_AutoSectionA
+ON StandardMasters
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT INTO Sections (SchoolId, StandardId, SectionName, IsDefault, IsActive, CreatedAt, UpdatedAt)
+    SELECT i.SchoolId, i.StandardId, 'A', 1, 1, GETUTCDATE(), GETUTCDATE()
+    FROM inserted i
+    WHERE i.SchoolId IS NOT NULL
+      AND NOT EXISTS (
+        SELECT 1 FROM Sections s WHERE s.SchoolId = i.SchoolId AND s.StandardId = i.StandardId AND s.SectionName = 'A'
+    );
+END;
+GO
+
+-- 13.1 SUBJECT MASTERS
+CREATE TABLE Subjects (
+    SubjectId   INT           NOT NULL IDENTITY(1,1),
+    SchoolId    INT           NOT NULL,
+    SubjectName NVARCHAR(150) NOT NULL,
+    SubjectCode NVARCHAR(50)  NULL,
+    IsActive    BIT           NOT NULL CONSTRAINT DF_Subjects_IsActive DEFAULT 1,
+    CreatedAt   DATETIME2     NOT NULL CONSTRAINT DF_Subjects_CreatedAt DEFAULT GETUTCDATE(),
+    UpdatedAt   DATETIME2     NOT NULL CONSTRAINT DF_Subjects_UpdatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_Subjects PRIMARY KEY (SubjectId),
+    CONSTRAINT FK_Subjects_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId) ON DELETE CASCADE,
+    CONSTRAINT UQ_Subjects_School_Name UNIQUE (SchoolId, SubjectName)
+);
+GO
+
+-- 13.2 CLASS SUBJECT TEACHERS MAPPING
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'ClassSubjectTeachers')
+BEGIN
+    CREATE TABLE ClassSubjectTeachers (
+        ClassSubjectTeacherId INT       NOT NULL IDENTITY(1,1),
+        SchoolId              INT       NOT NULL,
+        AcademicYearId        INT       NOT NULL,
+        StandardId            INT       NOT NULL,
+        SectionId             INT       NULL,
+        SubjectId             INT       NOT NULL,
+        TeacherId             INT       NOT NULL,
+        IsActive              BIT       NOT NULL CONSTRAINT DF_ClassSubjectTeachers_IsActive DEFAULT 1,
+        CreatedAt             DATETIME2 NOT NULL CONSTRAINT DF_ClassSubjectTeachers_CreatedAt DEFAULT GETUTCDATE(),
+        UpdatedAt             DATETIME2 NOT NULL CONSTRAINT DF_ClassSubjectTeachers_UpdatedAt DEFAULT GETUTCDATE(),
+        CONSTRAINT PK_ClassSubjectTeachers PRIMARY KEY (ClassSubjectTeacherId),
+        CONSTRAINT FK_ClassSubjectTeachers_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId),
+        CONSTRAINT FK_ClassSubjectTeachers_AcademicYears FOREIGN KEY (AcademicYearId) REFERENCES AcademicYears(AcademicYearId),
+        CONSTRAINT FK_ClassSubjectTeachers_Standards FOREIGN KEY (StandardId) REFERENCES StandardMasters(StandardId),
+        CONSTRAINT FK_ClassSubjectTeachers_Sections FOREIGN KEY (SectionId) REFERENCES Sections(SectionId),
+        CONSTRAINT FK_ClassSubjectTeachers_Subjects FOREIGN KEY (SubjectId) REFERENCES Subjects(SubjectId),
+        CONSTRAINT FK_ClassSubjectTeachers_Teachers FOREIGN KEY (TeacherId) REFERENCES Users(UserId)
+    );
+END
+GO
+
 -- ============================================================
 -- PART 4: BUS TRACKING & TRANSPORT MODULE
 -- ============================================================
@@ -359,6 +416,29 @@ CREATE TABLE Teachers (
     CONSTRAINT FK_Teachers_Users FOREIGN KEY (UserId) REFERENCES Users(UserId),
     CONSTRAINT FK_Teachers_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId),
     CONSTRAINT UQ_Teachers_UserId UNIQUE (UserId)
+);
+GO
+
+-- 18.2 CLASS SUBJECT TEACHER MAPPINGS
+CREATE TABLE ClassSubjectTeachers (
+    ClassSubjectTeacherId INT       NOT NULL IDENTITY(1,1),
+    SchoolId              INT       NOT NULL,
+    AcademicYearId        INT       NOT NULL,
+    StandardId            INT       NOT NULL,
+    SectionId             INT       NOT NULL,
+    SubjectId             INT       NOT NULL,
+    TeacherId             INT       NOT NULL,
+    IsActive              BIT       NOT NULL CONSTRAINT DF_ClassSubjectTeachers_IsActive DEFAULT 1,
+    CreatedAt             DATETIME2 NOT NULL CONSTRAINT DF_ClassSubjectTeachers_CreatedAt DEFAULT GETUTCDATE(),
+    UpdatedAt             DATETIME2 NOT NULL CONSTRAINT DF_ClassSubjectTeachers_UpdatedAt DEFAULT GETUTCDATE(),
+    CONSTRAINT PK_ClassSubjectTeachers PRIMARY KEY (ClassSubjectTeacherId),
+    CONSTRAINT FK_ClassSubjectTeachers_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId),
+    CONSTRAINT FK_ClassSubjectTeachers_AcademicYears FOREIGN KEY (AcademicYearId) REFERENCES AcademicYears(AcademicYearId),
+    CONSTRAINT FK_ClassSubjectTeachers_StandardMasters FOREIGN KEY (StandardId) REFERENCES StandardMasters(StandardId),
+    CONSTRAINT FK_ClassSubjectTeachers_Sections FOREIGN KEY (SectionId) REFERENCES Sections(SectionId),
+    CONSTRAINT FK_ClassSubjectTeachers_Subjects FOREIGN KEY (SubjectId) REFERENCES Subjects(SubjectId),
+    CONSTRAINT FK_ClassSubjectTeachers_Teachers FOREIGN KEY (TeacherId) REFERENCES Teachers(TeacherId),
+    CONSTRAINT UQ_ClassSubjectTeachers UNIQUE (SchoolId, AcademicYearId, StandardId, SectionId, SubjectId)
 );
 GO
 
@@ -640,6 +720,7 @@ CREATE TABLE DailyAttendances (
     AcademicYearId INT           NOT NULL,
     StandardId     INT           NOT NULL,
     SectionId      INT           NULL,
+    SubjectId      INT           NULL,
     StudentId      INT           NOT NULL,
     AttendanceDate DATE          NOT NULL,
     Status         NVARCHAR(20)  NOT NULL,
@@ -653,6 +734,7 @@ CREATE TABLE DailyAttendances (
     CONSTRAINT FK_DailyAttendances_AcademicYears FOREIGN KEY (AcademicYearId) REFERENCES AcademicYears(AcademicYearId),
     CONSTRAINT FK_DailyAttendances_StandardMasters FOREIGN KEY (StandardId) REFERENCES StandardMasters(StandardId),
     CONSTRAINT FK_DailyAttendances_Sections FOREIGN KEY (SectionId) REFERENCES Sections(SectionId),
+    CONSTRAINT FK_DailyAttendances_Subjects FOREIGN KEY (SubjectId) REFERENCES Subjects(SubjectId),
     CONSTRAINT FK_DailyAttendances_Students FOREIGN KEY (StudentId) REFERENCES Students(StudentId),
     CONSTRAINT FK_DailyAttendances_MarkedBy FOREIGN KEY (MarkedByUserId) REFERENCES Users(UserId),
     CONSTRAINT UQ_DailyAttendances_School_Year_Student_Date UNIQUE (SchoolId, AcademicYearId, StudentId, AttendanceDate)
@@ -1051,6 +1133,8 @@ CREATE NONCLUSTERED INDEX IX_CountryMasters_Name        ON CountryMasters (Count
 CREATE NONCLUSTERED INDEX IX_RegionMasters_CountryId     ON RegionMasters (CountryId);
 CREATE NONCLUSTERED INDEX IX_AcademicYears_SchoolId     ON AcademicYears (SchoolId, IsCurrent);
 CREATE NONCLUSTERED INDEX IX_Sections_School_Standard   ON Sections (SchoolId, StandardId);
+CREATE NONCLUSTERED INDEX IX_Subjects_School            ON Subjects (SchoolId);
+CREATE NONCLUSTERED INDEX IX_ClassSubjectTeachers_Lookup ON ClassSubjectTeachers (SchoolId, AcademicYearId, StandardId, SectionId);
 CREATE NONCLUSTERED INDEX IX_PaymentTransactions_School ON PaymentTransactions (SchoolId, StudentId, Status);
 CREATE NONCLUSTERED INDEX IX_DailyAttendances_Date      ON DailyAttendances (SchoolId, AttendanceDate, StandardId, SectionId);
 CREATE NONCLUSTERED INDEX IX_FeeStructures_School       ON FeeStructures (SchoolId, AcademicYearId, StandardId);
@@ -1100,7 +1184,17 @@ INSERT INTO Permissions (ModuleName, PermissionKey, Description) VALUES
 ('ManageAcademicYears', 'academicyear.add',         'Add academic year'),
 ('ManageAcademicYears', 'academicyear.edit',        'Edit academic year'),
 ('ManageSections',      'section.view',             'View class sections'),
-('ManageSections',      'section.manage',           'Manage class sections'),
+('ManageSections',      'section.add',              'Add class section'),
+('ManageSections',      'section.edit',             'Edit class section'),
+('ManageSections',      'section.delete',           'Delete class section'),
+('ManageSubjects',      'subject.view',             'View subjects master'),
+('ManageSubjects',      'subject.add',              'Add new subject'),
+('ManageSubjects',      'subject.edit',             'Edit subject details'),
+('ManageSubjects',      'subject.delete',           'Delete subject'),
+('ManageClassMappings', 'classmapping.view',        'View subject and teacher assignments'),
+('ManageClassMappings', 'classmapping.add',         'Assign subjects and teachers to class sections'),
+('ManageClassMappings', 'classmapping.edit',        'Edit class subject teacher assignments'),
+('ManageClassMappings', 'classmapping.delete',      'Unassign subject and teacher from class sections'),
 ('ManageStandards',     'standard.view',            'View standards'),
 ('ManageStandards',     'standard.add',             'Add standard'),
 ('ManageStandards',     'standard.edit',            'Edit standard'),

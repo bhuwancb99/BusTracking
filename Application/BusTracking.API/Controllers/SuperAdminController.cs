@@ -21,22 +21,28 @@ namespace BusTracking.API.Controllers
         private readonly IAppConfigService _config;
         private readonly IStandardService _standard;
         private readonly AppDbContext _db;
-        private readonly IImageService _img;         // ← NEW
+        private readonly IImageService _img;         
         private readonly ITeacherService _teacher;
         private readonly IAcademicYearService _academicYear;
+        private readonly ISectionService _section;
+        private readonly ISubjectService _subject;
+        private readonly IClassMappingService _classMapping;
+        private readonly IAttendanceService _attendance;
 
-        private const int MAX_BUS_IMAGES = 5;               // ← NEW
+        private const int MAX_BUS_IMAGES = 5;               
 
         public SuperAdminController(
             IBusService bus, IRouteService route, IDriverService driver,
             IStudentService student, IParentService parent, ISubAdminService subAdmin,
             ITripService trip, IFeedbackService feedback, INotificationService notif,
             IDashboardService dash, IAppConfigService config, IStandardService standard, AppDbContext db,
-            IImageService img, ITeacherService teacher, IAcademicYearService academicYear)
+            IImageService img, ITeacherService teacher, IAcademicYearService academicYear,
+            ISectionService section, ISubjectService subject, IClassMappingService classMapping, IAttendanceService attendance)
         {
             _bus = bus; _route = route; _driver = driver; _student = student;
             _parent = parent; _subAdmin = subAdmin; _trip = trip; _feedback = feedback;
             _notif = notif; _dash = dash; _config = config; _standard = standard; _db = db; _img = img; _teacher = teacher; _academicYear = academicYear;
+            _section = section; _subject = subject; _classMapping = classMapping; _attendance = attendance;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -994,6 +1000,148 @@ namespace BusTracking.API.Controllers
         public async Task<IActionResult> ToggleAcademicYearStatus(int id)
         {
             var result = await _academicYear.ToggleAcademicYearStatusAsync(id, User.Identity?.Name);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // SECTIONS
+        // ════════════════════════════════════════════════════════════
+
+        [HttpGet("sections/by-standard/{standardId:int}")]
+        public async Task<IActionResult> GetSectionsByStandard(int standardId)
+        {
+            var result = await _section.GetSectionsByStandardAsync(standardId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpGet("sections/{id:int}")]
+        public async Task<IActionResult> GetSectionById(int id)
+        {
+            var result = await _section.GetByIdAsync(id);
+            return result.Success ? Ok(result) : NotFound(result);
+        }
+
+        [HttpPost("sections")]
+        public async Task<IActionResult> CreateSection([FromBody] CreateSectionDto dto)
+        {
+            var result = await _section.CreateAsync(dto);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPut("sections/{id:int}")]
+        public async Task<IActionResult> UpdateSection(int id, [FromBody] UpdateSectionDto dto)
+        {
+            var result = await _section.UpdateAsync(id, dto);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpDelete("sections/{id:int}")]
+        public async Task<IActionResult> DeleteSection(int id)
+        {
+            var result = await _section.DeleteAsync(id);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // SUBJECTS
+        // ════════════════════════════════════════════════════════════
+
+        [HttpGet("subjects")]
+        public async Task<IActionResult> GetSubjects([FromQuery] string? search, [FromQuery] bool? isActive, [FromQuery] int page = 1)
+        {
+            var result = await _subject.GetAllAsync(search, isActive, page);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpGet("subjects/active")]
+        public async Task<IActionResult> GetActiveSubjects()
+        {
+            var result = await _subject.GetActiveSubjectsAsync();
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpGet("subjects/{id:int}")]
+        public async Task<IActionResult> GetSubjectById(int id)
+        {
+            var result = await _subject.GetByIdAsync(id);
+            return result.Success ? Ok(result) : NotFound(result);
+        }
+
+        [HttpPost("subjects")]
+        public async Task<IActionResult> CreateSubject([FromBody] CreateSubjectDto dto)
+        {
+            var result = await _subject.CreateAsync(dto);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPut("subjects/{id:int}")]
+        public async Task<IActionResult> UpdateSubject(int id, [FromBody] UpdateSubjectDto dto)
+        {
+            var result = await _subject.UpdateAsync(id, dto);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpDelete("subjects/{id:int}")]
+        public async Task<IActionResult> DeleteSubject(int id)
+        {
+            var result = await _subject.DeleteAsync(id);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // CLASS MAPPINGS (Class-Section-Subject-Teacher)
+        // ════════════════════════════════════════════════════════════
+
+        [HttpGet("class-mapping")]
+        public async Task<IActionResult> GetClassMappings([FromQuery] int academicYearId, [FromQuery] int standardId, [FromQuery] int? sectionId)
+        {
+            var result = await _classMapping.GetClassMappingsAsync(academicYearId, standardId, sectionId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("class-mapping/assign")]
+        public async Task<IActionResult> AssignSubjectTeacher([FromBody] AssignClassSubjectTeacherDto dto)
+        {
+            var result = await _classMapping.AssignSubjectTeacherAsync(dto);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpDelete("class-mapping/{id:int}")]
+        public async Task<IActionResult> UnassignSubjectTeacher(int id)
+        {
+            var result = await _classMapping.UnassignSubjectTeacherAsync(id);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // DAILY ATTENDANCE
+        // ════════════════════════════════════════════════════════════
+
+        [HttpGet("attendance/students")]
+        public async Task<IActionResult> GetStudentsForAttendance([FromQuery] int academicYearId, [FromQuery] int standardId, [FromQuery] int? sectionId, [FromQuery] DateTime date)
+        {
+            var result = await _attendance.GetStudentsForAttendanceAsync(academicYearId, standardId, sectionId, date);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("attendance/manual-batch")]
+        public async Task<IActionResult> SaveManualAttendanceBatch([FromBody] ManualAttendanceBatchDto dto)
+        {
+            var result = await _attendance.SaveManualAttendanceBatchAsync(dto, CurrentUserId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("attendance/face-scan")]
+        public async Task<IActionResult> ProcessFaceScanAttendance([FromBody] FaceAttendanceScanRequestDto dto)
+        {
+            var result = await _attendance.ProcessFaceScanAttendanceAsync(dto, CurrentUserId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpGet("attendance/report")]
+        public async Task<IActionResult> GetAttendanceReport([FromQuery] int academicYearId, [FromQuery] int standardId, [FromQuery] int? sectionId, [FromQuery] DateTime date)
+        {
+            var result = await _attendance.GetAttendanceReportAsync(academicYearId, standardId, sectionId, date);
             return result.Success ? Ok(result) : BadRequest(result);
         }
 

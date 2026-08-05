@@ -61,3 +61,4 @@ global using System.Text.Json;
 global using System.Text.Json.Serialization;
 global using System.Windows.Input;
 global using BusTracking.Mobile.Models.AcademicYear;
+global using BusTracking.Mobile.Models.Attendance;

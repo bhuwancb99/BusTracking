@@ -1,19 +1,27 @@
 namespace BusTracking.API.Controllers
 {
-    [ApiController]
-    [Route("api/teacher")]
     [Authorize(Roles = "Teacher")]
-    public class TeacherController : ControllerBase
+    [Route("api/teacher")]
+    public class TeacherController : ApiBaseController
     {
         private readonly ITeacherService _teacherService;
         private readonly INotificationService _notificationService;
+        private readonly IAttendanceService _attendanceService;
+        private readonly ISectionService _sectionService;
+        private readonly IClassMappingService _classMappingService;
 
-        private int CurrentUserId => int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var uid) ? uid : 0;
-
-        public TeacherController(ITeacherService teacherService, INotificationService notificationService)
+        public TeacherController(
+            ITeacherService teacherService,
+            INotificationService notificationService,
+            IAttendanceService attendanceService,
+            ISectionService sectionService,
+            IClassMappingService classMappingService)
         {
             _teacherService = teacherService;
             _notificationService = notificationService;
+            _attendanceService = attendanceService;
+            _sectionService = sectionService;
+            _classMappingService = classMappingService;
         }
 
         /// <summary>
@@ -33,6 +41,54 @@ namespace BusTracking.API.Controllers
         public async Task<IActionResult> GetMyNotifications()
         {
             var result = await _notificationService.GetUserNotificationsAsync(CurrentUserId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>
+        /// Gets students for attendance in a class section.
+        /// </summary>
+        [HttpGet("attendance/students")]
+        public async Task<IActionResult> GetStudentsForAttendance(
+            [FromQuery] int academicYearId,
+            [FromQuery] int standardId,
+            [FromQuery] int? sectionId,
+            [FromQuery] DateTime date)
+        {
+            var result = await _attendanceService.GetStudentsForAttendanceAsync(academicYearId, standardId, sectionId, date);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>
+        /// Teacher submits manual checklist attendance batch.
+        /// </summary>
+        [HttpPost("attendance/manual-batch")]
+        public async Task<IActionResult> SaveManualAttendanceBatch([FromBody] ManualAttendanceBatchDto dto)
+        {
+            var result = await _attendanceService.SaveManualAttendanceBatchAsync(dto, CurrentUserId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>
+        /// Teacher submits classroom face recognition scan.
+        /// </summary>
+        [HttpPost("attendance/face-scan")]
+        public async Task<IActionResult> ProcessFaceScanAttendance([FromBody] FaceAttendanceScanRequestDto dto)
+        {
+            var result = await _attendanceService.ProcessFaceScanAttendanceAsync(dto, CurrentUserId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>
+        /// Gets daily/monthly classroom attendance report for teacher's class.
+        /// </summary>
+        [HttpGet("attendance/report")]
+        public async Task<IActionResult> GetAttendanceReport(
+            [FromQuery] int academicYearId,
+            [FromQuery] int standardId,
+            [FromQuery] int? sectionId,
+            [FromQuery] DateTime date)
+        {
+            var result = await _attendanceService.GetAttendanceReportAsync(academicYearId, standardId, sectionId, date);
             return result.Success ? Ok(result) : BadRequest(result);
         }
     }

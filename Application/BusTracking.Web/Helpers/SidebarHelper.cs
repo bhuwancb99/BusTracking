@@ -24,7 +24,11 @@ public static class SidebarHelper
         new() { Label = "Dashboard",        Icon = "bi-speedometer2",    Controller = "Dashboard",      Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "App Config",       Icon = "bi-sliders",         Controller = "AppConfig",      Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Academic Years",   Icon = "bi-calendar-event",  Controller = "AcademicYear",   Action = "Index",   Area = "SuperAdmin" },
-        new() { Label = "Classes/Standards",   Icon = "bi bi-bookmark-star",  Controller = "Standard",   Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "Classes/Standards",Icon = "bi-bookmark-star",   Controller = "Standard",       Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "Sections",         Icon = "bi-diagram-3",       Controller = "Section",        Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "Subjects",         Icon = "bi-book",            Controller = "Subject",        Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "Class Mapping",    Icon = "bi-diagram-2",       Controller = "ClassMapping",   Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "Daily Attendance", Icon = "bi-check2-square",   Controller = "Attendance",     Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Bus Types",        Icon = "bi-truck-front",     Controller = "BusType",        Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Bus Coordinators", Icon = "bi-person-badge",    Controller = "SubAdmin",       Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Teachers",         Icon = "bi-person-workspace",Controller = "Teacher",        Action = "Index",   Area = "SuperAdmin" },
@@ -33,10 +37,10 @@ public static class SidebarHelper
         new() { Label = "Drivers",          Icon = "bi-person-video2",   Controller = "Driver",         Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Parents",          Icon = "bi-people",          Controller = "Parent",         Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Students",         Icon = "bi-mortarboard",     Controller = "Student",        Action = "Index",   Area = "SuperAdmin" },
-        new() { Label = "Fuel & Mileage",   Icon = "bi-fuel-pump-fill",      Controller = "FuelLog",        Action = "Index",   Area = "SuperAdmin" },
-        new() { Label = "Analytics & Reports", Icon = "bi-bar-chart-line-fill", Controller = "Report",       Action = "Index",   Area = "SuperAdmin" },
-        new() { Label = "Trips",            Icon = "bi-signpost-split",      Controller = "Trip",           Action = "Index",   Area = "SuperAdmin" },
-        new() { Label = "Broadcast Message",Icon = "bi-megaphone-fill",      Controller = "Broadcast",      Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "Fuel & Mileage",   Icon = "bi-fuel-pump-fill",  Controller = "FuelLog",        Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "Analytics & Reports", Icon = "bi-bar-chart-line-fill", Controller = "Report",   Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "Trips",            Icon = "bi-signpost-split",  Controller = "Trip",           Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "Broadcast Message",Icon = "bi-megaphone-fill",  Controller = "Broadcast",      Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Notifications",    Icon = "bi-bell",            Controller = "Notification",   Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Help & Support",   Icon = "bi-headset",         Controller = "Feedback",       Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "System Logs",      Icon = "bi-journal-text",    Controller = "Logger",         Action = "Index",   Area = "SuperAdmin" },
@@ -57,10 +61,6 @@ public static class SidebarHelper
             new() { Label = "Dashboard", Icon = "bi-speedometer2", Controller = "Dashboard", Action = "Index", Area = "BusCoordinator" }
         };
 
-        // ── Order mirrors SuperAdmin sidebar exactly ──────────────────
-        // Dashboard → App Config → Sub-Admins → Teachers → Routes → Buses → Bus Types
-        // → Drivers → Parents → Students → Fuel & Mileage → Analytics & Reports → Trips → Notifications → Help & Support
-
         if (Has("appconfig.view"))
             menu.Add(new() { Label = "App Config", Icon = "bi-sliders", Controller = "AppConfig", Action = "Index", Area = "BusCoordinator" });
 
@@ -68,7 +68,19 @@ public static class SidebarHelper
             menu.Add(new() { Label = "Academic Years", Icon = "bi-calendar-event", Controller = "AcademicYear", Action = "Index", Area = "BusCoordinator" });
 
         if (Has("standard.view"))
-            menu.Add(new() { Label = "Classes/Standards", Icon = "bi bi-bookmark-star", Controller = "Standard", Action = "Index", Area = "BusCoordinator" });
+            menu.Add(new() { Label = "Classes/Standards", Icon = "bi-bookmark-star", Controller = "Standard", Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("section.view"))
+            menu.Add(new() { Label = "Sections", Icon = "bi-diagram-3", Controller = "Section", Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("subject.view"))
+            menu.Add(new() { Label = "Subjects", Icon = "bi-book", Controller = "Subject", Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("classmapping.view"))
+            menu.Add(new() { Label = "Class Mapping", Icon = "bi-diagram-2", Controller = "ClassMapping", Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("attendance.view"))
+            menu.Add(new() { Label = "Daily Attendance", Icon = "bi-check2-square", Controller = "Attendance", Action = "Index", Area = "BusCoordinator" });
 
         if (Has("bustype.view"))
             menu.Add(new() { Label = "Bus Types", Icon = "bi-truck-front", Controller = "BusType", Action = "Index", Area = "BusCoordinator" });
@@ -120,8 +132,9 @@ public static class SidebarHelper
 
     private static List<SidebarMenuItem> TeacherMenu() =>
     [
-        new() { Label = "Dashboard",     Icon = "bi-speedometer2",   Controller = "Dashboard",    Action = "Index", Area = "Teacher" },
-        new() { Label = "Notifications", Icon = "bi-bell",           Controller = "Notification", Action = "Index", Area = "Teacher" },
+        new() { Label = "Dashboard",        Icon = "bi-speedometer2",   Controller = "Dashboard",    Action = "Index", Area = "Teacher" },
+        new() { Label = "Daily Attendance", Icon = "bi-check2-square",  Controller = "Attendance",   Action = "Index", Area = "Teacher" },
+        new() { Label = "Notifications",    Icon = "bi-bell",           Controller = "Notification", Action = "Index", Area = "Teacher" },
     ];
 
     // ── Driver ──────────────────────────────────────────────────────────

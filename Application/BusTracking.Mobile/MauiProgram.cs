@@ -190,6 +190,7 @@ namespace BusTracking.Mobile
             s.AddTransient<IBusTypeService, BusTypeService>();
             s.AddTransient<IFuelLogService, FuelLogService>();
             s.AddTransient<IAcademicYearService, AcademicYearService>();
+            s.AddTransient<IAttendanceMobileService, AttendanceMobileService>();
         }
 
         // ── ViewModels ────────────────────────────────────────────────────────
@@ -199,6 +200,7 @@ namespace BusTracking.Mobile
             s.AddTransient<LoginViewModel>();
             s.AddTransient<ChangePasswordViewModel>();
             s.AddTransient<ProfileViewModel>();
+            s.AddTransient<TeacherAttendanceViewModel>();
 
             // SuperAdmin
             s.AddTransient<AdminDashboardViewModel>();

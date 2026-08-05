@@ -23,15 +23,21 @@ namespace BusTracking.API.Controllers
         private readonly IStandardService _standard;
         private readonly ITeacherService _teacher;
         private readonly IAcademicYearService _academicYear;
+        private readonly ISectionService _section;
+        private readonly ISubjectService _subject;
+        private readonly IClassMappingService _classMapping;
+        private readonly IAttendanceService _attendance;
 
         public CoordinatorController(AppDbContext db, IDashboardService dash, ITripService trip,
             ISubAdminService subAdmin, IAppConfigService appConfig, IFeedbackService feedback,
-            INotificationService notif, IImageService img, IRouteService route, IBusService bus, IDriverService driver, IParentService parent, IStudentService student, IStandardService standard, ITeacherService teacher, IAcademicYearService academicYear)
+            INotificationService notif, IImageService img, IRouteService route, IBusService bus, IDriverService driver, IParentService parent, IStudentService student, IStandardService standard, ITeacherService teacher, IAcademicYearService academicYear,
+            ISectionService section, ISubjectService subject, IClassMappingService classMapping, IAttendanceService attendance)
         {
             _db = db; _dash = dash; _trip = trip;
             _subAdmin = subAdmin; _appConfig = appConfig;
             _feedback = feedback; _notif = notif; _img = img; _route = route; _bus = bus; _driver = driver; _parent = parent; _student = student;
             _standard = standard; _teacher = teacher; _academicYear = academicYear;
+            _section = section; _subject = subject; _classMapping = classMapping; _attendance = attendance;
         }
 
         // ════════════════════════════════════════════════════════════
@@ -818,6 +824,101 @@ namespace BusTracking.API.Controllers
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
+        // ════════════════════════════════════════════════════════════
+        // SECTIONS (Coordinator with SubAdmin Permission)
+        // ════════════════════════════════════════════════════════════
+
+        [HttpGet("sections/by-standard/{standardId:int}")]
+        public async Task<IActionResult> GetSectionsByStandard(int standardId)
+        {
+            RequirePermission("section.view");
+            var result = await _section.GetSectionsByStandardAsync(standardId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("sections")]
+        public async Task<IActionResult> CreateSection([FromBody] CreateSectionDto dto)
+        {
+            RequirePermission("section.add");
+            var result = await _section.CreateAsync(dto);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpDelete("sections/{id:int}")]
+        public async Task<IActionResult> DeleteSection(int id)
+        {
+            RequirePermission("section.delete");
+            var result = await _section.DeleteAsync(id);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // SUBJECTS (Coordinator with SubAdmin Permission)
+        // ════════════════════════════════════════════════════════════
+
+        [HttpGet("subjects")]
+        public async Task<IActionResult> GetSubjects([FromQuery] string? search, [FromQuery] bool? isActive, [FromQuery] int page = 1)
+        {
+            RequirePermission("subject.view");
+            var result = await _subject.GetAllAsync(search, isActive, page);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("subjects")]
+        public async Task<IActionResult> CreateSubject([FromBody] CreateSubjectDto dto)
+        {
+            RequirePermission("subject.add");
+            var result = await _subject.CreateAsync(dto);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // CLASS MAPPINGS
+        // ════════════════════════════════════════════════════════════
+
+        [HttpGet("class-mapping")]
+        public async Task<IActionResult> GetClassMappings([FromQuery] int academicYearId, [FromQuery] int standardId, [FromQuery] int? sectionId)
+        {
+            RequirePermission("classmapping.view");
+            var result = await _classMapping.GetClassMappingsAsync(academicYearId, standardId, sectionId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("class-mapping/assign")]
+        public async Task<IActionResult> AssignSubjectTeacher([FromBody] AssignClassSubjectTeacherDto dto)
+        {
+            RequirePermission("classmapping.add");
+            var result = await _classMapping.AssignSubjectTeacherAsync(dto);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        // ════════════════════════════════════════════════════════════
+        // ATTENDANCE
+        // ════════════════════════════════════════════════════════════
+
+        [HttpGet("attendance/students")]
+        public async Task<IActionResult> GetStudentsForAttendance([FromQuery] int academicYearId, [FromQuery] int standardId, [FromQuery] int? sectionId, [FromQuery] DateTime date)
+        {
+            RequirePermission("attendance.view");
+            var result = await _attendance.GetStudentsForAttendanceAsync(academicYearId, standardId, sectionId, date);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("attendance/manual-batch")]
+        public async Task<IActionResult> SaveManualAttendanceBatch([FromBody] ManualAttendanceBatchDto dto)
+        {
+            RequirePermission("attendance.mark");
+            var result = await _attendance.SaveManualAttendanceBatchAsync(dto, CurrentUserId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("attendance/face-scan")]
+        public async Task<IActionResult> ProcessFaceScanAttendance([FromBody] FaceAttendanceScanRequestDto dto)
+        {
+            RequirePermission("attendance.facescan");
+            var result = await _attendance.ProcessFaceScanAttendanceAsync(dto, CurrentUserId);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
 
         private void RequirePermission(string key)
         {

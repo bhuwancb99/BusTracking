@@ -1,0 +1,57 @@
+@model BusTracking.Common.DTOs.Section.UpdateSectionDto
+@{
+    ViewData["Title"] = "Edit Section";
+    int sectionId = ViewBag.SectionId ?? 0;
+    int standardId = ViewBag.StandardId ?? 0;
+    string standardName = ViewBag.StandardName ?? "";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h2 class="fw-bold m-0 text-dark">
+            <i class="bi bi-pencil-square text-primary me-2"></i>Edit Section
+        </h2>
+        <nav aria-label="breadcrumb" class="mt-1">
+            <ol class="breadcrumb mb-0 small text-muted">
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="@Url.Action("Index", new { standardId })" class="text-decoration-none text-muted">Class Sections</a></li>
+                <li class="breadcrumb-item active text-primary" aria-current="page">Edit Section</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-5">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4">
+                <form asp-action="Edit" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@sectionId" />
+                    <input type="hidden" name="standardId" value="@standardId" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Class / Standard</label>
+                        <input type="text" class="form-control bg-light rounded-3" value="@standardName" readonly />
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="SectionName" class="form-label fw-bold">Section Name <span class="text-danger">*</span></label>
+                        <input asp-for="SectionName" class="form-control rounded-3" required />
+                        <span asp-validation-for="SectionName" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-4 form-check form-switch">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch">
+                        <label class="form-check-label fw-semibold" for="isActiveSwitch">Active Status</label>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary rounded-3 px-4 flex-fill"><i class="bi bi-check-lg me-1"></i>Update Section</button>
+                        <a href="@Url.Action("Index", new { standardId })" class="btn btn-outline-secondary rounded-3 px-4">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -67,34 +67,13 @@
         <ul class="sidebar-nav flex-grow-1">
             @{
                 var ctrl = ViewContext.RouteData.Values["controller"]?.ToString();
-                (string Lbl, string Icon, string C, string A)[] items =
-                [
-                    ("Dashboard",       "bi-speedometer2",   "Dashboard", "Index"),
-                    ("App Config",      "bi-sliders",        "AppConfig", "Index"),
-                    ("Academic Years",  "bi-calendar-event", "AcademicYear","Index"),
-                    ("Classes/Standards","bi-bookmark-star", "Standard",  "Index"),
-                    ("Bus Types",       "bi-truck-front",    "BusType",   "Index"),
-                    ("Bus Coordinators","bi-person-badge",   "SubAdmin",  "Index"),
-                    ("Teachers",        "bi-person-workspace","Teacher",  "Index"),
-                    ("Routes",          "bi-map",            "Route",     "Index"),
-                    ("Buses",           "bi-bus-front",      "Bus",       "Index"),
-                    ("Drivers",         "bi-person-video2",  "Driver",    "Index"),
-                    ("Parents",         "bi-people",         "Parent",    "Index"),
-                    ("Students",        "bi-mortarboard",    "Student",   "Index"),
-                    ("Fuel & Mileage",  "bi-fuel-pump-fill", "FuelLog",   "Index"),
-                    ("Analytics & Reports", "bi-bar-chart-line-fill", "Report", "Index"),
-                    ("Trips",           "bi-signpost-split", "Trip",      "Index"),
-                    ("Broadcast Message","bi-megaphone-fill","Broadcast", "Index"),
-                    ("Notifications",   "bi-bell",           "Notification","Index"),
-                    ("Help & Support",  "bi-headset",        "Feedback",  "Index"),
-                    ("System Logs",     "bi-journal-text",   "Logger",    "Index"),
-            ];
+                var menuItems = BusTracking.Web.Helpers.SidebarHelper.GetMenu(User);
             }
-            @foreach (var (lbl, icon, c, a) in items)
+            @foreach (var item in menuItems)
             {
-                <li class="sidebar-item @(ctrl == c ? "active" : "")">
-                    <a class="sidebar-link" asp-area="SuperAdmin" asp-controller="@c" asp-action="@a">
-                        <i class="bi @icon"></i><span>@lbl</span>
+                <li class="sidebar-item @(ctrl == item.Controller ? "active" : "")">
+                    <a class="sidebar-link" asp-area="@item.Area" asp-controller="@item.Controller" asp-action="@item.Action">
+                        <i class="bi @item.Icon"></i><span>@item.Label</span>
                     </a>
                 </li>
             }

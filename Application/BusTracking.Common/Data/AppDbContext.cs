@@ -48,6 +48,10 @@ public class AppDbContext : DbContext
     public DbSet<BusRouteMapping> BusRouteMappings { get; set; }
     public DbSet<BusDriverMapping> BusDriverMappings { get; set; }
     public DbSet<AcademicYear> AcademicYears { get; set; }
+    public DbSet<Section> Sections { get; set; }
+    public DbSet<SubjectMaster> Subjects { get; set; }
+    public DbSet<ClassSubjectTeacher> ClassSubjectTeachers { get; set; }
+    public DbSet<DailyAttendance> DailyAttendances { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -91,6 +95,16 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Logger>().ToTable("Logger");
         modelBuilder.Entity<BusFuelLog>().ToTable("BusFuelLogs");
         modelBuilder.Entity<AcademicYear>().ToTable("AcademicYears");
+        modelBuilder.Entity<Section>().ToTable("Sections");
+        modelBuilder.Entity<SubjectMaster>().ToTable("Subjects");
+        modelBuilder.Entity<ClassSubjectTeacher>().ToTable("ClassSubjectTeachers");
+        modelBuilder.Entity<DailyAttendance>().ToTable("DailyAttendances");
+
+        // ── Unique indexes ────────────────────────────────────────────
+        modelBuilder.Entity<Section>().HasIndex(s => new { s.SchoolId, s.StandardId, s.SectionName }).IsUnique();
+        modelBuilder.Entity<SubjectMaster>().HasIndex(s => new { s.SchoolId, s.SubjectName }).IsUnique();
+        modelBuilder.Entity<ClassSubjectTeacher>().HasIndex(c => new { c.SchoolId, c.AcademicYearId, c.StandardId, c.SectionId, c.SubjectId }).IsUnique();
+        modelBuilder.Entity<DailyAttendance>().HasIndex(d => new { d.SchoolId, d.AcademicYearId, d.StudentId, d.AttendanceDate }).IsUnique();
 
         // ── Unique indexes ────────────────────────────────────────────
         modelBuilder.Entity<AcademicYear>().HasIndex(a => new { a.SchoolId, a.YearName }).IsUnique();
