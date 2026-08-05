@@ -107,20 +107,20 @@ namespace BusTracking.Mobile.Services
         /// <summary>GET /api/trips/{tripId}/students</summary>
         public async Task<List<DriverStudentStatus>> GetTripStudentsAsync(int tripId)
         {
-            var r = await _api.GetAsync<List<DriverStudentStatus>>($"api/trips/{tripId}/students");
+            var r = await _api.GetAsync<List<DriverStudentStatus>>(string.Format(Constants.Driver.TripStudents, tripId));
             return r.Data ?? [];
         }
 
         /// <summary>POST /api/trips/{tripId}/stops/{stopId}/reach</summary>
         public Task<ApiResponse<object>> ReachStopAsync(int tripId, int stopId)
-            => _api.PostAsync<object>($"api/trips/{tripId}/stops/{stopId}/reach");
+            => _api.PostAsync<object>(string.Format(Constants.Driver.StopReach, tripId, stopId));
 
         /// <summary>POST /api/trips/{tripId}/stops/{stopId}/depart</summary>
         public Task<ApiResponse<object>> DepartStopAsync(int tripId, int stopId)
-            => _api.PostAsync<object>($"api/trips/{tripId}/stops/{stopId}/depart");
+            => _api.PostAsync<object>(string.Format(Constants.Driver.StopDepart, tripId, stopId));
 
         /// <summary>POST /api/trips/{tripId}/sos</summary>
         public Task<ApiResponse<object>> TriggerSosAsync(int tripId, double lat, double lng)
-            => _api.PostAsync<object>($"api/trips/{tripId}/sos", new { Latitude = lat, Longitude = lng, Message = "DRIVER EMERGENCY SOS ALERT BUTTON PRESSED" });
+            => _api.PostAsync<object>(string.Format(Constants.Driver.SosTrigger, tripId), new { Latitude = lat, Longitude = lng, Message = "DRIVER EMERGENCY SOS ALERT BUTTON PRESSED" });
     }
 }

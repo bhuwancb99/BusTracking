@@ -138,6 +138,31 @@ public static class Constants
         public const string NotifSend = "/api/admin/notifications/send";
     }
 
+    // ── AcademicYear  →  role-based endpoints (Admin vs Coordinator) ──────
+    public static class AcademicYear
+    {
+        // Admin role
+        public const string AdminBase          = "/api/admin/academicyears";                    // GET/POST
+        public const string AdminById          = "/api/admin/academicyears/{0}";                // PUT
+        public const string AdminActive        = "/api/admin/academicyears/active";             // GET
+        public const string AdminSetActive     = "/api/admin/academicyears/{0}/set-active";    // POST
+        public const string AdminToggleStatus  = "/api/admin/academicyears/{0}/toggle-status"; // POST
+
+        // Coordinator role
+        public const string CoordBase          = "/api/coordinator/academicyears";                    // GET/POST
+        public const string CoordById          = "/api/coordinator/academicyears/{0}";                // PUT
+        public const string CoordActive        = "/api/coordinator/academicyears/active";             // GET
+        public const string CoordSetActive     = "/api/coordinator/academicyears/{0}/set-active";    // POST
+        public const string CoordToggleStatus  = "/api/coordinator/academicyears/{0}/toggle-status"; // POST
+
+        // Helper — pick the right base by role flag
+        public static string Base(bool isCoordinator)        => isCoordinator ? CoordBase       : AdminBase;
+        public static string Active(bool isCoordinator)      => isCoordinator ? CoordActive     : AdminActive;
+        public static string ById(bool isCoordinator, int id)   => string.Format(isCoordinator ? CoordById      : AdminById,      id);
+        public static string SetActive(bool isCoordinator, int id) => string.Format(isCoordinator ? CoordSetActive  : AdminSetActive,  id);
+        public static string ToggleStatus(bool isCoordinator, int id) => string.Format(isCoordinator ? CoordToggleStatus : AdminToggleStatus, id);
+    }
+
     // ── Coordinator  →  CoordinatorController  [Route("api/coordinator")] ─
     public static class Coordinator
     {
@@ -202,31 +227,38 @@ public static class Constants
         public const string CoordNotifMarkAllRead = "/api/coordinator/notifications/read-all";
     }
 
-    // ── Teacher ───────────────────────────────────────────────────────────
+    // ── Teacher  →  TeacherController  [Route("api/teacher")] ─────────────
     public static class Teacher
     {
-        public const string Profile = "/api/teacher/profile";
+        public const string Profile       = "/api/teacher/profile";
         public const string Notifications = "/api/teacher/notifications";
+
+        // Attendance endpoints (role: Teacher)
+        public const string AttendanceStudents   = "/api/teacher/attendance/students";     // GET  ?academicYearId&standardId&date&sectionId
+        public const string AttendanceManualBatch = "/api/teacher/attendance/manual-batch"; // POST
+        public const string AttendanceFaceScan    = "/api/teacher/attendance/face-scan";   // POST
+        public const string AttendanceReport      = "/api/teacher/attendance/report";       // GET  ?academicYearId&standardId&date&sectionId
     }
 
-    // ── Driver ────────────────────────────────────────────────────────────
+    // ── Driver  →  DriverController [Route("api/driver")] + TripsController [Route("api/trips")] ──
     public static class Driver
     {
-        public const string Dashboard = "/api/driver/dashboard";
-        public const string Trips = "/api/trips/my-trip";
-        public const string TripStart = "/api/trips/{0}/start";
-        public const string TripEnd = "/api/trips/{0}/end";
-        public const string TripStops = "/api/trips/{0}/stops";
-        public const string TripStudents = "/api/trips/{0}/students";
-        public const string StopReach = "/api/trips/{0}/stops/{1}/reach";
-        public const string StopDepart = "/api/trips/{0}/stops/{1}/depart";
-        public const string TripBoarding = "/api/trips/{0}/boarding";
-        public const string LocationPing = "/api/location/ping";
-        public const string LocationLatest = "/api/location/{0}/latest";
-        public const string Profile = "/api/driver/profile";
-        public const string Notifications = "/api/driver/notifications";
-        public const string NotifMarkRead = "/api/driver/notifications/{0}/read";
-        public const string NotifMarkAllRead = "/api/driver/notifications/read-all";
+        public const string Dashboard         = "/api/driver/dashboard";
+        public const string Trips             = "/api/trips/my-trip";          // GET  ?date=
+        public const string TripStart         = "/api/trips/{0}/start";        // POST
+        public const string TripEnd           = "/api/trips/{0}/end";          // POST
+        public const string TripStops         = "/api/trips/{0}/stops";        // GET
+        public const string TripStudents      = "/api/trips/{0}/students";     // GET
+        public const string TripBoarding      = "/api/trips/{0}/boarding";     // PUT
+        public const string StopReach         = "/api/trips/{0}/stops/{1}/reach";   // POST
+        public const string StopDepart        = "/api/trips/{0}/stops/{1}/depart";  // POST
+        public const string SosTrigger        = "/api/trips/{0}/sos";          // POST
+        public const string LocationPing      = "/api/location/ping";          // POST
+        public const string LocationLatest    = "/api/location/{0}/latest";    // GET
+        public const string Profile           = "/api/driver/profile";
+        public const string Notifications     = "/api/driver/notifications";
+        public const string NotifMarkRead     = "/api/driver/notifications/{0}/read";
+        public const string NotifMarkAllRead  = "/api/driver/notifications/read-all";
     }
 
     // ── Student ───────────────────────────────────────────────────────────
@@ -248,14 +280,16 @@ public static class Constants
         public const string TripRouteInfo = "/api/parent/trips/{0}/route-info";
     }
 
-    // ── Common  →  NotificationsController / FeedbackController / ProfileController ─
+    // ── Common  →  NotificationsController / FeedbackController / ProfileController / LoggerController ─
     public static class Common
     {
-        public const string Notifications = "/api/notifications";
-        public const string DeviceToken = "/api/notifications/device-token";
-        public const string Profile = "/api/profile";
-        public const string ProfilePhoto = "/api/profile/photo";   // POST multipart | DELETE
-        public const string Feedback = "/api/feedback";
+        public const string Notifications          = "/api/notifications";
+        public const string DeviceToken            = "/api/notifications/device-token";        // POST  (register)
+        public const string DeviceTokenRemove      = "/api/notifications/device-token/remove"; // POST  (unregister on logout)
+        public const string Profile                = "/api/profile";
+        public const string ProfilePhoto           = "/api/profile/photo";  // POST multipart | DELETE
+        public const string Feedback               = "/api/feedback";
+        public const string Logger                 = "/api/logger";         // POST  (client-side error logging)
     }
 
     // SignalR hub URL (used by TrackingHubService)

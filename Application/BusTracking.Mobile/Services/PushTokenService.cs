@@ -122,7 +122,7 @@ namespace BusTracking.Mobile.Services
 
                 if (!string.IsNullOrWhiteSpace(token))
                 {
-                    await _api.PostAsync<object>("api/notifications/device-token/remove", new
+                    await _api.PostAsync<object>(Constants.Common.DeviceTokenRemove, new
                     {
                         token = token
                     });

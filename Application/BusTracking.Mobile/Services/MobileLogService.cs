@@ -75,7 +75,7 @@ namespace BusTracking.Mobile.Services
                 {
                     try
                     {
-                        await _api.PostAsync<object>("api/logger", logDto);
+                        await _api.PostAsync<object>(Constants.Common.Logger, logDto);
                     }
                     catch { }
                 });
