@@ -21,7 +21,7 @@
             <Label
                 Grid.Column="0"
                 FontAttributes="Bold"
-                FontSize="18"
+                FontSize="17"
                 Text="Class Subject &amp; Teacher Mapping"
                 TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                             Dark=White}"
@@ -51,51 +51,82 @@
 
     <Grid RowDefinitions="Auto,*">
 
-        <!--  Top Filter Card  -->
+        <!--  Top Filter Card (3 Options in 1 Line with Vertical Separators)  -->
         <Border
             Grid.Row="0"
-            Margin="12,12,12,6"
-            Padding="14,10"
+            Margin="12,10,12,4"
+            Padding="10,8"
             BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                               Dark={StaticResource CardBgDark}}"
             Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                      Dark={StaticResource BorderColorDark}}"
             StrokeShape="RoundRectangle 12"
             StrokeThickness="1">
-            <Grid
-                ColumnDefinitions="*,*"
-                ColumnSpacing="12"
-                RowDefinitions="Auto"
-                RowSpacing="8">
-                <!--  Academic Session Picker  -->
-                <VerticalStackLayout Grid.Column="0" Spacing="4">
+            <Grid ColumnDefinitions="*,Auto,*,Auto,*" ColumnSpacing="6">
+
+                <!-- Column 1: Academic Session -->
+                <VerticalStackLayout Grid.Column="0" Spacing="2">
                     <Label
                         FontAttributes="Bold"
-                        FontSize="11"
+                        FontSize="10"
                         Text="Session"
                         TextColor="{AppThemeBinding Light={StaticResource TextMuted},
                                                     Dark={StaticResource TextMutedDark}}" />
                     <Picker
-                        FontSize="13"
+                        FontSize="12"
                         ItemDisplayBinding="{Binding YearName}"
                         ItemsSource="{Binding AcademicYears}"
                         SelectedItem="{Binding SelectedYear}" />
                 </VerticalStackLayout>
 
-                <!--  Class/Standard Picker  -->
-                <VerticalStackLayout Grid.Column="1" Spacing="4">
+                <!-- Separator 1 -->
+                <BoxView
+                    Grid.Column="1"
+                    Margin="2,4"
+                    WidthRequest="1"
+                    Color="{AppThemeBinding Light=#cbd5e1,
+                                            Dark=#334155}"
+                    VerticalOptions="Fill" />
+
+                <!-- Column 2: Class / Standard -->
+                <VerticalStackLayout Grid.Column="2" Spacing="2">
                     <Label
                         FontAttributes="Bold"
-                        FontSize="11"
-                        Text="Class / Standard"
+                        FontSize="10"
+                        Text="Class"
                         TextColor="{AppThemeBinding Light={StaticResource TextMuted},
                                                     Dark={StaticResource TextMutedDark}}" />
                     <Picker
-                        FontSize="13"
+                        FontSize="12"
                         ItemDisplayBinding="{Binding StandardName}"
                         ItemsSource="{Binding Standards}"
                         SelectedItem="{Binding SelectedStandard}" />
                 </VerticalStackLayout>
+
+                <!-- Separator 2 -->
+                <BoxView
+                    Grid.Column="3"
+                    Margin="2,4"
+                    WidthRequest="1"
+                    Color="{AppThemeBinding Light=#cbd5e1,
+                                            Dark=#334155}"
+                    VerticalOptions="Fill" />
+
+                <!-- Column 3: Section (Optional) -->
+                <VerticalStackLayout Grid.Column="4" Spacing="2">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="10"
+                        Text="Section"
+                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                    Dark={StaticResource TextMutedDark}}" />
+                    <Picker
+                        FontSize="12"
+                        ItemDisplayBinding="{Binding SectionName}"
+                        ItemsSource="{Binding Sections}"
+                        SelectedItem="{Binding SelectedSection}" />
+                </VerticalStackLayout>
+
             </Grid>
         </Border>
 
@@ -124,71 +155,161 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="models:ClassMappingItem">
                         <Border
-                            Margin="0,4"
-                            Padding="14,12"
+                            Margin="0,6"
+                            Padding="16"
                             BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                                               Dark={StaticResource CardBgDark}}"
                             Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                                      Dark={StaticResource BorderColorDark}}"
                             StrokeShape="RoundRectangle 12"
                             StrokeThickness="1">
-                            <Grid
-                                ColumnDefinitions="*,Auto"
-                                ColumnSpacing="12"
-                                VerticalOptions="Center">
+                            <VerticalStackLayout Spacing="10">
 
-                                <!--  Mapping Details  -->
-                                <VerticalStackLayout
-                                    Grid.Column="0"
-                                    Spacing="4"
-                                    VerticalOptions="Center">
-                                    <HorizontalStackLayout Spacing="8">
-                                        <Label
-                                            FontAttributes="Bold"
-                                            FontSize="15"
-                                            Text="{Binding SubjectName}"
-                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                                        Dark=White}" />
+                                <!-- Top Row: ID Badge + Subject Name + Actions (Edit & Unassign) -->
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10" VerticalOptions="Center">
+
+                                    <!-- Left: ID & Subject Name -->
+                                    <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
                                         <Border
                                             Padding="6,2"
-                                            BackgroundColor="{AppThemeBinding Light=#e0f2fe,
-                                                                              Dark=#075985}"
-                                            StrokeShape="RoundRectangle 6">
+                                            BackgroundColor="{AppThemeBinding Light=#f1f5f9,
+                                                                              Dark=#1e293b}"
+                                            Stroke="Transparent"
+                                            StrokeShape="RoundRectangle 6"
+                                            VerticalOptions="Center">
                                             <Label
                                                 FontAttributes="Bold"
                                                 FontSize="11"
-                                                Text="{Binding SectionName, StringFormat='Sec: {0}'}"
-                                                TextColor="{AppThemeBinding Light=#0369a1,
-                                                                            Dark=#e0f2fe}" />
+                                                Text="{Binding Id, StringFormat='#{0}'}"
+                                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                                            Dark=#94a3b8}" />
+                                        </Border>
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="16"
+                                            Text="{Binding SubjectName}"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                        Dark=White}"
+                                            VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+
+                                    <!-- Right: Action Buttons (Edit & Unassign) -->
+                                    <HorizontalStackLayout Grid.Column="2" Spacing="8" VerticalOptions="Center">
+                                        <!-- Edit Button -->
+                                        <Border
+                                            Padding="8,5"
+                                            BackgroundColor="{AppThemeBinding Light=#eff6ff,
+                                                                              Dark=#1e3a8a}"
+                                            Stroke="#bfdbfe"
+                                            StrokeShape="RoundRectangle 6">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminClassMappingListViewModel}}, Path=EditCommand}" CommandParameter="{Binding .}" />
+                                            </Border.GestureRecognizers>
+                                            <HorizontalStackLayout Spacing="4">
+                                                <Image
+                                                    HeightRequest="13"
+                                                    Source="edit.png"
+                                                    WidthRequest="13">
+                                                    <Image.Behaviors>
+                                                        <mct:IconTintColorBehavior TintColor="#2563eb" />
+                                                    </Image.Behaviors>
+                                                </Image>
+                                                <Label
+                                                    FontAttributes="Bold"
+                                                    FontSize="12"
+                                                    Text="Edit"
+                                                    TextColor="#2563eb"
+                                                    VerticalOptions="Center" />
+                                            </HorizontalStackLayout>
+                                        </Border>
+
+                                        <!-- Unassign Button -->
+                                        <Border
+                                            Padding="8,5"
+                                            BackgroundColor="{AppThemeBinding Light=#fef2f2,
+                                                                              Dark=#7f1d1d}"
+                                            Stroke="#fecaca"
+                                            StrokeShape="RoundRectangle 6">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminClassMappingListViewModel}}, Path=DeleteCommand}" CommandParameter="{Binding .}" />
+                                            </Border.GestureRecognizers>
+                                            <HorizontalStackLayout Spacing="4">
+                                                <Image
+                                                    HeightRequest="13"
+                                                    Source="delete.png"
+                                                    WidthRequest="13">
+                                                    <Image.Behaviors>
+                                                        <mct:IconTintColorBehavior TintColor="#dc2626" />
+                                                    </Image.Behaviors>
+                                                </Image>
+                                                <Label
+                                                    FontAttributes="Bold"
+                                                    FontSize="12"
+                                                    Text="Unassign"
+                                                    TextColor="#dc2626"
+                                                    VerticalOptions="Center" />
+                                            </HorizontalStackLayout>
                                         </Border>
                                     </HorizontalStackLayout>
-                                    <Label
-                                        FontSize="13"
-                                        Text="{Binding TeacherName, StringFormat='Teacher: {0}'}"
-                                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                                    Dark=#94a3b8}" />
-                                    <Label
-                                        FontSize="11"
-                                        Text="{Binding StandardName, StringFormat='Class: {0}'}"
-                                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                                    Dark={StaticResource TextMutedDark}}" />
-                                </VerticalStackLayout>
+                                </Grid>
 
-                                <!--  Delete / Unassign Icon  -->
-                                <Image
-                                    Grid.Column="1"
-                                    HeightRequest="20"
-                                    Source="delete.png"
-                                    VerticalOptions="Center"
-                                    WidthRequest="20">
-                                    <Image.GestureRecognizers>
-                                        <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:AdminClassMappingListViewModel}}, Path=DeleteCommand}" CommandParameter="{Binding .}" />
-                                    </Image.GestureRecognizers>
-                                    <Image.Behaviors>
-                                        <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
-                                    </Image.Behaviors>
-                                </Image>
-                            </Grid>
+                                <!-- Middle Row: Class & Section -->
+                                <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="13"
+                                        Text="{Binding StandardName}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                                    Dark=#cbd5e1}"
+                                        VerticalOptions="Center" />
+                                    <Border
+                                        Padding="8,3"
+                                        BackgroundColor="{AppThemeBinding Light=#f1f5f9,
+                                                                          Dark=#334155}"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 12">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="11"
+                                            Text="{Binding SectionName, StringFormat='Section {0}'}"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                        Dark=White}" />
+                                    </Border>
+                                </HorizontalStackLayout>
+
+                                <!-- Divider -->
+                                <BoxView Margin="0,2" HeightRequest="1" Color="{AppThemeBinding Light=#f1f5f9, Dark=#334155}" />
+
+                                <!-- Bottom Row: Assigned Teacher Avatar + Name -->
+                                <HorizontalStackLayout Spacing="10" VerticalOptions="Center">
+                                    <!-- Avatar initial -->
+                                    <Border
+                                        BackgroundColor="#dbeafe"
+                                        HeightRequest="28"
+                                        HorizontalOptions="Center"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 14"
+                                        VerticalOptions="Center"
+                                        WidthRequest="28">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="12"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding TeacherInitial}"
+                                            TextColor="#1e40af"
+                                            VerticalOptions="Center" />
+                                    </Border>
+
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="13"
+                                        Text="{Binding TeacherDisplayName}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                    Dark=White}"
+                                        VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+
+                            </VerticalStackLayout>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

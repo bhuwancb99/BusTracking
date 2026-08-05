@@ -5,11 +5,14 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         private readonly IClassMappingService _mappingService;
         private readonly IAcademicYearService _yearService;
         private readonly ICoordStandardService _standardService;
+        private readonly ISectionService _sectionService;
 
         [ObservableProperty] private ObservableCollection<AcademicYearItem> _academicYears = [];
         [ObservableProperty] private AcademicYearItem? _selectedYear;
         [ObservableProperty] private ObservableCollection<StandardItem> _standards = [];
         [ObservableProperty] private StandardItem? _selectedStandard;
+        [ObservableProperty] private ObservableCollection<SectionItem> _sections = [];
+        [ObservableProperty] private SectionItem? _selectedSection;
         [ObservableProperty] private ObservableCollection<ClassMappingItem> _items = [];
 
         public bool CanAdd => true;
@@ -19,12 +22,14 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             INavigationService nav,
             IClassMappingService mappingService,
             IAcademicYearService yearService,
-            ICoordStandardService standardService)
+            ICoordStandardService standardService,
+            ISectionService sectionService)
             : base(auth, nav)
         {
             _mappingService = mappingService;
             _yearService = yearService;
             _standardService = standardService;
+            _sectionService = sectionService;
             Title = "Class Subject & Teacher Mapping";
         }
 
@@ -35,13 +40,16 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             {
                 var years = await _yearService.GetAcademicYearsAsync(true);
                 AcademicYears = new ObservableCollection<AcademicYearItem>(years);
-                _selectedYear = AcademicYears.FirstOrDefault(y => y.IsCurrent) ?? AcademicYears.FirstOrDefault();
-                OnPropertyChanged(nameof(SelectedYear));
+                SelectedYear = AcademicYears.FirstOrDefault(y => y.IsCurrent) ?? AcademicYears.FirstOrDefault();
 
                 var stds = await _standardService.GetAllAsync(null, 1);
                 Standards = new ObservableCollection<StandardItem>(stds.Items);
-                _selectedStandard = Standards.FirstOrDefault();
-                OnPropertyChanged(nameof(SelectedStandard));
+                SelectedStandard = Standards.FirstOrDefault();
+
+                if (SelectedStandard != null)
+                {
+                    await LoadSectionsAsync(SelectedStandard.StandardId);
+                }
 
                 await FetchMappingsAsync();
             }
@@ -50,7 +58,37 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         }
 
         partial void OnSelectedYearChanged(AcademicYearItem? value) => _ = FetchMappingsWithLoaderAsync();
-        partial void OnSelectedStandardChanged(StandardItem? value) => _ = FetchMappingsWithLoaderAsync();
+
+        partial void OnSelectedStandardChanged(StandardItem? value)
+        {
+            if (value != null)
+            {
+                _ = LoadSectionsAndFetchMappingsAsync(value.StandardId);
+            }
+        }
+
+        partial void OnSelectedSectionChanged(SectionItem? value) => _ = FetchMappingsWithLoaderAsync();
+
+        private async Task LoadSectionsAsync(int standardId)
+        {
+            var secList = new List<SectionItem> { new SectionItem { SectionId = 0, SectionName = "-- All Sections --" } };
+            var secs = await _sectionService.GetByStandardAsync(standardId, isCoordinator: true);
+            if (secs != null) secList.AddRange(secs);
+            Sections = new ObservableCollection<SectionItem>(secList);
+            SelectedSection = Sections.FirstOrDefault();
+        }
+
+        private async Task LoadSectionsAndFetchMappingsAsync(int standardId)
+        {
+            IsBusy = true;
+            try
+            {
+                await LoadSectionsAsync(standardId);
+                await FetchMappingsAsync();
+            }
+            catch (Exception ex) { SetError(ex.Message); }
+            finally { IsBusy = false; }
+        }
 
         private async Task FetchMappingsWithLoaderAsync()
         {
@@ -63,6 +101,10 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         private async Task FetchMappingsAsync()
         {
             var data = await _mappingService.GetAllAsync(SelectedYear?.AcademicYearId, SelectedStandard?.StandardId, isCoordinator: true);
+            if (SelectedSection != null && SelectedSection.SectionId > 0)
+            {
+                data = data.Where(d => d.SectionId == SelectedSection.SectionId).ToList();
+            }
             Items = new ObservableCollection<ClassMappingItem>(data);
             IsEmpty = !Items.Any();
         }

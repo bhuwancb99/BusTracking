@@ -68,6 +68,32 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         }
 
         [RelayCommand]
+        private Task EditAsync(SectionItem s)
+        {
+            if (s is null || SelectedStandard is null) return Task.CompletedTask;
+            return Nav.GoToAsync("CoordSectionForm", new Dictionary<string, object>
+            {
+                ["SectionId"] = s.SectionId,
+                ["StandardId"] = SelectedStandard.StandardId,
+                ["StandardName"] = SelectedStandard.StandardName
+            });
+        }
+
+        [RelayCommand]
+        private async Task ToggleStatusAsync(SectionItem s)
+        {
+            if (s is null) return;
+            var r = await _sectionService.ToggleActiveAsync(s.SectionId, isCoordinator: true);
+            if (r.Success)
+            {
+                s.IsActive = !s.IsActive;
+                await ShowToastAsync($"Section status updated.");
+                if (SelectedStandard != null) await FetchSectionsAsync(SelectedStandard.StandardId);
+            }
+            else SetError(r.Message);
+        }
+
+        [RelayCommand]
         private async Task DeleteAsync(SectionItem s)
         {
             if (!await ConfirmAsync("Delete Section", $"Delete Section '{s.SectionName}'?")) return;

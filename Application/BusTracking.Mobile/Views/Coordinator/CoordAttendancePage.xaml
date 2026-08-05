@@ -3,6 +3,7 @@
     x:Class="BusTracking.Mobile.Views.Coordinator.CoordAttendancePage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:common="clr-namespace:BusTracking.Mobile.Views.Common"
     xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     xmlns:models="clr-namespace:BusTracking.Mobile.Models.Attendance"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
@@ -16,308 +17,430 @@
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
-    <Grid
-        Padding="12"
-        RowDefinitions="Auto,Auto,Auto,*,Auto"
-        RowSpacing="10">
+    <Shell.TitleView>
+        <Label
+            FontAttributes="Bold"
+            FontSize="17"
+            Text="Classroom Daily Attendance"
+            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                        Dark=White}"
+            VerticalOptions="Center" />
+    </Shell.TitleView>
 
-        <!--  Top Filters Header  -->
-        <Border
-            Grid.Row="0"
-            Padding="12"
-            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
-                                              Dark={StaticResource CardBgDark}}"
-            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                     Dark={StaticResource BorderColorDark}}"
-            StrokeShape="RoundRectangle 12"
-            StrokeThickness="1">
-            <Grid
-                ColumnDefinitions="*,*,*"
-                ColumnSpacing="8"
-                RowDefinitions="Auto,Auto"
-                RowSpacing="8">
-                <!--  Academic Session  -->
-                <VerticalStackLayout
-                    Grid.Row="0"
-                    Grid.Column="0"
-                    Spacing="2">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="11"
-                        Text="Session"
-                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                    Dark={StaticResource TextMutedDark}}" />
-                    <Picker
-                        FontSize="13"
-                        ItemDisplayBinding="{Binding YearName}"
-                        ItemsSource="{Binding AcademicYears}"
-                        SelectedItem="{Binding SelectedYear}" />
-                </VerticalStackLayout>
+    <Grid>
+        <!--  Page Main Content ScrollView  -->
+        <ScrollView Padding="12">
+            <VerticalStackLayout Spacing="12">
 
-                <!--  Class/Standard  -->
-                <VerticalStackLayout
-                    Grid.Row="0"
-                    Grid.Column="1"
-                    Spacing="2">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="11"
-                        Text="Class"
-                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                    Dark={StaticResource TextMutedDark}}" />
-                    <Picker
-                        FontSize="13"
-                        ItemDisplayBinding="{Binding StandardName}"
-                        ItemsSource="{Binding Standards}"
-                        SelectedItem="{Binding SelectedStandard}" />
-                </VerticalStackLayout>
+                <!--  Top Filter Card (Column & Row Separators)  -->
+                <Border
+                    Padding="14,12"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="1">
+                    <VerticalStackLayout Spacing="10">
 
-                <!--  Section  -->
-                <VerticalStackLayout
-                    Grid.Row="0"
-                    Grid.Column="2"
-                    Spacing="2">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="11"
-                        Text="Section"
-                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                    Dark={StaticResource TextMutedDark}}" />
-                    <Picker
-                        FontSize="13"
-                        ItemDisplayBinding="{Binding SectionName}"
-                        ItemsSource="{Binding Sections}"
-                        SelectedItem="{Binding SelectedSection}" />
-                </VerticalStackLayout>
-
-                <!--  Date Picker  -->
-                <VerticalStackLayout
-                    Grid.Row="1"
-                    Grid.ColumnSpan="3"
-                    Spacing="2">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="11"
-                        Text="Attendance Date"
-                        TextColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                    Dark={StaticResource TextMutedDark}}" />
-                    <DatePicker
-                        Date="{Binding SelectedDate}"
-                        FontSize="13"
-                        Format="yyyy-MM-dd" />
-                </VerticalStackLayout>
-            </Grid>
-        </Border>
-
-        <!--  Summary Stats Card  -->
-        <Grid
-            Grid.Row="1"
-            ColumnDefinitions="*,*,*,*"
-            ColumnSpacing="8">
-            <Border
-                Grid.Column="0"
-                Padding="8"
-                BackgroundColor="{AppThemeBinding Light=#f1f5f9,
-                                                  Dark=#334155}"
-                StrokeShape="RoundRectangle 10">
-                <VerticalStackLayout HorizontalOptions="Center">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="18"
-                        HorizontalOptions="Center"
-                        Text="{Binding TotalStudentsCount}"
-                        TextColor="{AppThemeBinding Light=#0f172a,
-                                                    Dark=White}" />
-                    <Label
-                        FontSize="11"
-                        HorizontalOptions="Center"
-                        Text="Total"
-                        TextColor="#64748b" />
-                </VerticalStackLayout>
-            </Border>
-            <Border
-                Grid.Column="1"
-                Padding="8"
-                BackgroundColor="#d1fae5"
-                StrokeShape="RoundRectangle 10">
-                <VerticalStackLayout HorizontalOptions="Center">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="18"
-                        HorizontalOptions="Center"
-                        Text="{Binding PresentCount}"
-                        TextColor="#065f46" />
-                    <Label
-                        FontSize="11"
-                        HorizontalOptions="Center"
-                        Text="Present"
-                        TextColor="#047857" />
-                </VerticalStackLayout>
-            </Border>
-            <Border
-                Grid.Column="2"
-                Padding="8"
-                BackgroundColor="#fee2e2"
-                StrokeShape="RoundRectangle 10">
-                <VerticalStackLayout HorizontalOptions="Center">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="18"
-                        HorizontalOptions="Center"
-                        Text="{Binding AbsentCount}"
-                        TextColor="#991b1b" />
-                    <Label
-                        FontSize="11"
-                        HorizontalOptions="Center"
-                        Text="Absent"
-                        TextColor="#b91c1c" />
-                </VerticalStackLayout>
-            </Border>
-            <Border
-                Grid.Column="3"
-                Padding="8"
-                BackgroundColor="#fef3c7"
-                StrokeShape="RoundRectangle 10">
-                <VerticalStackLayout HorizontalOptions="Center">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="18"
-                        HorizontalOptions="Center"
-                        Text="{Binding LateCount}"
-                        TextColor="#92400e" />
-                    <Label
-                        FontSize="11"
-                        HorizontalOptions="Center"
-                        Text="Late"
-                        TextColor="#b45309" />
-                </VerticalStackLayout>
-            </Border>
-        </Grid>
-
-        <!--  Quick Action Buttons  -->
-        <HorizontalStackLayout
-            Grid.Row="2"
-            HorizontalOptions="End"
-            Spacing="8">
-            <Button
-                Padding="14,0"
-                BackgroundColor="#10b981"
-                Command="{Binding MarkAllPresentCommand}"
-                CornerRadius="8"
-                FontAttributes="Bold"
-                FontSize="12"
-                HeightRequest="36"
-                Text="Mark All Present"
-                TextColor="White" />
-            <Button
-                Padding="14,0"
-                BackgroundColor="{StaticResource Secondary}"
-                Command="{Binding StartFaceScanCommand}"
-                CornerRadius="8"
-                FontAttributes="Bold"
-                FontSize="12"
-                HeightRequest="36"
-                Text="Face Scan"
-                TextColor="White" />
-        </HorizontalStackLayout>
-
-        <!--  Students Attendance List  -->
-        <CollectionView Grid.Row="3" ItemsSource="{Binding Students}">
-            <CollectionView.EmptyView>
-                <VerticalStackLayout
-                    Padding="24"
-                    HorizontalOptions="Center"
-                    Spacing="8"
-                    VerticalOptions="Center">
-                    <Label
-                        FontSize="14"
-                        HorizontalOptions="Center"
-                        Text="No students found for attendance."
-                        TextColor="#94a3b8" />
-                </VerticalStackLayout>
-            </CollectionView.EmptyView>
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:StudentAttendanceRowDto">
-                    <Border
-                        Margin="0,3"
-                        Padding="12"
-                        BackgroundColor="{AppThemeBinding Light=White,
-                                                          Dark=#1e293b}"
-                        Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                                 Dark={StaticResource BorderColorDark}}"
-                        StrokeShape="RoundRectangle 10"
-                        StrokeThickness="1">
-                        <Grid
-                            ColumnDefinitions="Auto,*,Auto"
-                            ColumnSpacing="12"
-                            VerticalOptions="Center">
-                            <!--  Student Code Badge  -->
-                            <Border
-                                Grid.Column="0"
-                                BackgroundColor="{StaticResource Primary}"
-                                HeightRequest="40"
-                                HorizontalOptions="Center"
-                                StrokeShape="RoundRectangle 20"
-                                VerticalOptions="Center"
-                                WidthRequest="40">
+                        <!--  Row 1: Academic Session & Class / Standard  -->
+                        <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="6">
+                            <!--  Academic Session  -->
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
                                 <Label
                                     FontAttributes="Bold"
-                                    FontSize="10"
-                                    HorizontalOptions="Center"
-                                    Text="{Binding StudentCode}"
-                                    TextColor="White"
-                                    VerticalOptions="Center" />
-                            </Border>
+                                    FontSize="11"
+                                    Text="Academic Session"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                Dark={StaticResource TextMutedDark}}" />
+                                <Picker
+                                    FontSize="13"
+                                    ItemDisplayBinding="{Binding YearName}"
+                                    ItemsSource="{Binding AcademicYears}"
+                                    SelectedItem="{Binding SelectedYear}" />
+                            </VerticalStackLayout>
 
-                            <!--  Student Info  -->
-                            <VerticalStackLayout
+                            <!--  Vertical Column Separator 1  -->
+                            <BoxView
                                 Grid.Column="1"
+                                Margin="2,4"
+                                VerticalOptions="Fill"
+                                WidthRequest="1"
+                                Color="{AppThemeBinding Light=#cbd5e1,
+                                                        Dark=#334155}" />
+
+                            <!--  Class / Standard  -->
+                            <VerticalStackLayout Grid.Column="2" Spacing="2">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="11"
+                                    Text="Class / Standard"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                Dark={StaticResource TextMutedDark}}" />
+                                <Picker
+                                    FontSize="13"
+                                    ItemDisplayBinding="{Binding StandardName}"
+                                    ItemsSource="{Binding Standards}"
+                                    SelectedItem="{Binding SelectedStandard}" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!--  Horizontal Row Separator 1  -->
+                        <BoxView HeightRequest="1" Color="{AppThemeBinding Light=#e2e8f0, Dark=#334155}" />
+
+                        <!--  Row 2: Section (Optional) & Date  -->
+                        <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="6">
+                            <!--  Section (Optional)  -->
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="11"
+                                    Text="Section (Optional)"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                Dark={StaticResource TextMutedDark}}" />
+                                <Picker
+                                    FontSize="13"
+                                    ItemDisplayBinding="{Binding SectionName}"
+                                    ItemsSource="{Binding Sections}"
+                                    SelectedItem="{Binding SelectedSection}" />
+                            </VerticalStackLayout>
+
+                            <!--  Vertical Column Separator 2  -->
+                            <BoxView
+                                Grid.Column="1"
+                                Margin="2,4"
+                                VerticalOptions="Fill"
+                                WidthRequest="1"
+                                Color="{AppThemeBinding Light=#cbd5e1,
+                                                        Dark=#334155}" />
+
+                            <!--  Date Picker (Calendar Popup)  -->
+                            <VerticalStackLayout Grid.Column="2" Spacing="2">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="11"
+                                    Text="Date"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                Dark={StaticResource TextMutedDark}}" />
+                                <Border
+                                    Padding="10,8"
+                                    BackgroundColor="{AppThemeBinding Light=#f8fafc,
+                                                                      Dark=#0f172a}"
+                                    Stroke="{AppThemeBinding Light=#cbd5e1,
+                                                             Dark=#334155}"
+                                    StrokeShape="RoundRectangle 8">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding OpenCalendarCommand}" />
+                                    </Border.GestureRecognizers>
+                                    <Grid ColumnDefinitions="*,Auto">
+                                        <Label
+                                            Grid.Column="0"
+                                            FontSize="13"
+                                            Text="{Binding SelectedDate, StringFormat='{0:yyyy-MM-dd}'}"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                        Dark=White}"
+                                            VerticalOptions="Center" />
+                                        <Image
+                                            Grid.Column="1"
+                                            HeightRequest="16"
+                                            Source="calendar_icon.png"
+                                            WidthRequest="16">
+                                            <Image.Behaviors>
+                                                <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                            </Image.Behaviors>
+                                        </Image>
+                                    </Grid>
+                                </Border>
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!--  Horizontal Row Separator 2  -->
+                        <BoxView HeightRequest="1" Color="{AppThemeBinding Light=#e2e8f0, Dark=#334155}" />
+
+                        <!--  Row 3: Fetch Attendance & Reset Buttons  -->
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                            <Button
+                                Grid.Column="0"
+                                BackgroundColor="#2563eb"
+                                Command="{Binding FetchAttendanceCommand}"
+                                CornerRadius="8"
+                                FontAttributes="Bold"
+                                FontSize="13"
+                                HeightRequest="42"
+                                Text="Fetch Attendance"
+                                TextColor="White" />
+                            <Button
+                                Grid.Column="1"
+                                BackgroundColor="{AppThemeBinding Light=#f1f5f9,
+                                                                  Dark=#334155}"
+                                BorderColor="{AppThemeBinding Light=#cbd5e1,
+                                                              Dark=#475569}"
+                                BorderWidth="1"
+                                Command="{Binding ResetFiltersCommand}"
+                                CornerRadius="8"
+                                FontAttributes="Bold"
+                                FontSize="13"
+                                HeightRequest="42"
+                                Text="Reset"
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                            Dark=White}" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Border>
+
+                <!--  Summary Stats Cards (Each in a Separate Row)  -->
+                <VerticalStackLayout Spacing="8">
+
+                    <!--  Card 1: TOTAL STUDENTS (Blue)  -->
+                    <Border
+                        Padding="16,12"
+                        BackgroundColor="#0066ff"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 12">
+                        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                            <VerticalStackLayout
+                                Grid.Column="0"
                                 Spacing="2"
                                 VerticalOptions="Center">
                                 <Label
                                     FontAttributes="Bold"
-                                    FontSize="14"
-                                    Text="{Binding StudentName}"
-                                    TextColor="{AppThemeBinding Light=#0f172a,
-                                                                Dark=White}" />
+                                    FontSize="11"
+                                    Text="TOTAL STUDENTS"
+                                    TextColor="#dbeafe" />
                                 <Label
-                                    FontSize="12"
-                                    Text="{Binding StudentCode, StringFormat='ID: {0}'}"
-                                    TextColor="{AppThemeBinding Light=#64748b,
-                                                                Dark=#94a3b8}" />
+                                    FontAttributes="Bold"
+                                    FontSize="22"
+                                    Text="{Binding TotalStudentsCount}"
+                                    TextColor="White" />
                             </VerticalStackLayout>
-
-                            <!--  Status Toggle Button  -->
-                            <Button
-                                Grid.Column="2"
-                                Padding="14,0"
-                                BackgroundColor="{Binding StatusColor}"
-                                Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordAttendanceViewModel}}, Path=ToggleStatusCommand}"
-                                CommandParameter="{Binding .}"
-                                CornerRadius="6"
-                                FontAttributes="Bold"
-                                FontSize="12"
-                                HeightRequest="34"
-                                Text="{Binding Status}"
-                                TextColor="White" />
+                            <Border
+                                Grid.Column="1"
+                                Padding="10"
+                                BackgroundColor="#22ffffff"
+                                StrokeShape="RoundRectangle 20"
+                                VerticalOptions="Center">
+                                <Image
+                                    HeightRequest="22"
+                                    Source="student.png"
+                                    WidthRequest="22">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="White" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Border>
                         </Grid>
                     </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
 
-        <!--  Bottom Save Button  -->
-        <Button
-            Grid.Row="4"
-            BackgroundColor="{StaticResource Primary}"
-            Command="{Binding SaveAttendanceCommand}"
-            CornerRadius="10"
-            FontAttributes="Bold"
-            FontSize="15"
-            HeightRequest="46"
-            Text="Save Attendance"
-            TextColor="White" />
+                    <!--  Card 2: PRESENT STUDENTS (Green)  -->
+                    <Border
+                        Padding="16,12"
+                        BackgroundColor="#0f9d58"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 12">
+                        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                            <VerticalStackLayout
+                                Grid.Column="0"
+                                Spacing="2"
+                                VerticalOptions="Center">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="11"
+                                    Text="PRESENT STUDENTS"
+                                    TextColor="#d1fae5" />
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="22"
+                                    Text="{Binding PresentCount}"
+                                    TextColor="White" />
+                            </VerticalStackLayout>
+                            <Border
+                                Grid.Column="1"
+                                Padding="10"
+                                BackgroundColor="#22ffffff"
+                                StrokeShape="RoundRectangle 20"
+                                VerticalOptions="Center">
+                                <Image
+                                    HeightRequest="22"
+                                    Source="check.png"
+                                    WidthRequest="22">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="White" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Border>
+                        </Grid>
+                    </Border>
 
+                    <!--  Card 3: ABSENT STUDENTS (Red)  -->
+                    <Border
+                        Padding="16,12"
+                        BackgroundColor="#ea4335"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 12">
+                        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                            <VerticalStackLayout
+                                Grid.Column="0"
+                                Spacing="2"
+                                VerticalOptions="Center">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="11"
+                                    Text="ABSENT STUDENTS"
+                                    TextColor="#fee2e2" />
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="22"
+                                    Text="{Binding AbsentCount}"
+                                    TextColor="White" />
+                            </VerticalStackLayout>
+                            <Border
+                                Grid.Column="1"
+                                Padding="10"
+                                BackgroundColor="#22ffffff"
+                                StrokeShape="RoundRectangle 20"
+                                VerticalOptions="Center">
+                                <Image
+                                    HeightRequest="22"
+                                    Source="close.png"
+                                    WidthRequest="22">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="White" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <!--  Card 4: ATTENDANCE RATE (Yellow/Gold)  -->
+                    <Border
+                        Padding="16,12"
+                        BackgroundColor="#ffb800"
+                        Stroke="Transparent"
+                        StrokeShape="RoundRectangle 12">
+                        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                            <VerticalStackLayout
+                                Grid.Column="0"
+                                Spacing="2"
+                                VerticalOptions="Center">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="11"
+                                    Text="ATTENDANCE RATE"
+                                    TextColor="#3b2b00" />
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="22"
+                                    Text="{Binding AttendanceRate}"
+                                    TextColor="#3b2b00" />
+                            </VerticalStackLayout>
+                            <Border
+                                Grid.Column="1"
+                                Padding="10"
+                                BackgroundColor="#22000000"
+                                StrokeShape="RoundRectangle 20"
+                                VerticalOptions="Center">
+                                <Image
+                                    HeightRequest="22"
+                                    Source="pie_chart.png"
+                                    WidthRequest="22">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="#3b2b00" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                </VerticalStackLayout>
+
+                <!--  Read-Only Student Attendance Report List  -->
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Students}" Spacing="6">
+                    <BindableLayout.EmptyView>
+                        <VerticalStackLayout
+                            Padding="30"
+                            HorizontalOptions="Center"
+                            Spacing="8"
+                            VerticalOptions="Center">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="15"
+                                HorizontalOptions="Center"
+                                Text="No Attendance Records Found"
+                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                            Dark=White}" />
+                        </VerticalStackLayout>
+                    </BindableLayout.EmptyView>
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="models:StudentAttendanceRowDto">
+                            <Border
+                                Padding="12"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                                  Dark={StaticResource CardBgDark}}"
+                                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                         Dark={StaticResource BorderColorDark}}"
+                                StrokeShape="RoundRectangle 10"
+                                StrokeThickness="1">
+                                <Grid
+                                    ColumnDefinitions="Auto,*,Auto"
+                                    ColumnSpacing="12"
+                                    VerticalOptions="Center">
+
+                                    <!--  Student Code Badge  -->
+                                    <Border
+                                        Grid.Column="0"
+                                        Padding="8,4"
+                                        BackgroundColor="{AppThemeBinding Light=#f1f5f9,
+                                                                          Dark=#1e293b}"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 6"
+                                        VerticalOptions="Center">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="11"
+                                            Text="{Binding StudentCode}"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                                        Dark=#94a3b8}" />
+                                    </Border>
+
+                                    <!--  Student Name  -->
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="14"
+                                            Text="{Binding StudentName}"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                        Dark=White}" />
+                                    </VerticalStackLayout>
+
+                                    <!--  Read-Only Attendance Status Pill  -->
+                                    <Border
+                                        Grid.Column="2"
+                                        Padding="12,5"
+                                        BackgroundColor="{Binding StatusColor}"
+                                        Stroke="Transparent"
+                                        StrokeShape="RoundRectangle 16"
+                                        VerticalOptions="Center">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="11"
+                                            Text="{Binding Status}"
+                                            TextColor="White" />
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!--  Calendar Popup Overlay MUST BE LAST CHILD of Grid to sit on top  -->
+        <common:CalendarPickerPopup
+            Title="Select Attendance Date"
+            IsOpen="{Binding IsCalendarOpen}"
+            SelectedDate="{Binding SelectedDate}"
+            ZIndex="999" />
     </Grid>
 
 </views:ViewBase>

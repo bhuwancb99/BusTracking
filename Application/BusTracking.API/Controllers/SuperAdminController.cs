@@ -1042,6 +1042,13 @@ namespace BusTracking.API.Controllers
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
+        [HttpPost("sections/{id:int}/toggle")]
+        public async Task<IActionResult> ToggleSection(int id)
+        {
+            var result = await _section.ToggleActiveAsync(id);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
         // ════════════════════════════════════════════════════════════
         // SUBJECTS
         // ════════════════════════════════════════════════════════════

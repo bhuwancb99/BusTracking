@@ -836,6 +836,14 @@ namespace BusTracking.API.Controllers
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
+        [HttpGet("sections/{id:int}")]
+        public async Task<IActionResult> GetSectionById(int id)
+        {
+            RequirePermission("section.view");
+            var result = await _section.GetByIdAsync(id);
+            return result.Success ? Ok(result) : NotFound(result);
+        }
+
         [HttpPost("sections")]
         public async Task<IActionResult> CreateSection([FromBody] CreateSectionDto dto)
         {
@@ -844,11 +852,27 @@ namespace BusTracking.API.Controllers
             return result.Success ? Ok(result) : BadRequest(result);
         }
 
+        [HttpPut("sections/{id:int}")]
+        public async Task<IActionResult> UpdateSection(int id, [FromBody] UpdateSectionDto dto)
+        {
+            RequirePermission("section.edit");
+            var result = await _section.UpdateAsync(id, dto);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
         [HttpDelete("sections/{id:int}")]
         public async Task<IActionResult> DeleteSection(int id)
         {
             RequirePermission("section.delete");
             var result = await _section.DeleteAsync(id);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        [HttpPost("sections/{id:int}/toggle")]
+        public async Task<IActionResult> ToggleSection(int id)
+        {
+            RequirePermission("section.edit");
+            var result = await _section.ToggleActiveAsync(id);
             return result.Success ? Ok(result) : BadRequest(result);
         }
 

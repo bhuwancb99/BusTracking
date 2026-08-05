@@ -14,5 +14,8 @@ namespace BusTracking.Mobile.Models.Section
         public string StatusLabel => IsActive ? "Active" : "Inactive";
         public Color StatusBgColor => IsActive ? Color.FromArgb("#d1fae5") : Color.FromArgb("#f1f5f9");
         public Color StatusTextColor => IsActive ? Color.FromArgb("#065f46") : Color.FromArgb("#475569");
+        public string TeacherDisplayName => !string.IsNullOrWhiteSpace(ClassTeacherName)
+            ? $"👤 Class Teacher: {ClassTeacherName}"
+            : "👤 Class Teacher: Not Assigned";
     }
 }

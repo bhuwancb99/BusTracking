@@ -3,6 +3,7 @@
     x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminSectionFormPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
     x:DataType="vm:AdminSectionFormViewModel"
@@ -10,56 +11,206 @@
     BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
                                       Dark={StaticResource PageBgDark}}">
 
-    <ScrollView Padding="16">
-        <VerticalStackLayout Spacing="16">
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
+    </views:ViewBase.Behaviors>
+
+    <Shell.TitleView>
+        <Label
+            FontAttributes="Bold"
+            FontSize="17"
+            Text="{Binding Title}"
+            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                        Dark=White}"
+            VerticalOptions="Center" />
+    </Shell.TitleView>
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16,16,16,32" Spacing="14">
+
+            <!--  Error Banner  -->
             <Border
-                Padding="16"
+                BackgroundColor="{AppThemeBinding Light={StaticResource ErrorBannerBgLight},
+                                                  Dark={StaticResource ErrorBannerBgDark}}"
+                IsVisible="{Binding HasError}"
+                Stroke="{AppThemeBinding Light={StaticResource ErrorBannerBorderLight},
+                                         Dark={StaticResource ErrorBannerBorderDark}}"
+                StrokeShape="RoundRectangle 8"
+                StrokeThickness="1">
+                <Label
+                    Padding="12,10"
+                    FontSize="13"
+                    Text="{Binding ErrorMessage}"
+                    TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
+                                                Dark={StaticResource ErrorTextDark}}" />
+            </Border>
+
+            <!--  Card 1: Class / Standard (Enabled Picker)  -->
+            <Border
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                                   Dark={StaticResource CardBgDark}}"
-                StrokeShape="RoundRectangle 12">
-                <VerticalStackLayout Spacing="14">
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 12"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="8">
                     <Label
                         FontAttributes="Bold"
-                        FontSize="14"
-                        Text="Standard / Class" />
-                    <Entry
-                        BackgroundColor="{AppThemeBinding Light=#f1f5f9,
-                                                          Dark=#1e293b}"
-                        IsReadOnly="True"
-                        Text="{Binding StandardName}" />
-
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="14"
-                        Text="Section Name *" />
-                    <Entry Placeholder="e.g. B, C, D" Text="{Binding SectionName}" />
-
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="14"
-                        Text="Class Teacher (Optional)" />
+                        FontSize="12"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Class / Standard " />
+                                <Span Text="*" TextColor="{StaticResource Danger}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
                     <Picker
-                        Title="-- Select Class Teacher --"
-                        ItemDisplayBinding="{Binding FullName}"
-                        ItemsSource="{Binding Teachers}"
-                        SelectedItem="{Binding SelectedTeacher}" />
+                        Title="-- Select Class / Standard --"
+                        BackgroundColor="Transparent"
+                        ItemDisplayBinding="{Binding StandardName}"
+                        ItemsSource="{Binding Standards}"
+                        SelectedItem="{Binding SelectedStandard}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
                 </VerticalStackLayout>
             </Border>
 
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+            <!--  Card 2: Section Name  -->
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 12"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}">
+                        <Label.FormattedText>
+                            <FormattedString>
+                                <Span Text="Section Name " />
+                                <Span Text="*" TextColor="{StaticResource Danger}" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Entry
+                        BackgroundColor="Transparent"
+                        Placeholder="e.g. A, B, C"
+                        Text="{Binding SectionName}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Card 3: Class Teacher (Optional)  -->
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 12"
+                StrokeThickness="1">
+                <VerticalStackLayout Padding="16" Spacing="8">
+                    <Label
+                        FontAttributes="Bold"
+                        FontSize="12"
+                        Text="Class Teacher (Optional)"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}" />
+                    <Picker
+                        Title="-- Select Class Teacher --"
+                        BackgroundColor="Transparent"
+                        ItemDisplayBinding="{Binding FullName}"
+                        ItemsSource="{Binding Teachers}"
+                        SelectedItem="{Binding SelectedTeacher}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <!--  Card 4: Active Status (Edit Mode Only)  -->
+            <Border
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                IsVisible="{Binding IsEditMode}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 12"
+                StrokeThickness="1">
+                <Grid Padding="16" ColumnDefinitions="*,Auto">
+                    <Label
+                        Grid.Column="0"
+                        FontAttributes="Bold"
+                        FontSize="14"
+                        Text="Active Status"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark={StaticResource TextPrimaryDark}}"
+                        VerticalOptions="Center" />
+                    <Switch
+                        Grid.Column="1"
+                        IsToggled="{Binding IsActive}"
+                        OnColor="{StaticResource Primary}"
+                        ThumbColor="White"
+                        VerticalOptions="Center" />
+                </Grid>
+            </Border>
+
+            <!--  Action Buttons  -->
+            <Grid
+                Margin="0,8,0,0"
+                ColumnDefinitions="*,*"
+                ColumnSpacing="12">
                 <Button
                     Grid.Column="0"
-                    BackgroundColor="{StaticResource BorderColor}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    BorderColor="{AppThemeBinding Light={StaticResource BorderColor},
+                                                  Dark={StaticResource BorderColorDark}}"
+                    BorderWidth="1.5"
                     Command="{Binding CancelCommand}"
+                    CornerRadius="8"
+                    FontAttributes="Bold"
+                    HeightRequest="50"
                     Text="Cancel"
-                    TextColor="{StaticResource TextPrimary}" />
+                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                Dark={StaticResource TextSecondaryDark}}" />
                 <Button
                     Grid.Column="1"
                     BackgroundColor="{StaticResource Primary}"
                     Command="{Binding SaveCommand}"
-                    Text="Save"
-                    TextColor="White" />
+                    CornerRadius="8"
+                    FontAttributes="Bold"
+                    HeightRequest="50"
+                    TextColor="White">
+                    <Button.Triggers>
+                        <DataTrigger
+                            Binding="{Binding IsBusy}"
+                            TargetType="Button"
+                            Value="True">
+                            <Setter Property="Text" Value="Saving..." />
+                            <Setter Property="IsEnabled" Value="False" />
+                        </DataTrigger>
+                        <DataTrigger
+                            Binding="{Binding IsEditMode}"
+                            TargetType="Button"
+                            Value="True">
+                            <Setter Property="Text" Value="✔ Update Section" />
+                        </DataTrigger>
+                        <DataTrigger
+                            Binding="{Binding IsEditMode}"
+                            TargetType="Button"
+                            Value="False">
+                            <Setter Property="Text" Value="✔ Save Section" />
+                        </DataTrigger>
+                    </Button.Triggers>
+                </Button>
             </Grid>
+
         </VerticalStackLayout>
     </ScrollView>
 </views:ViewBase>

@@ -12,16 +12,34 @@ namespace BusTracking.Mobile.Services
             return r.Data ?? new List<SectionItem>();
         }
 
+        public Task<ApiResponse<SectionItem>> GetByIdAsync(int id, bool isCoordinator = false)
+        {
+            var endpoint = isCoordinator ? Constants.Coordinator.SectionById : Constants.Admin.SectionById;
+            return _api.GetAsync<SectionItem>(string.Format(endpoint, id));
+        }
+
         public Task<ApiResponse<object>> CreateAsync(CreateSectionRequest req, bool isCoordinator = false)
         {
             var endpoint = isCoordinator ? Constants.Coordinator.Sections : Constants.Admin.Sections;
             return _api.PostAsync<object>(endpoint, req);
         }
 
+        public Task<ApiResponse<object>> UpdateAsync(int id, UpdateSectionRequest req, bool isCoordinator = false)
+        {
+            var endpoint = isCoordinator ? Constants.Coordinator.SectionById : Constants.Admin.SectionById;
+            return _api.PutAsync<object>(string.Format(endpoint, id), req);
+        }
+
         public Task<ApiResponse<object>> DeleteAsync(int id, bool isCoordinator = false)
         {
             var endpoint = isCoordinator ? Constants.Coordinator.SectionById : Constants.Admin.SectionById;
             return _api.DeleteAsync<object>(string.Format(endpoint, id));
+        }
+
+        public Task<ApiResponse<bool>> ToggleActiveAsync(int id, bool isCoordinator = false)
+        {
+            var endpoint = isCoordinator ? Constants.Coordinator.SectionToggle : Constants.Admin.SectionToggle;
+            return _api.PostAsync<bool>(string.Format(endpoint, id), new { });
         }
     }
 }

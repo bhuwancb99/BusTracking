@@ -15,6 +15,8 @@ namespace BusTracking.Mobile.Models.ClassMapping
         public int TeacherId { get; set; }
         public string TeacherName { get; set; } = string.Empty;
 
+        public string TeacherInitial => !string.IsNullOrWhiteSpace(TeacherName) ? TeacherName.Substring(0, 1).ToUpper() : "?";
+        public string TeacherDisplayName => !string.IsNullOrWhiteSpace(TeacherName) ? TeacherName : "Not Assigned";
         public string SummaryLabel => $"{StandardName} - Section {SectionName} | {SubjectName}";
     }
 }
