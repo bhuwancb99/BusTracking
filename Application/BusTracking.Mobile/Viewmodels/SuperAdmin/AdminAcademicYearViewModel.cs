@@ -23,14 +23,9 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             await RunAsync(async () =>
             {
                 var list = await _academicYearService.GetAcademicYearsAsync(isCoordinator: false);
-                // Must update ObservableCollection on UI thread — background thread updates
-                // silently fail in release/direct-run (race condition masked by debugger timing)
-                await MainThread.InvokeOnMainThreadAsync(() =>
-                {
-                    AcademicYears = new ObservableCollection<AcademicYearItem>(list);
-                });
+                AcademicYears = new ObservableCollection<AcademicYearItem>(list);
             });
-            await MainThread.InvokeOnMainThreadAsync(() => IsRefreshing = false);
+            IsRefreshing = false;
         }
 
         [RelayCommand]
@@ -56,7 +51,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             if (!confirm) return;
 
             bool success = false;
-            await RunAsync(async () =>
+            await MainThread.InvokeOnMainThreadAsync(async () =>
             {
                 var res = await _academicYearService.SetActiveAcademicYearAsync(item.AcademicYearId, isCoordinator: false);
                 if (res.Success)
