@@ -28,7 +28,7 @@
     </Shell.TitleView>
 
     <Grid>
-        <!-- Page Main Content ScrollView -->
+        <!--  Page Main Content ScrollView  -->
         <ScrollView Padding="12">
             <VerticalStackLayout Spacing="12">
 
@@ -60,14 +60,14 @@
                                     SelectedItem="{Binding SelectedYear}" />
                             </VerticalStackLayout>
 
-                            <!-- Vertical Column Separator 1 -->
+                            <!--  Vertical Column Separator 1  -->
                             <BoxView
                                 Grid.Column="1"
                                 Margin="2,4"
+                                VerticalOptions="Fill"
                                 WidthRequest="1"
                                 Color="{AppThemeBinding Light=#cbd5e1,
-                                                        Dark=#334155}"
-                                VerticalOptions="Fill" />
+                                                        Dark=#334155}" />
 
                             <!--  Class / Standard  -->
                             <VerticalStackLayout Grid.Column="2" Spacing="2">
@@ -85,7 +85,7 @@
                             </VerticalStackLayout>
                         </Grid>
 
-                        <!-- Horizontal Row Separator 1 -->
+                        <!--  Horizontal Row Separator 1  -->
                         <BoxView HeightRequest="1" Color="{AppThemeBinding Light=#e2e8f0, Dark=#334155}" />
 
                         <!--  Row 2: Section (Optional) & Date  -->
@@ -105,14 +105,14 @@
                                     SelectedItem="{Binding SelectedSection}" />
                             </VerticalStackLayout>
 
-                            <!-- Vertical Column Separator 2 -->
+                            <!--  Vertical Column Separator 2  -->
                             <BoxView
                                 Grid.Column="1"
                                 Margin="2,4"
+                                VerticalOptions="Fill"
                                 WidthRequest="1"
                                 Color="{AppThemeBinding Light=#cbd5e1,
-                                                        Dark=#334155}"
-                                VerticalOptions="Fill" />
+                                                        Dark=#334155}" />
 
                             <!--  Date Picker (Calendar Popup)  -->
                             <VerticalStackLayout Grid.Column="2" Spacing="2">
@@ -154,7 +154,7 @@
                             </VerticalStackLayout>
                         </Grid>
 
-                        <!-- Horizontal Row Separator 2 -->
+                        <!--  Horizontal Row Separator 2  -->
                         <BoxView HeightRequest="1" Color="{AppThemeBinding Light=#e2e8f0, Dark=#334155}" />
 
                         <!--  Row 3: Fetch Attendance & Reset Buttons  -->
@@ -172,7 +172,7 @@
                             <Button
                                 Grid.Column="1"
                                 BackgroundColor="{AppThemeBinding Light=#f1f5f9,
-                                                              Dark=#334155}"
+                                                                  Dark=#334155}"
                                 BorderColor="{AppThemeBinding Light=#cbd5e1,
                                                               Dark=#475569}"
                                 BorderWidth="1"
@@ -191,14 +191,17 @@
                 <!--  Summary Stats Cards (Each in a Separate Row)  -->
                 <VerticalStackLayout Spacing="8">
 
-                    <!-- Card 1: TOTAL STUDENTS (Blue) -->
+                    <!--  Card 1: TOTAL STUDENTS (Blue)  -->
                     <Border
                         Padding="16,12"
                         BackgroundColor="#0066ff"
                         Stroke="Transparent"
                         StrokeShape="RoundRectangle 12">
                         <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
-                            <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                            <VerticalStackLayout
+                                Grid.Column="0"
+                                Spacing="2"
+                                VerticalOptions="Center">
                                 <Label
                                     FontAttributes="Bold"
                                     FontSize="11"
@@ -228,14 +231,17 @@
                         </Grid>
                     </Border>
 
-                    <!-- Card 2: PRESENT STUDENTS (Green) -->
+                    <!--  Card 2: PRESENT STUDENTS (Green)  -->
                     <Border
                         Padding="16,12"
                         BackgroundColor="#0f9d58"
                         Stroke="Transparent"
                         StrokeShape="RoundRectangle 12">
                         <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
-                            <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                            <VerticalStackLayout
+                                Grid.Column="0"
+                                Spacing="2"
+                                VerticalOptions="Center">
                                 <Label
                                     FontAttributes="Bold"
                                     FontSize="11"
@@ -265,14 +271,17 @@
                         </Grid>
                     </Border>
 
-                    <!-- Card 3: ABSENT STUDENTS (Red) -->
+                    <!--  Card 3: ABSENT STUDENTS (Red)  -->
                     <Border
                         Padding="16,12"
                         BackgroundColor="#ea4335"
                         Stroke="Transparent"
                         StrokeShape="RoundRectangle 12">
                         <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
-                            <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                            <VerticalStackLayout
+                                Grid.Column="0"
+                                Spacing="2"
+                                VerticalOptions="Center">
                                 <Label
                                     FontAttributes="Bold"
                                     FontSize="11"
@@ -302,14 +311,17 @@
                         </Grid>
                     </Border>
 
-                    <!-- Card 4: ATTENDANCE RATE (Yellow/Gold) -->
+                    <!--  Card 4: ATTENDANCE RATE (Yellow/Gold)  -->
                     <Border
                         Padding="16,12"
                         BackgroundColor="#ffb800"
                         Stroke="Transparent"
                         StrokeShape="RoundRectangle 12">
                         <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
-                            <VerticalStackLayout Grid.Column="0" Spacing="2" VerticalOptions="Center">
+                            <VerticalStackLayout
+                                Grid.Column="0"
+                                Spacing="2"
+                                VerticalOptions="Center">
                                 <Label
                                     FontAttributes="Bold"
                                     FontSize="11"
@@ -341,23 +353,8 @@
 
                 </VerticalStackLayout>
 
-                <!--  Read-Only Student Attendance Report List  -->
+                <!--  Read-Only Student Attendance Report List (Only when items exist)  -->
                 <VerticalStackLayout BindableLayout.ItemsSource="{Binding Students}" Spacing="6">
-                    <BindableLayout.EmptyView>
-                        <VerticalStackLayout
-                            Padding="30"
-                            HorizontalOptions="Center"
-                            Spacing="8"
-                            VerticalOptions="Center">
-                            <Label
-                                FontAttributes="Bold"
-                                FontSize="15"
-                                HorizontalOptions="Center"
-                                Text="No Attendance Records Found"
-                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                            Dark=White}" />
-                        </VerticalStackLayout>
-                    </BindableLayout.EmptyView>
                     <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="models:StudentAttendanceRowDto">
                             <Border
@@ -373,7 +370,7 @@
                                     ColumnSpacing="12"
                                     VerticalOptions="Center">
 
-                                    <!-- Student Code Badge -->
+                                    <!--  Student Code Badge  -->
                                     <Border
                                         Grid.Column="0"
                                         Padding="8,4"
@@ -390,7 +387,7 @@
                                                                         Dark=#94a3b8}" />
                                     </Border>
 
-                                    <!-- Student Name -->
+                                    <!--  Student Name  -->
                                     <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
                                         <Label
                                             FontAttributes="Bold"
@@ -400,7 +397,7 @@
                                                                         Dark=White}" />
                                     </VerticalStackLayout>
 
-                                    <!-- Read-Only Attendance Status Pill -->
+                                    <!--  Read-Only Attendance Status Pill  -->
                                     <Border
                                         Grid.Column="2"
                                         Padding="12,5"
@@ -423,11 +420,11 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <!-- Calendar Popup Overlay MUST BE LAST CHILD of Grid to sit on top -->
+        <!--  Calendar Popup Overlay MUST BE LAST CHILD of Grid to sit on top  -->
         <common:CalendarPickerPopup
+            Title="Select Attendance Date"
             IsOpen="{Binding IsCalendarOpen}"
             SelectedDate="{Binding SelectedDate}"
-            Title="Select Attendance Date"
             ZIndex="999" />
     </Grid>
 

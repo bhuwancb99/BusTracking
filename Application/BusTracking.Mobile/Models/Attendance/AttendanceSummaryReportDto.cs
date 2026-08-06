@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Models.Attendance
+namespace BusTracking.Mobile.Models.Attendance
 {
     public class AttendanceSummaryReportDto
     {
@@ -7,5 +7,6 @@
         public int AbsentCount { get; set; }
         public int LateCount { get; set; }
         public double PresentPercentage { get; set; }
+        public List<StudentAttendanceRowDto> AttendanceList { get; set; } = new();
     }
 }

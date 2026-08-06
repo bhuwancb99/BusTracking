@@ -353,23 +353,8 @@
 
                 </VerticalStackLayout>
 
-                <!--  Read-Only Student Attendance Report List  -->
+                <!--  Read-Only Student Attendance Report List (Only when items exist)  -->
                 <VerticalStackLayout BindableLayout.ItemsSource="{Binding Students}" Spacing="6">
-                    <BindableLayout.EmptyView>
-                        <VerticalStackLayout
-                            Padding="30"
-                            HorizontalOptions="Center"
-                            Spacing="8"
-                            VerticalOptions="Center">
-                            <Label
-                                FontAttributes="Bold"
-                                FontSize="15"
-                                HorizontalOptions="Center"
-                                Text="No Attendance Records Found"
-                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                            Dark=White}" />
-                        </VerticalStackLayout>
-                    </BindableLayout.EmptyView>
                     <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="models:StudentAttendanceRowDto">
                             <Border
@@ -409,7 +394,8 @@
                                             FontSize="14"
                                             Text="{Binding StudentName}"
                                             TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                                        Dark=White}" />
+                                                                        Dark=White}"
+                                            VerticalOptions="Center" />
                                     </VerticalStackLayout>
 
                                     <!--  Read-Only Attendance Status Pill  -->

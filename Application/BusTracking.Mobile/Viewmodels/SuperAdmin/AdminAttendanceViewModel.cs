@@ -115,34 +115,32 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         {
             if (SelectedYear is null || SelectedStandard is null) return;
 
-            var list = await _attendanceService.GetStudentsForAttendanceAsync(
+            var res = await _attendanceService.GetAttendanceReportAsync(
                 SelectedYear.AcademicYearId,
                 SelectedStandard.StandardId,
                 SelectedSection?.SectionId > 0 ? SelectedSection.SectionId : null,
                 SelectedDate,
                 isAdmin: true);
 
-            Students = new ObservableCollection<StudentAttendanceRowDto>(list);
-            IsEmpty = !Students.Any();
-            UpdateCounts();
-        }
-
-        private void UpdateCounts()
-        {
-            TotalStudentsCount = Students.Count;
-            PresentCount = Students.Count(s => s.Status == "Present");
-            AbsentCount = Students.Count(s => s.Status == "Absent");
-            LateCount = Students.Count(s => s.Status == "Late");
-
-            if (TotalStudentsCount > 0)
+            if (res.Success && res.Data != null)
             {
-                double rate = ((double)PresentCount / TotalStudentsCount) * 100.0;
-                AttendanceRate = $"{rate:F1}%";
+                TotalStudentsCount = res.Data.TotalStudents;
+                PresentCount = res.Data.PresentCount;
+                AbsentCount = res.Data.AbsentCount;
+                LateCount = res.Data.LateCount;
+                AttendanceRate = $"{res.Data.PresentPercentage:F1}%";
+                Students = new ObservableCollection<StudentAttendanceRowDto>(res.Data.AttendanceList ?? new());
             }
             else
             {
+                TotalStudentsCount = 0;
+                PresentCount = 0;
+                AbsentCount = 0;
+                LateCount = 0;
                 AttendanceRate = "0.0%";
+                Students = new ObservableCollection<StudentAttendanceRowDto>();
             }
+            IsEmpty = !Students.Any();
         }
     }
 }
