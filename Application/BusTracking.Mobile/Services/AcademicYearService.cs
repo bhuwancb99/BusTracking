@@ -11,7 +11,11 @@ namespace BusTracking.Mobile.Services
 
         public async Task<List<AcademicYearItem>> GetAcademicYearsAsync(bool isCoordinator = false, bool isAdmin = false)
         {
-            var res = await _api.GetAsync<List<AcademicYearItem>>(Constants.AcademicYear.Base(isCoordinator));
+            string url = isAdmin ? Constants.AcademicYear.AdminBase :
+                         isCoordinator ? Constants.AcademicYear.CoordBase :
+                         Constants.Teacher.AcademicYears;
+
+            var res = await _api.GetAsync<List<AcademicYearItem>>(url);
             return res.Success && res.Data != null ? res.Data : new List<AcademicYearItem>();
         }
 

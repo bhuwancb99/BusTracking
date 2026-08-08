@@ -7,7 +7,10 @@ namespace BusTracking.Mobile.Services
 
         public async Task<List<SectionItem>> GetByStandardAsync(int standardId, bool isCoordinator = false, bool isAdmin = false)
         {
-            var endpoint = isCoordinator ? Constants.Coordinator.SectionsByStandard : Constants.Admin.SectionsByStandard;
+            var endpoint = isAdmin ? Constants.Admin.SectionsByStandard :
+                           isCoordinator ? Constants.Coordinator.SectionsByStandard :
+                           Constants.Teacher.SectionsByStandard;
+
             var r = await _api.GetAsync<List<SectionItem>>(string.Format(endpoint, standardId));
             return r.Data ?? new List<SectionItem>();
         }

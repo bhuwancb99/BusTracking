@@ -52,6 +52,9 @@
 	<!-- Fix: Mono.Cecil InvalidOperationException during Release APK build -->
 	<PropertyGroup Condition="$(TargetFramework.Contains('-android'))">
 		<AndroidEnableMarshalMethods>false</AndroidEnableMarshalMethods>
+		<NoWarn>$(NoWarn);XA4212;CS0618</NoWarn>
+		<WarningsNotAsErrors>$(WarningsNotAsErrors);XA4212</WarningsNotAsErrors>
+		<MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);XA4212</MSBuildWarningsAsMessages>
 	</PropertyGroup>
 
 	<!--PERFORMACE RELATED CONFIGURATION - START-->

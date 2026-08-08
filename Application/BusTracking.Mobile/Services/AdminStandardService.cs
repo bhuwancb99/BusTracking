@@ -12,6 +12,18 @@ namespace BusTracking.Mobile.Services
                 url += $"&search={Uri.EscapeDataString(search)}";
 
             var r = await _api.GetAsync<PagedResult<StandardItem>>(url);
+            if (r.Success && r.Data != null && r.Data.Items != null && r.Data.Items.Any())
+            {
+                return r.Data;
+            }
+
+            // Fallback for Teacher / Lookup roles
+            var fallback = await _api.GetAsync<List<StandardItem>>(Constants.Lookups.Standards);
+            if (fallback.Success && fallback.Data != null)
+            {
+                return new PagedResult<StandardItem> { Items = fallback.Data, TotalCount = fallback.Data.Count };
+            }
+
             return r.Data ?? new PagedResult<StandardItem>();
         }
 

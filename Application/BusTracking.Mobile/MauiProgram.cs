@@ -458,6 +458,9 @@ namespace BusTracking.Mobile
             s.AddTransient<StudentAvailabilityPage>();
             s.AddTransient<StudentNotificationPage>();
 
+            s.AddTransient<TeacherAttendancePage>();
+            s.AddTransient<TeacherDashboardPage>();
+            s.AddTransient<TeacherNotificationPage>();
             s.AddTransient<LiveTrackingPage>();
 
             s.AddTransient<AdminBusTypeListPage>();

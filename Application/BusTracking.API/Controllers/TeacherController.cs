@@ -9,19 +9,56 @@ namespace BusTracking.API.Controllers
         private readonly IAttendanceService _attendanceService;
         private readonly ISectionService _sectionService;
         private readonly IClassMappingService _classMappingService;
+        private readonly IAcademicYearService _academicYearService;
+        private readonly IStandardService _standardService;
 
         public TeacherController(
             ITeacherService teacherService,
             INotificationService notificationService,
             IAttendanceService attendanceService,
             ISectionService sectionService,
-            IClassMappingService classMappingService)
+            IClassMappingService classMappingService,
+            IAcademicYearService academicYearService,
+            IStandardService standardService)
         {
             _teacherService = teacherService;
             _notificationService = notificationService;
             _attendanceService = attendanceService;
             _sectionService = sectionService;
             _classMappingService = classMappingService;
+            _academicYearService = academicYearService;
+            _standardService = standardService;
+        }
+
+        /// <summary>
+        /// Gets active academic years for Teacher.
+        /// </summary>
+        [HttpGet("academicyears")]
+        public async Task<IActionResult> GetAcademicYears()
+        {
+            var schoolId = CurrentSchoolId ?? 1;
+            var years = await _academicYearService.GetAcademicYearsAsync(schoolId);
+            return Ok(ApiResponse<List<AcademicYearDto>>.Ok(years));
+        }
+
+        /// <summary>
+        /// Gets standards/classes for Teacher.
+        /// </summary>
+        [HttpGet("standards")]
+        public async Task<IActionResult> GetStandards([FromQuery] string? search, [FromQuery] int page = 1)
+        {
+            var result = await _standardService.GetAllAsync(search, true, page);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>
+        /// Gets sections by standard ID for Teacher.
+        /// </summary>
+        [HttpGet("sections/by-standard/{standardId:int}")]
+        public async Task<IActionResult> GetSectionsByStandard(int standardId)
+        {
+            var result = await _sectionService.GetSectionsByStandardAsync(standardId);
+            return result.Success ? Ok(result) : BadRequest(result);
         }
 
         /// <summary>

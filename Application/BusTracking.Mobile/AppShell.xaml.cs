@@ -304,6 +304,7 @@ public partial class AppShell : Shell
     private static List<FlyoutMenuItem> TeacherMenu() =>
     [
         new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "Dashboard",        Route = "TeacherDashboard"     },
+        new() { IconSvg = "calendar_check.png",IconColor = _svgImageColor, Title = "Daily Attendance", Route = "TeacherAttendance"    },
         new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",       Route = "Profile"              },
         new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications",    Route = "TeacherNotification"  },
     ];

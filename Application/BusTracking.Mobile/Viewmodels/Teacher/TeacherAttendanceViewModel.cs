@@ -4,40 +4,136 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
     {
         private readonly IAttendanceMobileService _attendanceService;
         private readonly IAcademicYearService _academicYearService;
+        private readonly IAdminStandardService _standardService;
+        private readonly ISectionService _sectionService;
 
-        [ObservableProperty] private int _selectedAcademicYearId = 1;
-        [ObservableProperty] private int _selectedStandardId = 1;
-        [ObservableProperty] private int _selectedSectionId = 1;
+        [ObservableProperty] private ObservableCollection<AcademicYearItem> _academicYears = [];
+        [ObservableProperty] private AcademicYearItem? _selectedYear;
+        [ObservableProperty] private ObservableCollection<StandardItem> _standards = [];
+        [ObservableProperty] private StandardItem? _selectedStandard;
+        [ObservableProperty] private ObservableCollection<SectionItem> _sections = [];
+        [ObservableProperty] private SectionItem? _selectedSection;
+
         [ObservableProperty] private DateTime _selectedDate = DateTime.Today;
-        [ObservableProperty] private bool _isFaceScanMode = false;
+        [ObservableProperty] private bool _isCalendarOpen;
         [ObservableProperty] private int _presentCount = 0;
         [ObservableProperty] private int _absentCount = 0;
+        [ObservableProperty] private int _lateCount = 0;
         [ObservableProperty] private int _totalStudentsCount = 0;
+
+        [ObservableProperty] private string _statusBannerMessage = "📝 Mark attendance manually or tap 📷 Face Scan";
+        [ObservableProperty] private bool _hasExistingAttendance = false;
 
         [ObservableProperty] private ObservableCollection<StudentAttendanceRowDto> _students = new();
 
-        public TeacherAttendanceViewModel(IAuthService auth, INavigationService nav, IAttendanceMobileService attendanceService, IAcademicYearService academicYearService)
+        public TeacherAttendanceViewModel(
+            IAuthService auth,
+            INavigationService nav,
+            IAttendanceMobileService attendanceService,
+            IAcademicYearService academicYearService,
+            IAdminStandardService standardService,
+            ISectionService sectionService)
             : base(auth, nav)
         {
-            Title = "Classroom Daily Attendance";
+            Title = "Mark Classroom Attendance";
             _attendanceService = attendanceService;
             _academicYearService = academicYearService;
+            _standardService = standardService;
+            _sectionService = sectionService;
         }
 
         public override async Task InitializeAsync()
         {
-            await LoadStudentsAsync();
+            IsBusy = true;
+            try
+            {
+                var years = await _academicYearService.GetAcademicYearsAsync(isAdmin: false);
+                AcademicYears = new ObservableCollection<AcademicYearItem>(years);
+                SelectedYear = AcademicYears.FirstOrDefault(y => y.IsCurrent) ?? AcademicYears.FirstOrDefault();
+
+                var stds = await _standardService.GetAllAsync(null, 1);
+                if (stds != null && stds.Items != null)
+                {
+                    Standards = new ObservableCollection<StandardItem>(stds.Items);
+                    SelectedStandard = Standards.FirstOrDefault();
+                    if (SelectedStandard != null)
+                    {
+                        await LoadSectionsAsync(SelectedStandard.StandardId);
+                    }
+                }
+
+                await FetchStudentsAsync();
+            }
+            catch (Exception ex) { SetError(ex.Message); }
+            finally { IsBusy = false; }
         }
+
+        partial void OnSelectedStandardChanged(StandardItem? value)
+        {
+            if (value != null) _ = LoadSectionsAndStudentsAsync(value.StandardId);
+        }
+
+        partial void OnSelectedSectionChanged(SectionItem? value)
+        {
+            _ = LoadStudentsAsync();
+        }
+
+        partial void OnSelectedYearChanged(AcademicYearItem? value)
+        {
+            _ = LoadStudentsAsync();
+        }
+
+        partial void OnSelectedDateChanged(DateTime value)
+        {
+            _ = LoadStudentsAsync();
+        }
+
+        private async Task LoadSectionsAsync(int standardId)
+        {
+            var secs = await _sectionService.GetByStandardAsync(standardId, isAdmin: false);
+            Sections = new ObservableCollection<SectionItem>(secs ?? new());
+            SelectedSection = Sections.FirstOrDefault();
+        }
+
+        private async Task LoadSectionsAndStudentsAsync(int standardId)
+        {
+            IsBusy = true;
+            try
+            {
+                await LoadSectionsAsync(standardId);
+                await FetchStudentsAsync();
+            }
+            catch (Exception ex) { SetError(ex.Message); }
+            finally { IsBusy = false; }
+        }
+
+        [RelayCommand] private void OpenCalendar() => IsCalendarOpen = true;
+        [RelayCommand] private void CloseCalendar() => IsCalendarOpen = false;
 
         [RelayCommand]
         public async Task LoadStudentsAsync()
         {
-            await RunAsync(async () =>
+            IsBusy = true;
+            try
             {
-                var list = await _attendanceService.GetStudentsForAttendanceAsync(SelectedAcademicYearId, SelectedStandardId, SelectedSectionId, SelectedDate);
-                Students = new ObservableCollection<StudentAttendanceRowDto>(list);
-                UpdateCounts();
-            });
+                await FetchStudentsAsync();
+            }
+            catch (Exception ex) { SetError(ex.Message); }
+            finally { IsBusy = false; }
+        }
+
+        private async Task FetchStudentsAsync()
+        {
+            if (SelectedYear == null || SelectedStandard == null) return;
+
+            int yearId = SelectedYear.AcademicYearId;
+            int stdId = SelectedStandard.StandardId;
+            int? secId = SelectedSection?.SectionId > 0 ? SelectedSection.SectionId : null;
+
+            var list = await _attendanceService.GetStudentsForAttendanceAsync(yearId, stdId, secId, SelectedDate);
+            Students = new ObservableCollection<StudentAttendanceRowDto>(list);
+            IsEmpty = !Students.Any();
+            UpdateCounts();
         }
 
         [RelayCommand]
@@ -48,6 +144,7 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
             {
                 "Present" => "Absent",
                 "Absent" => "Late",
+                "Late" => "Present",
                 _ => "Present"
             };
             UpdateCounts();
@@ -68,6 +165,17 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
             TotalStudentsCount = Students.Count;
             PresentCount = Students.Count(s => s.Status == "Present");
             AbsentCount = Students.Count(s => s.Status == "Absent");
+            LateCount = Students.Count(s => s.Status == "Late");
+
+            HasExistingAttendance = Students.Any(s => s.IsFaceScanned);
+            if (HasExistingAttendance)
+            {
+                StatusBannerMessage = "ℹ️ Attendance Recorded — Tap any student to modify & update";
+            }
+            else
+            {
+                StatusBannerMessage = "📝 Mark attendance manually or tap 📷 Face Scan";
+            }
         }
 
         [RelayCommand]
@@ -75,35 +183,45 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
         {
             if (!Students.Any())
             {
-                await ShowToastAsync("No students loaded for attendance.");
+                await ShowAlertAsync("Warning", "No students loaded for attendance.");
                 return;
             }
 
-            await RunAsync(async () =>
-            {
-                var dto = new ManualAttendanceBatchDto
-                {
-                    AcademicYearId = SelectedAcademicYearId,
-                    StandardId = SelectedStandardId,
-                    SectionId = SelectedSectionId,
-                    Date = SelectedDate,
-                    Items = Students.Select(s => new StudentAttendanceItemDto
-                    {
-                        StudentId = s.StudentId,
-                        Status = s.Status
-                    }).ToList()
-                };
+            int yearId = SelectedYear?.AcademicYearId ?? 1;
+            int stdId = SelectedStandard?.StandardId ?? 1;
+            int? secId = SelectedSection?.SectionId > 0 ? SelectedSection.SectionId : null;
 
+            var dto = new ManualAttendanceBatchDto
+            {
+                AcademicYearId = yearId,
+                StandardId = stdId,
+                SectionId = secId,
+                AttendanceDate = SelectedDate,
+                Records = Students.Select(s => new StudentAttendanceItemDto
+                {
+                    StudentId = s.StudentId,
+                    Status = s.Status,
+                    IsFaceScanned = s.IsFaceScanned,
+                    MatchConfidence = s.MatchConfidence
+                }).ToList()
+            };
+
+            IsBusy = true;
+            try
+            {
                 var res = await _attendanceService.SaveManualAttendanceBatchAsync(dto);
                 if (res.Success)
                 {
                     await ShowToastAsync("Attendance saved successfully!");
+                    await FetchStudentsAsync();
                 }
                 else
                 {
-                    await ShowToastAsync(res.Message ?? "Failed to save attendance.");
+                    SetError(res.Message ?? "Failed to save attendance.");
                 }
-            });
+            }
+            catch (Exception ex) { SetError(ex.Message); }
+            finally { IsBusy = false; }
         }
 
         [RelayCommand]
@@ -111,19 +229,27 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
         {
             try
             {
+                PermissionStatus cameraStatus = await Permissions.CheckStatusAsync<Permissions.Camera>();
+                if (cameraStatus != PermissionStatus.Granted)
+                {
+                    cameraStatus = await Permissions.RequestAsync<Permissions.Camera>();
+                }
+
                 FileResult? photo = null;
-                if (MediaPicker.Default.IsCaptureSupported)
+                if (cameraStatus == PermissionStatus.Granted && MediaPicker.Default.IsCaptureSupported)
                 {
                     photo = await MediaPicker.Default.CapturePhotoAsync();
                 }
-                else
+
+                if (photo == null)
                 {
                     photo = await MediaPicker.Default.PickPhotoAsync();
                 }
 
                 if (photo == null) return;
 
-                await RunAsync(async () =>
+                IsBusy = true;
+                try
                 {
                     using var stream = await photo.OpenReadAsync();
                     using var ms = new MemoryStream();
@@ -131,31 +257,36 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
                     var bytes = ms.ToArray();
                     var base64 = Convert.ToBase64String(bytes);
 
+                    int yearId = SelectedYear?.AcademicYearId ?? 1;
+                    int stdId = SelectedStandard?.StandardId ?? 1;
+                    int? secId = SelectedSection?.SectionId > 0 ? SelectedSection.SectionId : null;
+
                     var req = new FaceAttendanceScanRequestDto
                     {
-                        AcademicYearId = SelectedAcademicYearId,
-                        StandardId = SelectedStandardId,
-                        SectionId = SelectedSectionId,
-                        Date = SelectedDate,
+                        AcademicYearId = yearId,
+                        StandardId = stdId,
+                        SectionId = secId,
+                        AttendanceDate = SelectedDate,
                         Base64Image = base64
                     };
 
                     var res = await _attendanceService.ProcessFaceScanAttendanceAsync(req);
                     if (res.Success && res.Data != null)
                     {
-                        Students = new ObservableCollection<StudentAttendanceRowDto>(res.Data.AllClassStudents);
+                        Students = new ObservableCollection<StudentAttendanceRowDto>(res.Data.AllClassStudents ?? new());
                         UpdateCounts();
-                        await ShowToastAsync($"Face scan complete! Matched {res.Data.MatchedStudentsCount} student(s).");
+                        await ShowAlertAsync("Face Scan Complete", $"Scanned {res.Data.TotalFacesDetected} face(s). Matched: {res.Data.MatchedCount}.");
                     }
                     else
                     {
-                        await ShowToastAsync(res.Message ?? "Face scan matching failed.");
+                        await ShowAlertAsync("Face Scan Result", res.Message ?? "No face matches found.");
                     }
-                });
+                }
+                finally { IsBusy = false; }
             }
             catch (Exception ex)
             {
-                await ShowToastAsync($"Camera scan error: {ex.Message}");
+                await ShowAlertAsync("Camera Error", $"Unable to process camera scan: {ex.Message}");
             }
         }
     }

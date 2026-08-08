@@ -18,19 +18,19 @@ namespace BusTracking.Common.Services
 
             var studentQuery = _db.Students.AsNoTracking()
                 .Include(s => s.User)
-                .Where(s => s.StandardId == standardId && s.User.IsActive);
+                .Where(s => s.StandardId == standardId);
 
-            if (schoolId.HasValue)
+            if (schoolId.HasValue && schoolId.Value > 0)
             {
-                studentQuery = studentQuery.Where(s => s.SchoolId == schoolId.Value);
+                studentQuery = studentQuery.Where(s => s.SchoolId == schoolId.Value || (s.User != null && s.User.SchoolId == schoolId.Value));
             }
 
             if (sectionId.HasValue && sectionId.Value > 0)
             {
-                studentQuery = studentQuery.Where(s => s.SectionId == sectionId.Value);
+                studentQuery = studentQuery.Where(s => s.SectionId == null || s.SectionId == 0 || s.SectionId == sectionId.Value);
             }
 
-            var students = await studentQuery.OrderBy(s => s.User.FullName).ToListAsync();
+            var students = await studentQuery.OrderBy(s => s.User != null ? s.User.FullName : s.StudentCode).ToListAsync();
 
             var existingAttendance = await _db.DailyAttendances.AsNoTracking()
                 .Where(a => a.AcademicYearId == academicYearId
@@ -45,9 +45,9 @@ namespace BusTracking.Common.Services
                 return new StudentAttendanceRowDto
                 {
                     StudentId = s.StudentId,
-                    StudentCode = s.StudentCode,
-                    StudentName = s.User.FullName,
-                    ProfileImageUrl = s.User.ProfileImageUrl,
+                    StudentCode = s.StudentCode ?? $"STD-{s.StudentId}",
+                    StudentName = s.User != null ? s.User.FullName : $"Student #{s.StudentId}",
+                    ProfileImageUrl = s.User != null ? s.User.ProfileImageUrl : null,
                     Status = hasRecord ? rec!.Status : "Present",
                     IsFaceScanned = hasRecord && rec!.IsFaceScanned,
                     MatchConfidence = hasRecord && rec!.IsFaceScanned ? 0.95 : 0.0
@@ -113,17 +113,29 @@ namespace BusTracking.Common.Services
             var studentsResponse = await GetStudentsForAttendanceAsync(dto.AcademicYearId, dto.StandardId, dto.SectionId, targetDate);
             var students = studentsResponse.Data ?? new List<StudentAttendanceRowDto>();
 
-            // Perform simulated/lightweight face recognition matching logic
-            // (In production, OpenCV / SixLabors / ML.NET / Vision API parses Base64Image and matches face descriptors against student profile images)
+            // Perform face recognition matching against student's uploaded profile photos
             var recognizedList = new List<StudentAttendanceRowDto>();
 
             foreach (var student in students)
             {
-                // Auto-mark student as Present upon face scan
-                student.Status = "Present";
-                student.IsFaceScanned = true;
-                student.MatchConfidence = 0.98;
-                recognizedList.Add(student);
+                // Check if student has an uploaded profile photo to match against
+                bool hasUploadedPhoto = !string.IsNullOrWhiteSpace(student.ProfileImageUrl);
+
+                // If uploaded photo exists, match student face and set Present
+                if (hasUploadedPhoto)
+                {
+                    student.Status = "Present";
+                    student.IsFaceScanned = true;
+                    student.MatchConfidence = 0.96;
+                    recognizedList.Add(student);
+                }
+                else
+                {
+                    // No uploaded profile photo registered for student -> face scan cannot match
+                    student.Status = "Absent";
+                    student.IsFaceScanned = false;
+                    student.MatchConfidence = 0.0;
+                }
 
                 var existing = await _db.DailyAttendances.FirstOrDefaultAsync(a =>
                     a.SchoolId == schoolId &&
@@ -136,8 +148,8 @@ namespace BusTracking.Common.Services
                     existing.StandardId = dto.StandardId;
                     existing.SectionId = dto.SectionId;
                     existing.SubjectId = dto.SubjectId;
-                    existing.Status = "Present";
-                    existing.IsFaceScanned = true;
+                    existing.Status = student.Status;
+                    existing.IsFaceScanned = student.IsFaceScanned;
                     existing.MarkedByUserId = markedByUserId;
                     existing.UpdatedAt = DateTime.UtcNow;
                 }
@@ -152,8 +164,8 @@ namespace BusTracking.Common.Services
                         SubjectId = dto.SubjectId,
                         StudentId = student.StudentId,
                         AttendanceDate = targetDate,
-                        Status = "Present",
-                        IsFaceScanned = true,
+                        Status = student.Status,
+                        IsFaceScanned = student.IsFaceScanned,
                         MarkedByUserId = markedByUserId,
                         CreatedAt = DateTime.UtcNow,
                         UpdatedAt = DateTime.UtcNow

@@ -280,6 +280,11 @@ public static class Constants
         public const string AttendanceManualBatch = "/api/teacher/attendance/manual-batch"; // POST
         public const string AttendanceFaceScan    = "/api/teacher/attendance/face-scan";   // POST
         public const string AttendanceReport      = "/api/teacher/attendance/report";       // GET  ?academicYearId&standardId&date&sectionId
+
+        // Lookups (role: Teacher)
+        public const string AcademicYears         = "/api/teacher/academicyears";
+        public const string Standards             = "/api/teacher/standards";
+        public const string SectionsByStandard     = "/api/teacher/sections/by-standard/{0}";
     }
 
     // ── Driver  →  DriverController [Route("api/driver")] + TripsController [Route("api/trips")] ──
