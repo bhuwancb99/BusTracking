@@ -43,6 +43,12 @@ namespace BusTracking.Web.Areas.Teacher.Controllers
             ViewBag.SelectedSectionId = sectionId;
             ViewBag.SelectedDate = selectedDate;
 
+            var studentsResult = (selectedYearId > 0 && selectedStandardId > 0)
+                ? await _attendanceService.GetStudentsForAttendanceAsync(selectedYearId, selectedStandardId, sectionId, selectedDate)
+                : null;
+
+            ViewBag.Students = studentsResult?.Data ?? new List<StudentAttendanceRowDto>();
+
             var report = (selectedYearId > 0 && selectedStandardId > 0)
                 ? (await _attendanceService.GetAttendanceReportAsync(selectedYearId, selectedStandardId, sectionId, selectedDate)).Data
                 : new AttendanceSummaryReportDto();
@@ -50,21 +56,27 @@ namespace BusTracking.Web.Areas.Teacher.Controllers
             return View(report);
         }
 
-        [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveManual(ManualAttendanceBatchDto dto)
+        [HttpGet]
+        public async Task<IActionResult> GetSectionsByStandard(int standardId)
+        {
+            var res = await _sectionService.GetSectionsByStandardAsync(standardId);
+            return Json(res.Data ?? new List<SectionDto>());
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SaveManual([FromBody] ManualAttendanceBatchDto dto)
         {
             var userId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var uid) ? uid : 1;
             var r = await _attendanceService.SaveManualAttendanceBatchAsync(dto, userId);
-            if (!r.Success) TempData["ErrorMessage"] = r.Message;
-            else TempData["SuccessMessage"] = r.Message;
+            return Json(r);
+        }
 
-            return RedirectToAction(nameof(Index), new
-            {
-                academicYearId = dto.AcademicYearId,
-                standardId = dto.StandardId,
-                sectionId = dto.SectionId,
-                date = dto.Date.ToString("yyyy-MM-dd")
-            });
+        [HttpPost]
+        public async Task<IActionResult> ProcessFaceScan([FromBody] FaceAttendanceScanRequestDto dto)
+        {
+            var userId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out var uid) ? uid : 1;
+            var r = await _attendanceService.ProcessFaceScanAttendanceAsync(dto, userId);
+            return Json(r);
         }
     }
 }

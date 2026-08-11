@@ -4,114 +4,315 @@
     var years = ViewBag.AcademicYears as List<BusTracking.Common.DTOs.AcademicYear.AcademicYearDto> ?? new();
     var standards = ViewBag.Standards as List<BusTracking.Common.DTOs.Standard.StandardDto> ?? new();
     var sections = ViewBag.Sections as List<BusTracking.Common.DTOs.Section.SectionDto> ?? new();
+    var students = ViewBag.Students as List<BusTracking.Common.DTOs.Attendance.StudentAttendanceRowDto> ?? new();
 
     int selectedYearId = ViewBag.SelectedYearId ?? 0;
     int selectedStandardId = ViewBag.SelectedStandardId ?? 0;
     int? selectedSectionId = ViewBag.SelectedSectionId;
     DateTime selectedDate = ViewBag.SelectedDate ?? DateTime.Today;
+
+    int totalStudents = students.Count;
+    int presentCount = students.Count(s => s.Status == "Present");
+    int absentCount = students.Count(s => s.Status == "Absent");
 }
 
-<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+
+<div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
     <div>
-        <h2 class="fw-bold m-0 text-dark">
-            <i class="bi bi-check2-square text-primary me-2"></i>Classroom Daily Attendance
-        </h2>
-        <nav aria-label="breadcrumb" class="mt-1">
-            <ol class="breadcrumb mb-0 small text-muted">
-                <li class="breadcrumb-item"><a href="@Url.Action("Index", "Dashboard")" class="text-decoration-none text-muted">Dashboard</a></li>
-                <li class="breadcrumb-item active text-primary" aria-current="page">Daily Attendance</li>
-            </ol>
-        </nav>
+        <h3 class="fw-bold m-0 text-dark">
+            <i class="bi bi-check2-square text-primary me-2"></i>Mark Classroom Attendance
+        </h3>
     </div>
 </div>
 
-<!-- Attendance Filters -->
-<div class="card border-0 shadow-sm rounded-4 mb-4">
-    <div class="card-body p-3">
-        <form method="get" class="row g-2 align-items-center">
-            <div class="col-md-3">
-                <label class="form-label small fw-bold text-muted mb-1">Academic Session</label>
-                <select name="academicYearId" class="form-select bg-light border-0">
-                    @foreach (var y in years)
-                    {
-                        <option value="@y.AcademicYearId" selected="@(y.AcademicYearId == selectedYearId ? "selected" : null)">@y.YearName @(y.IsCurrent ? "(Active)" : "")</option>
-                    }
-                </select>
+<!-- Attendance Filters Card -->
+<div class="card border-0 shadow-sm rounded-4 mb-3">
+    <div class="card-body p-2">
+        <form id="filterForm" method="get" class="row g-2">
+            <div class="col-md-3 col-6">
+                <div class="outlined-field">
+                    <label>Academic Session</label>
+                    <select name="academicYearId" class="form-select" onchange="this.form.submit()">
+                        @foreach (var y in years)
+                        {
+                            <option value="@y.AcademicYearId" selected="@(y.AcademicYearId == selectedYearId ? "selected" : null)">@y.YearName @(y.IsCurrent ? "(Active)" : "")</option>
+                        }
+                    </select>
+                </div>
             </div>
-            <div class="col-md-3">
-                <label class="form-label small fw-bold text-muted mb-1">Class / Standard</label>
-                <select name="standardId" class="form-select bg-light border-0">
-                    @foreach (var s in standards)
-                    {
-                        <option value="@s.StandardId" selected="@(s.StandardId == selectedStandardId ? "selected" : null)">@s.StandardName</option>
-                    }
-                </select>
+            <div class="col-md-3 col-6">
+                <div class="outlined-field">
+                    <label>Class / Standard</label>
+                    <select id="standardSelect" name="standardId" class="form-select" onchange="onStandardChanged()">
+                        @foreach (var s in standards)
+                        {
+                            <option value="@s.StandardId" selected="@(s.StandardId == selectedStandardId ? "selected" : null)">@s.StandardName</option>
+                        }
+                    </select>
+                </div>
             </div>
-            <div class="col-md-3">
-                <label class="form-label small fw-bold text-muted mb-1">Section</label>
-                <select name="sectionId" class="form-select bg-light border-0">
-                    <option value="">-- Select Section --</option>
-                    @foreach (var sec in sections)
-                    {
-                        <option value="@sec.SectionId" selected="@(sec.SectionId == selectedSectionId ? "selected" : null)">Section @sec.SectionName</option>
-                    }
-                </select>
+            <div class="col-md-3 col-6">
+                <div class="outlined-field">
+                    <label>Section</label>
+                    <select id="sectionSelect" name="sectionId" class="form-select" onchange="this.form.submit()">
+                        <option value="">-- All Sections --</option>
+                        @foreach (var sec in sections)
+                        {
+                            <option value="@sec.SectionId" selected="@(sec.SectionId == selectedSectionId ? "selected" : null)">Section @sec.SectionName</option>
+                        }
+                    </select>
+                </div>
             </div>
-            <div class="col-md-3">
-                <label class="form-label small fw-bold text-muted mb-1">Date</label>
-                <input type="date" name="date" value="@selectedDate.ToString("yyyy-MM-dd")" class="form-control bg-light border-0" />
-            </div>
-            <div class="col-12 d-flex justify-content-end gap-2 pt-2">
-                <button type="submit" class="btn btn-primary rounded-3 px-4"><i class="bi bi-filter me-1"></i>Fetch Attendance</button>
+            <div class="col-md-3 col-6">
+                <div class="outlined-field">
+                    <label>Attendance Date</label>
+                    <input type="date" name="date" value="@selectedDate.ToString("yyyy-MM-dd")" class="form-control" onchange="this.form.submit()" />
+                </div>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Attendance KPI Summary Cards -->
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm rounded-4 bg-primary text-white p-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <span class="fs-7 fw-semibold opacity-75 text-uppercase">Total Students</span>
-                    <h3 class="fw-bold m-0 mt-1">@(Model?.TotalStudents ?? 0)</h3>
+<!-- Summary Counts Grid (TOTAL, PRESENT, ABSENT) -->
+<div class="row g-2 mb-3">
+    <div class="col-4">
+        <div class="card border-0 shadow-sm rounded-3 bg-primary text-white p-2 text-center">
+            <h4 class="fw-bold m-0" id="totalCount">@totalStudents</h4>
+            <span class="small text-uppercase opacity-75 fw-semibold" style="font-size: 10px;">TOTAL</span>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card border-0 shadow-sm rounded-3 bg-success text-white p-2 text-center">
+            <h4 class="fw-bold m-0" id="presentCount">@presentCount</h4>
+            <span class="small text-uppercase opacity-75 fw-semibold" style="font-size: 10px;">PRESENT</span>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="card border-0 shadow-sm rounded-3 bg-danger text-white p-2 text-center">
+            <h4 class="fw-bold m-0" id="absentCount">@absentCount</h4>
+            <span class="small text-uppercase opacity-75 fw-semibold" style="font-size: 10px;">ABSENT</span>
+        </div>
+    </div>
+</div>
+
+<!-- Student Checklist Cards / Table -->
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-2">
+        @if (!students.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-person-x display-4 opacity-50"></i>
+                <p class="mt-2 fw-semibold mb-0">No students found for attendance.</p>
+            </div>
+        }
+        else
+        {
+            <div class="list-group list-group-flush">
+                @foreach (var s in students)
+                {
+                    var isPresent = s.Status == "Present";
+                    var avatarUrl = string.IsNullOrWhiteSpace(s.ProfileImageUrl) ? "/images/default-avatar.svg" : s.ProfileImageUrl;
+
+                    <div class="list-group-item border-0 border-bottom p-2 d-flex align-items-center justify-content-between student-row" data-student-id="@s.StudentId">
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="@avatarUrl" alt="Avatar" class="rounded-circle object-fit-cover border" style="width: 42px; height: 42px;" onerror="this.src='/images/default-avatar.svg'" />
+                            <div>
+                                <h6 class="fw-bold mb-0 text-dark">@s.StudentName</h6>
+                                <span class="small text-muted">ID: @(string.IsNullOrWhiteSpace(s.StudentCode) ? $"STD-{s.StudentId}" : s.StudentCode)</span>
+                            </div>
+                        </div>
+                        <div>
+                            <button type="button" class="btn btn-sm px-3 fw-bold status-toggle-btn @(isPresent ? "btn-success" : "btn-danger")" onclick="toggleStudentStatus(this)">
+                                @(isPresent ? "Present" : "Absent")
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@if (students.Any())
+{
+    <!-- Floating Face Scan Action Button -->
+    <button type="button" class="btn btn-secondary rounded-pill px-4 py-2 fw-bold floating-face-btn" onclick="openFaceScanModal()">
+        <i class="bi bi-camera-fill me-2"></i>📷 Face Scan
+    </button>
+
+    <!-- Sticky Bottom Action Bar -->
+    <div class="bottom-sticky-bar">
+        <div class="container-fluid">
+            <div class="row g-2">
+                <div class="col-6">
+                    <button type="button" class="btn btn-success w-100 fw-bold py-2 rounded-3" onclick="markAllPresent()">
+                        <i class="bi bi-check-all me-1"></i>Mark All Present
+                    </button>
                 </div>
-                <i class="bi bi-people-fill display-5 opacity-50"></i>
+                <div class="col-6">
+                    <button type="button" class="btn btn-primary w-100 fw-bold py-2 rounded-3" onclick="saveAttendance()">
+                        <i class="bi bi-save me-1"></i>Save Attendance
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm rounded-4 bg-success text-white p-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <span class="fs-7 fw-semibold opacity-75 text-uppercase">Present</span>
-                    <h3 class="fw-bold m-0 mt-1">@(Model?.PresentCount ?? 0)</h3>
-                </div>
-                <i class="bi bi-check-circle-fill display-5 opacity-50"></i>
+}
+
+<!-- Face Recognition Camera Modal -->
+<div class="modal fade" id="faceScanModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-camera me-2 text-primary"></i>Classroom Face Recognition</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm rounded-4 bg-danger text-white p-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <span class="fs-7 fw-semibold opacity-75 text-uppercase">Absent</span>
-                    <h3 class="fw-bold m-0 mt-1">@(Model?.AbsentCount ?? 0)</h3>
+            <div class="modal-body text-center p-4">
+                <p class="text-muted small">Upload or capture a photo of students to automatically mark attendance.</p>
+                <input type="file" id="facePhotoInput" accept="image/*" class="form-control mb-3" onchange="previewFacePhoto(this)" />
+                <div id="photoPreviewBox" class="d-none mb-3">
+                    <img id="photoPreviewImg" src="" class="img-fluid rounded-3 border" style="max-height: 250px;" />
                 </div>
-                <i class="bi bi-x-circle-fill display-5 opacity-50"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm rounded-4 bg-warning text-dark p-3">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <span class="fs-7 fw-semibold opacity-75 text-uppercase">Attendance Rate</span>
-                    <h3 class="fw-bold m-0 mt-1">@((Model?.PresentPercentage ?? 0).ToString("F1"))%</h3>
-                </div>
-                <i class="bi bi-pie-chart-fill display-5 opacity-50"></i>
+                <button type="button" class="btn btn-primary w-100 fw-bold py-2 rounded-3" onclick="submitFaceScan()">
+                    Process Face Match
+                </button>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        function onStandardChanged() {
+            var stdId = $('#standardSelect').val();
+            if (!stdId) return;
+            $.get('@Url.Action("GetSectionsByStandard", "Attendance", new { area = "Teacher" })', { standardId: stdId }, function(data) {
+                var $sec = $('#sectionSelect');
+                $sec.empty().append('<option value="">-- All Sections --</option>');
+                $.each(data, function(i, item) {
+                    $sec.append('<option value="' + item.sectionId + '">Section ' + item.sectionName + '</option>');
+                });
+                $('#filterForm').submit();
+            });
+        }
+
+        function toggleStudentStatus(btn) {
+            var $btn = $(btn);
+            if ($btn.hasClass('btn-success')) {
+                $btn.removeClass('btn-success').addClass('btn-danger').text('Absent');
+            } else {
+                $btn.removeClass('btn-danger').addClass('btn-success').text('Present');
+            }
+            updateCounts();
+        }
+
+        function markAllPresent() {
+            $('.status-toggle-btn').removeClass('btn-danger').addClass('btn-success').text('Present');
+            updateCounts();
+        }
+
+        function updateCounts() {
+            var total = $('.student-row').length;
+            var present = $('.status-toggle-btn.btn-success').length;
+            var absent = $('.status-toggle-btn.btn-danger').length;
+
+            $('#totalCount').text(total);
+            $('#presentCount').text(present);
+            $('#absentCount').text(absent);
+        }
+
+        function saveAttendance() {
+            var records = [];
+            $('.student-row').each(function() {
+                var studentId = parseInt($(this).attr('data-student-id'));
+                var status = $(this).find('.status-toggle-btn').text().trim();
+                records.push({ studentId: studentId, status: status });
+            });
+
+            var payload = {
+                academicYearId: parseInt($('select[name="academicYearId"]').val()),
+                standardId: parseInt($('select[name="standardId"]').val()),
+                sectionId: $('select[name="sectionId"]').val() ? parseInt($('select[name="sectionId"]').val()) : null,
+                date: $('input[name="date"]').val(),
+                items: records,
+                records: records
+            };
+
+            $.ajax({
+                url: '@Url.Action("SaveManual", "Attendance", new { area = "Teacher" })',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                success: function(res) {
+                    if (res && res.success) {
+                        alert(res.message || 'Attendance saved successfully.');
+                        location.reload();
+                    } else {
+                        alert(res ? res.message : 'Error saving attendance.');
+                    }
+                },
+                error: function(err) {
+                    alert('Error saving attendance.');
+                }
+            });
+        }
+
+        function openFaceScanModal() {
+            $('#facePhotoInput').val('');
+            $('#photoPreviewBox').addClass('d-none');
+            var modal = new bootstrap.Modal(document.getElementById('faceScanModal'));
+            modal.show();
+        }
+
+        function previewFacePhoto(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    $('#photoPreviewImg').attr('src', e.target.result);
+                    $('#photoPreviewBox').removeClass('d-none');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function submitFaceScan() {
+            var fileInput = document.getElementById('facePhotoInput');
+            if (!fileInput.files || !fileInput.files[0]) {
+                alert('Please select or capture a photo first.');
+                return;
+            }
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                var base64 = e.target.result.split(',')[1];
+                var payload = {
+                    academicYearId: parseInt($('select[name="academicYearId"]').val()),
+                    standardId: parseInt($('select[name="standardId"]').val()),
+                    sectionId: $('select[name="sectionId"]').val() ? parseInt($('select[name="sectionId"]').val()) : null,
+                    date: $('input[name="date"]').val(),
+                    base64Image: base64,
+                    base64CapturedPhoto: base64
+                };
+
+                $.ajax({
+                    url: '@Url.Action("ProcessFaceScan", "Attendance", new { area = "Teacher" })',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload),
+                    success: function(res) {
+                        if (res && res.success) {
+                            alert(res.message || 'Face recognition matching completed.');
+                            location.reload();
+                        } else {
+                            alert(res ? res.message : 'No face match found.');
+                        }
+                    },
+                    error: function(err) {
+                        alert('Error processing face scan.');
+                    }
+                });
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        }
+    </script>
+}
