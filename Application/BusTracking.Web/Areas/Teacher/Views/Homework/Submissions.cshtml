@@ -1,0 +1,153 @@
+@model List<BusTracking.Common.DTOs.Homework.HomeworkSubmissionDto>
+@{
+    ViewData["Title"] = "Student Homework Submissions";
+    var hw = ViewBag.Homework as BusTracking.Common.DTOs.Homework.HomeworkDto;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold m-0 text-dark">
+            <i class="bi bi-people-fill text-primary me-2"></i>Student Submissions & Evaluation
+        </h3>
+        <span class="small text-muted">Homework: <strong>@hw?.Title</strong> (Class: @hw?.StandardName)</span>
+    </div>
+    <div>
+        <a href="@Url.Action("Index", "Homework", new { area = "Teacher" })" class="btn btn-outline-secondary rounded-3 px-3 fw-bold">
+            <i class="bi bi-arrow-left me-1"></i>Back to Homework List
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 mb-4">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-3 py-3">Student Name</th>
+                        <th>Submission Date</th>
+                        <th>Status</th>
+                        <th>Attachment</th>
+                        <th>Marks</th>
+                        <th>Remarks</th>
+                        <th class="pe-3 text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No students assigned to this class.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var s in Model)
+                        {
+                            var avatarUrl = string.IsNullOrWhiteSpace(s.ProfileImageUrl) ? "/images/default-avatar.svg" : s.ProfileImageUrl;
+                            var isSubmitted = s.SubmissionId > 0 && s.Status != "Pending";
+                            var isReviewed = s.Status == "Reviewed";
+
+                            <tr id="row-@s.SubmissionId">
+                                <td class="ps-3 py-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <img src="@avatarUrl" alt="Avatar" class="rounded-circle object-fit-cover border" style="width: 38px; height: 38px;" onerror="this.src='/images/default-avatar.svg'" />
+                                        <div>
+                                            <h6 class="fw-bold mb-0 text-dark">@s.StudentName</h6>
+                                            <span class="small text-muted">@s.StudentCode</span>
+                                            @if (!string.IsNullOrWhiteSpace(s.SubmissionText))
+                                            {
+                                                <div class="small text-secondary fw-normal mt-1"><i class="bi bi-chat-left-text me-1"></i>@s.SubmissionText</div>
+                                            }
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    @(s.SubmittedAt == DateTime.MinValue ? "Not Submitted" : s.SubmittedAt.ToString("dd MMM yyyy, hh:mm tt"))
+                                </td>
+                                <td>
+                                    @if (!isSubmitted)
+                                    {
+                                        <span class="badge bg-secondary-subtle text-secondary fw-bold px-2 py-1 rounded-2">Pending</span>
+                                    }
+                                    else if (isReviewed)
+                                    {
+                                        <span class="badge bg-success-subtle text-success fw-bold px-2 py-1 rounded-2">Evaluated</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-primary-subtle text-primary fw-bold px-2 py-1 rounded-2">@s.Status</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(s.AttachmentUrl))
+                                    {
+                                        <a href="@s.AttachmentUrl" target="_blank" class="btn btn-sm btn-light rounded-2 text-primary fw-bold">
+                                            <i class="bi bi-paperclip me-1"></i>View Solution
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="small text-muted">No File</span>
+                                    }
+                                </td>
+                                <td>
+                                    <input type="number" step="0.5" id="marks-@s.StudentId" value="@(s.MarksObtained.HasValue ? s.MarksObtained.Value.ToString("F1") : "")" class="form-control form-control-sm" style="width: 80px;" placeholder="Marks" @(!isSubmitted ? "disabled" : "") />
+                                </td>
+                                <td>
+                                    <input type="text" id="remarks-@s.StudentId" value="@s.TeacherRemarks" class="form-control form-control-sm" placeholder="Enter remarks..." @(!isSubmitted ? "disabled" : "") />
+                                </td>
+                                <td class="pe-3 text-end">
+                                    @if (isSubmitted)
+                                    {
+                                        <button type="button" class="btn btn-sm btn-primary rounded-3 fw-bold" onclick="evaluateSubmission(@s.SubmissionId, @s.StudentId)">
+                                            <i class="bi bi-check2-circle me-1"></i>Save Grade
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-sm btn-light text-muted rounded-3" disabled>Waiting</button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function evaluateSubmission(subId, studentId) {
+            var marks = $('#marks-' + studentId).val();
+            var remarks = $('#remarks-' + studentId).val();
+
+            var payload = {
+                submissionId: subId,
+                marksObtained: marks ? parseFloat(marks) : null,
+                teacherRemarks: remarks,
+                status: 'Reviewed'
+            };
+
+            $.ajax({
+                url: '@Url.Action("Evaluate", "Homework", new { area = "Teacher" })',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                success: function(res) {
+                    if (res && res.success) {
+                        location.reload();
+                    } else {
+                        alert(res ? res.message : 'Error evaluating submission.');
+                    }
+                },
+                error: function() {
+                    alert('Error saving submission evaluation.');
+                }
+            });
+        }
+    </script>
+}
+

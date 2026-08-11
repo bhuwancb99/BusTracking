@@ -52,6 +52,8 @@ public class AppDbContext : DbContext
     public DbSet<SubjectMaster> Subjects { get; set; }
     public DbSet<ClassSubjectTeacher> ClassSubjectTeachers { get; set; }
     public DbSet<DailyAttendance> DailyAttendances { get; set; }
+    public DbSet<Homework> Homeworks { get; set; }
+    public DbSet<HomeworkSubmission> HomeworkSubmissions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -88,6 +90,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Notification>().ToTable("Notifications");
         modelBuilder.Entity<NotificationSetting>().ToTable("NotificationSettings");
         modelBuilder.Entity<DeviceToken>().ToTable("DeviceTokens");
+        modelBuilder.Entity<Homework>().ToTable("Homeworks");
+        modelBuilder.Entity<HomeworkSubmission>().ToTable("HomeworkSubmissions");
         modelBuilder.Entity<Feedback>().ToTable("Feedbacks");
         modelBuilder.Entity<AuditLog>().ToTable("AuditLogs");
         modelBuilder.Entity<AppConfiguration>().ToTable("AppConfigurations");

@@ -57,7 +57,6 @@ public static class SidebarHelper
 
         var menu = new List<SidebarMenuItem>
         {
-            // Dashboard always visible
             new() { Label = "Dashboard", Icon = "bi-speedometer2", Controller = "Dashboard", Action = "Index", Area = "BusCoordinator" }
         };
 
@@ -134,12 +133,10 @@ public static class SidebarHelper
     [
         new() { Label = "Dashboard",        Icon = "bi-speedometer2",   Controller = "Dashboard",    Action = "Index", Area = "Teacher" },
         new() { Label = "Daily Attendance", Icon = "bi-check2-square",  Controller = "Attendance",   Action = "Index", Area = "Teacher" },
+        new() { Label = "Homeworks",        Icon = "bi-journal-bookmark",Controller = "Homework",    Action = "Index", Area = "Teacher" },
         new() { Label = "Notifications",    Icon = "bi-bell",           Controller = "Notification", Action = "Index", Area = "Teacher" },
     ];
 
-    // ── Driver ──────────────────────────────────────────────────────────
-
-    // ── Driver ──────────────────────────────────────────────────────────
     private static List<SidebarMenuItem> DriverMenu() =>
     [
         new() { Label = "Dashboard",     Icon = "bi-speedometer2",   Controller = "Dashboard",    Action = "Index", Area = "Driver" },
@@ -151,7 +148,7 @@ public static class SidebarHelper
     [
         new() { Label = "Dashboard",     Icon = "bi-speedometer2",   Controller = "Dashboard",    Action = "Index",        Area = "Parent" },
         new() { Label = "Track Bus",     Icon = "bi-geo-alt",        Controller = "Tracking",     Action = "Track",        Area = "Parent" },
-        new() { Label = "Availability",  Icon = "bi-calendar-check", Controller = "Student",      Action = "Availability", Area = "Parent" },
+        new() { Label = "Availability",  Icon = "bi-calendar-check", Controller = "Home",         Action = "Availability", Area = "Parent" },
         new() { Label = "Notifications", Icon = "bi-bell",           Controller = "Notification", Action = "Index",        Area = "Parent" },
         new() { Label = "Help & Support",Icon = "bi-headset",        Controller = "Feedback",     Action = "Submit",       Area = "Parent" },
     ];
@@ -160,7 +157,8 @@ public static class SidebarHelper
     [
         new() { Label = "Dashboard",      Icon = "bi-speedometer2",   Controller = "Dashboard",    Action = "Index",        Area = "Student" },
         new() { Label = "Track My Bus",   Icon = "bi-geo-alt",        Controller = "Tracking",     Action = "Track",        Area = "Student" },
-        new() { Label = "My Availability",Icon = "bi-calendar-check", Controller = "Student",      Action = "Availability", Area = "Student" },
+        new() { Label = "My Homework",    Icon = "bi-journal-check",  Controller = "Homework",     Action = "Index",        Area = "Student" },
+        new() { Label = "My Availability",Icon = "bi-calendar-check", Controller = "Home",         Action = "Availability", Area = "Student" },
         new() { Label = "Notifications",  Icon = "bi-bell",           Controller = "Notification", Action = "Index",        Area = "Student" },
         new() { Label = "Help & Support", Icon = "bi-headset",        Controller = "Feedback",     Action = "Submit",       Area = "Student" },
     ];

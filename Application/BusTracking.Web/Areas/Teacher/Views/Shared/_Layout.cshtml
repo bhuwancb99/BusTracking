@@ -2,11 +2,18 @@
 @using BusTracking.Web.Helpers
 @inject BusTracking.Common.Data.AppDbContext DbContext
 @inject BusTracking.Common.Interfaces.ICurrentUserService CurrentUser
+@inject BusTracking.Common.Interfaces.IAcademicYearService AcademicYearService
 @{
     string? schoolName = null;
     string? schoolLogo = null;
     string? userPhoto = null;
     var sId = CurrentUser.SchoolId;
+    var activeYears = sId.HasValue
+        ? await AcademicYearService.GetAcademicYearsAsync(sId.Value, activeOnly: true)
+        : new List<BusTracking.Common.DTOs.AcademicYear.AcademicYearDto>();
+    var activeSession = activeYears.FirstOrDefault(y => y.IsCurrent) ?? activeYears.FirstOrDefault();
+    string activeYearName = activeSession?.YearName ?? "No Active Session";
+
     if (sId.HasValue)
     {
         var school = DbContext.Schools.IgnoreQueryFilters().FirstOrDefault(s => s.SchoolId == sId.Value);
@@ -100,6 +107,39 @@
             <button class="sidebar-toggle btn btn-sm btn-link" id="sidebarToggle"><i class="bi bi-list fs-4"></i></button>
             <span class="badge bg-success-subtle text-success ms-1 small">Teacher Workspace</span>
             <div class="ms-auto d-flex align-items-center gap-3">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-primary dropdown-toggle d-flex align-items-center gap-1 rounded-pill px-3 py-1 fw-bold" data-bs-toggle="dropdown" aria-expanded="false" title="Switch Active Academic Session">
+                        <i class="bi bi-calendar-event me-1"></i>
+                        <span>Session: @activeYearName</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-4 p-2" style="min-width: 210px;">
+                        <li><h6 class="dropdown-header text-uppercase fs-7 fw-bold text-muted px-2 py-1">Select Academic Session</h6></li>
+                        @if (activeYears != null && activeYears.Any())
+                        {
+                            foreach (var year in activeYears)
+                            {
+                                <li>
+                                    <form method="post" asp-area="" asp-controller="Session" asp-action="Switch" class="m-0">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@year.AcademicYearId" />
+                                        <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
+                                        <button type="submit" class="dropdown-item rounded-3 d-flex align-items-center justify-content-between py-2 px-2 @(year.AcademicYearId == activeSession?.AcademicYearId ? "active fw-bold" : "")">
+                                            <span>@year.YearName</span>
+                                            @if (year.AcademicYearId == activeSession?.AcademicYearId)
+                                            {
+                                                <i class="bi bi-check-circle-fill text-success ms-2"></i>
+                                            }
+                                        </button>
+                                    </form>
+                                </li>
+                            }
+                        }
+                        else
+                        {
+                            <li><span class="dropdown-item disabled text-muted small">No active sessions</span></li>
+                        }
+                    </ul>
+                </div>
                 <a href="@Url.Action("Index", "Notification", new { area = "Teacher" })" class="btn btn-sm btn-outline-secondary position-relative">
                     <i class="bi bi-bell"></i>
                 </a>

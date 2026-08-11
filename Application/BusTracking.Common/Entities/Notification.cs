@@ -11,6 +11,7 @@ namespace BusTracking.Common.Entities
         public NotificationType NotificationType { get; set; }
         public int? ReferenceId { get; set; }
         [MaxLength(50)] public string? ReferenceType { get; set; }
+        [MaxLength(500)] public string? AttachmentUrl { get; set; }
         public bool IsRead { get; set; } = false;
         public DateTime SentAt { get; set; } = DateTime.UtcNow;
         public DateTime? ReadAt { get; set; }

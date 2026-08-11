@@ -1,0 +1,128 @@
+@model List<BusTracking.Common.DTOs.Homework.HomeworkDto>
+@{
+    ViewData["Title"] = "My Homework Assignments";
+    var years = ViewBag.AcademicYears as List<BusTracking.Common.DTOs.AcademicYear.AcademicYearDto> ?? new();
+    int? selectedYearId = ViewBag.SelectedYearId;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold m-0 text-dark">
+            <i class="bi bi-journal-check text-primary me-2"></i>My Homework & Assignments
+        </h3>
+        <span class="small text-muted">View class homework, download question papers, and upload completed work.</span>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    @if (!Model.Any())
+    {
+        <div class="col-12 text-center py-5 text-muted">
+            <i class="bi bi-check2-circle display-3 text-success opacity-50"></i>
+            <p class="mt-2 fw-semibold mb-0">Great job! You have no pending homework assignments.</p>
+        </div>
+    }
+    else
+    {
+        @foreach (var item in Model)
+        {
+            var isSubmitted = item.SubmissionsCount > 0;
+            var isPastDue = item.DueDate.Date < DateTime.Today;
+
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-3 h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="badge bg-primary-subtle text-primary fw-bold px-2 py-1 rounded-2">
+                            Subject: @(string.IsNullOrWhiteSpace(item.SubjectName) ? "General" : item.SubjectName)
+                        </span>
+                        <span class="badge @(isSubmitted ? "bg-success-subtle text-success" : (isPastDue ? "bg-danger-subtle text-danger" : "bg-warning-subtle text-dark")) fw-bold px-2 py-1 rounded-2">
+                            @(isSubmitted ? "Submitted" : (isPastDue ? "Overdue" : $"Due: {item.DueDate:dd MMM yyyy}"))
+                        </span>
+                    </div>
+
+                    <h5 class="fw-bold text-dark mb-1">@item.Title</h5>
+                    <p class="small text-muted mb-2">Teacher: <strong>@item.TeacherName</strong></p>
+                    <p class="small text-secondary mb-3">@item.Description</p>
+
+                    @if (!string.IsNullOrWhiteSpace(item.AttachmentUrl))
+                    {
+                        <div class="mb-3">
+                            <a href="@item.AttachmentUrl" target="_blank" class="btn btn-sm btn-light rounded-2 text-primary fw-bold">
+                                <i class="bi bi-file-earmark-arrow-down me-1"></i>Download Question Paper
+                            </a>
+                        </div>
+                    }
+
+                    <div class="mt-auto pt-3 border-top d-flex align-items-center justify-content-between">
+                        @if (isSubmitted)
+                        {
+                            <span class="text-success fw-bold small"><i class="bi bi-check-circle-fill me-1"></i>Submission Uploaded</span>
+                            <button type="button" class="btn btn-outline-secondary rounded-3 btn-sm fw-bold px-3" data-bs-toggle="modal" data-bs-target="#submitHomeworkModal" data-hw-id="@item.HomeworkId" data-hw-title="@item.Title">
+                                <i class="bi bi-arrow-repeat me-1"></i>Resubmit
+                            </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-primary rounded-3 btn-sm fw-bold px-3" data-bs-toggle="modal" data-bs-target="#submitHomeworkModal" data-hw-id="@item.HomeworkId" data-hw-title="@item.Title">
+                                <i class="bi bi-upload me-1"></i>Submit Solution
+                            </button>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<!-- Student Solution Upload Modal -->
+<div class="modal fade" id="submitHomeworkModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <form method="post" action="@Url.Action("Submit", "Homework", new { area = "Student" })" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="modalHomeworkId" name="homeworkId" />
+
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-upload me-2 text-primary"></i>Submit Homework Solution</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <h6 id="modalHomeworkTitle" class="fw-bold text-dark mb-3"></h6>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Submission Notes / Answer Text</label>
+                        <textarea name="submissionText" class="form-control" rows="3" placeholder="Enter optional notes or answer details..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted">Attach Completed Work (PDF / Photo)</label>
+                        <input type="file" name="solutionFile" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.docx" />
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 fw-bold py-2 rounded-3">
+                        <i class="bi bi-send me-1"></i>Upload & Submit Homework
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var submitModal = document.getElementById('submitHomeworkModal');
+            if (submitModal) {
+                submitModal.addEventListener('show.bs.modal', function(event) {
+                    var button = event.relatedTarget;
+                    if (button) {
+                        var hwId = button.getAttribute('data-hw-id');
+                        var hwTitle = button.getAttribute('data-hw-title');
+                        document.getElementById('modalHomeworkId').value = hwId;
+                        document.getElementById('modalHomeworkTitle').textContent = hwTitle;
+                    }
+                });
+            }
+        });
+    </script>
+}

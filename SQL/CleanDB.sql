@@ -29,7 +29,8 @@ GO
 PRINT 'Deleting all records from all tables...';
 BEGIN TRANSACTION;
 BEGIN TRY
-    -- Order designed to minimize constraint checks (even though disabled)
+    IF OBJECT_ID('HomeworkSubmissions', 'U') IS NOT NULL DELETE FROM HomeworkSubmissions;
+    IF OBJECT_ID('Homeworks', 'U') IS NOT NULL DELETE FROM Homeworks;
     IF OBJECT_ID('FeePayments', 'U') IS NOT NULL DELETE FROM FeePayments;
     IF OBJECT_ID('FeeStructures', 'U') IS NOT NULL DELETE FROM FeeStructures;
     IF OBJECT_ID('DailyAttendances', 'U') IS NOT NULL DELETE FROM DailyAttendances;
@@ -133,6 +134,8 @@ GO
 -- ────────────────────────────────────────────────────────────
 PRINT 'Dropping all tables...';
 -- Drop tables in reverse dependency order to ensure clean execution
+IF OBJECT_ID('HomeworkSubmissions', 'U') IS NOT NULL DROP TABLE HomeworkSubmissions;
+IF OBJECT_ID('Homeworks', 'U') IS NOT NULL DROP TABLE Homeworks;
 IF OBJECT_ID('FeePayments', 'U') IS NOT NULL DROP TABLE FeePayments;
 IF OBJECT_ID('FeeStructures', 'U') IS NOT NULL DROP TABLE FeeStructures;
 IF OBJECT_ID('DailyAttendances', 'U') IS NOT NULL DROP TABLE DailyAttendances;

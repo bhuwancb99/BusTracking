@@ -20,7 +20,7 @@
 
 
 
-    <form asp-action="Send" method="post" id="broadcastForm">
+    <form asp-action="Send" method="post" id="broadcastForm" enctype="multipart/form-data">
         @Html.AntiForgeryToken()
 
         <div class="row g-4">
@@ -99,13 +99,19 @@
                         </div>
 
                         <!-- Message Body Input -->
-                        <div class="mb-4 flex-grow-1">
+                        <div class="mb-3 flex-grow-1">
                             <div class="d-flex justify-content-between align-items-center">
                                 <label asp-for="Body" class="form-label fw-bold">Message Content <span class="text-danger">*</span></label>
                                 <span id="bodyCounter" class="text-muted small">0 / 1000</span>
                             </div>
-                            <textarea asp-for="Body" id="msgBody" class="form-control rounded-3" rows="5" placeholder="Write your message here..." maxlength="1000" required></textarea>
+                            <textarea asp-for="Body" id="msgBody" class="form-control rounded-3" rows="4" placeholder="Write your message here..." maxlength="1000" required></textarea>
                             <span asp-validation-for="Body" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Circular Attachment File Input -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold"><i class="bi bi-paperclip me-1 text-primary"></i>Digital Circular Attachment (PDF / Image)</label>
+                            <input type="file" name="attachmentFile" class="form-control rounded-3" accept=".pdf,.jpg,.jpeg,.png,.docx" />
                         </div>
 
                         <!-- Submit Button -->

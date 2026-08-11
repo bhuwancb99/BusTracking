@@ -63,7 +63,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Send(BroadcastModel model)
+        public async Task<IActionResult> Send(BroadcastModel model, IFormFile? attachmentFile, [FromServices] IWebHostEnvironment env)
         {
             if (!HasPermission()) return Forbid();
 
@@ -84,6 +84,21 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
 
             Enum.TryParse<NotificationType>(model.NotificationType, out var notifType);
 
+            string? attachmentUrl = null;
+            if (attachmentFile != null && attachmentFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(env.ContentRootPath, "media", "circulars");
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+                var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(attachmentFile.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await attachmentFile.CopyToAsync(stream);
+                }
+                attachmentUrl = $"/media/circulars/{fileName}";
+            }
+
             var userIds = (model.SelectedUserIds ?? []).Distinct().ToList();
             var notifications = userIds.Select(userId => new Notification
             {
@@ -92,6 +107,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
                 Title = model.Title.Trim(),
                 Body = model.Body.Trim(),
                 NotificationType = notifType,
+                AttachmentUrl = attachmentUrl,
                 SentAt = now,
                 IsRead = false
             }).ToList();

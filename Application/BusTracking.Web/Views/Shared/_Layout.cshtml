@@ -131,7 +131,7 @@
                     </ol>
                 </nav>
                 <div class="ms-auto d-flex align-items-center gap-3">
-                    @if (User.IsInRole("SuperAdmin") || PermissionHelper.Can(User, "academicyear.view", Context))
+                    @if (User.Identity?.IsAuthenticated == true)
                     {
                         <div class="dropdown">
                             <button class="btn btn-sm btn-outline-primary dropdown-toggle d-flex align-items-center gap-1 rounded-pill px-3 py-1 fw-bold" data-bs-toggle="dropdown" aria-expanded="false" title="Switch Active Academic Session">
@@ -144,9 +144,8 @@
                                 {
                                     foreach (var year in activeYears)
                                     {
-                                        var targetArea = User.IsInRole("SuperAdmin") ? "SuperAdmin" : "BusCoordinator";
                                         <li>
-                                            <form method="post" asp-area="@targetArea" asp-controller="AcademicYear" asp-action="SwitchSession" class="m-0">
+                                            <form method="post" asp-area="" asp-controller="Session" asp-action="Switch" class="m-0">
                                                 @Html.AntiForgeryToken()
                                                 <input type="hidden" name="id" value="@year.AcademicYearId" />
                                                 <input type="hidden" name="returnUrl" value="@(Context.Request.Path + Context.Request.QueryString)" />
@@ -165,18 +164,22 @@
                                 {
                                     <li><span class="dropdown-item disabled text-muted small">No active sessions</span></li>
                                 }
-                                <li><hr class="dropdown-divider my-1"></li>
-                                <li>
-                                    @{
-                                        var mArea = User.IsInRole("SuperAdmin") ? "SuperAdmin" : "BusCoordinator";
-                                    }
-                                    <a class="dropdown-item small text-primary rounded-3 px-2 py-1" asp-area="@mArea" asp-controller="AcademicYear" asp-action="Index">
-                                        <i class="bi bi-gear me-1"></i> Manage Sessions
-                                    </a>
-                                </li>
+                                @if (User.IsInRole("SuperAdmin") || PermissionHelper.Can(User, "academicyear.view", Context))
+                                {
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        @{
+                                            var mArea = User.IsInRole("SuperAdmin") ? "SuperAdmin" : "BusCoordinator";
+                                        }
+                                        <a class="dropdown-item small text-primary rounded-3 px-2 py-1" asp-area="@mArea" asp-controller="AcademicYear" asp-action="Index">
+                                            <i class="bi bi-gear me-1"></i> Manage Sessions
+                                        </a>
+                                    </li>
+                                }
                             </ul>
                         </div>
                     }
+
                     <a asp-controller="Notification" asp-action="Index" asp-area="" class="btn btn-sm btn-outline-secondary position-relative">
                         <i class="bi bi-bell"></i>
                         @* Unread count badge rendered via partial *@

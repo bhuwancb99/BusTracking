@@ -51,6 +51,7 @@ public static class CommonServiceExtensions
         services.AddScoped<ISubjectService, SubjectService>();
         services.AddScoped<IClassMappingService, ClassMappingService>();
         services.AddScoped<IAttendanceService, AttendanceService>();
+        services.AddScoped<IHomeworkService, HomeworkService>();
         services.AddSingleton<IFcmPushNotificationService, FcmPushNotificationService>();
 
         return services;

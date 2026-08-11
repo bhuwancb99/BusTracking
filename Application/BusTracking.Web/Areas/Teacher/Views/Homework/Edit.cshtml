@@ -1,0 +1,159 @@
+@model BusTracking.Common.DTOs.Homework.UpdateHomeworkDto
+@{
+    ViewData["Title"] = "Edit Homework Assignment";
+    var years = ViewBag.AcademicYears as List<BusTracking.Common.DTOs.AcademicYear.AcademicYearDto> ?? new();
+    var standards = ViewBag.Standards as List<BusTracking.Common.DTOs.Standard.StandardDto> ?? new();
+    var sections = ViewBag.Sections as List<BusTracking.Common.DTOs.Section.SectionDto> ?? new();
+    var subjects = ViewBag.Subjects as List<BusTracking.Common.DTOs.Subject.SubjectDto> ?? new();
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold m-0 text-dark">
+            <i class="bi bi-pencil-square text-primary me-2"></i>Edit Homework Assignment
+        </h3>
+        <span class="small text-muted">Update assignment details, due date, active status, or replace attachment.</span>
+    </div>
+    <div>
+        <a href="@Url.Action("Index", "Homework", new { area = "Teacher" })" class="btn btn-outline-secondary rounded-3 px-3 fw-bold">
+            <i class="bi bi-arrow-left me-1"></i>Back to List
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 max-w-700">
+    <div class="card-body p-4">
+        <form method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="HomeworkId" />
+            <input type="hidden" asp-for="AttachmentUrl" />
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="outlined-field">
+                        <label>Academic Session</label>
+                        <select name="AcademicYearId" class="form-select" required>
+                            @foreach (var y in years)
+                            {
+                                <option value="@y.AcademicYearId" selected="@(y.AcademicYearId == Model.AcademicYearId ? "selected" : null)">@y.YearName @(y.IsCurrent ? "(Active)" : "")</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="outlined-field">
+                        <label>Subject</label>
+                        <select name="SubjectId" class="form-select">
+                            <option value="">-- General / Optional --</option>
+                            @foreach (var sub in subjects)
+                            {
+                                <option value="@sub.SubjectId" selected="@(sub.SubjectId == Model.SubjectId ? "selected" : null)">@sub.SubjectName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="outlined-field">
+                        <label>Class / Standard</label>
+                        <select id="standardSelect" name="StandardId" class="form-select" required onchange="loadSections()">
+                            <option value="">-- Select Class --</option>
+                            @foreach (var s in standards)
+                            {
+                                <option value="@s.StandardId" selected="@(s.StandardId == Model.StandardId ? "selected" : null)">@s.StandardName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="outlined-field">
+                        <label>Section</label>
+                        <select id="sectionSelect" name="SectionId" class="form-select">
+                            <option value="">-- All Sections --</option>
+                            @foreach (var sec in sections)
+                            {
+                                <option value="@sec.SectionId" selected="@(sec.SectionId == Model.SectionId ? "selected" : null)">Section @sec.SectionName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="outlined-field">
+                        <label>Homework Title</label>
+                        <input type="text" name="Title" value="@Model.Title" class="form-control" placeholder="e.g. Chapter 4 Mathematics Exercise 4.2" required />
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="outlined-field">
+                        <label>Instructions & Description</label>
+                        <textarea name="Description" class="form-control" rows="4" placeholder="Enter detailed homework instructions..." required>@Model.Description</textarea>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="outlined-field">
+                        <label>Submission Due Date</label>
+                        <input type="date" name="DueDate" value="@Model.DueDate.ToString("yyyy-MM-dd")" class="form-control" required />
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="outlined-field">
+                        <label>Attachment File (PDF / Photo)</label>
+                        <input type="file" name="attachmentFile" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.docx" />
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(Model.AttachmentUrl))
+                    {
+                        <div class="mt-2">
+                            <a href="@Model.AttachmentUrl" target="_blank" class="small text-primary fw-bold">
+                                <i class="bi bi-paperclip me-1"></i>Current Attachment
+                            </a>
+                        </div>
+                    }
+                </div>
+
+                <div class="col-12">
+                    <div class="p-3 bg-light rounded-3 border d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="fw-bold d-block text-dark">Active Status</span>
+                            <span class="small text-muted">When active, homework is visible to students in their portal.</span>
+                        </div>
+                        <div class="form-check form-switch m-0">
+                            <input class="form-check-input fs-5" type="checkbox" name="IsActive" value="true" id="isActiveSwitch" @(Model.IsActive ? "checked" : "")>
+                            <input type="hidden" name="IsActive" value="false">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 pt-3 text-end">
+                    <button type="submit" class="btn btn-primary rounded-3 px-5 py-2 fw-bold">
+                        <i class="bi bi-save me-1"></i>Save Changes
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function loadSections() {
+            var stdId = $('#standardSelect').val();
+            if (!stdId) {
+                $('#sectionSelect').empty().append('<option value="">-- All Sections --</option>');
+                return;
+            }
+            $.get('@Url.Action("GetSectionsByStandard", "Attendance", new { area = "Teacher" })', { standardId: stdId }, function(data) {
+                var $sec = $('#sectionSelect');
+                $sec.empty().append('<option value="">-- All Sections --</option>');
+                $.each(data, function(i, item) {
+                    $sec.append('<option value="' + item.sectionId + '">Section ' + item.sectionName + '</option>');
+                });
+            });
+        }
+    </script>
+}

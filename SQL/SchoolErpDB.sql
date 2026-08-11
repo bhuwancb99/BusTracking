@@ -745,6 +745,49 @@ CREATE TABLE DailyAttendances (
 );
 GO
 
+-- 33b. HOMEWORKS
+CREATE TABLE Homeworks (
+    HomeworkId     INT IDENTITY(1,1) NOT NULL,
+    SchoolId       INT               NULL,
+    AcademicYearId INT               NOT NULL,
+    StandardId     INT               NOT NULL,
+    SectionId      INT               NULL,
+    SubjectId      INT               NULL,
+    TeacherUserId  INT               NOT NULL,
+    Title          NVARCHAR(200)     NOT NULL,
+    Description    NVARCHAR(MAX)     NOT NULL,
+    AttachmentUrl  NVARCHAR(500)     NULL,
+    DueDate        DATETIME2         NOT NULL,
+    CreatedAt      DATETIME2         NOT NULL CONSTRAINT DF_Homeworks_CreatedAt DEFAULT GETUTCDATE(),
+    IsActive       BIT               NOT NULL CONSTRAINT DF_Homeworks_IsActive DEFAULT 1,
+    CONSTRAINT PK_Homeworks PRIMARY KEY (HomeworkId),
+    CONSTRAINT FK_Homeworks_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId),
+    CONSTRAINT FK_Homeworks_AcademicYears FOREIGN KEY (AcademicYearId) REFERENCES AcademicYears(AcademicYearId),
+    CONSTRAINT FK_Homeworks_StandardMasters FOREIGN KEY (StandardId) REFERENCES StandardMasters(StandardId),
+    CONSTRAINT FK_Homeworks_Sections FOREIGN KEY (SectionId) REFERENCES Sections(SectionId),
+    CONSTRAINT FK_Homeworks_Subjects FOREIGN KEY (SubjectId) REFERENCES Subjects(SubjectId),
+    CONSTRAINT FK_Homeworks_TeacherUsers FOREIGN KEY (TeacherUserId) REFERENCES Users(UserId)
+);
+GO
+
+-- 33c. HOMEWORK SUBMISSIONS
+CREATE TABLE HomeworkSubmissions (
+    SubmissionId   INT IDENTITY(1,1) NOT NULL,
+    HomeworkId     INT               NOT NULL,
+    StudentId      INT               NOT NULL,
+    SubmissionText NVARCHAR(MAX)     NULL,
+    AttachmentUrl  NVARCHAR(500)     NULL,
+    SubmittedAt    DATETIME2         NOT NULL CONSTRAINT DF_HomeworkSubmissions_SubmittedAt DEFAULT GETUTCDATE(),
+    Status         NVARCHAR(50)      NOT NULL CONSTRAINT DF_HomeworkSubmissions_Status DEFAULT 'Submitted',
+    TeacherRemarks NVARCHAR(MAX)     NULL,
+    MarksObtained  DECIMAL(5,2)      NULL,
+    EvaluatedAt    DATETIME2         NULL,
+    CONSTRAINT PK_HomeworkSubmissions PRIMARY KEY (SubmissionId),
+    CONSTRAINT FK_HomeworkSubmissions_Homeworks FOREIGN KEY (HomeworkId) REFERENCES Homeworks(HomeworkId) ON DELETE CASCADE,
+    CONSTRAINT FK_HomeworkSubmissions_Students FOREIGN KEY (StudentId) REFERENCES Students(StudentId)
+);
+GO
+
 -- 34. FEE STRUCTURES
 CREATE TABLE FeeStructures (
     FeeStructureId INT           NOT NULL IDENTITY(1,1),
@@ -803,6 +846,7 @@ CREATE TABLE Notifications (
     NotificationType NVARCHAR(50)  NOT NULL,
     ReferenceId     INT            NULL,
     ReferenceType   NVARCHAR(50)   NULL,
+    AttachmentUrl   NVARCHAR(500)  NULL,
     IsRead          BIT            NOT NULL CONSTRAINT DF_Notifications_IsRead DEFAULT 0,
     SentAt          DATETIME2      NOT NULL CONSTRAINT DF_Notifications_SentAt DEFAULT GETUTCDATE(),
     ReadAt          DATETIME2      NULL,
