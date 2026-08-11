@@ -18,11 +18,8 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
         [ObservableProperty] private bool _isCalendarOpen;
         [ObservableProperty] private int _presentCount = 0;
         [ObservableProperty] private int _absentCount = 0;
-        [ObservableProperty] private int _lateCount = 0;
         [ObservableProperty] private int _totalStudentsCount = 0;
-
-        [ObservableProperty] private string _statusBannerMessage = "📝 Mark attendance manually or tap 📷 Face Scan";
-        [ObservableProperty] private bool _hasExistingAttendance = false;
+        [ObservableProperty] private bool _hasStudents = false;
 
         [ObservableProperty] private ObservableCollection<StudentAttendanceRowDto> _students = new();
 
@@ -143,8 +140,6 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
             student.Status = student.Status switch
             {
                 "Present" => "Absent",
-                "Absent" => "Late",
-                "Late" => "Present",
                 _ => "Present"
             };
             UpdateCounts();
@@ -165,17 +160,7 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
             TotalStudentsCount = Students.Count;
             PresentCount = Students.Count(s => s.Status == "Present");
             AbsentCount = Students.Count(s => s.Status == "Absent");
-            LateCount = Students.Count(s => s.Status == "Late");
-
-            HasExistingAttendance = Students.Any(s => s.IsFaceScanned);
-            if (HasExistingAttendance)
-            {
-                StatusBannerMessage = "ℹ️ Attendance Recorded — Tap any student to modify & update";
-            }
-            else
-            {
-                StatusBannerMessage = "📝 Mark attendance manually or tap 📷 Face Scan";
-            }
+            HasStudents = Students.Count > 0;
         }
 
         [RelayCommand]
@@ -200,9 +185,7 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
                 Records = Students.Select(s => new StudentAttendanceItemDto
                 {
                     StudentId = s.StudentId,
-                    Status = s.Status,
-                    IsFaceScanned = s.IsFaceScanned,
-                    MatchConfidence = s.MatchConfidence
+                    Status = s.Status
                 }).ToList()
             };
 
@@ -212,81 +195,84 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
                 var res = await _attendanceService.SaveManualAttendanceBatchAsync(dto);
                 if (res.Success)
                 {
-                    await ShowToastAsync("Attendance saved successfully!");
+                    await ShowAlertAsync("Success", "Classroom attendance saved successfully.");
                     await FetchStudentsAsync();
                 }
                 else
                 {
-                    SetError(res.Message ?? "Failed to save attendance.");
+                    await ShowAlertAsync("Error", res.Message ?? "Failed to save attendance.");
                 }
             }
-            catch (Exception ex) { SetError(ex.Message); }
-            finally { IsBusy = false; }
+            catch (Exception ex)
+            {
+                await ShowAlertAsync("Error", ex.Message);
+            }
+            finally
+            {
+                IsBusy = false;
+            }
         }
 
         [RelayCommand]
         private async Task StartFaceScanAsync()
         {
+            if (SelectedYear == null || SelectedStandard == null) return;
+
             try
             {
-                PermissionStatus cameraStatus = await Permissions.CheckStatusAsync<Permissions.Camera>();
+                var cameraStatus = await Permissions.CheckStatusAsync<Permissions.Camera>();
                 if (cameraStatus != PermissionStatus.Granted)
                 {
                     cameraStatus = await Permissions.RequestAsync<Permissions.Camera>();
                 }
 
-                FileResult? photo = null;
-                if (cameraStatus == PermissionStatus.Granted && MediaPicker.Default.IsCaptureSupported)
+                if (cameraStatus != PermissionStatus.Granted)
                 {
-                    photo = await MediaPicker.Default.CapturePhotoAsync();
+                    await ShowAlertAsync("Permission Required", "Camera permission is required to capture student photo for face recognition attendance.");
+                    return;
                 }
 
-                if (photo == null)
-                {
-                    photo = await MediaPicker.Default.PickPhotoAsync();
-                }
-
+                var photo = await MediaPicker.Default.CapturePhotoAsync();
                 if (photo == null) return;
 
-                IsBusy = true;
-                try
+                using var stream = await photo.OpenReadAsync();
+                using var memoryStream = new MemoryStream();
+                await stream.CopyToAsync(memoryStream);
+                var imageBytes = memoryStream.ToArray();
+                var base64Photo = Convert.ToBase64String(imageBytes);
+
+                int yearId = SelectedYear.AcademicYearId;
+                int stdId = SelectedStandard.StandardId;
+                int? secId = SelectedSection?.SectionId > 0 ? SelectedSection.SectionId : null;
+
+                var req = new FaceAttendanceScanRequestDto
                 {
-                    using var stream = await photo.OpenReadAsync();
-                    using var ms = new MemoryStream();
-                    await stream.CopyToAsync(ms);
-                    var bytes = ms.ToArray();
-                    var base64 = Convert.ToBase64String(bytes);
+                    AcademicYearId = yearId,
+                    StandardId = stdId,
+                    SectionId = secId,
+                    AttendanceDate = SelectedDate,
+                    Base64CapturedPhoto = base64Photo
+                };
 
-                    int yearId = SelectedYear?.AcademicYearId ?? 1;
-                    int stdId = SelectedStandard?.StandardId ?? 1;
-                    int? secId = SelectedSection?.SectionId > 0 ? SelectedSection.SectionId : null;
-
-                    var req = new FaceAttendanceScanRequestDto
-                    {
-                        AcademicYearId = yearId,
-                        StandardId = stdId,
-                        SectionId = secId,
-                        AttendanceDate = SelectedDate,
-                        Base64Image = base64
-                    };
-
-                    var res = await _attendanceService.ProcessFaceScanAttendanceAsync(req);
-                    if (res.Success && res.Data != null)
-                    {
-                        Students = new ObservableCollection<StudentAttendanceRowDto>(res.Data.AllClassStudents ?? new());
-                        UpdateCounts();
-                        await ShowAlertAsync("Face Scan Complete", $"Scanned {res.Data.TotalFacesDetected} face(s). Matched: {res.Data.MatchedCount}.");
-                    }
-                    else
-                    {
-                        await ShowAlertAsync("Face Scan Result", res.Message ?? "No face matches found.");
-                    }
+                IsBusy = true;
+                var res = await _attendanceService.ProcessFaceScanAttendanceAsync(req);
+                if (res.Success)
+                {
+                    await ShowAlertAsync("Face Scan Completed", res.Message ?? "Attendance updated via Face Matching.");
+                    await FetchStudentsAsync();
                 }
-                finally { IsBusy = false; }
+                else
+                {
+                    await ShowAlertAsync("Face Scan Warning", res.Message ?? "No face match found.");
+                }
             }
             catch (Exception ex)
             {
-                await ShowAlertAsync("Camera Error", $"Unable to process camera scan: {ex.Message}");
+                await ShowAlertAsync("Error", $"Face recognition error: {ex.Message}");
+            }
+            finally
+            {
+                IsBusy = false;
             }
         }
     }

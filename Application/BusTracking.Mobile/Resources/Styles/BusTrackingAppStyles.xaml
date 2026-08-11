@@ -1,5 +1,15 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:syncfusion="clr-namespace:Syncfusion.Maui.Toolkit.TextInputLayout;assembly=Syncfusion.Maui.Toolkit">
+
+    <!--  ══ SYNCFUSION TEXT INPUT LAYOUT REUSABLE STYLE ═════════════════  -->
+    <Style x:Key="AppOutlinedInputStyle" TargetType="syncfusion:SfTextInputLayout">
+        <Setter Property="ContainerType" Value="Outlined" />
+        <Setter Property="OutlineCornerRadius" Value="8" />
+        <Setter Property="ContainerBackground" Value="Transparent" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light=#cbd5e1, Dark=#334155}" />
+    </Style>
 
     <!--  ══ SYNCFUSION HINT LABELS ════════════════════════════════════════  -->
     <Style x:Key="SfHintStyle" TargetType="Label">

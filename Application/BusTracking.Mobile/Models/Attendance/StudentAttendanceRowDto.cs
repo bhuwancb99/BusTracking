@@ -7,6 +7,9 @@ namespace BusTracking.Mobile.Models.Attendance
         public string StudentName { get; set; } = string.Empty;
         public string? ProfileImageUrl { get; set; }
 
+        public bool HasProfileImage => !string.IsNullOrWhiteSpace(ProfileImageUrl);
+        public string DisplayAvatarUrl => HasProfileImage ? ProfileImageUrl! : "avatar_placeholder.png";
+
         [ObservableProperty]
         [NotifyPropertyChangedFor(nameof(StatusColor))]
         [NotifyPropertyChangedFor(nameof(StatusBgColor))]
@@ -17,9 +20,8 @@ namespace BusTracking.Mobile.Models.Attendance
 
         public Color StatusColor => Status switch
         {
-            "Present" => Color.FromArgb("#10b981"),
-            "Absent" => Color.FromArgb("#ef4444"),
-            "Late" => Color.FromArgb("#f59e0b"),
+            "Present" => Color.FromArgb("#059669"),
+            "Absent" => Color.FromArgb("#dc2626"),
             _ => Color.FromArgb("#64748b")
         };
 
@@ -27,7 +29,6 @@ namespace BusTracking.Mobile.Models.Attendance
         {
             "Present" => Color.FromArgb("#d1fae5"),
             "Absent" => Color.FromArgb("#fee2e2"),
-            "Late" => Color.FromArgb("#fef3c7"),
             _ => Color.FromArgb("#f1f5f9")
         };
     }

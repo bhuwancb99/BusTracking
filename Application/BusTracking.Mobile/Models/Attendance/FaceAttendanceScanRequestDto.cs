@@ -9,5 +9,6 @@ namespace BusTracking.Mobile.Models.Attendance
         public DateTime Date { get; set; }
         public DateTime AttendanceDate { get => Date; set => Date = value; }
         public string Base64Image { get; set; } = string.Empty;
+        public string Base64CapturedPhoto { get => Base64Image; set => Base64Image = value; }
     }
 }
