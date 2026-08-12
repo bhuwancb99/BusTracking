@@ -5,12 +5,50 @@ namespace BusTracking.API.Controllers
     {
         private readonly AppDbContext _db;
         private readonly IStudentService _student;
-        private readonly IImageService _img;       // ← NEW
+        private readonly IImageService _img;
+        private readonly IHomeworkService _homeworkService;
+        private readonly IAcademicYearService _academicYearService;
+        private readonly IWebHostEnvironment _env;
 
-        public StudentController(AppDbContext db, IStudentService student, IImageService img)
+        public StudentController(
+            AppDbContext db,
+            IStudentService student,
+            IImageService img,
+            IHomeworkService homeworkService,
+            IAcademicYearService academicYearService,
+            IWebHostEnvironment env)
         {
-            _db = db; _student = student; _img = img;
+            _db = db;
+            _student = student;
+            _img = img;
+            _homeworkService = homeworkService;
+            _academicYearService = academicYearService;
+            _env = env;
         }
+
+        /// <summary>
+        /// Switch active academic session for Student's school.
+        /// </summary>
+        [HttpPost("session/switch/{id:int}")]
+        public async Task<IActionResult> SwitchSession(int id)
+        {
+            int schoolId = CurrentSchoolId ?? 1;
+            var userName = User.Identity?.Name ?? User.GetFullName() ?? "Student";
+            var result = await _academicYearService.SetActiveAcademicYearAsync(schoolId, id, userName);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>
+        /// Gets active academic years for Student.
+        /// </summary>
+        [HttpGet("academicyears")]
+        public async Task<IActionResult> GetAcademicYears()
+        {
+            var schoolId = CurrentSchoolId ?? 1;
+            var years = await _academicYearService.GetAcademicYearsAsync(schoolId);
+            return Ok(ApiResponse<List<AcademicYearDto>>.Ok(years));
+        }
+
 
         // ── GET api/student/dashboard ─────────────────────────────────
         [HttpGet("dashboard")]
@@ -37,7 +75,7 @@ namespace BusTracking.API.Controllers
             {
                 student.StudentCode,
                 student.Standard,
-                ProfileImageUrl = student.User.ProfileImageUrl,   // ← NEW
+                ProfileImageUrl = student.User.ProfileImageUrl,
                 Bus = student.Bus is null ? null : new
                 {
                     student.Bus.BusId,
@@ -62,11 +100,6 @@ namespace BusTracking.API.Controllers
         }
 
         // ── POST api/student/photo ────────────────────────────────────
-        /// <summary>
-        /// Student uploads or replaces their own profile photo.
-        /// Send as multipart/form-data, field name "file".
-        /// Returns: { success, data: "imageUrl", message }
-        /// </summary>
         [HttpPost("photo")]
         [RequestSizeLimit(5_242_880)]
         public async Task<IActionResult> UploadPhoto(IFormFile file)
@@ -93,7 +126,6 @@ namespace BusTracking.API.Controllers
         }
 
         // ── DELETE api/student/photo ──────────────────────────────────
-        /// <summary>Remove own profile photo.</summary>
         [HttpDelete("photo")]
         public async Task<IActionResult> DeletePhoto()
         {
@@ -279,6 +311,46 @@ namespace BusTracking.API.Controllers
             dto.StudentId = student.StudentId;
             var r = await _student.SetAvailabilityAsync(dto, CurrentUserId);
             return r.Success ? Ok(r) : BadRequest(r);
+        }
+
+        // ── STUDENT HOMEWORK ENDPOINTS ──────────────────────────────────────────
+
+        /// <summary>
+        /// Student: Get assigned active homeworks.
+        /// </summary>
+        [HttpGet("homework/list")]
+        public async Task<IActionResult> GetHomeworksForStudent(
+            [FromQuery] int? academicYearId,
+            [FromQuery] DateTime? fromDate,
+            [FromQuery] DateTime? toDate)
+        {
+            var res = await _homeworkService.GetHomeworksForStudentAsync(CurrentUserId, academicYearId, fromDate, toDate);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+
+        /// <summary>
+        /// Student: Upload & submit solution for a homework assignment.
+        /// </summary>
+        [HttpPost("homework/submit")]
+        public async Task<IActionResult> SubmitHomework([FromForm] SubmitHomeworkDto dto, IFormFile? solutionFile)
+        {
+            if (solutionFile != null && solutionFile.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(_env.ContentRootPath, "media", "submissions");
+                if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+                var fileName = $"{Guid.NewGuid()}_{Path.GetFileName(solutionFile.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, fileName);
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await solutionFile.CopyToAsync(stream);
+                }
+                dto.AttachmentUrl = $"/media/submissions/{fileName}";
+            }
+
+            var res = await _homeworkService.SubmitHomeworkAsync(dto, CurrentUserId);
+            return res.Success ? Ok(res) : BadRequest(res);
         }
     }
 }

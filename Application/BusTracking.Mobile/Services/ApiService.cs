@@ -113,6 +113,21 @@ namespace BusTracking.Mobile.Services
             }
         }
 
+        // ── PUT MULTIPART (file upload) ───────────────────────────────────────
+        public async Task<ApiResponse<T>> PutMultipartAsync<T>(string endpoint, MultipartFormDataContent content)
+        {
+            try
+            {
+                await EnsureTokenAsync(endpoint);
+                var res = await _http.PutAsync(endpoint, content);
+                return await ParseAsync<T>(res, endpoint);
+            }
+            catch (Exception ex)
+            {
+                return Fail<T>(ex.Message);
+            }
+        }
+
         // ── PUT ───────────────────────────────────────────────────────────────
         public async Task<ApiResponse<T>> PutAsync<T>(string endpoint, object? body = null)
         {

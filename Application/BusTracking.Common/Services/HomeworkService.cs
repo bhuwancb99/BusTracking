@@ -4,11 +4,16 @@ namespace BusTracking.Common.Services
     {
         private readonly AppDbContext _db;
         private readonly IFcmPushNotificationService _fcmService;
+        private readonly IServiceScopeFactory _scopeFactory;
 
-        public HomeworkService(AppDbContext db, IFcmPushNotificationService fcmService)
+        public HomeworkService(
+            AppDbContext db,
+            IFcmPushNotificationService fcmService,
+            IServiceScopeFactory scopeFactory)
         {
             _db = db;
             _fcmService = fcmService;
+            _scopeFactory = scopeFactory;
         }
 
         public async Task<ApiResponse<HomeworkDto>> CreateHomeworkAsync(CreateHomeworkDto dto, int teacherUserId)
@@ -18,11 +23,19 @@ namespace BusTracking.Common.Services
                 return ApiResponse<HomeworkDto>.Fail("Academic Year, Standard, and Homework Title are required.");
             }
 
+            int? targetSectionId = dto.SectionId > 0 ? dto.SectionId : null;
+            if (!targetSectionId.HasValue && dto.StandardId > 0)
+            {
+                var sec = await _db.Sections.FirstOrDefaultAsync(s => s.StandardId == dto.StandardId && s.IsActive);
+                if (sec != null) targetSectionId = sec.SectionId;
+            }
+
             var homework = new Homework
             {
                 AcademicYearId = dto.AcademicYearId,
                 StandardId = dto.StandardId,
-                SectionId = dto.SectionId > 0 ? dto.SectionId : null,
+                SectionId = targetSectionId,
+
                 SubjectId = dto.SubjectId > 0 ? dto.SubjectId : null,
                 TeacherUserId = teacherUserId,
                 Title = dto.Title.Trim(),
@@ -36,35 +49,58 @@ namespace BusTracking.Common.Services
             _db.Homeworks.Add(homework);
             await _db.SaveChangesAsync();
 
-            // Send FCM Push Notifications if Active
+            // Send FCM Push Notifications & DB Notifications safely on a separate DbContext scope
             if (homework.IsActive)
             {
+                int homeworkId = homework.HomeworkId;
+                string homeworkTitle = homework.Title;
+                DateTime dueDate = homework.DueDate;
+                int standardId = dto.StandardId;
+                int? sectionId = dto.SectionId > 0 ? dto.SectionId : null;
+
                 _ = Task.Run(async () =>
                 {
                     try
                     {
-                        var studentUserIds = await _db.Students
-                            .Where(s => s.StandardId == dto.StandardId && (!dto.SectionId.HasValue || s.SectionId == dto.SectionId))
+                        using var scope = _scopeFactory.CreateScope();
+                        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                        var fcm = scope.ServiceProvider.GetService<IFcmPushNotificationService>();
+
+                        var studentUserIds = await db.Students
+                            .Where(s => s.StandardId == standardId && (!sectionId.HasValue || s.SectionId == sectionId))
                             .Select(s => s.UserId)
                             .ToListAsync();
 
-                        foreach (var uid in studentUserIds)
+                        if (studentUserIds.Count > 0)
                         {
-                            _db.Notifications.Add(new Notification
+                            foreach (var uid in studentUserIds)
                             {
-                                RecipientUserId = uid,
-                                Title = $"New Homework Assigned: {homework.Title}",
-                                Body = $"Due on {homework.DueDate:dd MMM yyyy}. Subject: {homework.Title}",
-                                NotificationType = NotificationType.Broadcast,
-                                ReferenceId = homework.HomeworkId,
-                                ReferenceType = "Homework"
-                            });
+                                db.Notifications.Add(new Notification
+                                {
+                                    RecipientUserId = uid,
+                                    Title = $"New Homework Assigned: {homeworkTitle}",
+                                    Body = $"Due on {dueDate:dd MMM yyyy}. Subject: {homeworkTitle}",
+                                    NotificationType = NotificationType.Broadcast,
+                                    ReferenceId = homeworkId,
+                                    ReferenceType = "Homework"
+                                });
+                            }
+                            await db.SaveChangesAsync();
+
+                            if (fcm != null)
+                            {
+                                await fcm.SendBroadcastPushAsync(
+                                    studentUserIds,
+                                    $"New Homework Assigned: {homeworkTitle}",
+                                    $"Due on {dueDate:dd MMM yyyy}.",
+                                    "Homework");
+                            }
+
                         }
-                        await _db.SaveChangesAsync();
                     }
                     catch
                     {
-                        // Ignore background notification exceptions
+                        // Ignore background notification exceptions safely without locking primary DbContext
                     }
                 });
             }
@@ -82,9 +118,17 @@ namespace BusTracking.Common.Services
                 return ApiResponse<HomeworkDto>.Fail("Academic Year, Standard, and Homework Title are required.");
             }
 
+            int? targetSectionId = dto.SectionId > 0 ? dto.SectionId : null;
+            if (!targetSectionId.HasValue && dto.StandardId > 0)
+            {
+                var sec = await _db.Sections.FirstOrDefaultAsync(s => s.StandardId == dto.StandardId && s.IsActive);
+                if (sec != null) targetSectionId = sec.SectionId;
+            }
+
             homework.AcademicYearId = dto.AcademicYearId;
             homework.StandardId = dto.StandardId;
-            homework.SectionId = dto.SectionId > 0 ? dto.SectionId : null;
+            homework.SectionId = targetSectionId;
+
             homework.SubjectId = dto.SubjectId > 0 ? dto.SubjectId : null;
             homework.Title = dto.Title.Trim();
             homework.Description = dto.Description.Trim();
@@ -146,7 +190,7 @@ namespace BusTracking.Common.Services
             return ApiResponse<List<HomeworkDto>>.Ok(dtos);
         }
 
-        public async Task<ApiResponse<List<HomeworkDto>>> GetHomeworksForStudentAsync(int studentUserId, int? academicYearId)
+        public async Task<ApiResponse<List<HomeworkDto>>> GetHomeworksForStudentAsync(int studentUserId, int? academicYearId, DateTime? fromDate = null, DateTime? toDate = null)
         {
             var student = await _db.Students.FirstOrDefaultAsync(s => s.UserId == studentUserId);
             if (student == null) return ApiResponse<List<HomeworkDto>>.Ok(new List<HomeworkDto>());
@@ -178,32 +222,54 @@ namespace BusTracking.Common.Services
                 }
             }
 
+            if (fromDate.HasValue)
+            {
+                var from = fromDate.Value.Date;
+                query = query.Where(h => h.CreatedAt.Date >= from || h.DueDate.Date >= from);
+            }
+
+            if (toDate.HasValue)
+            {
+                var to = toDate.Value.Date;
+                query = query.Where(h => h.CreatedAt.Date <= to || h.DueDate.Date <= to);
+            }
+
             var list = await query.OrderByDescending(h => h.CreatedAt).ToListAsync();
 
-            var dtos = list.Select(h => new HomeworkDto
+
+            var dtos = list.Select(h =>
             {
-                HomeworkId = h.HomeworkId,
-                AcademicYearId = h.AcademicYearId,
-                YearName = h.AcademicYear?.YearName ?? "",
-                StandardId = h.StandardId,
-                StandardName = h.Standard?.StandardName ?? "",
-                SectionId = h.SectionId,
-                SectionName = h.Section?.SectionName,
-                SubjectId = h.SubjectId,
-                SubjectName = h.Subject?.SubjectName,
-                TeacherUserId = h.TeacherUserId,
-                TeacherName = h.TeacherUser?.FullName ?? "",
-                Title = h.Title,
-                Description = h.Description,
-                AttachmentUrl = h.AttachmentUrl,
-                DueDate = h.DueDate,
-                CreatedAt = h.CreatedAt,
-                IsActive = h.IsActive,
-                SubmissionsCount = h.Submissions.Count(s => s.StudentId == student.StudentId)
+                var sub = h.Submissions.FirstOrDefault(s => s.StudentId == student.StudentId);
+                return new HomeworkDto
+                {
+                    HomeworkId = h.HomeworkId,
+                    AcademicYearId = h.AcademicYearId,
+                    YearName = h.AcademicYear?.YearName ?? "",
+                    StandardId = h.StandardId,
+                    StandardName = h.Standard?.StandardName ?? "",
+                    SectionId = h.SectionId,
+                    SectionName = h.Section?.SectionName,
+                    SubjectId = h.SubjectId,
+                    SubjectName = h.Subject?.SubjectName,
+                    TeacherUserId = h.TeacherUserId,
+                    TeacherName = h.TeacherUser?.FullName ?? "",
+                    Title = h.Title,
+                    Description = h.Description,
+                    AttachmentUrl = h.AttachmentUrl,
+                    DueDate = h.DueDate,
+                    CreatedAt = h.CreatedAt,
+                    IsActive = h.IsActive,
+                    SubmissionsCount = sub != null ? 1 : 0,
+                    IsSubmitted = sub != null,
+                    SubmissionStatus = sub?.Status ?? (sub != null ? "Submitted" : "Pending"),
+                    TeacherRemarks = sub?.TeacherRemarks,
+                    MarksObtained = sub?.MarksObtained
+                };
             }).ToList();
 
             return ApiResponse<List<HomeworkDto>>.Ok(dtos);
         }
+
 
         public async Task<ApiResponse<HomeworkDto>> GetHomeworkByIdAsync(int homeworkId)
         {
@@ -259,6 +325,7 @@ namespace BusTracking.Common.Services
                 existing.SubmittedAt = DateTime.UtcNow;
                 existing.Status = "Resubmitted";
             }
+
             else
             {
                 var sub = new HomeworkSubmission

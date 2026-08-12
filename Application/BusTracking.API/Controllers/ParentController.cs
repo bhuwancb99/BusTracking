@@ -5,11 +5,38 @@ namespace BusTracking.API.Controllers
     {
         private readonly AppDbContext _db;
         private readonly IImageService _img;
+        private readonly IAcademicYearService _academicYearService;
 
-        public ParentController(AppDbContext db, IImageService img)
+        public ParentController(AppDbContext db, IImageService img, IAcademicYearService academicYearService)
         {
-            _db = db; _img = img;
+            _db = db;
+            _img = img;
+            _academicYearService = academicYearService;
         }
+
+        /// <summary>
+        /// Switch active academic session for Parent's school.
+        /// </summary>
+        [HttpPost("session/switch/{id:int}")]
+        public async Task<IActionResult> SwitchSession(int id)
+        {
+            int schoolId = CurrentSchoolId ?? 1;
+            var userName = User.Identity?.Name ?? User.GetFullName() ?? "Parent";
+            var result = await _academicYearService.SetActiveAcademicYearAsync(schoolId, id, userName);
+            return result.Success ? Ok(result) : BadRequest(result);
+        }
+
+        /// <summary>
+        /// Gets active academic years for Parent.
+        /// </summary>
+        [HttpGet("academicyears")]
+        public async Task<IActionResult> GetAcademicYears()
+        {
+            var schoolId = CurrentSchoolId ?? 1;
+            var years = await _academicYearService.GetAcademicYearsAsync(schoolId);
+            return Ok(ApiResponse<List<AcademicYearDto>>.Ok(years));
+        }
+
 
         // ── GET api/parent/dashboard ──────────────────────────────────
         [HttpGet("dashboard")]
@@ -38,68 +65,40 @@ namespace BusTracking.API.Controllers
                     ps.Student.UserId,
                     ps.Student.StudentCode,
                     FullName = ps.Student.User != null ? ps.Student.User.FullName : "Student",
-                    StandardName = ps.Student.Standard?.StandardName ?? "N/A",
-                    ProfileImageUrl = ps.Student.User != null ? ps.Student.User.ProfileImageUrl : null,
-                    BusName = ps.Student.Bus?.BusName,
-                    BusNumber = ps.Student.Bus?.BusNumber,
-                    StopId = ps.Student.StopId,
-                    StopName = ps.Student.Stop?.StopName,
-                    Bus = ps.Student.Bus is null ? null : new
-                    {
-                        ps.Student.Bus.BusId,
-                        ps.Student.Bus.BusName,
-                        ps.Student.Bus.BusNumber
-                    },
-                    Stop = ps.Student.Stop is null ? null : new
-                    {
-                        ps.Student.Stop.StopId,
-                        ps.Student.Stop.StopName,
-                        ps.Student.Stop.Latitude,
-                        ps.Student.Stop.Longitude
-                    }
-                }).ToList();
+                    StandardName = ps.Student.Standard != null ? ps.Student.Standard.StandardName : "N/A",
+                    BusName = ps.Student.Bus != null ? ps.Student.Bus.BusName : "Not Assigned",
+                    BusNumber = ps.Student.Bus != null ? ps.Student.Bus.BusNumber : "N/A",
+                    StopName = ps.Student.Stop != null ? ps.Student.Stop.StopName : "Not Assigned"
+                })
+                .ToList();
 
-            return Ok(ApiResponse<object>.Ok(new { Children = children }));
+            return Ok(ApiResponse<object>.Ok(new
+            {
+                ParentId = parent.ParentId,
+                ChildrenCount = children.Count,
+                Children = children
+            }));
         }
 
-        // ── POST api/parent/children/{studentId}/photo ────────────────
-        /// <summary>
-        /// Parent uploads/replaces a photo for their own child (student).
-        /// Security: verifies the student is linked to this parent.
-        /// Send as multipart/form-data, field name "file".
-        /// </summary>
-        [HttpPost("children/{studentId}/photo")]
+        // ── POST api/parent/photo ─────────────────────────────────────
+        [HttpPost("photo")]
         [RequestSizeLimit(5_242_880)]
-        public async Task<IActionResult> UploadPhoto(int studentId, IFormFile file)
+        public async Task<IActionResult> UploadPhoto(IFormFile file)
         {
-            var parentDetail = await _db.Parents.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
-            if (parentDetail is null) return Forbid();
-
-            var link = await _db.ParentStudents
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(ps => ps.StudentId == studentId
-                                        && ps.ParentId == parentDetail.ParentId);
-            if (link is null)
-                return Forbid();
-
-            var student = await _db.Students
-                .IgnoreQueryFilters()
-                .Include(s => s.User)
-                .FirstOrDefaultAsync(s => s.StudentId == studentId);
-
-            if (student?.User is null)
-                return NotFound(ApiResponse<string>.Fail("Student user record not found."));
+            var user = await _db.Users.FindAsync(CurrentUserId);
+            if (user is null)
+                return NotFound(ApiResponse<string>.Fail("User not found."));
 
             try
             {
                 var url = await _img.SaveProfileImageAsync(
-                    file, student.UserId, "student", student.User.ProfileImageUrl);
+                    file, CurrentUserId, "parent", user.ProfileImageUrl);
 
-                student.User.ProfileImageUrl = url;
-                student.User.UpdatedAt = DateTime.UtcNow;
+                user.ProfileImageUrl = url;
+                user.UpdatedAt = DateTime.UtcNow;
                 await _db.SaveChangesAsync();
 
-                return Ok(ApiResponse<string>.Ok(url, "Child profile photo updated."));
+                return Ok(ApiResponse<string>.Ok(url, "Profile photo updated."));
             }
             catch (InvalidOperationException ex)
             {
@@ -107,211 +106,20 @@ namespace BusTracking.API.Controllers
             }
         }
 
-        // ── DELETE api/parent/children/{studentId}/photo ──────────────
-        /// <summary>Remove photo for own child.</summary>
-        [HttpDelete("children/{studentId}/photo")]
-        public async Task<IActionResult> DeletePhoto(int studentId)
+        // ── DELETE api/parent/photo ───────────────────────────────────
+        [HttpDelete("photo")]
+        public async Task<IActionResult> DeletePhoto()
         {
-            var parentDetail = await _db.Parents.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
-            if (parentDetail is null) return Forbid();
+            var user = await _db.Users.FindAsync(CurrentUserId);
+            if (user is null)
+                return NotFound(ApiResponse<bool>.Fail("User not found."));
 
-            var link = await _db.ParentStudents
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(ps => ps.StudentId == studentId
-                                        && ps.ParentId == parentDetail.ParentId);
-            if (link is null) return Forbid();
-
-            var student = await _db.Students.IgnoreQueryFilters().Include(s => s.User)
-                .FirstOrDefaultAsync(s => s.StudentId == studentId);
-            if (student?.User is null) return NotFound(ApiResponse<bool>.Fail("Student user record not found."));
-
-            _img.DeleteFile(student.User.ProfileImageUrl);
-            student.User.ProfileImageUrl = null;
-            student.User.UpdatedAt = DateTime.UtcNow;
+            _img.DeleteFile(user.ProfileImageUrl);
+            user.ProfileImageUrl = null;
+            user.UpdatedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
 
-            return Ok(ApiResponse<bool>.Ok(true, "Child photo removed."));
-        }
-
-        // ── GET api/parent/children/{studentId}/track ─────────────────
-        [HttpGet("children/{studentId}/track")]
-        public async Task<IActionResult> TrackBus(int studentId)
-        {
-            var parentDetail = await _db.Parents.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
-            if (parentDetail is null) return Forbid();
-
-            var link = await _db.ParentStudents
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(ps => ps.StudentId == studentId
-                                        && ps.ParentId == parentDetail.ParentId);
-            if (link is null) return Forbid();
-
-            var student = await _db.Students.IgnoreQueryFilters()
-                .Include(s => s.Bus)
-                .Include(s => s.Stop)
-                .FirstOrDefaultAsync(s => s.StudentId == studentId);
-
-            if (student is null || student.BusId is null || student.Bus is null)
-                return NotFound(ApiResponse<object>.Fail("No bus assigned to this student."));
-
-            var trip = await _db.BusTrips
-                .IgnoreQueryFilters()
-                .Include(t => t.Driver)
-                .Include(t => t.Route).ThenInclude(r => r!.Stops)
-                .FirstOrDefaultAsync(t => t.BusId == student.BusId
-                                       && t.Status == TripStatus.InProgress);
-
-            if (trip is null)
-            {
-                var activeTripId = await _db.StudentTripStatuses
-                    .IgnoreQueryFilters()
-                    .Where(sts => sts.StudentId == studentId && sts.Trip.Status == TripStatus.InProgress)
-                    .Select(sts => sts.TripId)
-                    .FirstOrDefaultAsync();
-
-                if (activeTripId > 0)
-                {
-                    trip = await _db.BusTrips
-                        .IgnoreQueryFilters()
-                        .Include(t => t.Driver)
-                        .Include(t => t.Route).ThenInclude(r => r!.Stops)
-                        .FirstOrDefaultAsync(t => t.TripId == activeTripId);
-                }
-            }
-
-            if (trip is null)
-                return Ok(ApiResponse<object>.Ok(new
-                {
-                    IsLive = false,
-                    Message = "No active trip right now.",
-                    Bus = new { student.Bus.BusName, student.Bus.BusNumber },
-                    StudentStop = student.Stop is null ? null : new { student.Stop.StopId, student.Stop.StopName }
-                }));
-
-            var locObj = await _db.BusLiveLocations
-                .IgnoreQueryFilters()
-                .Where(l => l.TripId == trip.TripId)
-                .OrderByDescending(l => l.RecordedAt)
-                .Select(l => new { Latitude = (double)l.Latitude, Longitude = (double)l.Longitude, Speed = (double?)l.Speed, Heading = (double?)l.Heading, l.RecordedAt })
-                .FirstOrDefaultAsync();
-
-            object? loc = locObj;
-            if (loc is null && trip.Route?.Stops != null)
-            {
-                var firstStop = trip.Route.Stops.Where(s => s.IsActive && s.Latitude.HasValue && s.Longitude.HasValue).OrderBy(s => s.StopOrder).FirstOrDefault();
-                if (firstStop?.Latitude != null && firstStop?.Longitude != null)
-                {
-                    loc = new
-                    {
-                        Latitude = (double)firstStop.Latitude.Value,
-                        Longitude = (double)firstStop.Longitude.Value,
-                        Speed = (double?)0,
-                        Heading = (double?)0,
-                        RecordedAt = DateTime.UtcNow
-                    };
-                }
-            }
-
-            var boarding = await _db.StudentTripStatuses
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(s => s.TripId == trip.TripId && s.StudentId == studentId);
-
-            var stops = await _db.TripStopEvents
-                .IgnoreQueryFilters()
-                .Include(e => e.Stop)
-                .Where(e => e.TripId == trip.TripId && e.Stop != null)
-                .OrderBy(e => e.Stop.StopOrder)
-                .Select(e => new
-                {
-                    e.Stop.StopId,
-                    e.Stop.StopName,
-                    e.Stop.StopOrder,
-                    e.Stop.Latitude,
-                    e.Stop.Longitude,
-                    Status = e.Status.ToString(),
-                    e.ReachedAt,
-                    e.DepartedAt
-                })
-                .ToListAsync();
-
-            return Ok(ApiResponse<object>.Ok(new
-            {
-                IsLive = true,
-                Trip = new
-                {
-                    trip.TripId,
-                    TripType = trip.TripType.ToString(),
-                    Status = trip.Status.ToString(),
-                    DriverName = trip.Driver?.FullName ?? "Bus Driver"
-                },
-                Bus = new { student.Bus.BusName, student.Bus.BusNumber },
-                StudentStop = student.Stop is null ? null : new { student.Stop.StopId, student.Stop.StopName },
-                Location = loc,
-                BoardingStatus = boarding?.BoardingStatus.ToString() ?? "Pending",
-                Stops = stops
-            }));
-        }
-
-        // ── GET api/parent/children/{studentId}/availability ──────────
-        [HttpGet("children/{studentId}/availability")]
-        public async Task<IActionResult> Availability(int studentId)
-        {
-            var parentDetail = await _db.Parents.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
-            if (parentDetail is null) return Forbid();
-
-            var link = await _db.ParentStudents
-                .IgnoreQueryFilters()
-                .FirstOrDefaultAsync(ps => ps.StudentId == studentId
-                                        && ps.ParentId == parentDetail.ParentId);
-            if (link is null) return Forbid();
-
-            var avail = await _db.StudentAvailabilities
-                .IgnoreQueryFilters()
-                .Where(a => a.StudentId == studentId && a.FromDate >= DateOnly.FromDateTime(DateTime.UtcNow))
-                .OrderBy(a => a.FromDate)
-                .Select(a => new
-                {
-                    a.AvailabilityId,
-                    a.AvailabilityType,
-                    a.FromDate,
-                    a.ToDate,
-                    a.Remarks
-                }).ToListAsync();
-
-            return Ok(ApiResponse<object>.Ok(new { StudentId = studentId, Availability = avail }));
-        }
-
-        // ── GET api/parent/trips/history?days=7 ───────────────────────
-        [HttpGet("trips/history")]
-        public async Task<IActionResult> TripHistory([FromQuery] int days = 7)
-        {
-            var parentDetail = await _db.Parents.IgnoreQueryFilters().FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
-            if (parentDetail is null) return Forbid();
-
-            var studentIds = await _db.ParentStudents
-                .IgnoreQueryFilters()
-                .Where(ps => ps.ParentId == parentDetail.ParentId)
-                .Select(ps => ps.StudentId).ToListAsync();
-
-            var since = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-days));
-            var trips = await _db.StudentTripStatuses
-                .IgnoreQueryFilters()
-                .Include(s => s.Trip).ThenInclude(t => t.Bus)
-                .Include(s => s.Student).ThenInclude(st => st.User)
-                .Where(s => studentIds.Contains(s.StudentId) && s.Trip != null && s.Trip.TripDate >= since)
-                .OrderByDescending(s => s.Trip.TripDate)
-                .Select(s => new
-                {
-                    s.Trip.TripId,
-                    s.Trip.TripDate,
-                    TripType = s.Trip.TripType.ToString(),
-                    BusNumber = s.Trip.Bus != null ? s.Trip.Bus.BusNumber : "N/A",
-                    StudentName = s.Student != null && s.Student.User != null ? s.Student.User.FullName : "Student",
-                    BoardingStatus = s.BoardingStatus.ToString()
-                })
-                .ToListAsync();
-
-            return Ok(ApiResponse<object>.Ok(trips));
+            return Ok(ApiResponse<bool>.Ok(true, "Profile photo removed."));
         }
     }
 }

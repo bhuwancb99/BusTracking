@@ -555,6 +555,11 @@
         FlyoutItemIsVisible="False"
         Route="StudentDashboard" />
     <ShellContent
+        Title="My Homework"
+        ContentTemplate="{DataTemplate student:StudentHomeworkListPage}"
+        FlyoutItemIsVisible="False"
+        Route="StudentHomeworkList" />
+    <ShellContent
         Title="Track My Bus"
         ContentTemplate="{DataTemplate student:StudentTrackingPage}"
         FlyoutItemIsVisible="False"
@@ -584,7 +589,7 @@
         FlyoutItemIsVisible="False"
         Route="DriverNotification" />
 
-    <!--  Teacher Dashboard, Attendance & Notifications  -->
+    <!--  Teacher Dashboard, Attendance, Homework & Notifications  -->
     <ShellContent
         Title="Dashboard"
         ContentTemplate="{DataTemplate teacher:TeacherDashboardPage}"
@@ -596,10 +601,16 @@
         FlyoutItemIsVisible="False"
         Route="TeacherAttendance" />
     <ShellContent
+        Title="Homework"
+        ContentTemplate="{DataTemplate teacher:TeacherHomeworkListPage}"
+        FlyoutItemIsVisible="False"
+        Route="TeacherHomeworkList" />
+    <ShellContent
         Title="Notifications"
         ContentTemplate="{DataTemplate teacher:TeacherNotificationPage}"
         FlyoutItemIsVisible="False"
         Route="TeacherNotification" />
+
 
     <!--  SuperAdmin Teachers List  -->
     <ShellContent

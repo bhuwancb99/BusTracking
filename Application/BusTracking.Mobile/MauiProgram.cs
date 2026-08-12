@@ -154,7 +154,13 @@ namespace BusTracking.Mobile
             Routing.RegisterRoute("DriverTripDetail", typeof(DriverTripDetailPage));
             Routing.RegisterRoute("DriverNotification", typeof(DriverNotificationPage));
             Routing.RegisterRoute("DriverTracking", typeof(DriverTrackingPage));
+
+            // ── Homework Sub-Routes (Child Push Routes) ────────────────────────
+            Routing.RegisterRoute("TeacherHomeworkForm", typeof(TeacherHomeworkFormPage));
+            Routing.RegisterRoute("TeacherHomeworkSubmissions", typeof(TeacherHomeworkSubmissionsPage));
         }
+
+
 
         // ── Services ──────────────────────────────────────────────────────────
         private static void RegisterServices(IServiceCollection s)
@@ -200,6 +206,7 @@ namespace BusTracking.Mobile
             s.AddTransient<ISectionService, SectionService>();
             s.AddTransient<ISubjectService, SubjectService>();
             s.AddTransient<IClassMappingService, ClassMappingService>();
+            s.AddTransient<HomeworkMobileService>();
         }
 
         // ── ViewModels ────────────────────────────────────────────────────────
@@ -302,6 +309,16 @@ namespace BusTracking.Mobile
             // Teacher
             s.AddTransient<TeacherDashboardViewModel>();
             s.AddTransient<TeacherNotificationViewModel>();
+            s.AddTransient<TeacherHomeworkListViewModel>();
+            s.AddTransient<TeacherHomeworkFormViewModel>();
+            s.AddTransient<TeacherHomeworkSubmissionsViewModel>();
+
+            // Student
+            s.AddTransient<StudentDashboardViewModel>();
+            s.AddTransient<StudentTrackingViewModel>();
+            s.AddTransient<StudentAvailabilityViewModel>();
+            s.AddTransient<StudentNotificationViewModel>();
+            s.AddTransient<StudentHomeworkListViewModel>();
 
             // Driver
             s.AddTransient<DriverDashboardViewModel>();
@@ -461,6 +478,10 @@ namespace BusTracking.Mobile
             s.AddTransient<TeacherAttendancePage>();
             s.AddTransient<TeacherDashboardPage>();
             s.AddTransient<TeacherNotificationPage>();
+            s.AddTransient<TeacherHomeworkListPage>();
+            s.AddTransient<TeacherHomeworkFormPage>();
+            s.AddTransient<TeacherHomeworkSubmissionsPage>();
+            s.AddTransient<StudentHomeworkListPage>();
             s.AddTransient<LiveTrackingPage>();
 
             s.AddTransient<AdminBusTypeListPage>();

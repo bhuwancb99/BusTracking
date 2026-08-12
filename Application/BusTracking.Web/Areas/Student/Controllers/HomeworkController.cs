@@ -19,16 +19,22 @@ namespace BusTracking.Web.Areas.Student.Controllers
             _env = env;
         }
 
-        public async Task<IActionResult> Index(int? academicYearId)
+        public async Task<IActionResult> Index(int? academicYearId, DateTime? fromDate, DateTime? toDate)
         {
+            var defaultFrom = fromDate ?? DateTime.Today.AddDays(-7);
+            var defaultTo = toDate ?? DateTime.Today;
+
             var years = await _academicYearService.GetAcademicYearsAsync(1);
 
             ViewBag.AcademicYears = years;
             ViewBag.SelectedYearId = academicYearId;
+            ViewBag.FromDate = defaultFrom;
+            ViewBag.ToDate = defaultTo;
 
-            var res = await _homeworkService.GetHomeworksForStudentAsync(CurrentUserId, academicYearId);
+            var res = await _homeworkService.GetHomeworksForStudentAsync(CurrentUserId, academicYearId, defaultFrom, defaultTo);
             return View(res.Data ?? new List<HomeworkDto>());
         }
+
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Submit(int homeworkId, string? submissionText, IFormFile? solutionFile)

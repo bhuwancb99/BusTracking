@@ -285,6 +285,18 @@ public static class Constants
         public const string AcademicYears         = "/api/teacher/academicyears";
         public const string Standards             = "/api/teacher/standards";
         public const string SectionsByStandard     = "/api/teacher/sections/by-standard/{0}";
+        public const string Subjects              = "/api/teacher/subjects";
+
+
+        // Homework (role: Teacher)
+        public const string HomeworkList          = "/api/teacher/homework/list?academicYearId={0}&standardId={1}&sectionId={2}";
+        public const string HomeworkById          = "/api/teacher/homework/{0}";
+        public const string HomeworkCreate        = "/api/teacher/homework/create";
+        public const string HomeworkUpdate        = "/api/teacher/homework/update/{0}";
+        public const string HomeworkDelete        = "/api/teacher/homework/delete/{0}";
+        public const string HomeworkSubmissions   = "/api/teacher/homework/submissions/{0}";
+        public const string HomeworkEvaluate      = "/api/teacher/homework/evaluate";
+        public const string SessionSwitch         = "/api/teacher/session/switch/{0}";
     }
 
     // ── Driver  →  DriverController [Route("api/driver")] + TripsController [Route("api/trips")] ──
@@ -306,26 +318,39 @@ public static class Constants
         public const string Notifications     = "/api/driver/notifications";
         public const string NotifMarkRead     = "/api/driver/notifications/{0}/read";
         public const string NotifMarkAllRead  = "/api/driver/notifications/read-all";
+        public const string SessionSwitch     = "/api/driver/session/switch/{0}";
+        public const string AcademicYears     = "/api/driver/academicyears";
     }
 
     // ── Student ───────────────────────────────────────────────────────────
     public static class Student
     {
-        public const string Dashboard = "/api/student/dashboard";
-        public const string Track = "/api/student/track";
-        public const string Tracking = "/api/student/track";
+        public const string Dashboard    = "/api/student/dashboard";
+        public const string Track        = "/api/student/track";
+        public const string Tracking     = "/api/student/track";
         public const string Availability = "/api/student/availability";
+
+        // Homework & Session (role: Student)
+        public const string HomeworkList   = "/api/student/homework/list?academicYearId={0}";
+        public const string HomeworkSubmit = "/api/student/homework/submit";
+        public const string SessionSwitch  = "/api/student/session/switch/{0}";
+        public const string AcademicYears  = "/api/student/academicyears";
     }
+
 
     // ── Parent ────────────────────────────────────────────────────────────
     public static class Parent
     {
-        public const string Dashboard = "/api/parent/dashboard";
-        public const string TrackBus = "/api/parent/children/{0}/track";
-        public const string Availability = "/api/parent/children/{0}/availability";
-        public const string TripHistory = "/api/parent/trips/history";
+        public const string Dashboard     = "/api/parent/dashboard";
+        public const string TrackBus      = "/api/parent/children/{0}/track";
+        public const string Availability  = "/api/parent/children/{0}/availability";
+        public const string TripHistory   = "/api/parent/trips/history";
         public const string TripRouteInfo = "/api/parent/trips/{0}/route-info";
+        public const string SessionSwitch = "/api/parent/session/switch/{0}";
+        public const string AcademicYears = "/api/parent/academicyears";
     }
+
+
 
     // ── Common  →  NotificationsController / FeedbackController / ProfileController / LoggerController ─
     public static class Common

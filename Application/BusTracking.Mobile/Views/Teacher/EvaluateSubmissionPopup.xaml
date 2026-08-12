@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup
+    x:Class="BusTracking.Mobile.Views.Teacher.EvaluateSubmissionPopup"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit">
+
+    <Border
+        Margin="20"
+        Padding="18,16"
+        BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                          Dark={StaticResource CardBgDark}}"
+        HorizontalOptions="Center"
+        Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                 Dark={StaticResource BorderColorDark}}"
+        StrokeShape="RoundRectangle 16"
+        StrokeThickness="1"
+        VerticalOptions="Center"
+        WidthRequest="310">
+        <VerticalStackLayout Spacing="14">
+            <VerticalStackLayout Spacing="2">
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="16"
+                    HorizontalTextAlignment="Center"
+                    Text="Evaluate Submission"
+                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                Dark=White}" />
+                <Label
+                    x:Name="LblStudentInfo"
+                    FontSize="12"
+                    HorizontalTextAlignment="Center"
+                    TextColor="{StaticResource Primary}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="4">
+                <Label
+                    FontSize="12"
+                    Text="Marks Obtained (e.g. 9.5)"
+                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                Dark={StaticResource TextSecondaryDark}}" />
+                <Border
+                    Padding="10,0"
+                    BackgroundColor="{AppThemeBinding Light=White,
+                                                      Dark=#1E293B}"
+                    HeightRequest="42"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <Entry
+                        x:Name="TxtMarks"
+                        FontSize="14"
+                        HeightRequest="40"
+                        Keyboard="Numeric"
+                        Placeholder="Enter marks"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark=White}"
+                        VerticalOptions="Center" />
+                </Border>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="4">
+                <Label
+                    FontSize="12"
+                    Text="Teacher Remarks / Feedback"
+                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                Dark={StaticResource TextSecondaryDark}}" />
+                <Border
+                    Padding="10,4"
+                    BackgroundColor="{AppThemeBinding Light=White,
+                                                      Dark=#1E293B}"
+                    HeightRequest="68"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 8"
+                    StrokeThickness="1">
+                    <Editor
+                        x:Name="TxtRemarks"
+                        AutoSize="TextChanges"
+                        FontSize="13"
+                        HeightRequest="60"
+                        Placeholder="Enter feedback..."
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark=White}" />
+                </Border>
+            </VerticalStackLayout>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Button
+                    Grid.Column="0"
+                    BackgroundColor="Transparent"
+                    BorderColor="{AppThemeBinding Light={StaticResource BorderColor},
+                                                  Dark={StaticResource BorderColorDark}}"
+                    BorderWidth="1"
+                    Clicked="OnCancelClicked"
+                    CornerRadius="8"
+                    FontAttributes="Bold"
+                    HeightRequest="40"
+                    Text="Cancel"
+                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                Dark={StaticResource TextSecondaryDark}}" />
+                <Button
+                    Grid.Column="1"
+                    BackgroundColor="{StaticResource Primary}"
+                    Clicked="OnSubmitClicked"
+                    CornerRadius="8"
+                    FontAttributes="Bold"
+                    HeightRequest="40"
+                    Text="Save Grade"
+                    TextColor="White" />
+            </Grid>
+        </VerticalStackLayout>
+    </Border>
+</toolkit:Popup>

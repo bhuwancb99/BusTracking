@@ -12,6 +12,8 @@ namespace BusTracking.Mobile.Interfaces
         Task<ApiResponse<T>> PutAsync<T>(string endpoint, object? body = null);
         Task<ApiResponse<T>> DeleteAsync<T>(string endpoint);
         Task<ApiResponse<T>> PostMultipartAsync<T>(string endpoint, MultipartFormDataContent content);
+        Task<ApiResponse<T>> PutMultipartAsync<T>(string endpoint, MultipartFormDataContent content);
+
         void SetToken(string token);
         void ClearToken();
     }

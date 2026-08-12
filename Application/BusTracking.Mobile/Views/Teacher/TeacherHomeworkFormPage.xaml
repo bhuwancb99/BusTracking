@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.Teacher.TeacherHomeworkFormPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:common="clr-namespace:BusTracking.Mobile.Views.Common"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:syncfusion="clr-namespace:Syncfusion.Maui.Toolkit.TextInputLayout;assembly=Syncfusion.Maui.Toolkit"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Teacher"
+    x:DataType="vm:TeacherHomeworkFormViewModel"
+    x:TypeArguments="vm:TeacherHomeworkFormViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
+
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
+    </views:ViewBase.Behaviors>
+
+    <Shell.TitleView>
+        <Label
+            FontAttributes="Bold"
+            FontSize="17"
+            Text="{Binding PageTitle}"
+            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                        Dark=White}"
+            VerticalOptions="Center" />
+    </Shell.TitleView>
+
+    <Grid>
+        <ScrollView Padding="12">
+            <VerticalStackLayout Spacing="12">
+                <Border
+                    Padding="14"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 10">
+                    <VerticalStackLayout Spacing="10">
+                        <syncfusion:SfTextInputLayout Hint="Academic Session" Style="{StaticResource AppOutlinedInputStyle}">
+                            <Picker
+                                ItemDisplayBinding="{Binding YearName}"
+                                ItemsSource="{Binding AcademicYears}"
+                                SelectedItem="{Binding SelectedAcademicYear}" />
+                        </syncfusion:SfTextInputLayout>
+
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                            <syncfusion:SfTextInputLayout
+                                Grid.Column="0"
+                                Hint="Standard"
+                                Style="{StaticResource AppOutlinedInputStyle}">
+                                <Picker
+                                    ItemDisplayBinding="{Binding StandardName}"
+                                    ItemsSource="{Binding Standards}"
+                                    SelectedItem="{Binding SelectedStandard}" />
+                            </syncfusion:SfTextInputLayout>
+                            <syncfusion:SfTextInputLayout
+                                Grid.Column="1"
+                                Hint="Section (Optional)"
+                                Style="{StaticResource AppOutlinedInputStyle}">
+                                <Picker
+                                    ItemDisplayBinding="{Binding SectionName}"
+                                    ItemsSource="{Binding Sections}"
+                                    SelectedItem="{Binding SelectedSection}" />
+                            </syncfusion:SfTextInputLayout>
+                        </Grid>
+
+                        <syncfusion:SfTextInputLayout Hint="Subject (Optional)" Style="{StaticResource AppOutlinedInputStyle}">
+                            <Picker
+                                ItemDisplayBinding="{Binding SubjectName}"
+                                ItemsSource="{Binding Subjects}"
+                                SelectedItem="{Binding SelectedSubject}" />
+                        </syncfusion:SfTextInputLayout>
+
+                        <syncfusion:SfTextInputLayout Hint="Title" Style="{StaticResource AppOutlinedInputStyle}">
+                            <Entry Text="{Binding HomeworkTitle}" />
+                        </syncfusion:SfTextInputLayout>
+
+                        <syncfusion:SfTextInputLayout Hint="Instructions / Description" Style="{StaticResource AppOutlinedInputStyle}">
+                            <Editor
+                                AutoSize="TextChanges"
+                                HeightRequest="100"
+                                Text="{Binding Description}" />
+                        </syncfusion:SfTextInputLayout>
+
+                        <!--  Due Date Trigger with CalendarPickerPopup  -->
+                        <Border
+                            Padding="12,10"
+                            BackgroundColor="{AppThemeBinding Light=White,
+                                                              Dark=#1E293B}"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                     Dark={StaticResource BorderColorDark}}"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="1">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding OpenDueDateCalendarCommand}" />
+                            </Border.GestureRecognizers>
+                            <Grid ColumnDefinitions="*,Auto">
+                                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <Label
+                                        FontSize="11"
+                                        Text="Due Date"
+                                        TextColor="{StaticResource TextSecondary}" />
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="14"
+                                        Text="{Binding DueDate, StringFormat='{0:dd MMM yyyy}'}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                    Dark=White}" />
+                                </VerticalStackLayout>
+                                <Image
+                                    Grid.Column="1"
+                                    HeightRequest="20"
+                                    Source="calendar_icon.png"
+                                    VerticalOptions="Center"
+                                    WidthRequest="20">
+                                    <Image.Behaviors>
+                                        <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light={StaticResource Primary}, Dark=White}" />
+                                    </Image.Behaviors>
+                                </Image>
+                            </Grid>
+                        </Border>
+
+                        <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                            <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <Label FontAttributes="Bold" Text="Active Assignment Status" />
+                                <Label
+                                    FontSize="11"
+                                    Text="If Active, students will immediately see this homework and receive a push notification."
+                                    TextColor="{StaticResource TextTertiary}" />
+                            </VerticalStackLayout>
+                            <Switch Grid.Column="1" IsToggled="{Binding IsActive}" />
+                        </Grid>
+
+                        <BoxView HeightRequest="1" Color="{StaticResource BorderColor}" />
+
+                        <VerticalStackLayout Spacing="6">
+                            <Label FontAttributes="Bold" Text="File Attachment (PDF / Image)" />
+                            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                                <Label
+                                    Grid.Column="0"
+                                    FontSize="12"
+                                    LineBreakMode="TailTruncation"
+                                    Text="{Binding SelectedFileName, FallbackValue='No file attached'}"
+                                    TextColor="{StaticResource TextSecondary}"
+                                    VerticalOptions="Center" />
+                                <Border
+                                    Grid.Column="1"
+                                    Padding="10,6"
+                                    BackgroundColor="{StaticResource Primary}"
+                                    StrokeShape="RoundRectangle 8"
+                                    StrokeThickness="0"
+                                    VerticalOptions="Center">
+                                    <Border.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding PickFileCommand}" />
+                                    </Border.GestureRecognizers>
+                                    <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
+                                        <Image
+                                            HeightRequest="18"
+                                            Source="upload.png"
+                                            VerticalOptions="Center"
+                                            WidthRequest="18">
+                                            <Image.Behaviors>
+                                                <mct:IconTintColorBehavior TintColor="White" />
+                                            </Image.Behaviors>
+                                        </Image>
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="12"
+                                            Text="Attach File"
+                                            TextColor="White"
+                                            VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+                                </Border>
+                            </Grid>
+                        </VerticalStackLayout>
+
+                        <Button
+                            Margin="0,10,0,0"
+                            Command="{Binding SaveHomeworkCommand}"
+                            CornerRadius="8"
+                            FontAttributes="Bold"
+                            HeightRequest="46"
+                            Text="Save Homework" />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!--  Calendar Picker Popup for Due Date  -->
+        <common:CalendarPickerPopup
+            Title="Select Due Date"
+            IsOpen="{Binding IsDueDateCalendarOpen, Mode=TwoWay}"
+            SelectedDate="{Binding DueDate, Mode=TwoWay}" />
+    </Grid>
+</views:ViewBase>

@@ -16,6 +16,7 @@ global using BusTracking.Common.DTOs.ClassMapping;
 global using BusTracking.Common.DTOs.Common;
 global using BusTracking.Common.DTOs.Driver;
 global using BusTracking.Common.DTOs.Feedback;
+global using BusTracking.Common.DTOs.Homework;
 global using BusTracking.Common.DTOs.Logger;
 global using BusTracking.Common.DTOs.Parent;
 global using BusTracking.Common.DTOs.Route;

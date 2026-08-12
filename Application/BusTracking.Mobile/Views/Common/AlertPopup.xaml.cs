@@ -2,7 +2,7 @@ namespace BusTracking.Mobile.Views.Common;
 
 /// <summary>
 /// Themed single-button alert popup — matches ConfirmPopup visual style.
-/// Use instead of DisplayAlert for a consistent app-wide look.
+/// Use instead of DisplayAlertAsync for a consistent app-wide look.
 /// </summary>
 public partial class AlertPopup : CommunityToolkit.Maui.Views.Popup
 {

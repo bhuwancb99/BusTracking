@@ -129,17 +129,25 @@
     <script>
         function loadSections() {
             var stdId = $('#standardSelect').val();
+            var $sec = $('#sectionSelect');
             if (!stdId) {
-                $('#sectionSelect').empty().append('<option value="">-- All Sections --</option>');
+                $sec.empty().append('<option value="">-- Select Section --</option>');
                 return;
             }
             $.get('@Url.Action("GetSectionsByStandard", "Attendance", new { area = "Teacher" })', { standardId: stdId }, function(data) {
-                var $sec = $('#sectionSelect');
-                $sec.empty().append('<option value="">-- All Sections --</option>');
-                $.each(data, function(i, item) {
-                    $sec.append('<option value="' + item.sectionId + '">Section ' + item.sectionName + '</option>');
-                });
+                $sec.empty();
+                if (data && data.length > 0) {
+                    $.each(data, function(i, item) {
+                        var secId = item.sectionId || item.SectionId || item.id;
+                        var secName = item.sectionName || item.SectionName || item.name || '';
+                        $sec.append('<option value="' + secId + '">' + (secName.startsWith('Section') ? secName : 'Section ' + secName) + '</option>');
+                    });
+                    $sec.val(data[0].sectionId || data[0].SectionId || data[0].id);
+                } else {
+                    $sec.append('<option value="">-- All Sections --</option>');
+                }
             });
         }
     </script>
 }
+

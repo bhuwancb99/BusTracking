@@ -198,8 +198,18 @@ public partial class AppShell : Shell
         FlyoutIsPresented = false;
 
         if (!string.IsNullOrEmpty(item.Route))
-            await Shell.Current.GoToAsync("//" + item.Route);
+        {
+            try
+            {
+                await Shell.Current.GoToAsync("//" + item.Route);
+            }
+            catch
+            {
+                await Shell.Current.GoToAsync(item.Route);
+            }
+        }
     }
+
 
     // ── Menu definitions ──────────────────────────────────────────────────
     private static List<FlyoutMenuItem> GetMenuForRole(string role, string permissionsJson)
@@ -304,8 +314,9 @@ public partial class AppShell : Shell
     private static List<FlyoutMenuItem> TeacherMenu() =>
     [
         new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "Dashboard",        Route = "TeacherDashboard"     },
-        new() { IconSvg = "calendar_check.png",IconColor = _svgImageColor, Title = "Daily Attendance", Route = "TeacherAttendance"    },
         new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",       Route = "Profile"              },
+        new() { IconSvg = "calendar_check.png",IconColor = _svgImageColor, Title = "Daily Attendance", Route = "TeacherAttendance"    },
+        new() { IconSvg = "homework.png",      IconColor = _svgImageColor, Title = "Homework",         Route = "TeacherHomeworkList"  },
         new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications",    Route = "TeacherNotification"  },
     ];
 
@@ -323,10 +334,12 @@ public partial class AppShell : Shell
     [
         new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "My Dashboard",    Route = "StudentDashboard"    },
         new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",      Route = "Profile"             },
+        new() { IconSvg = "homework.png",     IconColor = _svgImageColor, Title = "My Homework",     Route = "StudentHomeworkList" },
         new() { IconSvg = "tracking.png",     IconColor = _svgImageColor, Title = "Track My Bus",    Route = "StudentTracking"     },
         new() { IconSvg = "availability.png", IconColor = _svgImageColor, Title = "My Availability", Route = "StudentAvailability" },
-        new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications",   Route = "StudentNotification"   },
+        new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications",   Route = "StudentNotification" },
     ];
+
 
     private static List<FlyoutMenuItem> DriverMenu() =>
     [

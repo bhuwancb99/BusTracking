@@ -84,7 +84,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
                 if (Application.Current?.Windows[0].Page is Page page)
                 {
-                    string selected = await page.DisplayActionSheet("Select Academic Session", "Cancel", null, options);
+                    string selected = await page.DisplayActionSheetAsync("Select Academic Session", "Cancel", null, options);
                     if (string.IsNullOrWhiteSpace(selected) || selected == "Cancel") return;
 
                     string cleanName = selected.Replace(" (Active)", "").Trim();

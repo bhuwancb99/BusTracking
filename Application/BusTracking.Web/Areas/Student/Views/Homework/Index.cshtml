@@ -3,9 +3,11 @@
     ViewData["Title"] = "My Homework Assignments";
     var years = ViewBag.AcademicYears as List<BusTracking.Common.DTOs.AcademicYear.AcademicYearDto> ?? new();
     int? selectedYearId = ViewBag.SelectedYearId;
+    DateTime fromDate = ViewBag.FromDate ?? DateTime.Today.AddDays(-7);
+    DateTime toDate = ViewBag.ToDate ?? DateTime.Today;
 }
 
-<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
     <div>
         <h3 class="fw-bold m-0 text-dark">
             <i class="bi bi-journal-check text-primary me-2"></i>My Homework & Assignments
@@ -13,6 +15,27 @@
         <span class="small text-muted">View class homework, download question papers, and upload completed work.</span>
     </div>
 </div>
+
+<!-- Date Filter Form -->
+<div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-4">
+            <label class="form-label small fw-bold text-muted mb-1">From Date</label>
+            <input type="date" name="fromDate" value="@fromDate.ToString("yyyy-MM-dd")" class="form-control rounded-3" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label small fw-bold text-muted mb-1">To Date</label>
+            <input type="date" name="toDate" value="@toDate.ToString("yyyy-MM-dd")" class="form-control rounded-3" />
+        </div>
+        <div class="col-md-4 text-end">
+            <button type="submit" class="btn btn-primary rounded-3 px-4 fw-bold w-100">
+                <i class="bi bi-filter me-1"></i>Filter Homework
+            </button>
+        </div>
+    </form>
+</div>
+
+
 
 <div class="row g-3 mb-4">
     @if (!Model.Any())
