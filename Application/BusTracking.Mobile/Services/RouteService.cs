@@ -5,11 +5,13 @@ namespace BusTracking.Mobile.Services
         private readonly IApiService _api;
         private readonly ICacheService _cache;
         private readonly IAuthService _auth;
+        private readonly IServiceProvider _serviceProvider;
 
         private const string ListCacheKey = "routes_list";
 
-        public RouteService(IApiService api, ICacheService cache, IAuthService auth)
-        { _api = api; _cache = cache; _auth = auth; }
+        public RouteService(IApiService api, ICacheService cache, IAuthService auth, IServiceProvider serviceProvider)
+        { _api = api; _cache = cache; _auth = auth; _serviceProvider = serviceProvider; }
+
 
         private bool IsSuperAdmin => _auth.CurrentRole == Constants.Roles.SuperAdmin;
 
@@ -70,6 +72,28 @@ namespace BusTracking.Mobile.Services
             var list = r.Data ?? [];
             _cache.Set(key, list, TimeSpan.FromMinutes(Constants.Cache.ListTtlM));
             return list;
+        }
+
+        public async Task<List<StopItem>> GetStopsByBusAsync(int busId)
+        {
+            var key = $"bus_stops_{busId}";
+            if (_cache.Has(key)) return _cache.Get<List<StopItem>>(key) ?? [];
+
+            try
+            {
+                var busService = _serviceProvider.GetRequiredService<IBusService>();
+                var bus = await busService.GetByIdAsync(busId);
+                int? routeId = bus?.RouteId ?? bus?.RouteIds?.FirstOrDefault();
+                if (routeId.HasValue && routeId.Value > 0)
+                {
+                    var stops = await GetStopsAsync(routeId.Value);
+                    _cache.Set(key, stops, TimeSpan.FromMinutes(Constants.Cache.ListTtlM));
+                    return stops;
+                }
+            }
+            catch { }
+
+            return [];
         }
 
         public async Task<ApiResponse<object>> CreateAsync(CreateRouteRequest req)

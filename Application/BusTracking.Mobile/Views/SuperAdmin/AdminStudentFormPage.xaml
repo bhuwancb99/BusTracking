@@ -305,7 +305,7 @@
                             TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                         Dark={StaticResource TextSecondaryDark}}" />
                         <Picker
-                            Title="Select a busï¿½"
+                            Title="Select a bus..."
                             BackgroundColor="Transparent"
                             ItemDisplayBinding="{Binding BusName}"
                             ItemsSource="{Binding BusOptions}"
@@ -330,7 +330,7 @@
                             TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                         Dark={StaticResource TextSecondaryDark}}" />
                         <Picker
-                            Title="Select a stopï¿½"
+                            Title="Select a stop..."
                             BackgroundColor="Transparent"
                             ItemDisplayBinding="{Binding StopName}"
                             ItemsSource="{Binding StopOptions}"
@@ -339,6 +339,7 @@
                                                         Dark={StaticResource TextPrimaryDark}}" />
                     </VerticalStackLayout>
                 </Border>
+
                 <!--  Transport Fee Tracking  -->
                 <Border
                     BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},

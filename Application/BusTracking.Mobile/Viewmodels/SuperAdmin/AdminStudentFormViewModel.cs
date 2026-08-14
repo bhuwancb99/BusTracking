@@ -156,14 +156,9 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                     if (DateTime.TryParse(s.FeeExpiryDate, out var feeExp)) FeeExpiryDate = feeExp;
 
                     SelectedBus = BusOptions.FirstOrDefault(b => b.BusId == s.BusId);
-                    if (s.BusId.HasValue)
+                    if (s.BusId.HasValue && s.BusId.Value > 0)
                     {
-                        var bus = SelectedBus;
-                        if (bus?.RouteId.HasValue == true)
-                        {
-                            StopOptions = await _routes.GetStopsAsync(bus.RouteId.Value);
-                            SelectedStop = StopOptions.FirstOrDefault(st => st.StopId == s.StopId);
-                        }
+                        await LoadStopsForBusAsync(s.BusId.Value, s.StopId);
                     }
                 }
                 _isLoadingData = false;
@@ -172,17 +167,25 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 
         partial void OnSelectedBusChanged(BusItem? value)
         {
-            if (value?.RouteId.HasValue == true)
-                _ = LoadStopsAsync(value.RouteId.Value);
+            if (_isLoadingData) return;
+            if (value != null && value.BusId > 0)
+                _ = LoadStopsForBusAsync(value.BusId);
             else
+            {
                 StopOptions = [];
+                SelectedStop = null;
+            }
         }
 
-        private async Task LoadStopsAsync(int routeId)
+        private async Task LoadStopsForBusAsync(int busId, int? preselectStopId = null)
         {
-            StopOptions = await _routes.GetStopsAsync(routeId);
-            SelectedStop = null;
+            StopOptions = await _routes.GetStopsByBusAsync(busId);
+            if (preselectStopId.HasValue)
+                SelectedStop = StopOptions.FirstOrDefault(st => st.StopId == preselectStopId.Value);
+            else
+                SelectedStop = null;
         }
+
 
         [RelayCommand]
         private async Task SaveAsync()

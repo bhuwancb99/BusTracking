@@ -337,7 +337,8 @@
             sel.disabled = false;
             fetch('@Url.Action("SearchStops")?busId=' + busId)
                 .then(function(r) { return r.json(); })
-                .then(function(data) {
+                .then(function(res) {
+                    var data = Array.isArray(res) ? res : (res.data || res.Data || []);
                     if (!data || data.length === 0) {
                         sel.innerHTML = '<option value="">No stops — this bus has no route assigned</option>';
                         sel.disabled = true;
@@ -345,22 +346,32 @@
                         return;
                     }
                     sel.innerHTML = '<option value="">-- No stop (optional) --</option>';
+
                     data.forEach(function(s) {
+                        var stId = s.stopId ?? s.StopId;
+                        var stOrder = s.stopOrder ?? s.StopOrder;
+                        var stName = s.stopName ?? s.StopName;
+                        var mTime = s.morningTime ?? s.MorningTime;
                         var opt = document.createElement('option');
-                        opt.value = s.stopId;
-                        opt.textContent = 'Stop #' + s.stopOrder + ' — ' + s.stopName + (s.morningTime ? '  🌅 ' + s.morningTime : '');
+                        opt.value = stId;
+                        opt.textContent = 'Stop #' + stOrder + ' — ' + stName + (mTime ? '  🌅 ' + mTime : '');
+                        if (preSelectId && stId == preSelectId) opt.selected = true;
                         sel.appendChild(opt);
                     });
                     if (preSelectId) {
                         sel.value = preSelectId;
                         if (!sel.value) {
                             var opt = document.createElement('option');
-                            opt.value = preSelectId; opt.textContent = 'Stop ID: ' + preSelectId;
+                            opt.value = preSelectId;
+                            opt.textContent = 'Selected Stop (ID: ' + preSelectId + ')';
                             opt.selected = true;
                             sel.appendChild(opt);
+                            sel.value = preSelectId;
                         }
                     }
                     hint.innerHTML = '<span class="text-success"><i class="bi bi-check-circle me-1"></i>' + data.length + ' stop(s) available on this route.</span>';
+
+
                 })
                 .catch(function() {
                     sel.innerHTML = '<option value="">Error loading stops</option>';

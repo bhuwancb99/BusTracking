@@ -6,9 +6,15 @@ namespace BusTracking.Mobile.Models.Bus
         public string BusName { get; set; } = "";
         public string BusNumber { get; set; } = "";
         public string? RouteName { get; set; }
-        public int? RouteId { get; set; }
+        private int? _routeId;
+        public int? RouteId
+        {
+            get => _routeId ?? (RouteIds.Count > 0 ? RouteIds[0] : null);
+            set => _routeId = value;
+        }
         public List<int> RouteIds { get; set; } = [];
         public List<string> RouteNames { get; set; } = [];
+
         public int BusTypeId { get; set; }
         public string? BusTypeName { get; set; }
         public int? DriverUserId { get; set; }

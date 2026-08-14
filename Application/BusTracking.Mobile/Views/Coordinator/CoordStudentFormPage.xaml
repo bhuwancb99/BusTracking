@@ -308,10 +308,11 @@
                         <Label
                             FontAttributes="Bold"
                             FontSize="12"
-                            Text="Bus"
+                            Text="Assign Bus"
                             TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                         Dark={StaticResource TextPrimaryDark}}" />
                         <Picker
+                            Title="Select a bus..."
                             BackgroundColor="Transparent"
                             ItemDisplayBinding="{Binding BusName}"
                             ItemsSource="{Binding BusOptions}"
@@ -334,10 +335,11 @@
                         <Label
                             FontAttributes="Bold"
                             FontSize="12"
-                            Text="Stop"
+                            Text="Assign Stop"
                             TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                         Dark={StaticResource TextPrimaryDark}}" />
                         <Picker
+                            Title="Select a stop..."
                             BackgroundColor="Transparent"
                             ItemDisplayBinding="{Binding StopName}"
                             ItemsSource="{Binding StopOptions}"
@@ -348,6 +350,7 @@
                                                          Dark={StaticResource TextSecondaryDark}}" />
                     </VerticalStackLayout>
                 </Border>
+
 
                 <!--  Transport Fee Tracking  -->
                 <Border

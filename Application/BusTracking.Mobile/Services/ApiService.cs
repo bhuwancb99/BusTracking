@@ -255,12 +255,26 @@ namespace BusTracking.Mobile.Services
             try
             {
                 var result = JsonSerializer.Deserialize<ApiResponse<T>>(json, _json);
+                if (result != null && (result.Success || result.Data != null || result.Message != null))
+                {
+                    return result;
+                }
+
+                var direct = JsonSerializer.Deserialize<T>(json, _json);
+                if (direct != null) return ApiResponse<T>.Ok(direct);
                 return result ?? Fail<T>("Empty response");
             }
-            catch (Exception ex)
+            catch
             {
-                return Fail<T>($"Parse error: {ex.Message}");
+                try
+                {
+                    var direct = JsonSerializer.Deserialize<T>(json, _json);
+                    if (direct != null) return ApiResponse<T>.Ok(direct);
+                }
+                catch { }
+                return Fail<T>("Parse error");
             }
+
         }
 
         private static ApiResponse<T> Fail<T>(string msg) => new() { Success = false, Message = msg };

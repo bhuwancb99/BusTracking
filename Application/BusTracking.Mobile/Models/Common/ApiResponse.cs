@@ -1,4 +1,4 @@
-﻿namespace BusTracking.Mobile.Models.Common
+namespace BusTracking.Mobile.Models.Common
 {
     public class ApiResponse<T>
     {
@@ -6,6 +6,8 @@
         public string Message { get; set; } = "";
         public T? Data { get; set; }
 
+        public static ApiResponse<T> Ok(T data, string msg = "") => new() { Success = true, Data = data, Message = msg };
         public static ApiResponse<T> Fail(string msg) => new() { Success = false, Message = msg };
+
     }
 }

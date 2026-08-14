@@ -6,6 +6,8 @@ namespace BusTracking.Mobile.Interfaces
         Task<List<RouteItem>> GetDropdownAsync(string? search = null);
         Task<RouteItem?> GetByIdAsync(int id);
         Task<List<StopItem>> GetStopsAsync(int routeId);
+        Task<List<StopItem>> GetStopsByBusAsync(int busId);
+
         Task<ApiResponse<object>> CreateAsync(CreateRouteRequest req);
         Task<ApiResponse<object>> UpdateAsync(int id, UpdateRouteRequest req);
         Task<ApiResponse<object>> DeleteAsync(int id);
