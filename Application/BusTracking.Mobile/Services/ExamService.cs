@@ -158,10 +158,12 @@ namespace BusTracking.Mobile.Services
             return await _api.DeleteAsync<object>(url);
         }
 
-        public async Task<List<StudentMarksGridItem>> GetStudentMarksGridAsync(int examScheduleId, int sectionId)
+        public async Task<List<StudentMarksGridItem>> GetStudentMarksGridAsync(int examScheduleId, int? sectionId)
         {
             var baseUrl = GetMarksGridEndpoint();
-            var url = $"{baseUrl}?examScheduleId={examScheduleId}&sectionId={sectionId}";
+            var url = sectionId.HasValue && sectionId.Value > 0
+                ? $"{baseUrl}?examScheduleId={examScheduleId}&sectionId={sectionId.Value}"
+                : $"{baseUrl}?examScheduleId={examScheduleId}";
             var r = await _api.GetAsync<List<StudentMarksGridItem>>(url);
             return r.Data ?? [];
         }

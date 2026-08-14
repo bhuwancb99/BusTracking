@@ -290,11 +290,11 @@ namespace BusTracking.API.Controllers
         }
 
         [HttpGet("exam/marks-grid")]
-        public async Task<IActionResult> GetMarksGrid([FromQuery] int examScheduleId, [FromQuery] int sectionId)
+        public async Task<IActionResult> GetMarksGrid([FromQuery] int examScheduleId, [FromQuery] int? sectionId)
         {
-            if (examScheduleId <= 0 || sectionId <= 0)
+            if (examScheduleId <= 0)
             {
-                return Ok(ApiResponse<List<StudentMarksGridItemDto>>.Fail("Valid examScheduleId and sectionId are required."));
+                return Ok(ApiResponse<List<StudentMarksGridItemDto>>.Fail("Valid examScheduleId is required."));
             }
 
             var res = await _examService.GetStudentMarksGridAsync(examScheduleId, sectionId);

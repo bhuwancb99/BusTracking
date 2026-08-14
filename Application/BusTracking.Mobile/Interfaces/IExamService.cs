@@ -12,7 +12,7 @@ namespace BusTracking.Mobile.Interfaces
         Task<ApiResponse<object>> UpdateExamScheduleAsync(int examScheduleId, UpdateExamScheduleRequest req);
         Task<ApiResponse<object>> DeleteExamScheduleAsync(int examScheduleId);
 
-        Task<List<StudentMarksGridItem>> GetStudentMarksGridAsync(int examScheduleId, int sectionId);
+        Task<List<StudentMarksGridItem>> GetStudentMarksGridAsync(int examScheduleId, int? sectionId);
         Task<ApiResponse<object>> SaveStudentMarksGridAsync(SaveStudentMarksGridRequest req);
         Task<StudentReportCardItem?> GetStudentReportCardAsync(int examTermId, int? studentId = null);
     }

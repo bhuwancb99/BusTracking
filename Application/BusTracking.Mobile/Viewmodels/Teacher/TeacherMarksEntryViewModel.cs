@@ -18,6 +18,7 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
         [ObservableProperty] private List<StudentMarksGridItem> _studentGrid = [];
         [ObservableProperty] private bool _hasGridData;
         [ObservableProperty] private bool _isEmpty;
+        [ObservableProperty] private bool _isGridLoaded;
 
         // Feedback Banner
         [ObservableProperty] private bool _showSuccessBanner;
@@ -101,15 +102,18 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
         [RelayCommand]
         private async Task SearchGridAsync()
         {
-            if (SelectedSchedule == null || SelectedSection == null)
+            if (SelectedSchedule == null)
             {
-                SetError("Please select Academic Term, Class, Section, and Exam Subject.");
+                SetError("Please select Academic Term, Class, and Exam Subject.");
                 return;
             }
 
+            int? secId = (SelectedSection != null && SelectedSection.SectionId > 0) ? SelectedSection.SectionId : null;
+
             await RunAsync(async () =>
             {
-                StudentGrid = await _examService.GetStudentMarksGridAsync(SelectedSchedule.ExamScheduleId, SelectedSection.SectionId);
+                StudentGrid = await _examService.GetStudentMarksGridAsync(SelectedSchedule.ExamScheduleId, secId);
+                IsGridLoaded = true;
                 HasGridData = StudentGrid.Count > 0;
                 IsEmpty = StudentGrid.Count == 0;
                 ShowSuccessBanner = false;
@@ -129,6 +133,7 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
                     Marks = StudentGrid.Select(g => new SaveStudentMarksItemRequest
                     {
                         StudentId = g.StudentId,
+                        MarksObtained = g.MarksObtained ?? g.TotalObtained,
                         TheoryMarks = g.TheoryMarks,
                         PracticalMarks = g.PracticalMarks,
                         IsAbsent = g.IsAbsent,

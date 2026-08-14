@@ -21,19 +21,19 @@
         <!--  Filter Section  -->
         <Border
             Grid.Row="0"
-            Margin="16,12"
-            Padding="14"
+            Margin="5,12"
+            Padding="5"
             BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                               Dark={StaticResource CardBgDark}}"
             Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                      Dark={StaticResource BorderColorDark}}"
             StrokeShape="RoundRectangle 12">
-            <VerticalStackLayout Spacing="10">
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+            <VerticalStackLayout Spacing="8">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="5">
                     <!--  Term  -->
                     <Border
                         Grid.Column="0"
-                        Padding="10,6"
+                        Padding="6,4"
                         BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
                                                           Dark={StaticResource CardBgDark}}"
                         Stroke="{AppThemeBinding Light={StaticResource BorderColor},
@@ -62,7 +62,7 @@
                     <!--  Standard / Class  -->
                     <Border
                         Grid.Column="1"
-                        Padding="10,6"
+                        Padding="6,4"
                         BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
                                                           Dark={StaticResource CardBgDark}}"
                         Stroke="{AppThemeBinding Light={StaticResource BorderColor},
@@ -89,11 +89,11 @@
                     </Border>
                 </Grid>
 
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="5">
                     <!--  Section  -->
                     <Border
                         Grid.Column="0"
-                        Padding="10,6"
+                        Padding="6,4"
                         BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
                                                           Dark={StaticResource CardBgDark}}"
                         Stroke="{AppThemeBinding Light={StaticResource BorderColor},
@@ -122,7 +122,7 @@
                     <!--  Subject / Schedule  -->
                     <Border
                         Grid.Column="1"
-                        Padding="10,6"
+                        Padding="6,4"
                         BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
                                                           Dark={StaticResource CardBgDark}}"
                         Stroke="{AppThemeBinding Light={StaticResource BorderColor},
@@ -150,19 +150,19 @@
                 </Grid>
 
                 <Button
-                    Margin="0,4,0,0"
+                    Margin="0,2,0,0"
                     Command="{Binding SearchGridCommand}"
                     CornerRadius="8"
                     FontAttributes="Bold"
-                    HeightRequest="46"
-                    Text="Fetch Student Grid" />
+                    HeightRequest="44"
+                    Text="Search" />
             </VerticalStackLayout>
         </Border>
 
         <!--  Success Alert Banner  -->
         <Border
             Grid.Row="1"
-            Margin="16,0,16,8"
+            Margin="5,0,5,8"
             Padding="12,10"
             BackgroundColor="#dcfce7"
             IsVisible="{Binding ShowSuccessBanner}"
@@ -182,8 +182,93 @@
         </Border>
 
         <!--  Student Marks List Grid  -->
-        <ScrollView Grid.Row="2" Padding="16,0,16,16">
+        <ScrollView Grid.Row="2" Padding="5,0,5,16">
             <VerticalStackLayout Spacing="12">
+
+                <!--  Blue Schedule Summary & Save Banner Card (Always visible once Search clicked)  -->
+                <Border
+                    Padding="12"
+                    BackgroundColor="#eff6ff"
+                    IsVisible="{Binding IsGridLoaded}"
+                    Stroke="#bfdbfe"
+                    StrokeShape="RoundRectangle 12"
+                    StrokeThickness="1">
+                    <Grid
+                        ColumnDefinitions="Auto,*,Auto"
+                        ColumnSpacing="10"
+                        VerticalOptions="Center">
+                        <!--  Left Blue Icon Container  -->
+                        <Border
+                            Grid.Column="0"
+                            Padding="10"
+                            BackgroundColor="#2563eb"
+                            Stroke="Transparent"
+                            StrokeShape="RoundRectangle 10"
+                            VerticalOptions="Center">
+                            <Image
+                                HeightRequest="22"
+                                Source="exam_datesheet.png"
+                                WidthRequest="22">
+                                <Image.Behaviors>
+                                    <mct:IconTintColorBehavior TintColor="White" />
+                                </Image.Behaviors>
+                            </Image>
+                        </Border>
+
+                        <!--  Middle Info: Subject - Class & Details  -->
+                        <VerticalStackLayout
+                            Grid.Column="1"
+                            Spacing="2"
+                            VerticalOptions="Center">
+                            <HorizontalStackLayout Spacing="4">
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="14"
+                                    Text="{Binding SelectedSchedule.SubjectName}"
+                                    TextColor="#1e3a8a" />
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="14"
+                                    Text="—"
+                                    TextColor="#1e3a8a" />
+                                <Label
+                                    FontAttributes="Bold"
+                                    FontSize="14"
+                                    Text="{Binding SelectedStandard.StandardName}"
+                                    TextColor="#1e3a8a" />
+                            </HorizontalStackLayout>
+
+                            <Label FontSize="11" TextColor="#2563eb">
+                                <Label.FormattedText>
+                                    <FormattedString>
+                                        <Span Text="Date: " />
+                                        <Span FontAttributes="Bold" Text="{Binding SelectedSchedule.ExamDateDisplay}" />
+                                        <Span Text=" | Max Marks: " />
+                                        <Span FontAttributes="Bold" Text="{Binding SelectedSchedule.MaxMarks, StringFormat='{0:0.00}'}" />
+                                        <Span Text=" | Pass Marks: " />
+                                        <Span FontAttributes="Bold" Text="{Binding SelectedSchedule.PassMarks, StringFormat='{0:0.00}'}" />
+                                    </FormattedString>
+                                </Label.FormattedText>
+                            </Label>
+                        </VerticalStackLayout>
+
+                        <!--  Right Save Button  -->
+                        <Button
+                            Grid.Column="2"
+                            Padding="10,0"
+                            BackgroundColor="#15803d"
+                            Command="{Binding SaveMarksCommand}"
+                            CornerRadius="8"
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            HeightRequest="38"
+                            Text="Save All Marks"
+                            TextColor="White"
+                            VerticalOptions="Center" />
+                    </Grid>
+                </Border>
+
+                <!--  Empty State  -->
                 <Border
                     Padding="24"
                     BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
@@ -191,7 +276,6 @@
                     IsVisible="{Binding IsEmpty}"
                     StrokeShape="RoundRectangle 12">
                     <VerticalStackLayout HorizontalOptions="Center" Spacing="8">
-
                         <Image
                             HeightRequest="48"
                             Source="marks_entry.png"
@@ -212,25 +296,8 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <!--  Grid Data  -->
+                <!--  Student List Items (Active Grid)  -->
                 <VerticalStackLayout IsVisible="{Binding HasGridData}" Spacing="10">
-                    <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
-                        <Label
-                            Grid.Column="0"
-                            FontAttributes="Bold"
-                            FontSize="15"
-                            Text="Student Marks Entry"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                        Dark=White}" />
-                        <Button
-                            Grid.Column="1"
-                            Command="{Binding SaveMarksCommand}"
-                            CornerRadius="8"
-                            FontAttributes="Bold"
-                            HeightRequest="36"
-                            Text="Save All Marks" />
-                    </Grid>
-
                     <BindableLayout.ItemsSource>
                         <Binding Path="StudentGrid" />
                     </BindableLayout.ItemsSource>
@@ -238,70 +305,144 @@
                     <BindableLayout.ItemTemplate>
                         <DataTemplate x:DataType="exam:StudentMarksGridItem">
                             <Border
-                                Padding="12"
+                                Padding="10"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                                                   Dark={StaticResource CardBgDark}}"
                                 Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                                          Dark={StaticResource BorderColorDark}}"
-                                StrokeShape="RoundRectangle 10"
+                                StrokeShape="RoundRectangle 12"
                                 StrokeThickness="1">
-                                <VerticalStackLayout Spacing="8">
-                                    <Grid ColumnDefinitions="*,Auto">
-                                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                <VerticalStackLayout Spacing="5">
+                                    <!--  Row 1: Code Badge, Name, Absent Checkbox (Compact 1 Line)  -->
+                                    <Grid
+                                        ColumnDefinitions="Auto,*,Auto"
+                                        ColumnSpacing="8"
+                                        VerticalOptions="Center">
+                                        <Border
+                                            Grid.Column="0"
+                                            Padding="6,2"
+                                            BackgroundColor="{AppThemeBinding Light=#f1f5f9,
+                                                                              Dark=#1e293b}"
+                                            Stroke="Transparent"
+                                            StrokeShape="RoundRectangle 4"
+                                            VerticalOptions="Center">
                                             <Label
                                                 FontAttributes="Bold"
-                                                FontSize="14"
-                                                Text="{Binding StudentName}"
-                                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                                            Dark=White}" />
-                                            <Label
                                                 FontSize="11"
-                                                Text="{Binding AdmissionNo, StringFormat='Adm: {0}'}"
-                                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                                            Dark={StaticResource TextSecondaryDark}}" />
-                                        </VerticalStackLayout>
+                                                Text="{Binding StudentCode}"
+                                                TextColor="{AppThemeBinding Light=#475569,
+                                                                            Dark=#94a3b8}"
+                                                VerticalOptions="Center" />
+                                        </Border>
+
+                                        <Label
+                                            Grid.Column="1"
+                                            FontAttributes="Bold"
+                                            FontSize="14"
+                                            LineBreakMode="TailTruncation"
+                                            Text="{Binding StudentName}"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                        Dark=White}"
+                                            VerticalOptions="Center" />
 
                                         <HorizontalStackLayout
-                                            Grid.Column="1"
-                                            Spacing="6"
+                                            Grid.Column="2"
+                                            Spacing="2"
                                             VerticalOptions="Center">
                                             <Label
                                                 FontSize="12"
-                                                Text="Absent:"
+                                                Text="Absent?"
                                                 TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                                             Dark={StaticResource TextSecondaryDark}}"
                                                 VerticalOptions="Center" />
-                                            <CheckBox IsChecked="{Binding IsAbsent}" VerticalOptions="Center" />
+                                            <CheckBox
+                                                HeightRequest="24"
+                                                IsChecked="{Binding IsAbsent}"
+                                                VerticalOptions="Center"
+                                                WidthRequest="24" />
                                         </HorizontalStackLayout>
                                     </Grid>
 
-                                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                    <!--  Row 2: Marks Obtained & Grade Badge  -->
+                                    <Grid
+                                        ColumnDefinitions="*,Auto"
+                                        ColumnSpacing="12"
+                                        VerticalOptions="Center">
+                                        <VerticalStackLayout Grid.Column="0" Spacing="4">
                                             <Label
+                                                FontAttributes="Bold"
                                                 FontSize="11"
-                                                Text="Theory Marks"
+                                                Text="MARKS OBTAINED"
                                                 TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                                             Dark={StaticResource TextSecondaryDark}}" />
-                                            <Entry
-                                                Keyboard="Numeric"
-                                                Placeholder="e.g. 75"
-                                                Text="{Binding TheoryMarks}" />
+                                            <Border
+                                                Padding="10,2"
+                                                BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                                                                  Dark={StaticResource CardBgDark}}"
+                                                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                                         Dark={StaticResource BorderColorDark}}"
+                                                StrokeShape="RoundRectangle 8">
+                                                <Entry
+                                                    FontAttributes="Bold"
+                                                    FontSize="15"
+                                                    Keyboard="Numeric"
+                                                    Placeholder="Enter marks e.g. 78"
+                                                    Text="{Binding MarksObtained}"
+                                                    TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                                Dark=White}" />
+                                            </Border>
                                         </VerticalStackLayout>
 
-                                        <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <!--  Grade Badge e.g. A+ or B  -->
+                                        <VerticalStackLayout
+                                            Grid.Column="1"
+                                            Spacing="4"
+                                            VerticalOptions="End">
                                             <Label
+                                                FontAttributes="Bold"
                                                 FontSize="11"
-                                                Text="Practical Marks"
+                                                HorizontalOptions="Center"
+                                                Text="GRADE"
                                                 TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                                             Dark={StaticResource TextSecondaryDark}}" />
-                                            <Entry
-                                                Keyboard="Numeric"
-                                                Placeholder="e.g. 20"
-                                                Text="{Binding PracticalMarks}" />
+                                            <Border
+                                                Padding="12,6"
+                                                BackgroundColor="#0284c7"
+                                                IsVisible="{Binding Grade, Converter={StaticResource IsNotNullOrEmptyConverter}}"
+                                                Stroke="Transparent"
+                                                StrokeShape="RoundRectangle 12">
+                                                <Label
+                                                    FontAttributes="Bold"
+                                                    FontSize="13"
+                                                    Text="{Binding Grade}"
+                                                    TextColor="White" />
+                                            </Border>
                                         </VerticalStackLayout>
                                     </Grid>
 
-                                    <Entry Placeholder="Remarks (optional)" Text="{Binding Remarks}" />
+                                    <!--  Row 3: Remarks  -->
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="11"
+                                            Text="REMARKS / FEEDBACK"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                                        Dark={StaticResource TextSecondaryDark}}" />
+                                        <Border
+                                            Padding="10,2"
+                                            BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                                                              Dark={StaticResource CardBgDark}}"
+                                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                                     Dark={StaticResource BorderColorDark}}"
+                                            StrokeShape="RoundRectangle 8">
+                                            <Entry
+                                                FontSize="13"
+                                                Placeholder="Optional comments or remarks..."
+                                                Text="{Binding Remarks}"
+                                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                            Dark=White}" />
+                                        </Border>
+                                    </VerticalStackLayout>
                                 </VerticalStackLayout>
                             </Border>
                         </DataTemplate>
