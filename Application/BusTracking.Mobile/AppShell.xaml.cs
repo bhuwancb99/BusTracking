@@ -285,11 +285,10 @@ public partial class AppShell : Shell
             menu.Add(new() { IconSvg = "class_mapping.png", IconColor = _svgImageColor, Title = "Class Mapping", Route = "CoordClassMappingList" });
         if (Has("attendance.view"))
             menu.Add(new() { IconSvg = "calendar_check.png", IconColor = _svgImageColor, Title = "Daily Attendance", Route = "CoordAttendance" });
-
-        menu.Add(new() { IconSvg = "exam_terms.png", IconColor = _svgImageColor, Title = "Exam Terms", Route = "CoordExamTerms" });
-        menu.Add(new() { IconSvg = "exam_datesheet.png", IconColor = _svgImageColor, Title = "Exam Datesheets", Route = "CoordExamDatesheet" });
-
-
+        if (Has("examterm.view"))
+            menu.Add(new() { IconSvg = "exam_terms.png", IconColor = _svgImageColor, Title = "Exam Terms", Route = "CoordExamTerms" });
+        if (Has("examschedule.view"))
+            menu.Add(new() { IconSvg = "exam_datesheet.png", IconColor = _svgImageColor, Title = "Exam Datesheets", Route = "CoordExamDatesheet" });
         if (Has("bustype.manage") || Has("bus.view"))
             menu.Add(new() { IconSvg = "bus.png", IconColor = _svgImageColor, Title = "Bus Types", Route = "CoordBusTypeList" });
         if (Has("subadmin.view"))

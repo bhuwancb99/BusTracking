@@ -20,6 +20,10 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [ObservableProperty]
         private StandardItem? _selectedStandard;
 
+        [ObservableProperty] private bool _canAdd;
+        [ObservableProperty] private bool _canEdit;
+        [ObservableProperty] private bool _canDelete;
+
         public CoordExamDatesheetViewModel(IAuthService auth, INavigationService nav, IExamService examService, ICoordStandardService standardService)
             : base(auth, nav)
         {
@@ -30,6 +34,9 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         public override async Task InitializeAsync()
         {
+            CanAdd = Can("examschedule.add");
+            CanEdit = Can("examschedule.edit");
+            CanDelete = Can("examschedule.delete");
             await LoadExamTermsAsync();
             await LoadStandardsAsync();
             await LoadSchedulesAsync();

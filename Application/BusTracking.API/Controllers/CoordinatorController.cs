@@ -959,6 +959,7 @@ namespace BusTracking.API.Controllers
         [HttpGet("exam/terms")]
         public async Task<IActionResult> GetTerms([FromQuery] int? academicYearId)
         {
+            RequirePermission("examterm.view");
             if (!academicYearId.HasValue || academicYearId.Value <= 0)
             {
                 var years = await _academicYear.GetAcademicYearsAsync(CurrentSchoolId ?? 1);
@@ -973,6 +974,7 @@ namespace BusTracking.API.Controllers
         [HttpGet("exam/schedules")]
         public async Task<IActionResult> GetSchedules([FromQuery] int? examTermId, [FromQuery] int? standardId)
         {
+            RequirePermission("examschedule.view");
             var res = await _examService.GetExamSchedulesAsync(examTermId, standardId);
             return res.Success ? Ok(res) : BadRequest(res);
         }
@@ -980,6 +982,7 @@ namespace BusTracking.API.Controllers
         [HttpGet("exam/marks-grid")]
         public async Task<IActionResult> GetMarksGrid([FromQuery] int examScheduleId, [FromQuery] int sectionId)
         {
+            RequirePermission("exammarks.view");
             if (examScheduleId <= 0 || sectionId <= 0)
             {
                 return Ok(ApiResponse<List<StudentMarksGridItemDto>>.Fail("Valid examScheduleId and sectionId are required."));
@@ -992,6 +995,7 @@ namespace BusTracking.API.Controllers
         [HttpPost("exam/save-marks")]
         public async Task<IActionResult> SaveMarks([FromBody] SaveStudentMarksGridDto dto)
         {
+            RequirePermission("exammarks.manage");
             if (dto == null || dto.ExamScheduleId <= 0)
             {
                 return Ok(ApiResponse<bool>.Fail("Invalid schedule selection."));
@@ -1004,6 +1008,7 @@ namespace BusTracking.API.Controllers
         [HttpGet("exam/report-card")]
         public async Task<IActionResult> GetReportCard([FromQuery] int examTermId, [FromQuery] int studentId)
         {
+            RequirePermission("exammarks.view");
             if (studentId <= 0) return Ok(ApiResponse<StudentReportCardDto>.Fail("Valid studentId is required."));
             var res = await _examService.GetStudentReportCardAsync(studentId, examTermId);
             return res.Success ? Ok(res) : BadRequest(res);
@@ -1012,6 +1017,7 @@ namespace BusTracking.API.Controllers
         [HttpPost("exam/terms/create")]
         public async Task<IActionResult> CreateExamTerm([FromBody] CreateExamTermDto dto)
         {
+            RequirePermission("examterm.add");
             var res = await _examService.CreateExamTermAsync(dto);
             return res.Success ? Ok(res) : BadRequest(res);
         }
@@ -1019,6 +1025,7 @@ namespace BusTracking.API.Controllers
         [HttpPut("exam/terms/update/{id:int}")]
         public async Task<IActionResult> UpdateExamTerm(int id, [FromBody] UpdateExamTermDto dto)
         {
+            RequirePermission("examterm.edit");
             var res = await _examService.UpdateExamTermAsync(id, dto);
             return res.Success ? Ok(res) : BadRequest(res);
         }
@@ -1026,6 +1033,7 @@ namespace BusTracking.API.Controllers
         [HttpDelete("exam/terms/delete/{id:int}")]
         public async Task<IActionResult> DeleteExamTerm(int id)
         {
+            RequirePermission("examterm.delete");
             var res = await _examService.DeleteExamTermAsync(id);
             return res.Success ? Ok(res) : BadRequest(res);
         }
@@ -1033,6 +1041,7 @@ namespace BusTracking.API.Controllers
         [HttpPost("exam/schedules/create")]
         public async Task<IActionResult> CreateExamSchedule([FromBody] CreateExamScheduleDto dto)
         {
+            RequirePermission("examschedule.add");
             var res = await _examService.CreateExamScheduleAsync(dto);
             return res.Success ? Ok(res) : BadRequest(res);
         }
@@ -1040,6 +1049,7 @@ namespace BusTracking.API.Controllers
         [HttpPut("exam/schedules/update/{id:int}")]
         public async Task<IActionResult> UpdateExamSchedule(int id, [FromBody] UpdateExamScheduleDto dto)
         {
+            RequirePermission("examschedule.edit");
             var res = await _examService.UpdateExamScheduleAsync(id, dto);
             return res.Success ? Ok(res) : BadRequest(res);
         }
@@ -1047,6 +1057,7 @@ namespace BusTracking.API.Controllers
         [HttpDelete("exam/schedules/delete/{id:int}")]
         public async Task<IActionResult> DeleteExamSchedule(int id)
         {
+            RequirePermission("examschedule.delete");
             var res = await _examService.DeleteExamScheduleAsync(id);
             return res.Success ? Ok(res) : BadRequest(res);
         }

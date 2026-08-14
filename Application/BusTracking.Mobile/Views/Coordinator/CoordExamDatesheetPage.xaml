@@ -31,6 +31,7 @@
                 Grid.Column="1"
                 Padding="8"
                 BackgroundColor="White"
+                IsVisible="{Binding CanAdd}"
                 StrokeShape="RoundRectangle 20"
                 StrokeThickness="0"
                 VerticalOptions="Center">
@@ -340,6 +341,7 @@
                                             Padding="6"
                                             BackgroundColor="{AppThemeBinding Light=#EFF6FF,
                                                                               Dark=#1E3A8A}"
+                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordExamDatesheetViewModel}}, Path=CanEdit}"
                                             Stroke="Transparent"
                                             StrokeShape="RoundRectangle 6"
                                             VerticalOptions="Center">
@@ -361,6 +363,7 @@
                                             Padding="6"
                                             BackgroundColor="{AppThemeBinding Light=#FEF2F2,
                                                                               Dark=#7F1D1D}"
+                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordExamDatesheetViewModel}}, Path=CanDelete}"
                                             Stroke="Transparent"
                                             StrokeShape="RoundRectangle 6"
                                             VerticalOptions="Center">

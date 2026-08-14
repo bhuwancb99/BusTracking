@@ -14,6 +14,10 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [ObservableProperty]
         private AcademicYearLookupItem? _selectedAcademicYear;
 
+        [ObservableProperty] private bool _canAdd;
+        [ObservableProperty] private bool _canEdit;
+        [ObservableProperty] private bool _canDelete;
+
         public CoordExamTermsViewModel(IAuthService auth, INavigationService nav, IExamService examService, IAcademicYearService academicYearService)
             : base(auth, nav)
         {
@@ -24,6 +28,9 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         public override async Task InitializeAsync()
         {
+            CanAdd = Can("examterm.add");
+            CanEdit = Can("examterm.edit");
+            CanDelete = Can("examterm.delete");
             await LoadAcademicYearsAsync();
         }
 
