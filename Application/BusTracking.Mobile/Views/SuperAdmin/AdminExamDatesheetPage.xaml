@@ -89,56 +89,78 @@
                                                 Dark={StaticResource ErrorTextDark}}" />
             </Border>
 
-            <!--  Filters Card (Exam Term & Class / Standard Pickers)  -->
+            <!--  Styled Filter Controls Card (Exam Term & Class / Standard Pickers)  -->
             <Border
-                Padding="12,8"
+                Padding="12"
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                                   Dark={StaticResource CardBgDark}}"
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                          Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 12"
                 StrokeThickness="1">
-                <VerticalStackLayout Spacing="6">
-                    <Grid ColumnDefinitions="Auto,*" VerticalOptions="Center">
-                        <Label
-                            Grid.Column="0"
-                            FontAttributes="Bold"
-                            FontSize="13"
-                            Text="Exam Term:"
-                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                        Dark={StaticResource TextSecondaryDark}}"
-                            VerticalOptions="Center" />
-                        <Picker
-                            Grid.Column="1"
-                            Margin="8,0,0,0"
-                            ItemDisplayBinding="{Binding TermName}"
-                            ItemsSource="{Binding ExamTerms}"
-                            SelectedItem="{Binding SelectedExamTerm}"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                        Dark=White}"
-                            VerticalOptions="Center" />
-                    </Grid>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
 
-                    <Grid ColumnDefinitions="Auto,*" VerticalOptions="Center">
-                        <Label
-                            Grid.Column="0"
-                            FontAttributes="Bold"
-                            FontSize="13"
-                            Text="Class / Standard:"
-                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                        Dark={StaticResource TextSecondaryDark}}"
-                            VerticalOptions="Center" />
-                        <Picker
-                            Grid.Column="1"
-                            Margin="8,0,0,0"
-                            ItemDisplayBinding="{Binding StandardName}"
-                            ItemsSource="{Binding Standards}"
-                            SelectedItem="{Binding SelectedStandard}"
-                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                        Dark=White}"
-                            VerticalOptions="Center" />
-                    </Grid>
-                </VerticalStackLayout>
+                    <!--  Exam Term Input Control Box  -->
+                    <Border
+                        Grid.Column="0"
+                        Padding="10,6"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                                          Dark={StaticResource PageBgDark}}"
+                        Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                 Dark={StaticResource BorderColorDark}}"
+                        StrokeShape="RoundRectangle 8"
+                        StrokeThickness="1">
+                        <VerticalStackLayout Spacing="2">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                Text="Exam Term"
+                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                            Dark={StaticResource TextSecondaryDark}}" />
+                            <Picker
+                                Title="Select Exam Term"
+                                FontSize="13"
+                                ItemDisplayBinding="{Binding TermName}"
+                                ItemsSource="{Binding ExamTerms}"
+                                SelectedItem="{Binding SelectedExamTerm, Mode=TwoWay}"
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                            Dark=White}"
+                                TitleColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                             Dark={StaticResource TextMutedDark}}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!--  Class / Standard Input Control Box  -->
+                    <Border
+                        Grid.Column="1"
+                        Padding="10,6"
+                        BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                                          Dark={StaticResource PageBgDark}}"
+                        Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                 Dark={StaticResource BorderColorDark}}"
+                        StrokeShape="RoundRectangle 8"
+                        StrokeThickness="1">
+                        <VerticalStackLayout Spacing="2">
+                            <Label
+                                FontAttributes="Bold"
+                                FontSize="11"
+                                Text="Class / Standard"
+                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                            Dark={StaticResource TextSecondaryDark}}" />
+                            <Picker
+                                Title="Select Class / Standard"
+                                FontSize="13"
+                                ItemDisplayBinding="{Binding StandardName}"
+                                ItemsSource="{Binding Standards}"
+                                SelectedItem="{Binding SelectedStandard, Mode=TwoWay}"
+                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                            Dark=White}"
+                                TitleColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                             Dark={StaticResource TextMutedDark}}" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                </Grid>
             </Border>
         </VerticalStackLayout>
 

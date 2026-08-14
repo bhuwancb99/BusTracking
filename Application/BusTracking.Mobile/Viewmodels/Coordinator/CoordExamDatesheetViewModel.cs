@@ -57,6 +57,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             {
                 var paged = await _standardService.GetAllAsync(null, 1);
                 Standards = new ObservableCollection<StandardItem>(paged.Items);
+                SelectedStandard ??= Standards.FirstOrDefault();
             }
             catch { }
         }
@@ -88,6 +89,10 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
 
         partial void OnSelectedExamTermChanged(ExamTermItem? value)
         {
+            if (value != null && SelectedStandard == null)
+            {
+                SelectedStandard = Standards.FirstOrDefault();
+            }
             _ = LoadSchedulesAsync();
         }
 

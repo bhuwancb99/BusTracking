@@ -237,7 +237,6 @@ public partial class AppShell : Shell
         new() { IconSvg = "calendar_check.png",IconColor = _svgImageColor, Title = "Daily Attendance", Route = "AdminAttendance" },
         new() { IconSvg = "exam_terms.png",   IconColor = _svgImageColor, Title = "Exam Terms",       Route = "AdminExamTerms"       },
         new() { IconSvg = "exam_datesheet.png",IconColor = _svgImageColor, Title = "Exam Datesheets",  Route = "AdminExamDatesheet"   },
-        new() { IconSvg = "marks_entry.png",  IconColor = _svgImageColor, Title = "Marks Entry",      Route = "AdminMarksEntry"      },
         new() { IconSvg = "bus.png",          IconColor = _svgImageColor, Title = "Bus Types",        Route = "AdminBusTypeList"      },
         new() { IconSvg = "coordinator.png",  IconColor = _svgImageColor, Title = "Bus Coordinators", Route = "AdminCoordinatorList" },
         new() { IconSvg = "route.png",        IconColor = _svgImageColor, Title = "Routes",           Route = "AdminRouteList"       },
@@ -289,7 +288,6 @@ public partial class AppShell : Shell
 
         menu.Add(new() { IconSvg = "exam_terms.png", IconColor = _svgImageColor, Title = "Exam Terms", Route = "CoordExamTerms" });
         menu.Add(new() { IconSvg = "exam_datesheet.png", IconColor = _svgImageColor, Title = "Exam Datesheets", Route = "CoordExamDatesheet" });
-        menu.Add(new() { IconSvg = "marks_entry.png", IconColor = _svgImageColor, Title = "Marks Entry", Route = "CoordMarksEntry" });
 
 
         if (Has("bustype.manage") || Has("bus.view"))

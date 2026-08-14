@@ -629,16 +629,6 @@
     <!--  Phase 4 Exam & Marks  -->
     <ShellContent
         Title="Marks Entry"
-        ContentTemplate="{DataTemplate admin:AdminMarksEntryPage}"
-        FlyoutItemIsVisible="False"
-        Route="AdminMarksEntry" />
-    <ShellContent
-        Title="Marks Entry"
-        ContentTemplate="{DataTemplate coord:CoordMarksEntryPage}"
-        FlyoutItemIsVisible="False"
-        Route="CoordMarksEntry" />
-    <ShellContent
-        Title="Marks Entry"
         ContentTemplate="{DataTemplate teacher:TeacherMarksEntryPage}"
         FlyoutItemIsVisible="False"
         Route="TeacherMarksEntry" />

@@ -141,11 +141,14 @@
                                 TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                             Dark={StaticResource TextSecondaryDark}}" />
                             <Picker
+                                Title="Select Section"
                                 ItemDisplayBinding="{Binding SectionName}"
                                 ItemsSource="{Binding Sections}"
-                                SelectedItem="{Binding SelectedSection}"
+                                SelectedItem="{Binding SelectedSection, Mode=TwoWay}"
                                 TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                            Dark=White}" />
+                                                            Dark=White}"
+                                TitleColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                             Dark={StaticResource TextMutedDark}}" />
                         </VerticalStackLayout>
                     </Border>
                 </Grid>

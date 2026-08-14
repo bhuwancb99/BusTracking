@@ -169,6 +169,14 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             {
                 var secs = await _sectionService.GetByStandardAsync(standardId);
                 Sections = new ObservableCollection<SectionItem>(secs);
+                if (ExamSchedule != null && ExamSchedule.SectionId.HasValue)
+                {
+                    SelectedSection = Sections.FirstOrDefault(sec => sec.SectionId == ExamSchedule.SectionId);
+                }
+                else
+                {
+                    SelectedSection = Sections.FirstOrDefault();
+                }
             }
             catch { }
         }

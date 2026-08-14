@@ -9,6 +9,7 @@
         <Setter Property="OutlineCornerRadius" Value="8" />
         <Setter Property="ContainerBackground" Value="Transparent" />
         <Setter Property="Stroke" Value="{AppThemeBinding Light=#cbd5e1, Dark=#334155}" />
+        <Setter Property="IsHintAlwaysFloated" Value="True" />
     </Style>
 
     <!--  ══ SYNCFUSION HINT LABELS ════════════════════════════════════════  -->
