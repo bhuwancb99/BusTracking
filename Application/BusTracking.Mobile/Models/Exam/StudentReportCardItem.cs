@@ -14,6 +14,7 @@ namespace BusTracking.Mobile.Models.Exam
 
         public decimal TotalMaxMarks { get; set; }
         public decimal TotalObtainedMarks { get; set; }
+        public decimal TotalMarksObtained { get => TotalObtainedMarks; set => TotalObtainedMarks = value; }
         public decimal Percentage { get; set; }
         public string OverallGrade { get; set; } = "";
         public string ResultStatus { get; set; } = ""; // PASSED / FAILED / PROMOTED

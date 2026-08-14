@@ -160,8 +160,8 @@ namespace BusTracking.Mobile
             Routing.RegisterRoute("TeacherHomeworkSubmissions", typeof(TeacherHomeworkSubmissionsPage));
 
             // ── Phase 4 Exam & Marks Sub-Routes ────────────────────────────────
-            Routing.RegisterRoute("StudentDatesheet", typeof(StudentDatesheetPage));
-            Routing.RegisterRoute("StudentReportCard", typeof(StudentReportCardPage));
+            Routing.RegisterRoute("StudentExamsReportCards", typeof(StudentExamsReportCardsPage));
+            Routing.RegisterRoute("StudentFullReportCard", typeof(StudentFullReportCardPage));
             Routing.RegisterRoute("TeacherMarksEntry", typeof(TeacherMarksEntryPage));
 
             Routing.RegisterRoute("AdminExamTerms", typeof(AdminExamTermsPage));
@@ -496,10 +496,10 @@ namespace BusTracking.Mobile
             s.AddTransient<StudentTrackingPage>();
             s.AddTransient<StudentAvailabilityPage>();
             s.AddTransient<StudentNotificationPage>();
-            s.AddTransient<StudentDatesheetPage>();
-            s.AddTransient<StudentDatesheetViewModel>();
-            s.AddTransient<StudentReportCardPage>();
-            s.AddTransient<StudentReportCardViewModel>();
+            s.AddTransient<StudentExamsReportCardsPage>();
+            s.AddTransient<StudentExamsReportCardsViewModel>();
+            s.AddTransient<StudentFullReportCardPage>();
+            s.AddTransient<StudentFullReportCardViewModel>();
 
             s.AddTransient<TeacherAttendancePage>();
             s.AddTransient<TeacherDashboardPage>();

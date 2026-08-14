@@ -633,15 +633,10 @@
         FlyoutItemIsVisible="False"
         Route="TeacherMarksEntry" />
     <ShellContent
-        Title="Exam Datesheet"
-        ContentTemplate="{DataTemplate student:StudentDatesheetPage}"
+        Title="Exams &amp; Report Cards"
+        ContentTemplate="{DataTemplate student:StudentExamsReportCardsPage}"
         FlyoutItemIsVisible="False"
-        Route="StudentDatesheet" />
-    <ShellContent
-        Title="Report Card"
-        ContentTemplate="{DataTemplate student:StudentReportCardPage}"
-        FlyoutItemIsVisible="False"
-        Route="StudentReportCard" />
+        Route="StudentExamsReportCards" />
 
     <ShellContent
         Title="Exam Terms"

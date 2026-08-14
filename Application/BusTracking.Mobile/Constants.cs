@@ -369,6 +369,7 @@ public static class Constants
         public const string AcademicYears = "/api/student/academicyears";
 
         // Exam & Marks
+        public const string ExamTerms = "/api/student/exam/terms";
         public const string ExamDatesheet = "/api/student/exam/datesheet";
         public const string ExamReportCard = "/api/student/exam/report-card";
     }
@@ -384,6 +385,11 @@ public static class Constants
         public const string TripRouteInfo = "/api/parent/trips/{0}/route-info";
         public const string SessionSwitch = "/api/parent/session/switch/{0}";
         public const string AcademicYears = "/api/parent/academicyears";
+
+        // Exam & Marks
+        public const string ExamTerms = "/api/parent/exam/terms";
+        public const string ExamDatesheet = "/api/parent/exam/datesheet";
+        public const string ExamReportCard = "/api/parent/exam/report-card";
     }
 
 

@@ -358,6 +358,23 @@ namespace BusTracking.API.Controllers
         }
 
         /// <summary>
+        /// Student: Get exam terms for active academic session.
+        /// </summary>
+        [HttpGet("exam/terms")]
+        public async Task<IActionResult> GetTerms([FromQuery] int? academicYearId)
+        {
+            if (!academicYearId.HasValue || academicYearId.Value <= 0)
+            {
+                var years = await _academicYearService.GetAcademicYearsAsync(CurrentSchoolId ?? 1);
+                var activeYear = years.Find(y => y.IsCurrent) ?? years.Find(y => y.IsActive);
+                academicYearId = activeYear?.AcademicYearId;
+            }
+
+            var res = await _examService.GetExamTermsAsync(academicYearId);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+        /// <summary>
         /// Student: Get exam datesheet/schedules for assigned standard.
         /// </summary>
         [HttpGet("exam/datesheet")]

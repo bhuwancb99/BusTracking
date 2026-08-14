@@ -17,8 +17,8 @@
 
 <!-- Term Selector Header -->
 <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
-    <form method="get" class="row g-3 align-items-end">
-        <div class="col-md-9">
+    <form method="get" class="row g-3 align-items-center">
+        <div class="col-12">
             <label class="form-label small fw-bold text-muted mb-1">Select Exam Term</label>
             <select name="examTermId" class="form-select rounded-3" onchange="this.form.submit()">
                 <option value="">-- Select Exam Term --</option>
@@ -27,11 +27,6 @@
                     <option value="@t.ExamTermId" selected="@(t.ExamTermId == selectedTermId)">@t.TermName (@t.AcademicYearName)</option>
                 }
             </select>
-        </div>
-        <div class="col-md-3 text-end">
-            <button type="submit" class="btn btn-primary rounded-3 w-100 fw-bold">
-                <i class="bi bi-filter me-1"></i>Load Term
-            </button>
         </div>
     </form>
 </div>

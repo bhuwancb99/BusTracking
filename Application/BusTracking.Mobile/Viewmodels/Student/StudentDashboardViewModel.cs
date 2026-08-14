@@ -132,8 +132,8 @@ namespace BusTracking.Mobile.Viewmodels.Student
         [RelayCommand] private Task TrackBusAsync() => Nav.GoToAsync("//StudentTracking");
         [RelayCommand] private Task ViewAvailabilityAsync() => Nav.GoToAsync("//StudentAvailability");
         [RelayCommand] private Task GoToNotificationAsync() => Nav.GoToAsync("//StudentNotification");
-        [RelayCommand] private Task GoToDatesheetAsync() => Nav.GoToAsync("StudentDatesheet");
-        [RelayCommand] private Task GoToReportCardAsync() => Nav.GoToAsync("StudentReportCard");
+        [RelayCommand] private Task GoToDatesheetAsync() => Nav.GoToAsync("StudentExamsReportCards");
+        [RelayCommand] private Task GoToReportCardAsync() => Nav.GoToAsync("StudentExamsReportCards");
 
 
         [RelayCommand]

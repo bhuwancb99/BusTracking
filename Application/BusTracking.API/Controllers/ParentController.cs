@@ -6,12 +6,14 @@ namespace BusTracking.API.Controllers
         private readonly AppDbContext _db;
         private readonly IImageService _img;
         private readonly IAcademicYearService _academicYearService;
+        private readonly IExamService _examService;
 
-        public ParentController(AppDbContext db, IImageService img, IAcademicYearService academicYearService)
+        public ParentController(AppDbContext db, IImageService img, IAcademicYearService academicYearService, IExamService examService)
         {
             _db = db;
             _img = img;
             _academicYearService = academicYearService;
+            _examService = examService;
         }
 
         /// <summary>
@@ -120,6 +122,56 @@ namespace BusTracking.API.Controllers
             await _db.SaveChangesAsync();
 
             return Ok(ApiResponse<bool>.Ok(true, "Profile photo removed."));
+        }
+
+        [HttpGet("exam/terms")]
+        public async Task<IActionResult> GetTerms([FromQuery] int? academicYearId)
+        {
+            if (!academicYearId.HasValue || academicYearId.Value <= 0)
+            {
+                var years = await _academicYearService.GetAcademicYearsAsync(CurrentSchoolId ?? 1);
+                var activeYear = years.Find(y => y.IsCurrent) ?? years.Find(y => y.IsActive);
+                academicYearId = activeYear?.AcademicYearId;
+            }
+
+            var res = await _examService.GetExamTermsAsync(academicYearId);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpGet("exam/datesheet")]
+        public async Task<IActionResult> GetDatesheet([FromQuery] int? examTermId, [FromQuery] int? studentId)
+        {
+            var parent = await _db.Parents
+                .Include(p => p.ParentStudents).ThenInclude(ps => ps.Student)
+                .FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
+
+            var students = parent?.ParentStudents.Select(ps => ps.Student).Where(s => s != null).ToList() ?? new();
+            var child = studentId.HasValue ? students.FirstOrDefault(s => s.StudentId == studentId.Value) : students.FirstOrDefault();
+            if (child == null || !child.StandardId.HasValue)
+            {
+                return Ok(ApiResponse<List<ExamScheduleDto>>.Fail("Student standard not found."));
+            }
+
+            var res = await _examService.GetExamSchedulesAsync(examTermId, child.StandardId.Value);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpGet("exam/report-card")]
+        public async Task<IActionResult> GetReportCard([FromQuery] int examTermId, [FromQuery] int? studentId)
+        {
+            var parent = await _db.Parents
+                .Include(p => p.ParentStudents).ThenInclude(ps => ps.Student)
+                .FirstOrDefaultAsync(p => p.UserId == CurrentUserId);
+
+            var students = parent?.ParentStudents.Select(ps => ps.Student).Where(s => s != null).ToList() ?? new();
+            var child = studentId.HasValue ? students.FirstOrDefault(s => s.StudentId == studentId.Value) : students.FirstOrDefault();
+            if (child == null)
+            {
+                return Ok(ApiResponse<StudentReportCardDto>.Fail("Student profile not found."));
+            }
+
+            var res = await _examService.GetStudentReportCardAsync(child.StudentId, examTermId);
+            return res.Success ? Ok(res) : BadRequest(res);
         }
     }
 }

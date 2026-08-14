@@ -20,7 +20,9 @@ namespace BusTracking.Mobile.Services
             Constants.Roles.SuperAdmin => Constants.Admin.ExamTerms,
             Constants.Roles.BusCoordinator => Constants.Coordinator.ExamTerms,
             Constants.Roles.Teacher => Constants.Teacher.ExamTerms,
-            _ => Constants.Teacher.ExamTerms
+            Constants.Roles.Student => Constants.Student.ExamTerms,
+            Constants.Roles.Parent => Constants.Parent.ExamTerms,
+            _ => Constants.Student.ExamTerms
         };
 
         private string GetTermCreateEndpoint() => CurrentRole switch
@@ -50,6 +52,7 @@ namespace BusTracking.Mobile.Services
             Constants.Roles.BusCoordinator => Constants.Coordinator.ExamSchedules,
             Constants.Roles.Teacher => Constants.Teacher.ExamSchedules,
             Constants.Roles.Student => Constants.Student.ExamDatesheet,
+            Constants.Roles.Parent => Constants.Parent.ExamDatesheet,
             _ => Constants.Teacher.ExamSchedules
         };
 
@@ -95,6 +98,7 @@ namespace BusTracking.Mobile.Services
             Constants.Roles.SuperAdmin => Constants.Admin.ExamReportCard,
             Constants.Roles.BusCoordinator => Constants.Coordinator.ExamReportCard,
             Constants.Roles.Student => Constants.Student.ExamReportCard,
+            Constants.Roles.Parent => Constants.Parent.ExamReportCard,
             _ => Constants.Student.ExamReportCard
         };
 

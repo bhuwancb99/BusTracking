@@ -341,8 +341,7 @@ public partial class AppShell : Shell
     [
         new() { IconSvg = "dashboard.png",      IconColor = _svgImageColor, Title = "My Dashboard",   Route = "StudentDashboard"    },
         new() { IconSvg = "profile.png",        IconColor = _svgImageColor, Title = "My Profile",     Route = "Profile"             },
-        new() { IconSvg = "exam_datesheet.png", IconColor = _svgImageColor, Title = "Exam Datesheet", Route = "StudentDatesheet"   },
-        new() { IconSvg = "report_card.png",    IconColor = _svgImageColor, Title = "Report Card",    Route = "StudentReportCard"   },
+        new() { IconSvg = "exam_terms.png",     IconColor = _svgImageColor, Title = "Exams & Report Cards", Route = "StudentExamsReportCards" },
         new() { IconSvg = "homework.png",       IconColor = _svgImageColor, Title = "My Homework",    Route = "StudentHomeworkList" },
         new() { IconSvg = "tracking.png",       IconColor = _svgImageColor, Title = "Track My Bus",   Route = "StudentTracking"     },
         new() { IconSvg = "availability.png",   IconColor = _svgImageColor, Title = "My Availability",Route = "StudentAvailability" },
