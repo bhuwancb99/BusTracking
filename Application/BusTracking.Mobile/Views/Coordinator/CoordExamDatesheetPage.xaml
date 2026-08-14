@@ -6,7 +6,7 @@
     xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     xmlns:models="clr-namespace:BusTracking.Mobile.Models.Exam"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
-    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Coordinator"
     Title="Exam Datesheet Scheduling"
     x:DataType="vm:CoordExamDatesheetViewModel"
     x:TypeArguments="vm:CoordExamDatesheetViewModel"
