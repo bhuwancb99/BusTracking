@@ -6,8 +6,8 @@
     var sections = ViewBag.Sections as List<BusTracking.Common.DTOs.Section.SectionDto> ?? new();
 
     int selectedYearId = ViewBag.SelectedYearId ?? 0;
-    int? selectedStandardId = ViewBag.SelectedStandardId;
-    int? selectedSectionId = ViewBag.SelectedSectionId;
+    int selectedStandardId = ViewBag.SelectedStandardId ?? 0;
+    int selectedSectionId = ViewBag.SelectedSectionId ?? 0;
     bool hasFilter = ViewBag.HasFilter ?? false;
 }
 
@@ -29,40 +29,39 @@
 <div class="card border-0 shadow-sm rounded-4 mb-4">
     <div class="card-body p-3">
         <form id="homeworkFilterForm" method="get" class="row g-2 align-items-center">
-            <div class="col-md-4">
-                <div class="outlined-field">
-                    <label>Academic Session</label>
-                    <select name="academicYearId" class="form-select" onchange="this.form.submit()">
-                        @foreach (var y in years)
-                        {
-                            <option value="@y.AcademicYearId" selected="@(y.AcademicYearId == selectedYearId ? "selected" : null)">@y.YearName @(y.IsCurrent ? "(Active)" : "")</option>
-                        }
-                    </select>
-                </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-muted mb-1">Academic Session <span class="text-danger">*</span></label>
+                <select name="academicYearId" class="form-select bg-light border-0" required>
+                    <option value="">-- Select Session --</option>
+                    @foreach (var y in years)
+                    {
+                        <option value="@y.AcademicYearId" selected="@(y.AcademicYearId == selectedYearId ? "selected" : null)">@y.YearName @(y.IsCurrent ? "(Active)" : "")</option>
+                    }
+                </select>
             </div>
-            <div class="col-md-4">
-                <div class="outlined-field">
-                    <label>Class / Standard</label>
-                    <select id="standardSelect" name="standardId" class="form-select" onchange="onStandardChanged()">
-                        <option value="">-- Select Class --</option>
-                        @foreach (var s in standards)
-                        {
-                            <option value="@s.StandardId" selected="@(s.StandardId == selectedStandardId ? "selected" : null)">@s.StandardName</option>
-                        }
-                    </select>
-                </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-muted mb-1">Class / Standard <span class="text-danger">*</span></label>
+                <select id="standardSelect" name="standardId" class="form-select bg-light border-0" onchange="onStandardChanged()" required>
+                    <option value="">-- Select Class --</option>
+                    @foreach (var s in standards)
+                    {
+                        <option value="@s.StandardId" selected="@(s.StandardId == selectedStandardId ? "selected" : null)">@s.StandardName</option>
+                    }
+                </select>
             </div>
-            <div class="col-md-4">
-                <div class="outlined-field">
-                    <label>Section</label>
-                    <select id="sectionSelect" name="sectionId" class="form-select" onchange="this.form.submit()">
-                        <option value="">-- Select Section --</option>
-                        @foreach (var sec in sections)
-                        {
-                            <option value="@sec.SectionId" selected="@(sec.SectionId == selectedSectionId ? "selected" : null)">Section @sec.SectionName</option>
-                        }
-                    </select>
-                </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-bold text-muted mb-1">Section <span class="text-danger">*</span></label>
+                <select id="sectionSelect" name="sectionId" class="form-select bg-light border-0" required>
+                    <option value="">-- Select Section --</option>
+                    @foreach (var sec in sections)
+                    {
+                        <option value="@sec.SectionId" selected="@(sec.SectionId == selectedSectionId ? "selected" : null)">Section @sec.SectionName</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end gap-2 pt-4">
+                <button type="submit" class="btn btn-primary flex-fill rounded-3 fw-bold"><i class="bi bi-search me-1"></i>Search</button>
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary rounded-3"><i class="bi bi-arrow-counterclockwise me-1"></i>Reset</a>
             </div>
         </form>
     </div>
@@ -73,17 +72,25 @@
     @if (!hasFilter)
     {
         <div class="col-12 text-center py-5 text-muted">
-            <i class="bi bi-filter-circle display-3 text-primary opacity-50"></i>
-            <h5 class="fw-bold mt-3 text-dark">Select Class & Section</h5>
-            <p class="small text-muted">Please select an Academic Session, Class / Standard, and Section to load homework assignments.</p>
+            <div class="card border-0 shadow-sm rounded-4 py-5">
+                <div class="card-body py-4">
+                    <i class="bi bi-funnel text-primary display-3 opacity-75 mb-3 d-block"></i>
+                    <h5 class="fw-bold text-dark mb-2">Please Select Filter Criteria and Click Search</h5>
+                    <p class="small text-muted mb-0">Select <strong>Academic Session <span class="text-danger">*</span></strong>, <strong>Class / Standard <span class="text-danger">*</span></strong>, and <strong>Section <span class="text-danger">*</span></strong> to search homework assignments.</p>
+                </div>
+            </div>
         </div>
     }
     else if (!Model.Any())
     {
         <div class="col-12 text-center py-5 text-muted">
-            <i class="bi bi-journal-x display-3 opacity-50"></i>
-            <h5 class="fw-bold mt-3 text-dark">No Homework Found</h5>
-            <p class="small text-muted">No homework assignments created for this Class and Section yet.</p>
+            <div class="card border-0 shadow-sm rounded-4 py-5">
+                <div class="card-body py-4">
+                    <i class="bi bi-journal-x display-3 opacity-50 mb-3 d-block"></i>
+                    <h5 class="fw-bold text-dark mb-2">No Homework Found</h5>
+                    <p class="small text-muted mb-0">No homework assignments created for the selected Class and Section yet.</p>
+                </div>
+            </div>
         </div>
     }
     else
@@ -160,7 +167,9 @@
                 var $sec = $('#sectionSelect');
                 $sec.empty().append('<option value="">-- Select Section --</option>');
                 $.each(data, function(i, item) {
-                    $sec.append('<option value="' + item.sectionId + '">Section ' + item.sectionName + '</option>');
+                    var sId = item.sectionId ?? item.SectionId;
+                    var sName = item.sectionName ?? item.SectionName;
+                    $sec.append('<option value="' + sId + '">Section ' + sName + '</option>');
                 });
             });
         }

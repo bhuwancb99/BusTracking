@@ -1,0 +1,155 @@
+@model BusTracking.Common.DTOs.Exam.StudentReportCardDto
+@{
+    ViewData["Title"] = $"{Model.TermName} Report Card - {Model.StudentName}";
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold m-0 text-dark">
+            <i class="bi bi-file-earmark-bar-graph text-primary me-2"></i>Official Student Report Card
+        </h3>
+        <span class="small text-muted">Academic Performance & Subject Grade Breakdown for @Model.TermName.</span>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Index" class="btn btn-outline-secondary rounded-3 fw-bold">
+            <i class="bi bi-arrow-left me-1"></i>Back to Exams
+        </a>
+        <a asp-action="PrintReportCard" asp-route-examTermId="@Model.ExamTermId" target="_blank" class="btn btn-primary rounded-3 fw-bold">
+            <i class="bi bi-printer me-1"></i>Print / Download PDF
+        </a>
+    </div>
+</div>
+
+<!-- Report Card Printable Style Sheet Card -->
+<div class="card border-0 shadow-lg rounded-4 overflow-hidden p-4 mb-4" id="reportCardCard">
+    <!-- School & Report Card Header -->
+    <div class="row align-items-center border-bottom pb-4 mb-4">
+        <div class="col-md-8">
+            <h2 class="fw-extrabold text-primary m-0">SCHOOL ERP ACADEMY</h2>
+            <span class="text-uppercase tracking-wider text-muted fw-bold small">Official Academic Report Card — @Model.AcademicYearName</span>
+            <div class="mt-2">
+                <span class="badge bg-primary fs-6 px-3 py-2">@Model.TermName</span>
+            </div>
+        </div>
+        <div class="col-md-4 text-end">
+            <div class="p-3 bg-light rounded-4 border">
+                <span class="small text-muted d-block text-uppercase fw-bold">Result Status</span>
+                <h3 class="fw-bold m-0 @(Model.ResultStatus == "PASS" ? "text-success" : "text-danger")">
+                    <i class="bi @(Model.ResultStatus == "PASS" ? "bi-check-circle-fill" : "bi-x-circle-fill") me-1"></i>@Model.ResultStatus
+                </h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Detail Grid -->
+    <div class="row g-3 p-3 bg-light rounded-4 border mb-4">
+        <div class="col-md-3">
+            <span class="small text-muted d-block">Student Name</span>
+            <strong class="text-dark fs-6">@Model.StudentName</strong>
+        </div>
+        <div class="col-md-3">
+            <span class="small text-muted d-block">Student Roll No / Code</span>
+            <strong class="text-dark fs-6 font-monospace">@Model.StudentCode</strong>
+        </div>
+        <div class="col-md-3">
+            <span class="small text-muted d-block">Class / Standard</span>
+            <strong class="text-dark fs-6">@Model.StandardName</strong>
+        </div>
+        <div class="col-md-3">
+            <span class="small text-muted d-block">Section</span>
+            <strong class="text-dark fs-6">@Model.SectionName</strong>
+        </div>
+    </div>
+
+    <!-- Subject Marks Table -->
+    <div class="table-responsive rounded-3 border mb-4">
+        <table class="table table-bordered align-middle mb-0">
+            <thead class="bg-primary text-white text-center">
+                <tr>
+                    <th class="text-start ps-3">Subject</th>
+                    <th>Max Marks</th>
+                    <th>Pass Marks</th>
+                    <th>Marks Obtained</th>
+                    <th>Grade</th>
+                    <th>Status</th>
+                    <th class="text-start">Remarks</th>
+                </tr>
+            </thead>
+            <tbody class="text-center">
+                @foreach (var sub in Model.SubjectMarks)
+                {
+                    var isPass = !sub.IsAbsent && sub.MarksObtained.HasValue && sub.MarksObtained.Value >= sub.PassMarks;
+                    <tr>
+                        <td class="text-start ps-3 fw-bold text-dark">@sub.SubjectName</td>
+                        <td>@sub.MaxMarks</td>
+                        <td>@sub.PassMarks</td>
+                        <td class="fw-bold fs-6">
+                            @(sub.IsAbsent ? "ABSENT" : (sub.MarksObtained?.ToString("G29") ?? "N/A"))
+                        </td>
+                        <td>
+                            <span class="badge rounded-pill px-3 py-2 @GetGradeClass(sub.Grade, sub.IsAbsent)">
+                                @(sub.IsAbsent ? "ABS" : sub.Grade)
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge @(isPass ? "bg-success" : "bg-danger")">
+                                @(isPass ? "PASS" : "FAIL")
+                            </span>
+                        </td>
+                        <td class="text-start small text-muted">@(string.IsNullOrWhiteSpace(sub.Remarks) ? "-" : sub.Remarks)</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot class="bg-light text-center fw-bold">
+                <tr>
+                    <td class="text-start ps-3 fs-6">TOTAL OVERALL AGGREGATE</td>
+                    <td class="fs-6">@Model.TotalMaxMarks</td>
+                    <td>-</td>
+                    <td class="fs-5 text-primary">@Model.TotalMarksObtained</td>
+                    <td class="fs-5"><span class="badge bg-dark">@Model.OverallGrade</span></td>
+                    <td class="fs-5"><span class="badge @(Model.ResultStatus == "PASS" ? "bg-success" : "bg-danger")">@Model.ResultStatus</span></td>
+                    <td class="text-start">Percentage: <strong class="text-primary fs-6">@Model.Percentage%</strong></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <!-- Summary Metrics Cards -->
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="p-3 border rounded-4 text-center bg-white shadow-sm">
+                <span class="small text-muted d-block text-uppercase fw-bold">Overall Percentage</span>
+                <h2 class="fw-bold text-primary m-0 mt-1">@Model.Percentage%</h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 border rounded-4 text-center bg-white shadow-sm">
+                <span class="small text-muted d-block text-uppercase fw-bold">Aggregate Grade</span>
+                <h2 class="fw-bold text-dark m-0 mt-1">@Model.OverallGrade</h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 border rounded-4 text-center bg-white shadow-sm">
+                <span class="small text-muted d-block text-uppercase fw-bold">Total Marks Obtained</span>
+                <h2 class="fw-bold text-success m-0 mt-1">@Model.TotalMarksObtained / @Model.TotalMaxMarks</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public string GetGradeClass(string grade, bool isAbsent)
+    {
+        if (isAbsent) return "bg-danger";
+        return grade switch
+        {
+            "A+" => "bg-success",
+            "A" => "bg-primary",
+            "B" => "bg-info text-dark",
+            "C" => "bg-warning text-dark",
+            "D" => "bg-secondary",
+            "F" => "bg-danger",
+            _ => "bg-light text-muted border"
+        };
+    }
+}

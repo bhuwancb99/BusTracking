@@ -61,21 +61,29 @@
                 <div class="mb-4 pt-3 border-top">
                     <h6 class="fw-bold text-primary text-uppercase fs-7 mb-3"><i class="bi bi-mortarboard me-2"></i>Student Details</h6>
                     <div class="row g-3">
-                        <div class="col-md-4 col-12">
+                        <div class="col-md-3 col-12">
                             <label asp-for="Email" class="form-label fw-bold">Email Address</label>
                             <input asp-for="Email" type="email" class="form-control rounded-3" placeholder="student@school.edu" />
                             <span asp-validation-for="Email" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-4 col-12">
+                        <div class="col-md-3 col-12">
                             <label asp-for="StudentCode" class="form-label fw-bold">Student Code <span class="text-danger">*</span></label>
                             <input asp-for="StudentCode" class="form-control rounded-3" placeholder="e.g. STD-001" />
                             <span asp-validation-for="StudentCode" class="text-danger small"></span>
                         </div>
-                        <div class="col-md-4 col-12">
-                            <label asp-for="StandardId" class="form-label fw-bold">Class / Standard</label>
-                            <select asp-for="StandardId" class="form-select rounded-3" asp-items="ViewBag.Standards">
+                        <div class="col-md-3 col-12">
+                            <label asp-for="StandardId" class="form-label fw-bold">Class / Standard <span class="text-danger">*</span></label>
+                            <select asp-for="StandardId" id="standardSelect" class="form-select rounded-3" asp-items="ViewBag.Standards" onchange="loadSectionsForStudent(this.value)" required>
                                 <option value="">-- Select Class --</option>
                             </select>
+                            <span asp-validation-for="StandardId" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-3 col-12">
+                            <label asp-for="SectionId" class="form-label fw-bold">Section <span class="text-danger">*</span></label>
+                            <select asp-for="SectionId" id="sectionSelect" class="form-select rounded-3" asp-items="ViewBag.Sections" required>
+                                <option value="">-- Select Section --</option>
+                            </select>
+                            <span asp-validation-for="SectionId" class="text-danger small"></span>
                         </div>
                     </div>
                 </div>
@@ -147,6 +155,34 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        function loadSectionsForStudent(stdId, preSelectId) {
+            const sel = document.getElementById('sectionSelect');
+            if (!sel) return;
+            sel.innerHTML = '<option value="">Loading sections...</option>';
+            if (!stdId) {
+                sel.innerHTML = '<option value="">-- Select Section --</option>';
+                return;
+            }
+            fetch('/BusCoordinator/Student/GetSectionsByStandard?standardId=' + stdId)
+                .then(r => r.json())
+                .then(data => {
+                    sel.innerHTML = '<option value="">-- Select Section --</option>';
+                    if (Array.isArray(data)) {
+                        data.forEach(sec => {
+                            const opt = document.createElement('option');
+                            opt.value = sec.sectionId;
+                            opt.textContent = 'Section ' + sec.sectionName;
+                            if (preSelectId && sec.sectionId == preSelectId) opt.selected = true;
+                            sel.appendChild(opt);
+                        });
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching sections:', err);
+                    sel.innerHTML = '<option value="">-- Select Section --</option>';
+                });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Username check
             var input = document.getElementById('UserNameInput');

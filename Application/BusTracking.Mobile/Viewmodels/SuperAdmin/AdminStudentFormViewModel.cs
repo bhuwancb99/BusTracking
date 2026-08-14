@@ -3,6 +3,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
     public partial class AdminStudentFormViewModel : BaseViewModel, IQueryAttributable
     {
         private readonly IStudentService _students;
+        private readonly ISectionService _sections;
         private readonly IBusService _buses;
         private readonly IRouteService _routes;
 
@@ -16,6 +17,8 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         [ObservableProperty] private string _phoneNumber = "";
         [ObservableProperty] private List<StandardItem> _standardOptions = [];
         [ObservableProperty] private StandardItem? _selectedStandard;
+        [ObservableProperty] private List<SectionItem> _sectionOptions = [];
+        [ObservableProperty] private SectionItem? _selectedSection;
         [ObservableProperty] private bool _isActive = true;
         [ObservableProperty] private string _studentCode = "";
         [ObservableProperty] private List<BusItem> _busOptions = [];
@@ -87,9 +90,36 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             });
         }
 
+        partial void OnSelectedStandardChanged(StandardItem? value)
+        {
+            if (_isLoadingData) return;
+            if (value != null)
+                _ = LoadSectionsAsync(value.StandardId);
+            else
+            {
+                SectionOptions = [];
+                SelectedSection = null;
+            }
+        }
+
+        private async Task LoadSectionsAsync(int standardId, int? preselectSectionId = null)
+        {
+            SectionOptions = await _sections.GetByStandardAsync(standardId, isAdmin: true);
+            if (preselectSectionId.HasValue)
+                SelectedSection = SectionOptions.FirstOrDefault(sec => sec.SectionId == preselectSectionId.Value);
+            else
+                SelectedSection = SectionOptions.FirstOrDefault();
+        }
+
         public AdminStudentFormViewModel(IAuthService auth, INavigationService nav,
-            IStudentService students, IBusService buses, IRouteService routes)
-            : base(auth, nav) { _students = students; _buses = buses; _routes = routes; }
+            IStudentService students, ISectionService sections, IBusService buses, IRouteService routes)
+            : base(auth, nav)
+        {
+            _students = students;
+            _sections = sections;
+            _buses = buses;
+            _routes = routes;
+        }
 
         public void ApplyQueryAttributes(IDictionary<string, object> query)
         {
@@ -114,6 +144,12 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                     PhoneNumber = s.PhoneNumber ?? "";
                     StudentCode = s.StudentCode ?? "";
                     SelectedStandard = StandardOptions.FirstOrDefault(st => st.StandardId == s.StandardId);
+
+                    if (s.StandardId.HasValue)
+                    {
+                        await LoadSectionsAsync(s.StandardId.Value, s.SectionId);
+                    }
+
                     IsActive = s.IsActive;
 
                     SelectedFeeStatus = string.IsNullOrWhiteSpace(s.TransportFeeStatus) ? "Paid" : s.TransportFeeStatus;
@@ -155,6 +191,10 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
             { SetError("Full name and username are required."); return; }
             if (!IsEditMode && string.IsNullOrWhiteSpace(Password))
             { SetError("Password is required for new students."); return; }
+            if (SelectedStandard == null)
+            { SetError("Class / Standard selection is required."); return; }
+            if (SelectedSection == null)
+            { SetError("Section selection is required."); return; }
 
             await RunAsync(async () =>
             {
@@ -169,6 +209,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                         PhoneNumber = PhoneNumber.Length > 0 ? PhoneNumber : null,
                         StudentCode = StudentCode,
                         StandardId = SelectedStandard?.StandardId,
+                        SectionId = SelectedSection?.SectionId,
                         BusId = SelectedBus?.BusId,
                         StopId = SelectedStop?.StopId,
                         TransportFeeStatus = SelectedFeeStatus ?? "Pending",
@@ -185,6 +226,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
                         PhoneNumber = PhoneNumber.Length > 0 ? PhoneNumber : null,
                         StudentCode = StudentCode,
                         StandardId = SelectedStandard?.StandardId,
+                        SectionId = SelectedSection?.SectionId,
                         BusId = SelectedBus?.BusId,
                         StopId = SelectedStop?.StopId,
                         TransportFeeStatus = SelectedFeeStatus ?? "Pending",

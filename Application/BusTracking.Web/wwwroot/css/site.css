@@ -485,29 +485,33 @@ body {
     position: relative;
     margin-bottom: 5px;
 }
-.outlined-field label {
-    position: absolute;
-    top: -9px;
-    left: 12px;
-    background: #fff;
-    padding: 0 4px;
-    font-size: 11px;
-    font-weight: 600;
-    color: #64748b;
-    border-radius: 4px;
-    z-index: 2;
-}
-.outlined-field .form-select, .outlined-field .form-control {
-    border: 1px solid #cbd5e1;
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 13px;
-    background-color: transparent;
-}
-.outlined-field .form-select:focus, .outlined-field .form-control:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
+
+    .outlined-field label {
+        position: absolute;
+        top: -9px;
+        left: 12px;
+        background: #fff;
+        padding: 0 4px;
+        font-size: 11px;
+        font-weight: 600;
+        color: #64748b;
+        border-radius: 4px;
+        z-index: 2;
+    }
+
+    .outlined-field .form-select, .outlined-field .form-control {
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 13px;
+        background-color: transparent;
+    }
+
+        .outlined-field .form-select:focus, .outlined-field .form-control:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
 .floating-face-btn {
     position: fixed;
     bottom: 80px;
@@ -515,6 +519,7 @@ body {
     z-index: 1050;
     box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
 }
+
 .bottom-sticky-bar {
     position: sticky;
     bottom: 0;
@@ -522,4 +527,52 @@ body {
     border-top: 1px solid #e2e8f0;
     padding: 10px 0;
     z-index: 1000;
+}
+
+/* ── Report Card Component Styles ────────────────────────────── */
+.report-card-container {
+    max-width: 850px;
+    margin: 30px auto;
+    background: #ffffff;
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+}
+
+.school-header {
+    border-bottom: 2px solid #2563eb;
+    padding-bottom: 20px;
+    margin-bottom: 25px;
+}
+
+.table-report th {
+    background-color: #2563eb !important;
+    color: #ffffff !important;
+    text-align: center;
+}
+
+/* Column Width Utility Classes */
+.col-w-50 {
+    width: 50px;
+}
+
+.col-w-80 {
+    width: 80px;
+}
+
+.col-w-100 {
+    width: 100px;
+}
+
+.col-w-110 {
+    width: 110px;
+}
+
+.col-w-130 {
+    width: 130px;
+}
+
+.col-w-160 {
+    width: 160px;
 }

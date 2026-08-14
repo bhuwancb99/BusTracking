@@ -42,8 +42,10 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             var teachersPaged = await _teacherService.GetTeachersAsync(null, null, 1, 200);
             ViewBag.Teachers = teachersPaged.Items ?? new();
 
-            return View(new CreateSectionDto { StandardId = standardId });
+            int selectedStd = standardId > 0 ? standardId : standards.FirstOrDefault()?.StandardId ?? 0;
+            return View(new CreateSectionDto { StandardId = selectedStd, SectionName = "" });
         }
+
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateSectionDto dto)
@@ -146,5 +148,13 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             var r = await _sectionService.ToggleActiveAsync(id);
             return Json(r);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSectionsByStandard(int standardId)
+        {
+            var sections = (await _sectionService.GetSectionsByStandardAsync(standardId)).Data ?? new();
+            return Json(sections);
+        }
     }
 }
+

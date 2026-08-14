@@ -29,6 +29,8 @@ public static class SidebarHelper
         new() { Label = "Subjects",         Icon = "bi-book",            Controller = "Subject",        Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Class Mapping",    Icon = "bi-diagram-2",       Controller = "ClassMapping",   Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Daily Attendance", Icon = "bi-check2-square",   Controller = "Attendance",     Action = "Index",   Area = "SuperAdmin" },
+        new() { Label = "Exam Terms",       Icon = "bi-award",           Controller = "Exam",           Action = "Terms",   Area = "SuperAdmin" },
+        new() { Label = "Exam Datesheets",  Icon = "bi-calendar3",       Controller = "Exam",           Action = "Schedules",Area = "SuperAdmin" },
         new() { Label = "Bus Types",        Icon = "bi-truck-front",     Controller = "BusType",        Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Bus Coordinators", Icon = "bi-person-badge",    Controller = "SubAdmin",       Action = "Index",   Area = "SuperAdmin" },
         new() { Label = "Teachers",         Icon = "bi-person-workspace",Controller = "Teacher",        Action = "Index",   Area = "SuperAdmin" },
@@ -80,6 +82,12 @@ public static class SidebarHelper
 
         if (Has("attendance.view"))
             menu.Add(new() { Label = "Daily Attendance", Icon = "bi-check2-square", Controller = "Attendance", Action = "Index", Area = "BusCoordinator" });
+
+        if (Has("examterm.view"))
+            menu.Add(new() { Label = "Exam Terms", Icon = "bi-award", Controller = "Exam", Action = "Terms", Area = "BusCoordinator" });
+
+        if (Has("examschedule.view"))
+            menu.Add(new() { Label = "Exam Datesheets", Icon = "bi-calendar3", Controller = "Exam", Action = "Schedules", Area = "BusCoordinator" });
 
         if (Has("bustype.view"))
             menu.Add(new() { Label = "Bus Types", Icon = "bi-truck-front", Controller = "BusType", Action = "Index", Area = "BusCoordinator" });
@@ -134,6 +142,8 @@ public static class SidebarHelper
         new() { Label = "Dashboard",        Icon = "bi-speedometer2",   Controller = "Dashboard",    Action = "Index", Area = "Teacher" },
         new() { Label = "Daily Attendance", Icon = "bi-check2-square",  Controller = "Attendance",   Action = "Index", Area = "Teacher" },
         new() { Label = "Homeworks",        Icon = "bi-journal-bookmark",Controller = "Homework",    Action = "Index", Area = "Teacher" },
+        new() { Label = "Exam Marks Entry", Icon = "bi-card-checklist", Controller = "Exam",        Action = "Index", Area = "Teacher" },
+        new() { Label = "Exam Datesheet",   Icon = "bi-calendar3",      Controller = "Exam",        Action = "Datesheet", Area = "Teacher" },
         new() { Label = "Notifications",    Icon = "bi-bell",           Controller = "Notification", Action = "Index", Area = "Teacher" },
     ];
 
@@ -158,6 +168,7 @@ public static class SidebarHelper
         new() { Label = "Dashboard",      Icon = "bi-speedometer2",   Controller = "Dashboard",    Action = "Index",        Area = "Student" },
         new() { Label = "Track My Bus",   Icon = "bi-geo-alt",        Controller = "Tracking",     Action = "Track",        Area = "Student" },
         new() { Label = "My Homework",    Icon = "bi-journal-check",  Controller = "Homework",     Action = "Index",        Area = "Student" },
+        new() { Label = "Exams & Report Cards", Icon = "bi-award",    Controller = "Exam",         Action = "Index",        Area = "Student" },
         new() { Label = "My Availability",Icon = "bi-calendar-check", Controller = "Home",         Action = "Availability", Area = "Student" },
         new() { Label = "Notifications",  Icon = "bi-bell",           Controller = "Notification", Action = "Index",        Area = "Student" },
         new() { Label = "Help & Support", Icon = "bi-headset",        Controller = "Feedback",     Action = "Submit",       Area = "Student" },

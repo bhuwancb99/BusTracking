@@ -70,15 +70,21 @@
         <ul class="sidebar-nav flex-grow-1">
             @{
                 var ctrl = ViewContext.RouteData.Values["controller"]?.ToString();
+                var act = ViewContext.RouteData.Values["action"]?.ToString();
             }
             @foreach (var item in menuItems)
             {
-                <li class="sidebar-item @(ctrl == item.Controller ? "active" : "")">
+                var isSameCtrl = string.Equals(ctrl, item.Controller, StringComparison.OrdinalIgnoreCase);
+                var isSameAct = string.Equals(act, item.Action, StringComparison.OrdinalIgnoreCase);
+                var sameCtrlCount = menuItems.Count(m => string.Equals(m.Controller, item.Controller, StringComparison.OrdinalIgnoreCase));
+                var isActive = sameCtrlCount > 1 ? (isSameCtrl && isSameAct) : isSameCtrl;
+                <li class="sidebar-item @(isActive ? "active" : "")">
                     <a class="sidebar-link" href="@Url.Action(item.Action, item.Controller, new { area = item.Area })">
                         <i class="bi @item.Icon"></i><span>@item.Label</span>
                     </a>
                 </li>
             }
+
         </ul>
         <div class="sidebar-footer">
             <a class="sidebar-link" asp-controller="Profile" asp-action="Index" asp-area="">

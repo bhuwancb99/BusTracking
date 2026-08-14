@@ -80,13 +80,22 @@
                     </div>
                     <div class="row g-3 mt-1">
                         <div class="col-md-4 col-12">
-                            <label asp-for="StandardId" class="form-label fw-bold">Class / Standard</label>
-                            <select asp-for="StandardId" class="form-select rounded-3" asp-items="ViewBag.Standards">
+                            <label asp-for="StandardId" class="form-label fw-bold">Class / Standard <span class="text-danger">*</span></label>
+                            <select asp-for="StandardId" id="standardSelect" class="form-select rounded-3" asp-items="ViewBag.Standards" onchange="loadSectionsForStudent(this.value)" required>
                                 <option value="">-- Select Class --</option>
                             </select>
+                            <span asp-validation-for="StandardId" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label asp-for="SectionId" class="form-label fw-bold">Section <span class="text-danger">*</span></label>
+                            <select asp-for="SectionId" id="sectionSelect" class="form-select rounded-3" asp-items="ViewBag.Sections" required>
+                                <option value="">-- Select Section --</option>
+                            </select>
+                            <span asp-validation-for="SectionId" class="text-danger small"></span>
                         </div>
                     </div>
                 </div>
+
 
                 <!-- Section 3: Bus & Route Assignment -->
                 <div class="mb-4 pt-3 border-top">
@@ -193,12 +202,52 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
-        var currentBusId  = @Html.Raw(Model?.BusId?.ToString() ?? "null");
+        var currentBusId = @Html.Raw(Model?.BusId?.ToString() ?? "null");
         var currentStopId = @Html.Raw(Model?.StopId?.ToString() ?? "null");
+        var currentStandardId = @Html.Raw(Model?.StandardId?.ToString() ?? "null");
+        var currentSectionId = @Html.Raw(Model?.SectionId?.ToString() ?? "null");
         var studentId = '@studentId';
 
+        function loadSectionsForStudent(stdId, preSelectId) {
+            const sel = document.getElementById('sectionSelect');
+            if (!sel) return;
+            if (!stdId) {
+                sel.innerHTML = '<option value="">-- Select Section --</option>';
+                return;
+            }
+            fetch('/BusCoordinator/Student/GetSectionsByStandard?standardId=' + stdId)
+                .then(r => r.json())
+                .then(data => {
+                    sel.innerHTML = '<option value="">-- Select Section --</option>';
+                    if (Array.isArray(data)) {
+                        data.forEach(sec => {
+                            const secId = sec.sectionId ?? sec.SectionId;
+                            const secName = sec.sectionName ?? sec.SectionName;
+                            const opt = document.createElement('option');
+                            opt.value = secId;
+                            opt.textContent = 'Section ' + secName;
+                            if (preSelectId && secId == preSelectId) opt.selected = true;
+                            sel.appendChild(opt);
+                        });
+                        if (preSelectId) sel.value = preSelectId;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error fetching sections:', err);
+                });
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
+            if (currentStandardId && currentSectionId) {
+                const sel = document.getElementById('sectionSelect');
+                if (sel && sel.options.length > 1) {
+                    sel.value = currentSectionId;
+                } else {
+                    loadSectionsForStudent(currentStandardId, currentSectionId);
+                }
+            }
             if (currentBusId) loadStops(currentBusId, currentStopId);
+
 
             // Username check
             var input = document.getElementById('UserNameInput');
@@ -327,17 +376,17 @@
                 method: 'POST',
                 headers: { 'RequestVerificationToken': token || '' }
             })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                if (data.success) {
-                    document.getElementById('pwdName').textContent = data.fullName + ' (' + data.email + ')';
-                    document.getElementById('pwdValue').textContent = data.password;
-                    document.getElementById('pwdResult').style.display = '';
-                    document.getElementById('pwdResult').scrollIntoView({ behavior: 'smooth' });
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            });
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        document.getElementById('pwdName').textContent = data.fullName + ' (' + data.email + ')';
+                        document.getElementById('pwdValue').textContent = data.password;
+                        document.getElementById('pwdResult').style.display = '';
+                        document.getElementById('pwdResult').scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                });
         }
 
         function copyPwd() {

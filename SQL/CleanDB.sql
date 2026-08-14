@@ -29,6 +29,9 @@ GO
 PRINT 'Deleting all records from all tables...';
 BEGIN TRANSACTION;
 BEGIN TRY
+    IF OBJECT_ID('ExamMarks', 'U') IS NOT NULL DELETE FROM ExamMarks;
+    IF OBJECT_ID('ExamSchedules', 'U') IS NOT NULL DELETE FROM ExamSchedules;
+    IF OBJECT_ID('ExamTerms', 'U') IS NOT NULL DELETE FROM ExamTerms;
     IF OBJECT_ID('HomeworkSubmissions', 'U') IS NOT NULL DELETE FROM HomeworkSubmissions;
     IF OBJECT_ID('Homeworks', 'U') IS NOT NULL DELETE FROM Homeworks;
     IF OBJECT_ID('FeePayments', 'U') IS NOT NULL DELETE FROM FeePayments;
@@ -134,6 +137,9 @@ GO
 -- ────────────────────────────────────────────────────────────
 PRINT 'Dropping all tables...';
 -- Drop tables in reverse dependency order to ensure clean execution
+IF OBJECT_ID('ExamMarks', 'U') IS NOT NULL DROP TABLE ExamMarks;
+IF OBJECT_ID('ExamSchedules', 'U') IS NOT NULL DROP TABLE ExamSchedules;
+IF OBJECT_ID('ExamTerms', 'U') IS NOT NULL DROP TABLE ExamTerms;
 IF OBJECT_ID('HomeworkSubmissions', 'U') IS NOT NULL DROP TABLE HomeworkSubmissions;
 IF OBJECT_ID('Homeworks', 'U') IS NOT NULL DROP TABLE Homeworks;
 IF OBJECT_ID('FeePayments', 'U') IS NOT NULL DROP TABLE FeePayments;

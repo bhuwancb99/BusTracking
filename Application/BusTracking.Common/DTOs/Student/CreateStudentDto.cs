@@ -8,7 +8,9 @@ namespace BusTracking.Common.DTOs.Student
         public string StudentCode { get; set; } = "";
         public string? Password { get; set; }
         public int? StandardId { get; set; }
+        public int? SectionId { get; set; }
         public int? BusId { get; set; }
+
         public int? StopId { get; set; }
         public bool SendEmail { get; set; } = false;
 

@@ -54,8 +54,12 @@ public class AppDbContext : DbContext
     public DbSet<DailyAttendance> DailyAttendances { get; set; }
     public DbSet<Homework> Homeworks { get; set; }
     public DbSet<HomeworkSubmission> HomeworkSubmissions { get; set; }
+    public DbSet<ExamTerm> ExamTerms { get; set; }
+    public DbSet<ExamSchedule> ExamSchedules { get; set; }
+    public DbSet<ExamMark> ExamMarks { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
+
     {
         base.OnModelCreating(modelBuilder);
 
@@ -80,7 +84,8 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<BusTypeMaster>().ToTable("BusTypeMasters");
         modelBuilder.Entity<DriverDetail>().ToTable("DriverDetails");
         modelBuilder.Entity<StudentDetail>().ToTable("Students");
-        modelBuilder.Entity<StandardMaster>().ToTable("StandardMasters");
+        modelBuilder.Entity<StandardMaster>().ToTable("StandardMasters", tb => tb.HasTrigger("trg_StandardMasters_AutoSectionA"));
+
         modelBuilder.Entity<ParentDetail>().ToTable("Parents");
         modelBuilder.Entity<StudentAvailability>().ToTable("StudentAvailabilities");
         modelBuilder.Entity<BusTrip>().ToTable("BusTrips");

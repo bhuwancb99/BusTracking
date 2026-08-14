@@ -1,0 +1,381 @@
+@model List<BusTracking.Common.DTOs.Exam.ExamScheduleDto>
+@{
+    ViewData["Title"] = "Exam Datesheet Scheduling";
+    var terms = ViewBag.ExamTerms as List<BusTracking.Common.DTOs.Exam.ExamTermDto> ?? new();
+    var standards = ViewBag.Standards as List<BusTracking.Common.DTOs.Standard.StandardDto> ?? new();
+    var subjects = ViewBag.Subjects as List<BusTracking.Common.DTOs.Subject.SubjectDto> ?? new();
+
+    int? selectedTermId = ViewBag.SelectedTermId;
+    int? selectedStandardId = ViewBag.SelectedStandardId;
+    int activeYearId = ViewBag.ActiveYearId ?? 1;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold m-0 text-dark">
+            <i class="bi bi-calendar3 text-primary me-2"></i>Exam Datesheet Scheduling
+        </h3>
+        <span class="small text-muted">Schedule subject exam dates, times, rooms, and maximum marks per class standard.</span>
+    </div>
+    <div>
+        <button type="button" class="btn btn-primary rounded-3 fw-bold" data-bs-toggle="modal" data-bs-target="#createSchedModal">
+            <i class="bi bi-plus-circle me-1"></i>Add Exam to Datesheet
+        </button>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label small fw-bold text-muted mb-1">Exam Term</label>
+            <select name="examTermId" class="form-select rounded-3">
+                <option value="0" selected="@(selectedTermId == 0)">-- All Exam Terms --</option>
+                @foreach (var t in terms)
+                {
+                    <option value="@t.ExamTermId" selected="@(t.ExamTermId == selectedTermId)">@t.TermName</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-5">
+            <label class="form-label small fw-bold text-muted mb-1">Class / Standard</label>
+            <select name="standardId" class="form-select rounded-3">
+                <option value="0" selected="@(selectedStandardId == 0)">-- All Classes --</option>
+                @foreach (var s in standards)
+                {
+                    <option value="@s.StandardId" selected="@(s.StandardId == selectedStandardId)">@s.StandardName</option>
+                }
+            </select>
+        </div>
+
+
+        <div class="col-md-2 text-end">
+            <button type="submit" class="btn btn-outline-primary rounded-3 w-100 fw-bold">
+                <i class="bi bi-funnel me-1"></i>Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Schedule Table -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light text-muted small fw-bold">
+                <tr>
+                    <th class="ps-4">Date</th>
+                    <th>Term</th>
+                    <th>Class / Section</th>
+                    <th>Subject</th>
+                    <th>Time</th>
+                    <th class="text-center">Max Marks</th>
+                    <th class="text-center">Pass Marks</th>
+                    <th>Room</th>
+                    <th class="text-end pe-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="9" class="text-center py-4 text-muted">No examination schedule items found. Click 'Add Exam to Datesheet' to schedule one.</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-bold text-primary">
+                                <i class="bi bi-calendar-check me-1"></i>@item.ExamDate.ToString("ddd, dd MMM yyyy")
+                            </td>
+                            <td><span class="badge bg-light text-dark border">@item.TermName</span></td>
+                            <td>
+                                <span class="badge bg-secondary">@item.StandardName</span>
+                                <span class="badge bg-light text-dark border ms-1">@item.SectionName</span>
+                            </td>
+                            <td class="fw-bold text-dark">@item.SubjectName</td>
+                            <td class="small text-muted">
+                                @DateTime.Today.Add(item.StartTime).ToString("hh:mm tt") - @DateTime.Today.Add(item.EndTime).ToString("hh:mm tt")
+                            </td>
+                            <td class="text-center fw-bold">@item.MaxMarks</td>
+                            <td class="text-center text-muted">@item.PassMarks</td>
+                            <td><span class="badge bg-info text-dark">Room: @(string.IsNullOrWhiteSpace(item.RoomNumber) ? "TBA" : item.RoomNumber)</span></td>
+                            <td class="text-end pe-4">
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-3 me-1"
+                                        onclick="openEditScheduleModal(@item.ExamScheduleId, @item.ExamTermId, @item.StandardId, @(item.SectionId ?? 0), @item.SubjectId, '@item.ExamDate.ToString("yyyy-MM-dd")', '@item.StartTime.ToString(@"hh\:mm")', '@item.EndTime.ToString(@"hh\:mm")', @item.MaxMarks, @item.PassMarks, '@(item.RoomNumber ?? "")')"
+                                        title="Edit Exam Schedule">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <form asp-action="DeleteSchedule" asp-route-id="@item.ExamScheduleId" method="post" class="d-inline" onsubmit="return confirm('Remove this exam from datesheet?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-3" title="Delete Schedule"><i class="bi bi-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Create Schedule Modal -->
+<div class="modal fade" id="createSchedModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-calendar-plus text-primary me-2"></i>Add Exam to Datesheet</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="CreateSchedule" method="post">
+                <input type="hidden" name="AcademicYearId" value="@activeYearId" />
+                <div class="modal-body py-3">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Exam Term</label>
+                            <select name="ExamTermId" class="form-select rounded-3" required>
+                                <option value="">-- Select Exam Term --</option>
+                                @foreach (var t in terms)
+                                {
+                                    <option value="@t.ExamTermId" selected="@(t.ExamTermId == selectedTermId)">@t.TermName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Class / Standard</label>
+                            <select name="StandardId" id="modalStandardSelect" class="form-select rounded-3" onchange="loadSectionsForModal(this.value)" required>
+                                <option value="">-- Select Class --</option>
+                                @foreach (var s in standards)
+                                {
+                                    <option value="@s.StandardId" selected="@(s.StandardId == selectedStandardId)">@s.StandardName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Section (Optional)</label>
+                            <select name="SectionId" id="modalSectionSelect" class="form-select rounded-3">
+                                <option value="">-- All Sections --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Subject</label>
+                            <select name="SubjectId" class="form-select rounded-3" required>
+                                <option value="">-- Select Subject --</option>
+                                @foreach (var sub in subjects)
+                                {
+                                    <option value="@sub.SubjectId">@sub.SubjectName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Exam Date</label>
+                            <input type="date" name="ExamDate" class="form-control rounded-3" value="@DateTime.Today.AddDays(7).ToString("yyyy-MM-dd")" required />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Start Time</label>
+                            <input type="time" name="StartTime" class="form-control rounded-3" value="09:00" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">End Time</label>
+                            <input type="time" name="EndTime" class="form-control rounded-3" value="12:00" required />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Max Marks</label>
+                            <input type="number" step="1" name="MaxMarks" class="form-control rounded-3" value="100" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Pass Marks</label>
+                            <input type="number" step="1" name="PassMarks" class="form-control rounded-3" value="33" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Room / Hall No</label>
+                            <input type="text" name="RoomNumber" class="form-control rounded-3" placeholder="e.g. Hall 101" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-3 fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-3 fw-bold px-4">Add to Schedule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Schedule Modal -->
+<div class="modal fade" id="editSchedModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold"><i class="bi bi-pencil-square text-primary me-2"></i>Edit Exam Schedule</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form asp-action="UpdateSchedule" method="post">
+                <input type="hidden" name="ExamScheduleId" id="editExamScheduleId" />
+                <input type="hidden" name="AcademicYearId" value="@activeYearId" />
+                <div class="modal-body py-3">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Exam Term</label>
+                            <select name="ExamTermId" id="editExamTermId" class="form-select rounded-3" required>
+                                <option value="">-- Select Exam Term --</option>
+                                @foreach (var t in terms)
+                                {
+                                    <option value="@t.ExamTermId">@t.TermName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Class / Standard</label>
+                            <select name="StandardId" id="editStandardSelect" class="form-select rounded-3" onchange="loadSectionsForEditModal(this.value)" required>
+                                <option value="">-- Select Class --</option>
+                                @foreach (var s in standards)
+                                {
+                                    <option value="@s.StandardId">@s.StandardName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Section (Optional)</label>
+                            <select name="SectionId" id="editSectionSelect" class="form-select rounded-3">
+                                <option value="">-- All Sections --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Subject</label>
+                            <select name="SubjectId" id="editSubjectId" class="form-select rounded-3" required>
+                                <option value="">-- Select Subject --</option>
+                                @foreach (var sub in subjects)
+                                {
+                                    <option value="@sub.SubjectId">@sub.SubjectName</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Exam Date</label>
+                            <input type="date" name="ExamDate" id="editExamDate" class="form-control rounded-3" required />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">Start Time</label>
+                            <input type="time" name="StartTime" id="editStartTime" class="form-control rounded-3" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-muted">End Time</label>
+                            <input type="time" name="EndTime" id="editEndTime" class="form-control rounded-3" required />
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Max Marks</label>
+                            <input type="number" step="1" name="MaxMarks" id="editMaxMarks" class="form-control rounded-3" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Pass Marks</label>
+                            <input type="number" step="1" name="PassMarks" id="editPassMarks" class="form-control rounded-3" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold text-muted">Room / Hall No</label>
+                            <input type="text" name="RoomNumber" id="editRoomNumber" class="form-control rounded-3" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-3 fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-3 fw-bold px-4">Update Schedule</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function loadSectionsForModal(stdId) {
+            const secSelect = document.getElementById('modalSectionSelect');
+            secSelect.innerHTML = '<option value="">-- All Sections --</option>';
+
+            if (!stdId) return;
+
+            try {
+                const res = await fetch('/SuperAdmin/Exam/GetSectionsByStandard?standardId=' + stdId);
+                const sections = await res.json();
+                if (Array.isArray(sections)) {
+                    sections.forEach(sec => {
+                        const opt = document.createElement('option');
+                        opt.value = sec.sectionId;
+                        opt.textContent = 'Section ' + sec.sectionName;
+                        secSelect.appendChild(opt);
+                    });
+                }
+            } catch (err) {
+                console.error('Error loading sections:', err);
+            }
+        }
+
+        async function loadSectionsForEditModal(stdId, selectedSecId = 0) {
+            const secSelect = document.getElementById('editSectionSelect');
+            secSelect.innerHTML = '<option value="">-- All Sections --</option>';
+
+            if (!stdId) return;
+
+            try {
+                const res = await fetch('/SuperAdmin/Exam/GetSectionsByStandard?standardId=' + stdId);
+                const sections = await res.json();
+                if (Array.isArray(sections)) {
+                    sections.forEach(sec => {
+                        const opt = document.createElement('option');
+                        opt.value = sec.sectionId;
+                        opt.textContent = 'Section ' + sec.sectionName;
+                        if (selectedSecId && sec.sectionId == selectedSecId) {
+                            opt.selected = true;
+                        }
+                        secSelect.appendChild(opt);
+                    });
+                }
+            } catch (err) {
+                console.error('Error loading sections for edit:', err);
+            }
+        }
+
+        function openEditScheduleModal(id, termId, stdId, secId, subId, examDate, startTime, endTime, maxMarks, passMarks, roomNumber) {
+            document.getElementById('editExamScheduleId').value = id;
+            document.getElementById('editExamTermId').value = termId;
+            document.getElementById('editStandardSelect').value = stdId;
+            document.getElementById('editSubjectId').value = subId;
+            document.getElementById('editExamDate').value = examDate;
+            document.getElementById('editStartTime').value = startTime;
+            document.getElementById('editEndTime').value = endTime;
+            document.getElementById('editMaxMarks').value = maxMarks;
+            document.getElementById('editPassMarks').value = passMarks;
+            document.getElementById('editRoomNumber').value = roomNumber;
+
+            loadSectionsForEditModal(stdId, secId);
+
+            const modal = new bootstrap.Modal(document.getElementById('editSchedModal'));
+            modal.show();
+        }
+
+        // Auto trigger section load if standard pre-selected
+        document.addEventListener('DOMContentLoaded', () => {
+            const stdVal = document.getElementById('modalStandardSelect')?.value;
+            if (stdVal) loadSectionsForModal(stdVal);
+        });
+    </script>
+}

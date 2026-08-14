@@ -25,6 +25,8 @@
             <div class="card-body p-4">
                 <form asp-action="Create" method="post">
                     @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3 border-0 mb-3" role="alert"></div>
+
 
                     <div class="mb-3">
                         <label asp-for="StandardId" class="form-label fw-bold">Class / Standard <span class="text-danger">*</span></label>

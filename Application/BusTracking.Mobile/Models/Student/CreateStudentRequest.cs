@@ -9,7 +9,9 @@ namespace BusTracking.Mobile.Models.Student
         public string? Password { get; set; }
         public string StudentCode { get; set; } = "";
         public int? StandardId { get; set; }
+        public int? SectionId { get; set; }
         public int? BusId { get; set; }
+
         public int? StopId { get; set; }
         public bool IsActive { get; set; } = true;
 

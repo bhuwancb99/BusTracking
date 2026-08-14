@@ -22,6 +22,7 @@ namespace BusTracking.Common.Services
             var q = _db.Students
                 .Include(s => s.User)
                 .Include(s => s.Standard)
+                .Include(s => s.Section)
                 .Include(s => s.Bus)
                 .Include(s => s.Stop)
                 .AsQueryable();
@@ -53,6 +54,8 @@ namespace BusTracking.Common.Services
                     PhoneNumber = s.User.PhoneNumber,
                     StandardId = s.StandardId,
                     StandardName = s.Standard != null ? s.Standard.StandardName : null,
+                    SectionId = s.SectionId,
+                    SectionName = s.Section != null ? s.Section.SectionName : null,
                     BusId = s.BusId,
                     BusName = s.Bus != null ? s.Bus.BusName : null,
                     BusNumber = s.Bus != null ? s.Bus.BusNumber : null,
@@ -63,6 +66,7 @@ namespace BusTracking.Common.Services
                     TransportFeeStatus = s.TransportFeeStatus,
                     FeeExpiryDate = s.FeeExpiryDate
                 }).ToListAsync();
+
             return ApiResponse<PagedResult<StudentListDto>>.Ok(new PagedResult<StudentListDto>
             {
                 Items = items,
@@ -79,6 +83,7 @@ namespace BusTracking.Common.Services
             var q = _db.Students
                 .Include(x => x.User)
                 .Include(x => x.Standard)
+                .Include(x => x.Section)
                 .Include(x => x.Bus)
                 .Include(x => x.Stop)
                 .AsQueryable();
@@ -101,6 +106,8 @@ namespace BusTracking.Common.Services
                 PhoneNumber = s.User.PhoneNumber,
                 StandardId = s.StandardId,
                 StandardName = s.Standard?.StandardName,
+                SectionId = s.SectionId,
+                SectionName = s.Section?.SectionName,
                 BusId = s.BusId,
                 BusName = s.Bus?.BusName,
                 BusNumber = s.Bus?.BusNumber,
@@ -112,6 +119,7 @@ namespace BusTracking.Common.Services
                 FeeExpiryDate = s.FeeExpiryDate
             });
         }
+
         public async Task<ApiResponse<CreatedUserResultDto>> CreateAsync(CreateStudentDto dto, int createdBy)
         {
             if (await _db.Users.AnyAsync(u => u.UserName == dto.UserName))
@@ -179,12 +187,22 @@ namespace BusTracking.Common.Services
             }
             s.StudentCode = dto.StudentCode;
             s.StandardId = dto.StandardId;
+            if (dto.SectionId.HasValue && dto.SectionId.Value > 0)
+            {
+                s.SectionId = dto.SectionId.Value;
+            }
+            else if (dto.StandardId.HasValue && dto.StandardId.Value > 0)
+            {
+                var defSec = await _db.Sections.FirstOrDefaultAsync(sec => sec.StandardId == dto.StandardId.Value && sec.IsDefault);
+                if (defSec != null) s.SectionId = defSec.SectionId;
+            }
             s.BusId = dto.BusId;
             s.StopId = dto.StopId;
             s.TransportFeeStatus = dto.TransportFeeStatus;
             s.FeeExpiryDate = dto.FeeExpiryDate;
             s.UpdatedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Updated.");
+
         }
         public async Task<ApiResponse<bool>> DeleteAsync(int studentId)
         { var s = await _db.Students.Include(x => x.User).FirstOrDefaultAsync(x => x.StudentId == studentId); if (s is null) return ApiResponse<bool>.Fail("Not found."); s.User.IsActive = false; s.User.UpdatedAt = DateTime.UtcNow; await _db.SaveChangesAsync(); return ApiResponse<bool>.Ok(true, "Marked inactive."); }

@@ -12,6 +12,7 @@ global using BusTracking.Common.DTOs.Common;
 global using BusTracking.Common.DTOs.Country;
 global using BusTracking.Common.DTOs.Dashboard;
 global using BusTracking.Common.DTOs.Driver;
+global using BusTracking.Common.DTOs.Exam;
 global using BusTracking.Common.DTOs.Feedback;
 global using BusTracking.Common.DTOs.GlobalConfig;
 global using BusTracking.Common.DTOs.Homework;

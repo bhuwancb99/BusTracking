@@ -4,12 +4,17 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
     public class StudentController : Controller
     {
         private readonly IStudentService _s;
+        private readonly ISectionService _sec;
         private readonly IBusService _bus;
         private readonly IRouteService _route;
         private int UserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
-        public StudentController(IStudentService s, IBusService bus, IRouteService route)
+
+        public StudentController(IStudentService s, ISectionService sec, IBusService bus, IRouteService route)
         {
-            _s = s; _bus = bus; _route = route;
+            _s = s;
+            _sec = sec;
+            _bus = bus;
+            _route = route;
         }
 
         public async Task<IActionResult> Index(int page = 1, string? search = null, string? status = "Active")
@@ -28,19 +33,36 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             return r.Success ? View(r.Data) : NotFound();
         }
 
-        private async Task PopulateStandardsAsync()
+        private async Task PopulateStandardsAndSectionsAsync(int? standardId = null, int? sectionId = null)
         {
             var standardsRes = await _s.GetStandardsAsync();
             var standards = standardsRes.Success ? standardsRes.Data : new List<StandardMaster>();
-            ViewBag.Standards = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(standards, "StandardId", "StandardName");
+            ViewBag.Standards = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(standards, "StandardId", "StandardName", standardId);
+
+            var sections = new List<SectionDto>();
+            if (standardId.HasValue && standardId.Value > 0)
+            {
+                var secRes = await _sec.GetSectionsByStandardAsync(standardId.Value);
+                sections = secRes.Data ?? new List<SectionDto>();
+            }
+            var formattedSections = sections.Select(s => new { s.SectionId, SectionName = "Section " + s.SectionName }).ToList();
+            ViewBag.Sections = new Microsoft.AspNetCore.Mvc.Rendering.SelectList(formattedSections, "SectionId", "SectionName", sectionId);
+        }
+
+
+        [HttpGet]
+        public async Task<IActionResult> GetSectionsByStandard(int standardId)
+        {
+            var res = await _sec.GetSectionsByStandardAsync(standardId);
+            return Json(res.Data ?? new());
         }
 
         [HttpGet]
         public async Task<IActionResult> Create()
         {
             if (!PermissionHelper.Can(User, "student.add")) return Forbid();
-            await PopulateStandardsAsync();
-            return View();
+            await PopulateStandardsAndSectionsAsync();
+            return View(new CreateStudentDto());
         }
 
         [HttpPost, ValidateAntiForgeryToken]
@@ -49,17 +71,18 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             if (!PermissionHelper.Can(User, "student.add")) return Forbid();
             if (!ModelState.IsValid)
             {
-                await PopulateStandardsAsync();
+                await PopulateStandardsAndSectionsAsync(m.StandardId, m.SectionId);
                 return View(m);
             }
             var r = await _s.CreateAsync(m, UserId);
             if (!r.Success)
             {
                 ModelState.AddModelError("", r.Message);
-                await PopulateStandardsAsync();
+                await PopulateStandardsAndSectionsAsync(m.StandardId, m.SectionId);
                 return View(m);
             }
-            TempData["SuccessMessage"] = r.Message;
+            TempData["CreatedUser"] = System.Text.Json.JsonSerializer.Serialize(r.Data);
+            TempData["SuccessMessage"] = "Student created successfully.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -72,7 +95,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             ViewBag.StudentId = id;
             if (r.Data!.BusId.HasValue && r.Data.BusName != null)
                 ViewBag.BusDisplay = $"{r.Data.BusName} ({r.Data.BusNumber})";
-            await PopulateStandardsAsync();
+            await PopulateStandardsAndSectionsAsync(r.Data.StandardId, r.Data.SectionId);
             return View(new UpdateStudentDto
             {
                 FullName = r.Data!.FullName,
@@ -81,6 +104,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
                 PhoneNumber = r.Data.PhoneNumber,
                 StudentCode = r.Data.StudentCode,
                 StandardId = r.Data.StandardId,
+                SectionId = r.Data.SectionId,
                 BusId = r.Data.BusId,
                 StopId = r.Data.StopId,
                 TransportFeeStatus = r.Data.TransportFeeStatus,
@@ -96,7 +120,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             if (!ModelState.IsValid)
             {
                 ViewBag.StudentId = id;
-                await PopulateStandardsAsync();
+                await PopulateStandardsAndSectionsAsync(m.StandardId, m.SectionId);
                 return View(m);
             }
             var r = await _s.UpdateAsync(id, m);
@@ -104,7 +128,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             {
                 ModelState.AddModelError("", r.Message);
                 ViewBag.StudentId = id;
-                await PopulateStandardsAsync();
+                await PopulateStandardsAndSectionsAsync(m.StandardId, m.SectionId);
                 return View(m);
             }
             TempData["SuccessMessage"] = r.Message;
@@ -112,65 +136,26 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
         }
 
         [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(int id)
-        {
-            if (!PermissionHelper.Can(User, "student.delete")) return Forbid();
-            await _s.DeleteAsync(id);
-            TempData["SuccessMessage"] = "Marked inactive.";
-            return RedirectToAction(nameof(Index));
-        }
-
-        [HttpPost]
         public async Task<IActionResult> Toggle(int id)
         {
-            if (!PermissionHelper.Can(User, "student.edit"))
-                return Json(new { Success = false, Message = "Permission denied." });
+            if (!PermissionHelper.Can(User, "student.edit")) return Forbid();
             var r = await _s.ToggleActiveAsync(id);
-            return Json(new { r.Success, r.Message });
+            return Json(new { success = r.Success, message = r.Message });
         }
 
-        [HttpPost]
-        public async Task<IActionResult> AssignBus([FromBody] BusTracking.Common.DTOs.Assign.AssignBusToStudentDto dto)
+        [HttpGet]
+        public async Task<IActionResult> SearchBuses(string q)
         {
-            if (!PermissionHelper.Can(User, "student.assignbus"))
-                return Json(new { Success = false, Message = "Permission denied." });
-            var r = await _s.AssignBusAsync(dto);
-            return Json(new { r.Success, r.Message });
+            var r = await _bus.GetDropdownAsync(q);
+            return Json(r.Data ?? new());
         }
 
-        [HttpGet] public async Task<IActionResult> SearchBuses(string? q) { var r = await _bus.GetDropdownAsync(q); return Json(r.Data); }
-        [HttpGet] public async Task<IActionResult> Search(string? q) { var r = await _s.SearchAsync(q); return Json(r.Data); }
 
         [HttpGet]
         public async Task<IActionResult> SearchStops(int busId)
         {
             var r = await _route.GetStopsByBusAsync(busId);
-            if (!r.Success) return Json(Array.Empty<object>());
-            return Json((r.Data ?? []).OrderBy(s => s.StopOrder).Select(s => new
-            {
-                stopId = s.StopId,
-                stopName = s.StopName,
-                stopOrder = s.StopOrder,
-                morningTime = s.MorningTime,
-                eveningTime = s.EveningTime
-            }));
-        }
-
-        public async Task<IActionResult> Availability(int studentId)
-        {
-            if (!PermissionHelper.Can(User, "student.view")) return Forbid();
-            var r = await _s.GetAvailabilitiesAsync(studentId);
-            ViewBag.StudentId = studentId;
-            return View(r.Data);
-        }
-
-        [HttpPost, ValidateAntiForgeryToken]
-        public async Task<IActionResult> SetAvailability(CreateAvailabilityDto m)
-        {
-            if (!PermissionHelper.Can(User, "student.edit")) return Forbid();
-            var r = await _s.SetAvailabilityAsync(m, UserId);
-            TempData[r.Success ? "SuccessMessage" : "ErrorMessage"] = r.Message;
-            return RedirectToAction(nameof(Availability), new { studentId = m.StudentId });
+            return Json(r.Data ?? new());
         }
     }
 }

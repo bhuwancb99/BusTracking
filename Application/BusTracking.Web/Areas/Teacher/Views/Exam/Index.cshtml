@@ -1,0 +1,367 @@
+@model List<BusTracking.Common.DTOs.Exam.StudentMarksGridItemDto>
+@{
+    ViewData["Title"] = "Exam Marks Entry Grid";
+    var terms = ViewBag.ExamTerms as List<BusTracking.Common.DTOs.Exam.ExamTermDto> ?? new();
+    var standards = ViewBag.Standards as List<BusTracking.Common.DTOs.Standard.StandardDto> ?? new();
+
+    var schedules = ViewBag.ExamSchedules as List<BusTracking.Common.DTOs.Exam.ExamScheduleDto> ?? new();
+    var sections = ViewBag.Sections as List<BusTracking.Common.DTOs.Section.SectionDto> ?? new();
+
+    int? selectedTermId = ViewBag.SelectedTermId;
+    int? selectedStandardId = ViewBag.SelectedStandardId;
+    int? selectedScheduleId = ViewBag.SelectedScheduleId;
+    int? selectedSectionId = ViewBag.SelectedSectionId;
+
+    var currentSchedule = schedules.FirstOrDefault(s => s.ExamScheduleId == selectedScheduleId);
+    bool hasAllFilters = selectedTermId.HasValue && selectedTermId > 0 &&
+                         selectedStandardId.HasValue && selectedStandardId > 0 &&
+                         selectedSectionId.HasValue && selectedSectionId > 0 &&
+                         selectedScheduleId.HasValue && selectedScheduleId > 0;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold m-0 text-dark">
+            <i class="bi bi-card-checklist text-primary me-2"></i>Exam Marks Entry Grid
+        </h3>
+        <span class="small text-muted">Select an exam term, class, section, and subject schedule to enter student marks.</span>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="Datesheet" class="btn btn-outline-primary rounded-3 fw-bold">
+            <i class="bi bi-calendar3 me-1"></i>View Datesheet
+        </a>
+    </div>
+</div>
+
+<!-- Alert Container for Save Feedback -->
+<div id="saveAlertContainer" class="mb-3" style="display:none;"></div>
+
+<!-- Filter Selection Header -->
+<div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+
+    <form method="get" id="filterForm" class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label small fw-bold text-muted mb-1">Exam Term <span class="text-danger">*</span></label>
+            <select name="examTermId" id="examTermSelect" class="form-select rounded-3" onchange="onTermOrStandardChanged()" required>
+                <option value="">-- Select Exam Term --</option>
+                @foreach (var t in terms)
+                {
+                    <option value="@t.ExamTermId" selected="@(t.ExamTermId == selectedTermId)">@t.TermName (@t.AcademicYearName)</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-muted mb-1">Class / Standard <span class="text-danger">*</span></label>
+            <select name="standardId" id="standardSelect" class="form-select rounded-3" onchange="onTermOrStandardChanged()" required>
+                <option value="">-- Select Class --</option>
+                @foreach (var s in standards)
+                {
+                    <option value="@s.StandardId" selected="@(s.StandardId == selectedStandardId)">@s.StandardName</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <label class="form-label small fw-bold text-muted mb-1">Section <span class="text-danger">*</span></label>
+            <select name="sectionId" id="sectionSelect" class="form-select rounded-3" required>
+                <option value="">-- Select Section --</option>
+                @foreach (var sec in sections)
+                {
+                    <option value="@sec.SectionId" selected="@(sec.SectionId == selectedSectionId)">Section @sec.SectionName</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label small fw-bold text-muted mb-1">Exam Subject Schedule <span class="text-danger">*</span></label>
+            <select name="examScheduleId" id="scheduleSelect" class="form-select rounded-3" required>
+                <option value="">-- Select Subject Exam --</option>
+                @foreach (var sc in schedules)
+                {
+                    <option value="@sc.ExamScheduleId" selected="@(sc.ExamScheduleId == selectedScheduleId)">
+                        @sc.SubjectName (Max: @sc.MaxMarks, Date: @sc.ExamDate.ToString("dd MMM yyyy"))
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-2 text-end">
+            <button type="submit" class="btn btn-primary rounded-3 w-100 fw-bold" title="Search Marks Grid">
+                <i class="bi bi-search me-1"></i>Search
+            </button>
+        </div>
+    </form>
+</div>
+
+@if (!hasAllFilters || currentSchedule == null)
+{
+    <div class="card border-0 shadow-sm rounded-4 text-center py-5 text-muted">
+        <i class="bi bi-funnel display-4 text-primary opacity-50 mb-2"></i>
+        <h5 class="fw-bold">Please Select Exam Term, Class, Section & Subject Schedule</h5>
+        <p class="small text-muted mb-0">Select all required filter fields above and click 'Search' to load student records for marks entry.</p>
+    </div>
+}
+else
+{
+    <!-- Schedule Info Pill -->
+    <div class="alert alert-primary rounded-4 d-flex align-items-center justify-content-between mb-4 border-0 shadow-sm">
+        <div class="d-flex align-items-center gap-3">
+            <div class="bg-primary text-white p-3 rounded-3 fs-4">
+                <i class="bi bi-journal-text"></i>
+            </div>
+            <div>
+                <h6 class="fw-bold m-0">@currentSchedule.SubjectName — @currentSchedule.StandardName</h6>
+                <span class="small opacity-75">Exam Date: <strong>@currentSchedule.ExamDate.ToString("dd MMM yyyy")</strong> | Max Marks: <strong>@currentSchedule.MaxMarks</strong> | Pass Marks: <strong>@currentSchedule.PassMarks</strong></span>
+            </div>
+        </div>
+        <button type="button" class="btn btn-success rounded-3 fw-bold px-4" id="saveMarksBtn" onclick="saveAllMarks()">
+            <i class="bi bi-check-lg me-1"></i>Save All Marks
+        </button>
+    </div>
+
+    <!-- Student Marks Table -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="marksGridTable">
+                <thead class="bg-light text-muted small fw-bold">
+                    <tr>
+                        <th style="width: 50px;" class="ps-4">#</th>
+                        <th>Student Code</th>
+                        <th>Student Name</th>
+                        <th style="width: 110px;" class="text-center">Absent?</th>
+                        <th style="width: 160px;">Marks Obtained</th>
+                        <th style="width: 100px;" class="text-center">Grade</th>
+                        <th>Remarks / Feedback</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">No student records found for the selected criteria.</td>
+                        </tr>
+                    }
+                    else
+                    {
+                        var idx = 1;
+                        foreach (var item in Model)
+                        {
+                            <tr data-student-id="@item.StudentId">
+                                <td class="ps-4 text-muted small fw-semibold">@(idx++)</td>
+                                <td><span class="badge bg-light text-dark font-monospace border">@item.StudentCode</span></td>
+                                <td class="fw-bold text-dark">@item.StudentName</td>
+                                <td class="text-center">
+                                    <div class="form-check d-inline-block">
+                                        <input type="checkbox" class="form-check-input absent-chk"
+                                               checked="@item.IsAbsent"
+                                               onchange="toggleAbsent(this)" />
+                                    </div>
+                                </td>
+                                <td>
+                                    <input type="number" step="0.5" min="0" max="@currentSchedule.MaxMarks"
+                                           class="form-control rounded-3 marks-input"
+                                           value="@(item.IsAbsent ? "" : item.MarksObtained?.ToString("G29"))"
+                                           disabled="@item.IsAbsent"
+                                           oninput="calculateGradeRow(this)" />
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge rounded-pill px-3 py-2 grade-badge @GetGradeBadgeClass(item.Grade, item.IsAbsent)">
+                                        @(item.IsAbsent ? "ABS" : (string.IsNullOrWhiteSpace(item.Grade) ? "-" : item.Grade))
+                                    </span>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control rounded-3 remarks-input"
+                                           value="@item.Remarks" placeholder="Optional comments..." />
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+@functions {
+    public string GetGradeBadgeClass(string? grade, bool isAbsent)
+    {
+        if (isAbsent) return "bg-danger";
+        return grade switch
+        {
+            "A+" => "bg-success",
+            "A" => "bg-primary",
+            "B" => "bg-info text-dark",
+            "C" => "bg-warning text-dark",
+            "D" => "bg-secondary",
+            "F" => "bg-danger",
+            _ => "bg-light text-muted border"
+        };
+    }
+}
+
+@section Scripts {
+    <script>
+        const maxMarks = @(currentSchedule?.MaxMarks ?? 100);
+
+        async function onTermOrStandardChanged() {
+            const stdId = document.getElementById('standardSelect').value;
+            const termId = document.getElementById('examTermSelect').value;
+
+            // Bind Sections dynamically based on Class / Standard
+            const secSelect = document.getElementById('sectionSelect');
+            secSelect.innerHTML = '<option value="">-- Select Section --</option>';
+
+            if (stdId) {
+                try {
+                    const res = await fetch('/Teacher/Exam/GetSectionsByStandard?standardId=' + stdId);
+                    const secs = await res.json();
+                    if (Array.isArray(secs)) {
+                        secs.forEach(sec => {
+                            const opt = document.createElement('option');
+                            opt.value = sec.sectionId;
+                            opt.textContent = 'Section ' + sec.sectionName;
+                            secSelect.appendChild(opt);
+                        });
+                    }
+                } catch (err) {
+                    console.error('Error fetching sections:', err);
+                }
+            }
+
+            // Bind Schedules dynamically based on Term & Class / Standard
+            const schedSelect = document.getElementById('scheduleSelect');
+            schedSelect.innerHTML = '<option value="">-- Select Subject Exam --</option>';
+
+            try {
+                let url = '/Teacher/Exam/GetSchedulesByTermAndStandard?';
+                if (termId) url += 'examTermId=' + termId + '&';
+                if (stdId) url += 'standardId=' + stdId;
+
+                const res = await fetch(url);
+                const scheds = await res.json();
+                if (Array.isArray(scheds)) {
+                    scheds.forEach(sc => {
+                        const opt = document.createElement('option');
+                        opt.value = sc.examScheduleId;
+                        opt.textContent = sc.subjectName + ' (Max: ' + sc.maxMarks + ')';
+                        schedSelect.appendChild(opt);
+                    });
+                }
+            } catch (err) {
+                console.error('Error fetching schedules:', err);
+            }
+        }
+
+        function toggleAbsent(chk) {
+            const row = chk.closest('tr');
+            const marksInput = row.querySelector('.marks-input');
+            const badge = row.querySelector('.grade-badge');
+
+            if (chk.checked) {
+                marksInput.value = '';
+                marksInput.disabled = true;
+                badge.textContent = 'ABS';
+                badge.className = 'badge rounded-pill px-3 py-2 grade-badge bg-danger';
+            } else {
+                marksInput.disabled = false;
+                calculateGradeRow(marksInput);
+            }
+        }
+
+        function calculateGradeRow(input) {
+            const row = input.closest('tr');
+            const chk = row.querySelector('.absent-chk');
+            const badge = row.querySelector('.grade-badge');
+
+            if (chk.checked) return;
+
+            const val = parseFloat(input.value);
+            if (isNaN(val) || input.value === '') {
+                badge.textContent = '-';
+                badge.className = 'badge rounded-pill px-3 py-2 grade-badge bg-light text-muted border';
+                return;
+            }
+
+            const pct = (val / maxMarks) * 100;
+            let grade = 'F';
+            let cls = 'bg-danger';
+
+            if (pct >= 90) { grade = 'A+'; cls = 'bg-success'; }
+            else if (pct >= 80) { grade = 'A'; cls = 'bg-primary'; }
+            else if (pct >= 70) { grade = 'B'; cls = 'bg-info text-dark'; }
+            else if (pct >= 60) { grade = 'C'; cls = 'bg-warning text-dark'; }
+            else if (pct >= 33) { grade = 'D'; cls = 'bg-secondary'; }
+
+            badge.textContent = grade;
+            badge.className = 'badge rounded-pill px-3 py-2 grade-badge ' + cls;
+        }
+
+        async function saveAllMarks() {
+            const scheduleId = @(selectedScheduleId ?? 0);
+            if (!scheduleId) return;
+
+            const btn = document.getElementById('saveMarksBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Saving...';
+
+            const rows = document.querySelectorAll('#marksGridTable tbody tr[data-student-id]');
+            const marksList = [];
+
+            rows.forEach(row => {
+                const studentId = parseInt(row.getAttribute('data-student-id'));
+                const isAbsent = row.querySelector('.absent-chk').checked;
+                const marksVal = row.querySelector('.marks-input').value;
+                const remarks = row.querySelector('.remarks-input').value;
+
+                marksList.push({
+                    studentId: studentId,
+                    marksObtained: isAbsent || marksVal === '' ? null : parseFloat(marksVal),
+                    isAbsent: isAbsent,
+                    remarks: remarks
+                });
+            });
+
+            try {
+                const res = await fetch('/Teacher/Exam/SaveMarks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value || ''
+                    },
+                    body: JSON.stringify({
+                        examScheduleId: scheduleId,
+                        marks: marksList
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    showSaveAlert('Marks saved successfully!', 'success');
+                } else {
+                    showSaveAlert(data.message || 'Failed to save marks.', 'danger');
+                }
+            } catch (err) {
+                showSaveAlert('Error saving marks: ' + err.message, 'danger');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Save All Marks';
+            }
+        }
+
+        function showSaveAlert(message, type) {
+            const container = document.getElementById('saveAlertContainer');
+            if (!container) return;
+            const icon = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
+            container.innerHTML = `
+                        <div class="alert alert-${type} alert-dismissible fade show d-flex align-items-center gap-2 rounded-4 shadow-sm py-3 px-3" role="alert">
+                            <i class="bi ${icon} fs-5"></i>
+                            <span class="fw-semibold">${message}</span>
+                            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>`;
+            container.style.display = 'block';
+            container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+    </script>
+}

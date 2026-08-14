@@ -35,26 +35,30 @@ namespace BusTracking.Web.Areas.Teacher.Controllers
             int selectedYearId = academicYearId ?? activeYear?.AcademicYearId ?? 0;
 
             var standards = (await _standardService.GetActiveStandardsAsync()).Data ?? new();
-            var sections = standardId.HasValue && standardId.Value > 0
-                ? (await _sectionService.GetSectionsByStandardAsync(standardId.Value)).Data ?? new()
+            int selectedStandardId = standardId ?? 0;
+
+            var sections = selectedStandardId > 0
+                ? (await _sectionService.GetSectionsByStandardAsync(selectedStandardId)).Data ?? new()
                 : new();
+            int selectedSectionId = sectionId ?? 0;
 
             ViewBag.AcademicYears = years;
             ViewBag.SelectedYearId = selectedYearId;
             ViewBag.Standards = standards;
-            ViewBag.SelectedStandardId = standardId;
+            ViewBag.SelectedStandardId = selectedStandardId;
             ViewBag.Sections = sections;
-            ViewBag.SelectedSectionId = sectionId;
+            ViewBag.SelectedSectionId = selectedSectionId;
 
-            bool hasFilter = selectedYearId > 0 && standardId.HasValue && standardId.Value > 0 && sectionId.HasValue && sectionId.Value > 0;
+            bool hasFilter = academicYearId.HasValue && academicYearId.Value > 0 && standardId.HasValue && standardId.Value > 0 && sectionId.HasValue && sectionId.Value > 0;
             ViewBag.HasFilter = hasFilter;
 
             var result = hasFilter
-                ? await _homeworkService.GetHomeworksForTeacherAsync(CurrentUserId, selectedYearId, standardId, sectionId)
+                ? await _homeworkService.GetHomeworksForTeacherAsync(CurrentUserId, selectedYearId, selectedStandardId, selectedSectionId)
                 : ApiResponse<List<HomeworkDto>>.Ok(new List<HomeworkDto>());
 
             return View(result.Data ?? new List<HomeworkDto>());
         }
+
 
         public async Task<IActionResult> Create()
         {

@@ -245,9 +245,15 @@
                         <Label
                             FontAttributes="Bold"
                             FontSize="12"
-                            Text="Standard / Class"
                             TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                        Dark={StaticResource TextPrimaryDark}}" />
+                                                        Dark={StaticResource TextPrimaryDark}}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Standard / Class" />
+                                    <Span Text="*" TextColor="{StaticResource Danger}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
                         <Picker
                             Title="Select Class / Standard"
                             BackgroundColor="Transparent"
@@ -258,6 +264,38 @@
                                                         Dark={StaticResource TextPrimaryDark}}" />
                     </VerticalStackLayout>
                 </Border>
+
+                <!--  Section (Mandatory)  -->
+                <Border
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 8">
+                    <VerticalStackLayout Padding="16" Spacing="8">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="12"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="Section" />
+                                    <Span Text="*" TextColor="{StaticResource Danger}" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Picker
+                            Title="Select Section"
+                            BackgroundColor="Transparent"
+                            ItemDisplayBinding="{Binding SectionName}"
+                            ItemsSource="{Binding SectionOptions}"
+                            SelectedItem="{Binding SelectedSection}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                    </VerticalStackLayout>
+                </Border>
+
 
                 <!--  Bus  -->
                 <Border

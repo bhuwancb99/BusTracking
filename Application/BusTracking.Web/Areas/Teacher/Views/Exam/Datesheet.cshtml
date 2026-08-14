@@ -1,0 +1,106 @@
+@model List<BusTracking.Common.DTOs.Exam.ExamScheduleDto>
+@{
+    ViewData["Title"] = "Exam Datesheet";
+    var terms = ViewBag.ExamTerms as List<BusTracking.Common.DTOs.Exam.ExamTermDto> ?? new();
+    var standards = ViewBag.Standards as List<BusTracking.Common.DTOs.Standard.StandardDto> ?? new();
+
+    int? selectedTermId = ViewBag.SelectedTermId;
+    int? selectedStandardId = ViewBag.SelectedStandardId;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold m-0 text-dark">
+            <i class="bi bi-calendar-event text-primary me-2"></i>Exam Datesheet Schedule
+        </h3>
+        <span class="small text-muted">View upcoming examination timetables, room numbers, and passing criteria.</span>
+    </div>
+    <div>
+        <a asp-action="Index" class="btn btn-primary rounded-3 fw-bold">
+            <i class="bi bi-pencil-square me-1"></i>Enter Marks Grid
+        </a>
+    </div>
+</div>
+
+<!-- Filter Selection Header -->
+<div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-5">
+            <label class="form-label small fw-bold text-muted mb-1">Exam Term</label>
+            <select name="examTermId" class="form-select rounded-3" onchange="this.form.submit()">
+                <option value="">-- All Exam Terms --</option>
+                @foreach (var t in terms)
+                {
+                    <option value="@t.ExamTermId" selected="@(t.ExamTermId == selectedTermId)">@t.TermName (@t.AcademicYearName)</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-5">
+            <label class="form-label small fw-bold text-muted mb-1">Class / Standard</label>
+            <select name="standardId" class="form-select rounded-3" onchange="this.form.submit()">
+                <option value="">-- All Classes --</option>
+                @foreach (var s in standards)
+                {
+                    <option value="@s.StandardId" selected="@(s.StandardId == selectedStandardId)">@s.StandardName</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-2 text-end">
+            <button type="submit" class="btn btn-outline-primary rounded-3 w-100 fw-bold">
+                <i class="bi bi-funnel me-1"></i>Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Datesheet Table -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light text-muted small fw-bold">
+                <tr>
+                    <th class="ps-4">Date</th>
+                    <th>Term</th>
+                    <th>Class</th>
+                    <th>Subject</th>
+                    <th>Time</th>
+                    <th class="text-center">Max Marks</th>
+                    <th class="text-center">Pass Marks</th>
+                    <th>Room</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-muted">No examination schedule items found.</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-bold text-primary">
+                                <i class="bi bi-calendar-check me-1"></i>@item.ExamDate.ToString("ddd, dd MMM yyyy")
+                            </td>
+                            <td><span class="badge bg-light text-dark border">@item.TermName</span></td>
+                            <td><span class="badge bg-secondary">@item.StandardName</span></td>
+                            <td class="fw-bold text-dark">@item.SubjectName</td>
+                            <td class="small text-muted">
+                                @DateTime.Today.Add(item.StartTime).ToString("hh:mm tt") - @DateTime.Today.Add(item.EndTime).ToString("hh:mm tt")
+                            </td>
+                            <td class="text-center fw-bold">@item.MaxMarks</td>
+                            <td class="text-center text-muted">@item.PassMarks</td>
+                            <td>
+                                <span class="badge bg-info text-dark">Room: @(string.IsNullOrWhiteSpace(item.RoomNumber) ? "TBA" : item.RoomNumber)</span>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

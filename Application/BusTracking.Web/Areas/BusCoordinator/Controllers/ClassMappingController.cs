@@ -38,29 +38,35 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             int selectedYearId = academicYearId ?? activeYear?.AcademicYearId ?? 0;
 
             var standards = (await _standardService.GetActiveStandardsAsync()).Data ?? new();
-            int selectedStandardId = standardId ?? standards.FirstOrDefault()?.StandardId ?? 0;
+            int selectedStandardId = standardId ?? 0;
 
             var sections = selectedStandardId > 0
                 ? (await _sectionService.GetSectionsByStandardAsync(selectedStandardId)).Data ?? new()
                 : new();
+
+            int selectedSectionId = sectionId ?? 0;
 
             ViewBag.AcademicYears = years;
             ViewBag.SelectedYearId = selectedYearId;
             ViewBag.Standards = standards;
             ViewBag.SelectedStandardId = selectedStandardId;
             ViewBag.Sections = sections;
-            ViewBag.SelectedSectionId = sectionId;
+            ViewBag.SelectedSectionId = selectedSectionId;
 
             ViewBag.Subjects = (await _subjectService.GetActiveSubjectsAsync()).Data ?? new();
             var teachersPaged = await _teacherService.GetTeachersAsync(null, null, 1, 100);
             ViewBag.Teachers = teachersPaged.Items ?? new();
 
-            var mappings = (selectedYearId > 0 && selectedStandardId > 0)
-                ? (await _mappingService.GetClassMappingsAsync(selectedYearId, selectedStandardId, sectionId)).Data ?? new()
+            bool isFilterApplied = selectedYearId > 0 && selectedStandardId > 0 && selectedSectionId > 0;
+            ViewBag.IsFilterApplied = isFilterApplied;
+
+            var mappings = isFilterApplied
+                ? (await _mappingService.GetClassMappingsAsync(selectedYearId, selectedStandardId, selectedSectionId)).Data ?? new()
                 : new List<ClassSubjectTeacherDto>();
 
             return View(mappings);
         }
+
 
         [HttpPost, ValidateAntiForgeryToken]
         public async Task<IActionResult> Assign(AssignClassSubjectTeacherDto dto)

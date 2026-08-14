@@ -123,7 +123,14 @@
                             <td>
                                 <span class="badge bg-secondary-subtle text-dark border font-monospace">@student.StudentCode</span>
                             </td>
-                            <td class="text-secondary">@(student.StandardName ?? "-")</td>
+                            <td class="text-secondary">
+                                @(student.StandardName ?? "-")
+                                @if (!string.IsNullOrEmpty(student.SectionName))
+                                {
+                                    <span class="badge bg-light text-dark border ms-1">Section @student.SectionName</span>
+                                }
+                            </td>
+
                             <td>
                                 @if (!string.IsNullOrEmpty(student.BusNumber))
                                 {

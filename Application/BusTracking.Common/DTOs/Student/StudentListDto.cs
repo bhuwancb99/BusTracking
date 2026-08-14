@@ -11,7 +11,10 @@ namespace BusTracking.Common.DTOs.Student
         public string? PhoneNumber { get; set; }
         public int? StandardId { get; set; }
         public string? StandardName { get; set; }
+        public int? SectionId { get; set; }
+        public string? SectionName { get; set; }
         public int? BusId { get; set; }
+
         public string? BusName { get; set; }
         public string? BusNumber { get; set; }
         public int? StopId { get; set; }

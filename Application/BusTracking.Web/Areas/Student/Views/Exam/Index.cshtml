@@ -1,0 +1,108 @@
+@{
+    ViewData["Title"] = "Exams & Report Cards";
+    var terms = ViewBag.ExamTerms as List<BusTracking.Common.DTOs.Exam.ExamTermDto> ?? new();
+    var schedules = ViewBag.ExamSchedules as List<BusTracking.Common.DTOs.Exam.ExamScheduleDto> ?? new();
+    var rc = ViewBag.ReportCard as BusTracking.Common.DTOs.Exam.StudentReportCardDto;
+    int? selectedTermId = ViewBag.SelectedTermId;
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h3 class="fw-bold m-0 text-dark">
+            <i class="bi bi-award text-primary me-2"></i>Examinations & Report Cards
+        </h3>
+        <span class="small text-muted">View exam timetables, datesheets, and official academic term report cards.</span>
+    </div>
+</div>
+
+<!-- Term Selector Header -->
+<div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+    <form method="get" class="row g-3 align-items-end">
+        <div class="col-md-9">
+            <label class="form-label small fw-bold text-muted mb-1">Select Exam Term</label>
+            <select name="examTermId" class="form-select rounded-3" onchange="this.form.submit()">
+                <option value="">-- Select Exam Term --</option>
+                @foreach (var t in terms)
+                {
+                    <option value="@t.ExamTermId" selected="@(t.ExamTermId == selectedTermId)">@t.TermName (@t.AcademicYearName)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-3 text-end">
+            <button type="submit" class="btn btn-primary rounded-3 w-100 fw-bold">
+                <i class="bi bi-filter me-1"></i>Load Term
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Report Card Summary Banner -->
+@if (rc != null && rc.SubjectMarks.Any())
+{
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-primary text-white position-relative overflow-hidden">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 position-relative z-1">
+            <div>
+                <span class="badge bg-white text-primary fw-bold mb-2">@rc.TermName Report Card</span>
+                <h3 class="fw-bold m-0">Result Status: <span class="badge @(rc.ResultStatus == "PASS" ? "bg-success" : "bg-danger") fs-5 align-middle">@rc.ResultStatus</span></h3>
+                <p class="small opacity-75 mt-1 mb-0">Total Marks: <strong>@rc.TotalMarksObtained / @rc.TotalMaxMarks</strong> | Percentage: <strong>@rc.Percentage%</strong> | Grade: <strong>@rc.OverallGrade</strong></p>
+            </div>
+            <div class="d-flex gap-2">
+                <a asp-action="ReportCard" asp-route-examTermId="@rc.ExamTermId" class="btn btn-light rounded-3 fw-bold text-primary">
+                    <i class="bi bi-eye me-1"></i>View Full Report Card
+                </a>
+                <a asp-action="PrintReportCard" asp-route-examTermId="@rc.ExamTermId" target="_blank" class="btn btn-warning rounded-3 fw-bold text-dark">
+                    <i class="bi bi-file-earmark-pdf me-1"></i>Download PDF / Print
+                </a>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Exam Datesheet Schedule -->
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+    <div class="card-header bg-white py-3 border-0">
+        <h5 class="fw-bold m-0 text-dark">
+            <i class="bi bi-calendar3 text-primary me-2"></i>Class Exam Timetable (Datesheet)
+        </h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light text-muted small fw-bold">
+                <tr>
+                    <th class="ps-4">Date</th>
+                    <th>Subject</th>
+                    <th>Time</th>
+                    <th class="text-center">Max Marks</th>
+                    <th class="text-center">Pass Marks</th>
+                    <th>Room</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!schedules.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">No examination schedule items available for the selected term.</td>
+                    </tr>
+                }
+                else
+                {
+                    foreach (var item in schedules)
+                    {
+                        <tr>
+                            <td class="ps-4 fw-bold text-primary">
+                                <i class="bi bi-calendar-check me-1"></i>@item.ExamDate.ToString("ddd, dd MMM yyyy")
+                            </td>
+                            <td class="fw-bold text-dark">@item.SubjectName</td>
+                            <td class="small text-muted">
+                                @DateTime.Today.Add(item.StartTime).ToString("hh:mm tt") - @DateTime.Today.Add(item.EndTime).ToString("hh:mm tt")
+                            </td>
+                            <td class="text-center fw-bold">@item.MaxMarks</td>
+                            <td class="text-center text-muted">@item.PassMarks</td>
+                            <td><span class="badge bg-info text-dark">Room: @(string.IsNullOrWhiteSpace(item.RoomNumber) ? "TBA" : item.RoomNumber)</span></td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

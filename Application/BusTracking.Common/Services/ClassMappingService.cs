@@ -53,7 +53,13 @@ namespace BusTracking.Common.Services
 
         public async Task<ApiResponse<ClassSubjectTeacherDto>> AssignSubjectTeacherAsync(AssignClassSubjectTeacherDto dto)
         {
+            if (dto.AcademicYearId <= 0 || dto.StandardId <= 0 || dto.SectionId <= 0 || dto.SubjectId <= 0 || dto.TeacherId <= 0)
+            {
+                return ApiResponse<ClassSubjectTeacherDto>.Fail("All fields (Academic Session, Class/Standard, Section, Subject, and Teacher) are mandatory.");
+            }
+
             var schoolId = _currentUser.SchoolId ?? 1;
+
 
             var existing = await _db.ClassSubjectTeachers.FirstOrDefaultAsync(c =>
                 c.AcademicYearId == dto.AcademicYearId &&
@@ -142,7 +148,13 @@ namespace BusTracking.Common.Services
 
         public async Task<ApiResponse<ClassSubjectTeacherDto>> UpdateSubjectTeacherAsync(int id, AssignClassSubjectTeacherDto dto)
         {
+            if (dto.AcademicYearId <= 0 || dto.StandardId <= 0 || dto.SectionId <= 0 || dto.SubjectId <= 0 || dto.TeacherId <= 0)
+            {
+                return ApiResponse<ClassSubjectTeacherDto>.Fail("All fields (Academic Session, Class/Standard, Section, Subject, and Teacher) are mandatory.");
+            }
+
             var item = await _db.ClassSubjectTeachers.FindAsync(id);
+
             if (item is null)
                 return ApiResponse<ClassSubjectTeacherDto>.Fail("Mapping not found.");
 

@@ -1296,7 +1296,16 @@ INSERT INTO Permissions (ModuleName, PermissionKey, Description) VALUES
 ('ManageLogs',          'logs.view',                'View system logs'),
 ('ManageFuelLogs',      'fuellog.view',             'View fuel logs'),
 ('ManageFuelLogs',      'fuellog.manage',           'Manage fuel logs'),
-('ManageReports',       'report.view',              'View reports & analytics');
+('ManageExams',         'examterm.view',            'View exam terms'),
+('ManageExams',         'examterm.add',             'Create new exam term'),
+('ManageExams',         'examterm.edit',            'Edit exam term details'),
+('ManageExams',         'examterm.delete',          'Delete exam term'),
+('ManageExams',         'examschedule.view',        'View exam schedules and datesheets'),
+('ManageExams',         'examschedule.add',         'Add exam to datesheet schedule'),
+('ManageExams',         'examschedule.edit',        'Edit exam datesheet schedule'),
+('ManageExams',         'examschedule.delete',      'Delete exam datesheet schedule'),
+('ManageExams',         'exammarks.view',           'View student exam marks and report cards'),
+('ManageExams',         'exammarks.manage',         'Enter and evaluate student exam marks');
 GO
 
 -- 5. SEED DEFAULT SUPER ADMIN USER (Username: superadmin, Password: Admin@123)
@@ -1349,6 +1358,83 @@ GO
 INSERT INTO PaymentGatewayConfigs (SchoolId, GatewayType, MerchantId, ApiKey, SecretKey, IsActive) VALUES
 (1, 'PhonePe',  'MERCHANT_PHONEPE_DEFAULT',  'key_phonepe_test_123',  'secret_phonepe_test_123', 1),
 (1, 'Razorpay', 'MERCHANT_RAZORPAY_DEFAULT', 'rzp_test_key_123456',   'rzp_test_secret_123456', 1);
+GO
+
+-- ============================================================
+-- PART 22: EXAMS, DATESHEETS & MARKS
+-- ============================================================
+
+-- 1. EXAM TERMS
+IF OBJECT_ID('ExamTerms', 'U') IS NULL
+BEGIN
+    CREATE TABLE ExamTerms (
+        ExamTermId     INT           NOT NULL IDENTITY(1,1),
+        SchoolId       INT           NOT NULL,
+        AcademicYearId INT           NOT NULL,
+        TermName       NVARCHAR(150) NOT NULL,
+        Description    NVARCHAR(500) NULL,
+        StartDate      DATETIME2     NOT NULL,
+        EndDate        DATETIME2     NOT NULL,
+        IsActive       BIT           NOT NULL CONSTRAINT DF_ExamTerms_IsActive DEFAULT 1,
+        CreatedAt      DATETIME2     NOT NULL CONSTRAINT DF_ExamTerms_CreatedAt DEFAULT GETUTCDATE(),
+        CONSTRAINT PK_ExamTerms PRIMARY KEY (ExamTermId),
+        CONSTRAINT FK_ExamTerms_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId),
+        CONSTRAINT FK_ExamTerms_AcademicYears FOREIGN KEY (AcademicYearId) REFERENCES AcademicYears(AcademicYearId)
+    );
+END
+GO
+
+-- 2. EXAM SCHEDULES (DATESHEET)
+IF OBJECT_ID('ExamSchedules', 'U') IS NULL
+BEGIN
+    CREATE TABLE ExamSchedules (
+        ExamScheduleId INT           NOT NULL IDENTITY(1,1),
+        SchoolId       INT           NOT NULL,
+        AcademicYearId INT           NOT NULL,
+        ExamTermId     INT           NOT NULL,
+        StandardId     INT           NOT NULL,
+        SectionId      INT           NULL,
+        SubjectId      INT           NOT NULL,
+        ExamDate       DATETIME2     NOT NULL,
+        StartTime      TIME          NOT NULL,
+        EndTime        TIME          NOT NULL,
+        MaxMarks       DECIMAL(18,2) NOT NULL CONSTRAINT DF_ExamSchedules_MaxMarks DEFAULT 100,
+        PassMarks      DECIMAL(18,2) NOT NULL CONSTRAINT DF_ExamSchedules_PassMarks DEFAULT 33,
+        RoomNumber     NVARCHAR(50)  NULL,
+        CreatedAt      DATETIME2     NOT NULL CONSTRAINT DF_ExamSchedules_CreatedAt DEFAULT GETUTCDATE(),
+        CONSTRAINT PK_ExamSchedules PRIMARY KEY (ExamScheduleId),
+        CONSTRAINT FK_ExamSchedules_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId),
+        CONSTRAINT FK_ExamSchedules_AcademicYears FOREIGN KEY (AcademicYearId) REFERENCES AcademicYears(AcademicYearId),
+        CONSTRAINT FK_ExamSchedules_ExamTerms FOREIGN KEY (ExamTermId) REFERENCES ExamTerms(ExamTermId) ON DELETE CASCADE,
+        CONSTRAINT FK_ExamSchedules_StandardMasters FOREIGN KEY (StandardId) REFERENCES StandardMasters(StandardId),
+        CONSTRAINT FK_ExamSchedules_Sections FOREIGN KEY (SectionId) REFERENCES Sections(SectionId),
+        CONSTRAINT FK_ExamSchedules_Subjects FOREIGN KEY (SubjectId) REFERENCES SubjectMasters(SubjectId)
+    );
+END
+GO
+
+
+-- 3. EXAM MARKS
+IF OBJECT_ID('ExamMarks', 'U') IS NULL
+BEGIN
+    CREATE TABLE ExamMarks (
+        ExamMarkId               INT           NOT NULL IDENTITY(1,1),
+        SchoolId                 INT           NOT NULL,
+        ExamScheduleId           INT           NOT NULL,
+        StudentId                INT           NOT NULL,
+        MarksObtained            DECIMAL(18,2) NULL,
+        Grade                    NVARCHAR(10)  NULL,
+        IsAbsent                 BIT           NOT NULL CONSTRAINT DF_ExamMarks_IsAbsent DEFAULT 0,
+        Remarks                  NVARCHAR(500) NULL,
+        EvaluatedByTeacherUserId INT           NULL,
+        EvaluatedAt              DATETIME2     NULL,
+        CONSTRAINT PK_ExamMarks PRIMARY KEY (ExamMarkId),
+        CONSTRAINT FK_ExamMarks_Schools FOREIGN KEY (SchoolId) REFERENCES Schools(SchoolId),
+        CONSTRAINT FK_ExamMarks_ExamSchedules FOREIGN KEY (ExamScheduleId) REFERENCES ExamSchedules(ExamScheduleId) ON DELETE CASCADE,
+        CONSTRAINT FK_ExamMarks_Students FOREIGN KEY (StudentId) REFERENCES Students(StudentId),
+        CONSTRAINT FK_ExamMarks_TeacherUser FOREIGN KEY (EvaluatedByTeacherUserId) REFERENCES Users(UserId)
+    );
+END
 GO
 
 PRINT 'SchoolErpDB database creation and seed completed successfully!';

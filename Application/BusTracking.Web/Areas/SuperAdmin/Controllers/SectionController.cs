@@ -38,8 +38,10 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             var teachersPaged = await _teacherService.GetTeachersAsync(null, null, 1, 200);
             ViewBag.Teachers = teachersPaged.Items ?? new();
 
-            return View(new CreateSectionDto { StandardId = standardId, SectionName = "B" });
+            int selectedStd = standardId > 0 ? standardId : standards.FirstOrDefault()?.StandardId ?? 0;
+            return View(new CreateSectionDto { StandardId = selectedStd, SectionName = "" });
         }
+
 
         // POST /SuperAdmin/Section/Create
         [HttpPost, ValidateAntiForgeryToken]
@@ -143,5 +145,13 @@ namespace BusTracking.Web.Areas.SuperAdmin.Controllers
             var r = await _sectionService.ToggleActiveAsync(id);
             return Json(r);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetSectionsByStandard(int standardId)
+        {
+            var sections = (await _sectionService.GetSectionsByStandardAsync(standardId)).Data ?? new();
+            return Json(sections);
+        }
     }
 }
+
