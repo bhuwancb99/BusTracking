@@ -158,6 +158,22 @@ namespace BusTracking.Mobile
             // ── Homework Sub-Routes (Child Push Routes) ────────────────────────
             Routing.RegisterRoute("TeacherHomeworkForm", typeof(TeacherHomeworkFormPage));
             Routing.RegisterRoute("TeacherHomeworkSubmissions", typeof(TeacherHomeworkSubmissionsPage));
+
+            // ── Phase 4 Exam & Marks Sub-Routes ────────────────────────────────
+            Routing.RegisterRoute("StudentDatesheet", typeof(StudentDatesheetPage));
+            Routing.RegisterRoute("StudentReportCard", typeof(StudentReportCardPage));
+            Routing.RegisterRoute("TeacherMarksEntry", typeof(TeacherMarksEntryPage));
+            Routing.RegisterRoute("AdminMarksEntry", typeof(AdminMarksEntryPage));
+            Routing.RegisterRoute("CoordMarksEntry", typeof(CoordMarksEntryPage));
+
+            Routing.RegisterRoute("AdminExamTerms", typeof(AdminExamTermsPage));
+            Routing.RegisterRoute("AdminExamTermForm", typeof(AdminExamTermFormPage));
+            Routing.RegisterRoute("CoordExamTerms", typeof(CoordExamTermsPage));
+            Routing.RegisterRoute("CoordExamTermForm", typeof(CoordExamTermFormPage));
+            Routing.RegisterRoute("AdminExamDatesheet", typeof(AdminExamDatesheetPage));
+            Routing.RegisterRoute("AdminExamScheduleForm", typeof(AdminExamScheduleFormPage));
+            Routing.RegisterRoute("CoordExamDatesheet", typeof(CoordExamDatesheetPage));
+            Routing.RegisterRoute("CoordExamScheduleForm", typeof(CoordExamScheduleFormPage));
         }
 
 
@@ -207,6 +223,7 @@ namespace BusTracking.Mobile
             s.AddTransient<ISubjectService, SubjectService>();
             s.AddTransient<IClassMappingService, ClassMappingService>();
             s.AddTransient<HomeworkMobileService>();
+            s.AddTransient<IExamService, ExamService>();
         }
 
         // ── ViewModels ────────────────────────────────────────────────────────
@@ -348,6 +365,13 @@ namespace BusTracking.Mobile
             s.AddTransient<AdminFuelLogFormViewModel>();
             s.AddTransient<CoordFuelLogListViewModel>();
             s.AddTransient<CoordFuelLogFormViewModel>();
+
+            s.AddTransient<AdminExamTermsViewModel>();
+            s.AddTransient<CoordExamTermsViewModel>();
+            s.AddTransient<ExamTermFormViewModel>();
+            s.AddTransient<AdminExamDatesheetViewModel>();
+            s.AddTransient<CoordExamDatesheetViewModel>();
+            s.AddTransient<ExamScheduleFormViewModel>();
         }
 
         // ── Views (Pages) ─────────────────────────────────────────────────────
@@ -474,6 +498,10 @@ namespace BusTracking.Mobile
             s.AddTransient<StudentTrackingPage>();
             s.AddTransient<StudentAvailabilityPage>();
             s.AddTransient<StudentNotificationPage>();
+            s.AddTransient<StudentDatesheetPage>();
+            s.AddTransient<StudentDatesheetViewModel>();
+            s.AddTransient<StudentReportCardPage>();
+            s.AddTransient<StudentReportCardViewModel>();
 
             s.AddTransient<TeacherAttendancePage>();
             s.AddTransient<TeacherDashboardPage>();
@@ -481,6 +509,9 @@ namespace BusTracking.Mobile
             s.AddTransient<TeacherHomeworkListPage>();
             s.AddTransient<TeacherHomeworkFormPage>();
             s.AddTransient<TeacherHomeworkSubmissionsPage>();
+            s.AddTransient<TeacherMarksEntryPage>();
+            s.AddTransient<TeacherMarksEntryViewModel>();
+
             s.AddTransient<StudentHomeworkListPage>();
             s.AddTransient<LiveTrackingPage>();
 
@@ -490,6 +521,19 @@ namespace BusTracking.Mobile
             s.AddTransient<AdminFuelLogFormPage>();
             s.AddTransient<CoordFuelLogListPage>();
             s.AddTransient<CoordFuelLogFormPage>();
+
+            s.AddTransient<AdminMarksEntryPage>();
+            s.AddTransient<AdminMarksEntryViewModel>();
+            s.AddTransient<CoordMarksEntryPage>();
+            s.AddTransient<CoordMarksEntryViewModel>();
+            s.AddTransient<AdminExamTermsPage>();
+            s.AddTransient<AdminExamTermFormPage>();
+            s.AddTransient<CoordExamTermsPage>();
+            s.AddTransient<CoordExamTermFormPage>();
+            s.AddTransient<AdminExamDatesheetPage>();
+            s.AddTransient<AdminExamScheduleFormPage>();
+            s.AddTransient<CoordExamDatesheetPage>();
+            s.AddTransient<CoordExamScheduleFormPage>();
         }
 
         // ── Control Handlers ──────────────────────────────────────────────────

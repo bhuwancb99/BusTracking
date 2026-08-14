@@ -626,4 +626,54 @@
         FlyoutItemIsVisible="False"
         Route="CoordTeacherList" />
 
+    <!--  Phase 4 Exam & Marks  -->
+    <ShellContent
+        Title="Marks Entry"
+        ContentTemplate="{DataTemplate admin:AdminMarksEntryPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminMarksEntry" />
+    <ShellContent
+        Title="Marks Entry"
+        ContentTemplate="{DataTemplate coord:CoordMarksEntryPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordMarksEntry" />
+    <ShellContent
+        Title="Marks Entry"
+        ContentTemplate="{DataTemplate teacher:TeacherMarksEntryPage}"
+        FlyoutItemIsVisible="False"
+        Route="TeacherMarksEntry" />
+    <ShellContent
+        Title="Exam Datesheet"
+        ContentTemplate="{DataTemplate student:StudentDatesheetPage}"
+        FlyoutItemIsVisible="False"
+        Route="StudentDatesheet" />
+    <ShellContent
+        Title="Report Card"
+        ContentTemplate="{DataTemplate student:StudentReportCardPage}"
+        FlyoutItemIsVisible="False"
+        Route="StudentReportCard" />
+
+    <ShellContent
+        Title="Exam Terms"
+        ContentTemplate="{DataTemplate admin:AdminExamTermsPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminExamTerms" />
+    <ShellContent
+        Title="Exam Terms"
+        ContentTemplate="{DataTemplate coord:CoordExamTermsPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordExamTerms" />
+    <ShellContent
+        Title="Exam Datesheets"
+        ContentTemplate="{DataTemplate admin:AdminExamDatesheetPage}"
+        FlyoutItemIsVisible="False"
+        Route="AdminExamDatesheet" />
+    <ShellContent
+        Title="Exam Datesheets"
+        ContentTemplate="{DataTemplate coord:CoordExamDatesheetPage}"
+        FlyoutItemIsVisible="False"
+        Route="CoordExamDatesheet" />
+
 </Shell>
+
+

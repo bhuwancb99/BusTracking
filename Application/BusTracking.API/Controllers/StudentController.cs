@@ -8,6 +8,7 @@ namespace BusTracking.API.Controllers
         private readonly IImageService _img;
         private readonly IHomeworkService _homeworkService;
         private readonly IAcademicYearService _academicYearService;
+        private readonly IExamService _examService;
         private readonly IWebHostEnvironment _env;
 
         public StudentController(
@@ -16,6 +17,7 @@ namespace BusTracking.API.Controllers
             IImageService img,
             IHomeworkService homeworkService,
             IAcademicYearService academicYearService,
+            IExamService examService,
             IWebHostEnvironment env)
         {
             _db = db;
@@ -23,8 +25,10 @@ namespace BusTracking.API.Controllers
             _img = img;
             _homeworkService = homeworkService;
             _academicYearService = academicYearService;
+            _examService = examService;
             _env = env;
         }
+
 
         /// <summary>
         /// Switch active academic session for Student's school.
@@ -352,5 +356,38 @@ namespace BusTracking.API.Controllers
             var res = await _homeworkService.SubmitHomeworkAsync(dto, CurrentUserId);
             return res.Success ? Ok(res) : BadRequest(res);
         }
+
+        /// <summary>
+        /// Student: Get exam datesheet/schedules for assigned standard.
+        /// </summary>
+        [HttpGet("exam/datesheet")]
+        public async Task<IActionResult> GetDatesheet([FromQuery] int? examTermId)
+        {
+            var student = await _db.Students.FirstOrDefaultAsync(s => s.UserId == CurrentUserId);
+            if (student == null || !student.StandardId.HasValue)
+            {
+                return Ok(ApiResponse<List<ExamScheduleDto>>.Fail("Student standard not found."));
+            }
+
+            var res = await _examService.GetExamSchedulesAsync(examTermId, student.StandardId.Value);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+        /// <summary>
+        /// Student: Get student report card for exam term.
+        /// </summary>
+        [HttpGet("exam/report-card")]
+        public async Task<IActionResult> GetReportCard([FromQuery] int examTermId)
+        {
+            var student = await _db.Students.FirstOrDefaultAsync(s => s.UserId == CurrentUserId);
+            if (student == null)
+            {
+                return Ok(ApiResponse<StudentReportCardDto>.Fail("Student profile not found."));
+            }
+
+            var res = await _examService.GetStudentReportCardAsync(student.StudentId, examTermId);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
     }
 }
+

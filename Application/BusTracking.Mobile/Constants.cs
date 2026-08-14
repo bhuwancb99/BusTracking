@@ -153,34 +153,47 @@ public static class Constants
         public const string ClassMappingDelete = "/api/admin/class-mapping/{0}";
 
         // Attendance
-        public const string AttendanceStudents   = "/api/admin/attendance/students";
+        public const string AttendanceStudents = "/api/admin/attendance/students";
         public const string AttendanceManualBatch = "/api/admin/attendance/manual-batch";
-        public const string AttendanceFaceScan    = "/api/admin/attendance/face-scan";
-        public const string AttendanceReport      = "/api/admin/attendance/report";
+        public const string AttendanceFaceScan = "/api/admin/attendance/face-scan";
+        public const string AttendanceReport = "/api/admin/attendance/report";
+
+        // Exam & Marks
+        public const string ExamTerms = "/api/admin/exam/terms";
+        public const string ExamTermCreate = "/api/admin/exam/terms/create";
+        public const string ExamTermUpdate = "/api/admin/exam/terms/update/{0}";
+        public const string ExamTermDelete = "/api/admin/exam/terms/delete/{0}";
+        public const string ExamSchedules = "/api/admin/exam/schedules";
+        public const string ExamScheduleCreate = "/api/admin/exam/schedules/create";
+        public const string ExamScheduleUpdate = "/api/admin/exam/schedules/update/{0}";
+        public const string ExamScheduleDelete = "/api/admin/exam/schedules/delete/{0}";
+        public const string ExamMarksGrid = "/api/admin/exam/marks-grid";
+        public const string ExamSaveMarks = "/api/admin/exam/save-marks";
+        public const string ExamReportCard = "/api/admin/exam/report-card";
     }
 
     // ── AcademicYear  →  role-based endpoints (Admin vs Coordinator) ──────
     public static class AcademicYear
     {
         // Admin role
-        public const string AdminBase          = "/api/admin/academicyears";                    // GET/POST
-        public const string AdminById          = "/api/admin/academicyears/{0}";                // PUT
-        public const string AdminActive        = "/api/admin/academicyears/active";             // GET
-        public const string AdminSetActive     = "/api/admin/academicyears/{0}/set-active";    // POST
-        public const string AdminToggleStatus  = "/api/admin/academicyears/{0}/toggle-status"; // POST
+        public const string AdminBase = "/api/admin/academicyears";                    // GET/POST
+        public const string AdminById = "/api/admin/academicyears/{0}";                // PUT
+        public const string AdminActive = "/api/admin/academicyears/active";             // GET
+        public const string AdminSetActive = "/api/admin/academicyears/{0}/set-active";    // POST
+        public const string AdminToggleStatus = "/api/admin/academicyears/{0}/toggle-status"; // POST
 
         // Coordinator role
-        public const string CoordBase          = "/api/coordinator/academicyears";                    // GET/POST
-        public const string CoordById          = "/api/coordinator/academicyears/{0}";                // PUT
-        public const string CoordActive        = "/api/coordinator/academicyears/active";             // GET
-        public const string CoordSetActive     = "/api/coordinator/academicyears/{0}/set-active";    // POST
-        public const string CoordToggleStatus  = "/api/coordinator/academicyears/{0}/toggle-status"; // POST
+        public const string CoordBase = "/api/coordinator/academicyears";                    // GET/POST
+        public const string CoordById = "/api/coordinator/academicyears/{0}";                // PUT
+        public const string CoordActive = "/api/coordinator/academicyears/active";             // GET
+        public const string CoordSetActive = "/api/coordinator/academicyears/{0}/set-active";    // POST
+        public const string CoordToggleStatus = "/api/coordinator/academicyears/{0}/toggle-status"; // POST
 
         // Helper — pick the right base by role flag
-        public static string Base(bool isCoordinator)        => isCoordinator ? CoordBase       : AdminBase;
-        public static string Active(bool isCoordinator)      => isCoordinator ? CoordActive     : AdminActive;
-        public static string ById(bool isCoordinator, int id)   => string.Format(isCoordinator ? CoordById      : AdminById,      id);
-        public static string SetActive(bool isCoordinator, int id) => string.Format(isCoordinator ? CoordSetActive  : AdminSetActive,  id);
+        public static string Base(bool isCoordinator) => isCoordinator ? CoordBase : AdminBase;
+        public static string Active(bool isCoordinator) => isCoordinator ? CoordActive : AdminActive;
+        public static string ById(bool isCoordinator, int id) => string.Format(isCoordinator ? CoordById : AdminById, id);
+        public static string SetActive(bool isCoordinator, int id) => string.Format(isCoordinator ? CoordSetActive : AdminSetActive, id);
         public static string ToggleStatus(bool isCoordinator, int id) => string.Format(isCoordinator ? CoordToggleStatus : AdminToggleStatus, id);
     }
 
@@ -263,88 +276,111 @@ public static class Constants
         public const string ClassMappingDelete = "/api/coordinator/class-mapping/{0}";
 
         // Attendance
-        public const string AttendanceStudents   = "/api/coordinator/attendance/students";
+        public const string AttendanceStudents = "/api/coordinator/attendance/students";
         public const string AttendanceManualBatch = "/api/coordinator/attendance/manual-batch";
-        public const string AttendanceFaceScan    = "/api/coordinator/attendance/face-scan";
-        public const string AttendanceReport      = "/api/coordinator/attendance/report";
+        public const string AttendanceFaceScan = "/api/coordinator/attendance/face-scan";
+        public const string AttendanceReport = "/api/coordinator/attendance/report";
+
+        // Exam & Marks
+        public const string ExamTerms = "/api/coordinator/exam/terms";
+        public const string ExamTermCreate = "/api/coordinator/exam/terms/create";
+        public const string ExamTermUpdate = "/api/coordinator/exam/terms/update/{0}";
+        public const string ExamTermDelete = "/api/coordinator/exam/terms/delete/{0}";
+        public const string ExamSchedules = "/api/coordinator/exam/schedules";
+        public const string ExamScheduleCreate = "/api/coordinator/exam/schedules/create";
+        public const string ExamScheduleUpdate = "/api/coordinator/exam/schedules/update/{0}";
+        public const string ExamScheduleDelete = "/api/coordinator/exam/schedules/delete/{0}";
+        public const string ExamMarksGrid = "/api/coordinator/exam/marks-grid";
+        public const string ExamSaveMarks = "/api/coordinator/exam/save-marks";
+        public const string ExamReportCard = "/api/coordinator/exam/report-card";
     }
 
     // ── Teacher  →  TeacherController  [Route("api/teacher")] ─────────────
     public static class Teacher
     {
-        public const string Profile       = "/api/teacher/profile";
+        public const string Profile = "/api/teacher/profile";
         public const string Notifications = "/api/teacher/notifications";
 
         // Attendance endpoints (role: Teacher)
-        public const string AttendanceStudents   = "/api/teacher/attendance/students";     // GET  ?academicYearId&standardId&date&sectionId
+        public const string AttendanceStudents = "/api/teacher/attendance/students";     // GET  ?academicYearId&standardId&date&sectionId
         public const string AttendanceManualBatch = "/api/teacher/attendance/manual-batch"; // POST
-        public const string AttendanceFaceScan    = "/api/teacher/attendance/face-scan";   // POST
-        public const string AttendanceReport      = "/api/teacher/attendance/report";       // GET  ?academicYearId&standardId&date&sectionId
+        public const string AttendanceFaceScan = "/api/teacher/attendance/face-scan";   // POST
+        public const string AttendanceReport = "/api/teacher/attendance/report";       // GET  ?academicYearId&standardId&date&sectionId
 
         // Lookups (role: Teacher)
-        public const string AcademicYears         = "/api/teacher/academicyears";
-        public const string Standards             = "/api/teacher/standards";
-        public const string SectionsByStandard     = "/api/teacher/sections/by-standard/{0}";
-        public const string Subjects              = "/api/teacher/subjects";
+        public const string AcademicYears = "/api/teacher/academicyears";
+        public const string Standards = "/api/teacher/standards";
+        public const string SectionsByStandard = "/api/teacher/sections/by-standard/{0}";
+        public const string Subjects = "/api/teacher/subjects";
 
 
         // Homework (role: Teacher)
-        public const string HomeworkList          = "/api/teacher/homework/list?academicYearId={0}&standardId={1}&sectionId={2}";
-        public const string HomeworkById          = "/api/teacher/homework/{0}";
-        public const string HomeworkCreate        = "/api/teacher/homework/create";
-        public const string HomeworkUpdate        = "/api/teacher/homework/update/{0}";
-        public const string HomeworkDelete        = "/api/teacher/homework/delete/{0}";
-        public const string HomeworkSubmissions   = "/api/teacher/homework/submissions/{0}";
-        public const string HomeworkEvaluate      = "/api/teacher/homework/evaluate";
-        public const string SessionSwitch         = "/api/teacher/session/switch/{0}";
+        public const string HomeworkList = "/api/teacher/homework/list?academicYearId={0}&standardId={1}&sectionId={2}";
+        public const string HomeworkById = "/api/teacher/homework/{0}";
+        public const string HomeworkCreate = "/api/teacher/homework/create";
+        public const string HomeworkUpdate = "/api/teacher/homework/update/{0}";
+        public const string HomeworkDelete = "/api/teacher/homework/delete/{0}";
+        public const string HomeworkSubmissions = "/api/teacher/homework/submissions/{0}";
+        public const string HomeworkEvaluate = "/api/teacher/homework/evaluate";
+        public const string SessionSwitch = "/api/teacher/session/switch/{0}";
+
+        // Exam & Marks
+        public const string ExamTerms = "/api/teacher/exam/terms";
+        public const string ExamSchedules = "/api/teacher/exam/schedules";
+        public const string ExamMarksGrid = "/api/teacher/exam/marks-grid";
+        public const string ExamSaveMarks = "/api/teacher/exam/save-marks";
     }
 
     // ── Driver  →  DriverController [Route("api/driver")] + TripsController [Route("api/trips")] ──
     public static class Driver
     {
-        public const string Dashboard         = "/api/driver/dashboard";
-        public const string Trips             = "/api/trips/my-trip";          // GET  ?date=
-        public const string TripStart         = "/api/trips/{0}/start";        // POST
-        public const string TripEnd           = "/api/trips/{0}/end";          // POST
-        public const string TripStops         = "/api/trips/{0}/stops";        // GET
-        public const string TripStudents      = "/api/trips/{0}/students";     // GET
-        public const string TripBoarding      = "/api/trips/{0}/boarding";     // PUT
-        public const string StopReach         = "/api/trips/{0}/stops/{1}/reach";   // POST
-        public const string StopDepart        = "/api/trips/{0}/stops/{1}/depart";  // POST
-        public const string SosTrigger        = "/api/trips/{0}/sos";          // POST
-        public const string LocationPing      = "/api/location/ping";          // POST
-        public const string LocationLatest    = "/api/location/{0}/latest";    // GET
-        public const string Profile           = "/api/driver/profile";
-        public const string Notifications     = "/api/driver/notifications";
-        public const string NotifMarkRead     = "/api/driver/notifications/{0}/read";
-        public const string NotifMarkAllRead  = "/api/driver/notifications/read-all";
-        public const string SessionSwitch     = "/api/driver/session/switch/{0}";
-        public const string AcademicYears     = "/api/driver/academicyears";
+        public const string Dashboard = "/api/driver/dashboard";
+        public const string Trips = "/api/trips/my-trip";          // GET  ?date=
+        public const string TripStart = "/api/trips/{0}/start";        // POST
+        public const string TripEnd = "/api/trips/{0}/end";          // POST
+        public const string TripStops = "/api/trips/{0}/stops";        // GET
+        public const string TripStudents = "/api/trips/{0}/students";     // GET
+        public const string TripBoarding = "/api/trips/{0}/boarding";     // PUT
+        public const string StopReach = "/api/trips/{0}/stops/{1}/reach";   // POST
+        public const string StopDepart = "/api/trips/{0}/stops/{1}/depart";  // POST
+        public const string SosTrigger = "/api/trips/{0}/sos";          // POST
+        public const string LocationPing = "/api/location/ping";          // POST
+        public const string LocationLatest = "/api/location/{0}/latest";    // GET
+        public const string Profile = "/api/driver/profile";
+        public const string Notifications = "/api/driver/notifications";
+        public const string NotifMarkRead = "/api/driver/notifications/{0}/read";
+        public const string NotifMarkAllRead = "/api/driver/notifications/read-all";
+        public const string SessionSwitch = "/api/driver/session/switch/{0}";
+        public const string AcademicYears = "/api/driver/academicyears";
     }
 
     // ── Student ───────────────────────────────────────────────────────────
     public static class Student
     {
-        public const string Dashboard    = "/api/student/dashboard";
-        public const string Track        = "/api/student/track";
-        public const string Tracking     = "/api/student/track";
+        public const string Dashboard = "/api/student/dashboard";
+        public const string Track = "/api/student/track";
+        public const string Tracking = "/api/student/track";
         public const string Availability = "/api/student/availability";
 
         // Homework & Session (role: Student)
-        public const string HomeworkList   = "/api/student/homework/list?academicYearId={0}";
+        public const string HomeworkList = "/api/student/homework/list?academicYearId={0}";
         public const string HomeworkSubmit = "/api/student/homework/submit";
-        public const string SessionSwitch  = "/api/student/session/switch/{0}";
-        public const string AcademicYears  = "/api/student/academicyears";
+        public const string SessionSwitch = "/api/student/session/switch/{0}";
+        public const string AcademicYears = "/api/student/academicyears";
+
+        // Exam & Marks
+        public const string ExamDatesheet = "/api/student/exam/datesheet";
+        public const string ExamReportCard = "/api/student/exam/report-card";
     }
 
 
     // ── Parent ────────────────────────────────────────────────────────────
     public static class Parent
     {
-        public const string Dashboard     = "/api/parent/dashboard";
-        public const string TrackBus      = "/api/parent/children/{0}/track";
-        public const string Availability  = "/api/parent/children/{0}/availability";
-        public const string TripHistory   = "/api/parent/trips/history";
+        public const string Dashboard = "/api/parent/dashboard";
+        public const string TrackBus = "/api/parent/children/{0}/track";
+        public const string Availability = "/api/parent/children/{0}/availability";
+        public const string TripHistory = "/api/parent/trips/history";
         public const string TripRouteInfo = "/api/parent/trips/{0}/route-info";
         public const string SessionSwitch = "/api/parent/session/switch/{0}";
         public const string AcademicYears = "/api/parent/academicyears";
@@ -355,13 +391,13 @@ public static class Constants
     // ── Common  →  NotificationsController / FeedbackController / ProfileController / LoggerController ─
     public static class Common
     {
-        public const string Notifications          = "/api/notifications";
-        public const string DeviceToken            = "/api/notifications/device-token";        // POST  (register)
-        public const string DeviceTokenRemove      = "/api/notifications/device-token/remove"; // POST  (unregister on logout)
-        public const string Profile                = "/api/profile";
-        public const string ProfilePhoto           = "/api/profile/photo";  // POST multipart | DELETE
-        public const string Feedback               = "/api/feedback";
-        public const string Logger                 = "/api/logger";         // POST  (client-side error logging)
+        public const string Notifications = "/api/notifications";
+        public const string DeviceToken = "/api/notifications/device-token";        // POST  (register)
+        public const string DeviceTokenRemove = "/api/notifications/device-token/remove"; // POST  (unregister on logout)
+        public const string Profile = "/api/profile";
+        public const string ProfilePhoto = "/api/profile/photo";  // POST multipart | DELETE
+        public const string Feedback = "/api/feedback";
+        public const string Logger = "/api/logger";         // POST  (client-side error logging)
     }
 
     // SignalR hub URL (used by TrackingHubService)

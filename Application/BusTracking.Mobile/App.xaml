@@ -23,6 +23,8 @@
             <converters:PlatformToColorConverter x:Key="PlatformToColor" />
             <converters:PlatformToColorConverter x:Key="PlatformToColorConverter" />
             <converters:StringToBoolConverter x:Key="StringToBool" />
+            <converters:StringToBoolConverter x:Key="IsNotNullOrEmptyConverter" />
+            <converters:StringToBoolConverter x:Key="IsNotNullOrEmpty" />
             <converters:FilterChipColorConverter x:Key="FilterChipColorConverter" />
             <converters:FilterChipTextConverter x:Key="FilterChipTextConverter" />
             <converters:ColorToTranslucentConverter x:Key="ColorToTranslucentConverter" />

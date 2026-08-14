@@ -20,10 +20,13 @@ namespace BusTracking.Mobile.Services
                          isCoordinator ? Constants.AcademicYear.CoordBase :
                          role switch
                          {
+                             Constants.Roles.SuperAdmin => Constants.AcademicYear.AdminBase,
+                             Constants.Roles.BusCoordinator => Constants.AcademicYear.CoordBase,
                              Constants.Roles.Student => Constants.Student.AcademicYears,
                              Constants.Roles.Parent => Constants.Parent.AcademicYears,
                              Constants.Roles.Driver => Constants.Driver.AcademicYears,
-                             _ => Constants.Teacher.AcademicYears
+                             Constants.Roles.Teacher => Constants.Teacher.AcademicYears,
+                             _ => Constants.AcademicYear.AdminBase
                          };
 
             var res = await _api.GetAsync<List<AcademicYearItem>>(url);
@@ -46,18 +49,22 @@ namespace BusTracking.Mobile.Services
             return await _api.PutAsync<AcademicYearItem>(Constants.AcademicYear.ById(isCoordinator, item.AcademicYearId), item);
         }
 
-        public async Task<ApiResponse<bool>> SetActiveAcademicYearAsync(int academicYearId, bool isCoordinator = false)
+        public async Task<ApiResponse<bool>> SetActiveAcademicYearAsync(int academicYearId, bool isCoordinator = false, bool isAdmin = false)
         {
             var user = await _auth.GetCurrentUserAsync();
             string role = user?.Role ?? "";
 
-            string url = isCoordinator ? Constants.AcademicYear.SetActive(true, academicYearId) :
+            string url = isAdmin ? Constants.AcademicYear.SetActive(false, academicYearId) :
+                         isCoordinator ? Constants.AcademicYear.SetActive(true, academicYearId) :
                          role switch
                          {
+                             Constants.Roles.SuperAdmin => Constants.AcademicYear.SetActive(false, academicYearId),
+                             Constants.Roles.BusCoordinator => Constants.AcademicYear.SetActive(true, academicYearId),
                              Constants.Roles.Student => string.Format(Constants.Student.SessionSwitch, academicYearId),
                              Constants.Roles.Parent => string.Format(Constants.Parent.SessionSwitch, academicYearId),
                              Constants.Roles.Driver => string.Format(Constants.Driver.SessionSwitch, academicYearId),
-                             _ => string.Format(Constants.Teacher.SessionSwitch, academicYearId)
+                             Constants.Roles.Teacher => string.Format(Constants.Teacher.SessionSwitch, academicYearId),
+                             _ => Constants.AcademicYear.SetActive(false, academicYearId)
                          };
 
             return await _api.PostAsync<bool>(url, new { });

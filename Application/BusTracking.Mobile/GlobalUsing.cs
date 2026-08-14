@@ -8,6 +8,7 @@ global using BusTracking.Mobile.Models.Auth;
 global using BusTracking.Mobile.Models.Bus;
 global using BusTracking.Mobile.Models.ClassMapping;
 global using BusTracking.Mobile.Models.Common;
+global using BusTracking.Mobile.Models.Exam;
 global using BusTracking.Mobile.Models.Coordinator;
 global using BusTracking.Mobile.Models.Dashboard;
 global using BusTracking.Mobile.Models.Driver;
@@ -66,4 +67,5 @@ global using System.Text.Json;
 global using System.Text.Json.Serialization;
 global using System.Windows.Input;
 global using CommunityToolkit.Maui.Views;
+global using BusTracking.Mobile.Viewmodels.Teacher;
 

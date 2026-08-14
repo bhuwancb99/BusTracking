@@ -21,15 +21,16 @@ namespace BusTracking.API.Controllers
         private readonly IAppConfigService _config;
         private readonly IStandardService _standard;
         private readonly AppDbContext _db;
-        private readonly IImageService _img;         
+        private readonly IImageService _img;
         private readonly ITeacherService _teacher;
         private readonly IAcademicYearService _academicYear;
         private readonly ISectionService _section;
         private readonly ISubjectService _subject;
         private readonly IClassMappingService _classMapping;
         private readonly IAttendanceService _attendance;
+        private readonly IExamService _examService;
 
-        private const int MAX_BUS_IMAGES = 5;               
+        private const int MAX_BUS_IMAGES = 5;
 
         public SuperAdminController(
             IBusService bus, IRouteService route, IDriverService driver,
@@ -37,13 +38,16 @@ namespace BusTracking.API.Controllers
             ITripService trip, IFeedbackService feedback, INotificationService notif,
             IDashboardService dash, IAppConfigService config, IStandardService standard, AppDbContext db,
             IImageService img, ITeacherService teacher, IAcademicYearService academicYear,
-            ISectionService section, ISubjectService subject, IClassMappingService classMapping, IAttendanceService attendance)
+            ISectionService section, ISubjectService subject, IClassMappingService classMapping, IAttendanceService attendance,
+            IExamService examService)
         {
             _bus = bus; _route = route; _driver = driver; _student = student;
             _parent = parent; _subAdmin = subAdmin; _trip = trip; _feedback = feedback;
             _notif = notif; _dash = dash; _config = config; _standard = standard; _db = db; _img = img; _teacher = teacher; _academicYear = academicYear;
             _section = section; _subject = subject; _classMapping = classMapping; _attendance = attendance;
+            _examService = examService;
         }
+
 
         // ════════════════════════════════════════════════════════════
         // DASHBOARD
@@ -1157,5 +1161,102 @@ namespace BusTracking.API.Controllers
             try { var p = Path.GetFileNameWithoutExtension(url).Split('_'); return int.TryParse(p[^1], out var n) ? n : 0; }
             catch { return 0; }
         }
+
+        [HttpGet("exam/terms")]
+        public async Task<IActionResult> GetTerms([FromQuery] int? academicYearId)
+        {
+            if (!academicYearId.HasValue || academicYearId.Value <= 0)
+            {
+                var years = await _academicYear.GetAcademicYearsAsync(CurrentSchoolId ?? 1);
+                var activeYear = years.Find(y => y.IsCurrent) ?? years.Find(y => y.IsActive);
+                academicYearId = activeYear?.AcademicYearId;
+            }
+
+            var res = await _examService.GetExamTermsAsync(academicYearId);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpGet("exam/schedules")]
+        public async Task<IActionResult> GetSchedules([FromQuery] int? examTermId, [FromQuery] int? standardId)
+        {
+            var res = await _examService.GetExamSchedulesAsync(examTermId, standardId);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpGet("exam/marks-grid")]
+        public async Task<IActionResult> GetMarksGrid([FromQuery] int examScheduleId, [FromQuery] int sectionId)
+        {
+            if (examScheduleId <= 0 || sectionId <= 0)
+            {
+                return Ok(ApiResponse<List<StudentMarksGridItemDto>>.Fail("Valid examScheduleId and sectionId are required."));
+            }
+
+            var res = await _examService.GetStudentMarksGridAsync(examScheduleId, sectionId);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpPost("exam/save-marks")]
+        public async Task<IActionResult> SaveMarks([FromBody] SaveStudentMarksGridDto dto)
+        {
+            if (dto == null || dto.ExamScheduleId <= 0)
+            {
+                return Ok(ApiResponse<bool>.Fail("Invalid schedule selection."));
+            }
+
+            var res = await _examService.SaveStudentMarksGridAsync(dto, CurrentUserId);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpGet("exam/report-card")]
+        public async Task<IActionResult> GetReportCard([FromQuery] int examTermId, [FromQuery] int studentId)
+        {
+            if (studentId <= 0) return Ok(ApiResponse<StudentReportCardDto>.Fail("Valid studentId is required."));
+            var res = await _examService.GetStudentReportCardAsync(studentId, examTermId);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpPost("exam/terms/create")]
+        public async Task<IActionResult> CreateExamTerm([FromBody] CreateExamTermDto dto)
+        {
+            var res = await _examService.CreateExamTermAsync(dto);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpPut("exam/terms/update/{id:int}")]
+        public async Task<IActionResult> UpdateExamTerm(int id, [FromBody] UpdateExamTermDto dto)
+        {
+            var res = await _examService.UpdateExamTermAsync(id, dto);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpDelete("exam/terms/delete/{id:int}")]
+        public async Task<IActionResult> DeleteExamTerm(int id)
+        {
+            var res = await _examService.DeleteExamTermAsync(id);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpPost("exam/schedules/create")]
+        public async Task<IActionResult> CreateExamSchedule([FromBody] CreateExamScheduleDto dto)
+        {
+            var res = await _examService.CreateExamScheduleAsync(dto);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpPut("exam/schedules/update/{id:int}")]
+        public async Task<IActionResult> UpdateExamSchedule(int id, [FromBody] UpdateExamScheduleDto dto)
+        {
+            var res = await _examService.UpdateExamScheduleAsync(id, dto);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpDelete("exam/schedules/delete/{id:int}")]
+        public async Task<IActionResult> DeleteExamSchedule(int id)
+        {
+            var res = await _examService.DeleteExamScheduleAsync(id);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
     }
 }
+
+

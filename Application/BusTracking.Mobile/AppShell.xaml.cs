@@ -235,6 +235,9 @@ public partial class AppShell : Shell
         new() { IconSvg = "subject.png",      IconColor = _svgImageColor, Title = "Subjects",   Route = "AdminSubjectList"     },
         new() { IconSvg = "class_mapping.png",IconColor = _svgImageColor, Title = "Class Mapping", Route = "AdminClassMappingList" },
         new() { IconSvg = "calendar_check.png",IconColor = _svgImageColor, Title = "Daily Attendance", Route = "AdminAttendance" },
+        new() { IconSvg = "exam_terms.png",   IconColor = _svgImageColor, Title = "Exam Terms",       Route = "AdminExamTerms"       },
+        new() { IconSvg = "exam_datesheet.png",IconColor = _svgImageColor, Title = "Exam Datesheets",  Route = "AdminExamDatesheet"   },
+        new() { IconSvg = "marks_entry.png",  IconColor = _svgImageColor, Title = "Marks Entry",      Route = "AdminMarksEntry"      },
         new() { IconSvg = "bus.png",          IconColor = _svgImageColor, Title = "Bus Types",        Route = "AdminBusTypeList"      },
         new() { IconSvg = "coordinator.png",  IconColor = _svgImageColor, Title = "Bus Coordinators", Route = "AdminCoordinatorList" },
         new() { IconSvg = "route.png",        IconColor = _svgImageColor, Title = "Routes",           Route = "AdminRouteList"       },
@@ -283,6 +286,12 @@ public partial class AppShell : Shell
             menu.Add(new() { IconSvg = "class_mapping.png", IconColor = _svgImageColor, Title = "Class Mapping", Route = "CoordClassMappingList" });
         if (Has("attendance.view"))
             menu.Add(new() { IconSvg = "calendar_check.png", IconColor = _svgImageColor, Title = "Daily Attendance", Route = "CoordAttendance" });
+
+        menu.Add(new() { IconSvg = "exam_terms.png", IconColor = _svgImageColor, Title = "Exam Terms", Route = "CoordExamTerms" });
+        menu.Add(new() { IconSvg = "exam_datesheet.png", IconColor = _svgImageColor, Title = "Exam Datesheets", Route = "CoordExamDatesheet" });
+        menu.Add(new() { IconSvg = "marks_entry.png", IconColor = _svgImageColor, Title = "Marks Entry", Route = "CoordMarksEntry" });
+
+
         if (Has("bustype.manage") || Has("bus.view"))
             menu.Add(new() { IconSvg = "bus.png", IconColor = _svgImageColor, Title = "Bus Types", Route = "CoordBusTypeList" });
         if (Has("subadmin.view"))
@@ -316,6 +325,7 @@ public partial class AppShell : Shell
         new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "Dashboard",        Route = "TeacherDashboard"     },
         new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",       Route = "Profile"              },
         new() { IconSvg = "calendar_check.png",IconColor = _svgImageColor, Title = "Daily Attendance", Route = "TeacherAttendance"    },
+        new() { IconSvg = "marks_entry.png",  IconColor = _svgImageColor, Title = "Marks Entry",      Route = "TeacherMarksEntry"    },
         new() { IconSvg = "homework.png",      IconColor = _svgImageColor, Title = "Homework",         Route = "TeacherHomeworkList"  },
         new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications",    Route = "TeacherNotification"  },
     ];
@@ -332,13 +342,16 @@ public partial class AppShell : Shell
 
     private static List<FlyoutMenuItem> StudentMenu() =>
     [
-        new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "My Dashboard",    Route = "StudentDashboard"    },
-        new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",      Route = "Profile"             },
-        new() { IconSvg = "homework.png",     IconColor = _svgImageColor, Title = "My Homework",     Route = "StudentHomeworkList" },
-        new() { IconSvg = "tracking.png",     IconColor = _svgImageColor, Title = "Track My Bus",    Route = "StudentTracking"     },
-        new() { IconSvg = "availability.png", IconColor = _svgImageColor, Title = "My Availability", Route = "StudentAvailability" },
-        new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications",   Route = "StudentNotification" },
+        new() { IconSvg = "dashboard.png",      IconColor = _svgImageColor, Title = "My Dashboard",   Route = "StudentDashboard"    },
+        new() { IconSvg = "profile.png",        IconColor = _svgImageColor, Title = "My Profile",     Route = "Profile"             },
+        new() { IconSvg = "exam_datesheet.png", IconColor = _svgImageColor, Title = "Exam Datesheet", Route = "StudentDatesheet"   },
+        new() { IconSvg = "report_card.png",    IconColor = _svgImageColor, Title = "Report Card",    Route = "StudentReportCard"   },
+        new() { IconSvg = "homework.png",       IconColor = _svgImageColor, Title = "My Homework",    Route = "StudentHomeworkList" },
+        new() { IconSvg = "tracking.png",       IconColor = _svgImageColor, Title = "Track My Bus",   Route = "StudentTracking"     },
+        new() { IconSvg = "availability.png",   IconColor = _svgImageColor, Title = "My Availability",Route = "StudentAvailability" },
+        new() { IconSvg = "notification.png",   IconColor = _svgImageColor, Title = "Notifications",  Route = "StudentNotification" },
     ];
+
 
 
     private static List<FlyoutMenuItem> DriverMenu() =>

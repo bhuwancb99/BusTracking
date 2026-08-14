@@ -6,7 +6,7 @@ namespace BusTracking.Mobile.Interfaces
         Task<AcademicYearItem?> GetActiveAcademicYearAsync(bool isCoordinator = false, bool isAdmin = false);
         Task<ApiResponse<AcademicYearItem>> CreateAcademicYearAsync(AcademicYearItem item, bool isCoordinator = false);
         Task<ApiResponse<AcademicYearItem>> UpdateAcademicYearAsync(AcademicYearItem item, bool isCoordinator = false);
-        Task<ApiResponse<bool>> SetActiveAcademicYearAsync(int academicYearId, bool isCoordinator = false);
+        Task<ApiResponse<bool>> SetActiveAcademicYearAsync(int academicYearId, bool isCoordinator = false, bool isAdmin = false);
         Task<ApiResponse<bool>> ToggleStatusAsync(int academicYearId, bool isCoordinator = false);
     }
 }

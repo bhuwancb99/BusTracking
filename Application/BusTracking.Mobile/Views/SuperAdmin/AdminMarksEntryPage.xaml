@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.SuperAdmin.AdminMarksEntryPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:exam="clr-namespace:BusTracking.Mobile.Models.Exam"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
+    Title="{Binding Title}"
+    x:DataType="vm:AdminMarksEntryViewModel"
+    x:TypeArguments="vm:AdminMarksEntryViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
+
+
+    <Grid RowDefinitions="Auto,Auto,*">
+        <!--  Filter Section  -->
+        <Border
+            Grid.Row="0"
+            Margin="16,12"
+            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                              Dark={StaticResource CardBgDark}}"
+            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                     Dark={StaticResource BorderColorDark}}"
+            StrokeShape="RoundRectangle 12">
+            <VerticalStackLayout Padding="14" Spacing="10">
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <!--  Term  -->
+                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="11"
+                            Text="EXAM TERM"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                        <Picker
+                            Title="Term"
+                            ItemDisplayBinding="{Binding TermName}"
+                            ItemsSource="{Binding ExamTerms}"
+                            SelectedItem="{Binding SelectedExamTerm}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                    </VerticalStackLayout>
+
+                    <!--  Standard  -->
+                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="11"
+                            Text="CLASS"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                        <Picker
+                            Title="Class"
+                            ItemDisplayBinding="{Binding StandardName}"
+                            ItemsSource="{Binding Standards}"
+                            SelectedItem="{Binding SelectedStandard}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                    </VerticalStackLayout>
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <!--  Section  -->
+                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="11"
+                            Text="SECTION"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                        <Picker
+                            Title="Section"
+                            ItemDisplayBinding="{Binding SectionName}"
+                            ItemsSource="{Binding Sections}"
+                            SelectedItem="{Binding SelectedSection}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                    </VerticalStackLayout>
+
+                    <!--  Exam Subject Schedule  -->
+                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="11"
+                            Text="SUBJECT / SCHEDULE"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                        <Picker
+                            Title="Subject"
+                            ItemDisplayBinding="{Binding SubjectName}"
+                            ItemsSource="{Binding ExamSchedules}"
+                            SelectedItem="{Binding SelectedSchedule}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                    </VerticalStackLayout>
+                </Grid>
+
+                <Button
+                    Command="{Binding SearchGridCommand}"
+                    CornerRadius="8"
+                    FontAttributes="Bold"
+                    Text="Fetch Student Grid" />
+            </VerticalStackLayout>
+        </Border>
+
+        <!--  Success Alert Banner  -->
+        <Border
+            Grid.Row="1"
+            Margin="16,0,16,8"
+            Padding="12,10"
+            BackgroundColor="#dcfce7"
+            IsVisible="{Binding ShowSuccessBanner}"
+            Stroke="#22c55e"
+            StrokeShape="RoundRectangle 8">
+            <HorizontalStackLayout Spacing="8">
+                <Image
+                    HeightRequest="16"
+                    Source="check.png"
+                    WidthRequest="16" />
+                <Label
+                    FontAttributes="Bold"
+                    FontSize="13"
+                    Text="{Binding SuccessMessage}"
+                    TextColor="#15803d" />
+            </HorizontalStackLayout>
+        </Border>
+
+        <!--  Student Marks List Grid  -->
+        <ScrollView Grid.Row="2" Padding="16,0,16,16">
+            <VerticalStackLayout Spacing="12">
+                <Border
+                    Padding="24"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    IsVisible="{Binding IsEmpty}"
+                    StrokeShape="RoundRectangle 12">
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="8">
+
+                        <Image
+                            HeightRequest="48"
+                            Source="marks_entry.png"
+                            WidthRequest="48" />
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="15"
+                            HorizontalOptions="Center"
+                            Text="Select Filters To Load Grid"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark={StaticResource TextPrimaryDark}}" />
+                        <Label
+                            FontSize="13"
+                            HorizontalOptions="Center"
+                            Text="Select Exam Term, Class, Section and Subject to enter marks."
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <BindableLayout.ItemsSource>
+                    <Binding Path="StudentGrid" />
+                </BindableLayout.ItemsSource>
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="exam:StudentMarksGridItem">
+                        <Border
+                            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                              Dark={StaticResource CardBgDark}}"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                     Dark={StaticResource BorderColorDark}}"
+                            StrokeShape="RoundRectangle 12"
+                            StrokeThickness="1">
+                            <Grid
+                                Padding="14"
+                                ColumnDefinitions="*,Auto"
+                                RowDefinitions="Auto,Auto">
+                                <VerticalStackLayout
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    Spacing="2">
+                                    <Label
+                                        FontAttributes="Bold"
+                                        FontSize="15"
+                                        Text="{Binding StudentName}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                    Dark={StaticResource TextPrimaryDark}}" />
+                                    <Label
+                                        FontSize="12"
+                                        Text="{Binding StudentCode, StringFormat='Code: {0}'}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                                    Dark={StaticResource TextSecondaryDark}}" />
+                                </VerticalStackLayout>
+
+                                <HorizontalStackLayout
+                                    Grid.Row="0"
+                                    Grid.Column="1"
+                                    Spacing="6"
+                                    VerticalOptions="Center">
+                                    <Label
+                                        FontSize="12"
+                                        Text="Absent"
+                                        TextColor="{StaticResource Danger}"
+                                        VerticalOptions="Center" />
+                                    <Switch IsToggled="{Binding IsAbsent}" />
+                                </HorizontalStackLayout>
+
+                                <Grid
+                                    Grid.Row="1"
+                                    Grid.ColumnSpan="2"
+                                    Margin="0,10,0,0"
+                                    ColumnDefinitions="*,*"
+                                    ColumnSpacing="12"
+                                    IsVisible="{Binding IsAbsent, Converter={StaticResource InvertBool}}">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                        <Label
+                                            FontSize="11"
+                                            Text="Theory Marks"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                                        Dark={StaticResource TextSecondaryDark}}" />
+                                        <Entry
+                                            Keyboard="Numeric"
+                                            Placeholder="0.0"
+                                            Text="{Binding TheoryMarks}"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                        Dark={StaticResource TextPrimaryDark}}" />
+                                    </VerticalStackLayout>
+
+                                    <VerticalStackLayout Grid.Column="1" Spacing="4">
+                                        <Label
+                                            FontSize="11"
+                                            Text="Practical Marks"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                                        Dark={StaticResource TextSecondaryDark}}" />
+                                        <Entry
+                                            Keyboard="Numeric"
+                                            Placeholder="0.0"
+                                            Text="{Binding PracticalMarks}"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                        Dark={StaticResource TextPrimaryDark}}" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+
+                <Button
+                    Command="{Binding SaveMarksCommand}"
+                    CornerRadius="10"
+                    FontAttributes="Bold"
+                    HeightRequest="48"
+                    IsVisible="{Binding HasGridData}"
+                    Text="Save Marks Changes" />
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</views:ViewBase>

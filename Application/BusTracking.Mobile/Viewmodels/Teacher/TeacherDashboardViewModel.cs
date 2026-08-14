@@ -120,6 +120,10 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
         private async Task GoToNotificationAsync() => await Nav.GoToAsync("//TeacherNotification");
 
         [RelayCommand]
+        private async Task GoToMarksEntryAsync() => await Nav.GoToAsync("TeacherMarksEntry");
+
+        [RelayCommand]
         private async Task RefreshAsync() => await InitializeAsync();
+
     }
 }

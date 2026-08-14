@@ -13,6 +13,7 @@ namespace BusTracking.API.Controllers
         private readonly IStandardService _standardService;
         private readonly ISubjectService _subjectService;
         private readonly IHomeworkService _homeworkService;
+        private readonly IExamService _examService;
         private readonly IWebHostEnvironment _env;
 
         public TeacherController(
@@ -25,6 +26,7 @@ namespace BusTracking.API.Controllers
             IStandardService standardService,
             ISubjectService subjectService,
             IHomeworkService homeworkService,
+            IExamService examService,
             IWebHostEnvironment env)
         {
             _teacherService = teacherService;
@@ -36,8 +38,10 @@ namespace BusTracking.API.Controllers
             _standardService = standardService;
             _subjectService = subjectService;
             _homeworkService = homeworkService;
+            _examService = examService;
             _env = env;
         }
+
 
         /// <summary>
         /// Gets active academic years for Teacher.
@@ -263,5 +267,51 @@ namespace BusTracking.API.Controllers
             var res = await _homeworkService.EvaluateSubmissionAsync(dto, CurrentUserId);
             return res.Success ? Ok(res) : BadRequest(res);
         }
+
+        [HttpGet("exam/terms")]
+        public async Task<IActionResult> GetTerms([FromQuery] int? academicYearId)
+        {
+            if (!academicYearId.HasValue || academicYearId.Value <= 0)
+            {
+                var years = await _academicYearService.GetAcademicYearsAsync(CurrentSchoolId ?? 1);
+                var activeYear = years.Find(y => y.IsCurrent) ?? years.Find(y => y.IsActive);
+                academicYearId = activeYear?.AcademicYearId;
+            }
+
+            var res = await _examService.GetExamTermsAsync(academicYearId);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpGet("exam/schedules")]
+        public async Task<IActionResult> GetSchedules([FromQuery] int? examTermId, [FromQuery] int? standardId)
+        {
+            var res = await _examService.GetExamSchedulesAsync(examTermId, standardId);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpGet("exam/marks-grid")]
+        public async Task<IActionResult> GetMarksGrid([FromQuery] int examScheduleId, [FromQuery] int sectionId)
+        {
+            if (examScheduleId <= 0 || sectionId <= 0)
+            {
+                return Ok(ApiResponse<List<StudentMarksGridItemDto>>.Fail("Valid examScheduleId and sectionId are required."));
+            }
+
+            var res = await _examService.GetStudentMarksGridAsync(examScheduleId, sectionId);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
+
+        [HttpPost("exam/save-marks")]
+        public async Task<IActionResult> SaveMarks([FromBody] SaveStudentMarksGridDto dto)
+        {
+            if (dto == null || dto.ExamScheduleId <= 0)
+            {
+                return Ok(ApiResponse<bool>.Fail("Invalid schedule selection."));
+            }
+
+            var res = await _examService.SaveStudentMarksGridAsync(dto, CurrentUserId);
+            return res.Success ? Ok(res) : BadRequest(res);
+        }
     }
 }
+

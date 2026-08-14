@@ -258,7 +258,7 @@
                                         <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
                                             <Image
                                                 HeightRequest="14"
-                                                Source="resubmit.svg"
+                                                Source="resubmit.png"
                                                 VerticalOptions="Center"
                                                 WidthRequest="14" />
                                             <Label

@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ViewBase
+    x:Class="BusTracking.Mobile.Views.Coordinator.CoordExamTermsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:models="clr-namespace:BusTracking.Mobile.Models.Exam"
+    xmlns:views="clr-namespace:BusTracking.Mobile.Views"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
+    Title="Exam Terms"
+    x:DataType="vm:CoordExamTermsViewModel"
+    x:TypeArguments="vm:CoordExamTermsViewModel"
+    BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
+                                      Dark={StaticResource PageBgDark}}">
+
+    <views:ViewBase.Behaviors>
+        <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
+    </views:ViewBase.Behaviors>
+
+    <Shell.TitleView>
+        <Grid Padding="0,0,8,0" ColumnDefinitions="*,Auto">
+            <Label
+                Grid.Column="0"
+                FontAttributes="Bold"
+                FontSize="18"
+                Text="Exam Terms"
+                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                            Dark=White}"
+                VerticalOptions="Center" />
+            <Border
+                Grid.Column="1"
+                Padding="8"
+                BackgroundColor="White"
+                StrokeShape="RoundRectangle 20"
+                StrokeThickness="0"
+                VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding AddTermCommand}" />
+                </Border.GestureRecognizers>
+                <Image
+                    HeightRequest="20"
+                    Source="add.png"
+                    WidthRequest="20">
+                    <Image.Behaviors>
+                        <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                    </Image.Behaviors>
+                </Image>
+            </Border>
+        </Grid>
+    </Shell.TitleView>
+
+    <Grid RowDefinitions="Auto,*">
+
+        <!--  Filter Section  -->
+        <VerticalStackLayout
+            Grid.Row="0"
+            Padding="14,12,14,6"
+            Spacing="8">
+            <!--  Error Banner  -->
+            <Border IsVisible="{Binding HasError}" Style="{StaticResource ErrorBannerBorder}">
+                <Label
+                    FontSize="13"
+                    Text="{Binding ErrorMessage}"
+                    TextColor="{AppThemeBinding Light={StaticResource ErrorTextLight},
+                                                Dark={StaticResource ErrorTextDark}}" />
+            </Border>
+
+            <!--  Academic Year Filter Picker Card  -->
+            <Border
+                Padding="12,8"
+                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                  Dark={StaticResource CardBgDark}}"
+                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                         Dark={StaticResource BorderColorDark}}"
+                StrokeShape="RoundRectangle 12"
+                StrokeThickness="1">
+                <Grid ColumnDefinitions="Auto,*" VerticalOptions="Center">
+                    <Label
+                        Grid.Column="0"
+                        FontAttributes="Bold"
+                        FontSize="13"
+                        Text="Academic Year:"
+                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                    Dark={StaticResource TextSecondaryDark}}"
+                        VerticalOptions="Center" />
+                    <Picker
+                        Grid.Column="1"
+                        Margin="8,0,0,0"
+                        ItemDisplayBinding="{Binding YearName}"
+                        ItemsSource="{Binding AcademicYears}"
+                        SelectedItem="{Binding SelectedAcademicYear}"
+                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                    Dark=White}"
+                        VerticalOptions="Center" />
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+
+        <!--  Exam Terms CollectionView  -->
+        <RefreshView
+            Grid.Row="1"
+            Command="{Binding LoadExamTermsCommand}"
+            IsRefreshing="{Binding IsRefreshing}">
+            <CollectionView ItemsSource="{Binding ExamTerms}">
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout
+                        Padding="30"
+                        HorizontalOptions="Center"
+                        Spacing="12"
+                        VerticalOptions="Center">
+                        <Image
+                            HeightRequest="56"
+                            Source="exam_terms.png"
+                            WidthRequest="56">
+                            <Image.Behaviors>
+                                <mct:IconTintColorBehavior TintColor="{StaticResource TextMuted}" />
+                            </Image.Behaviors>
+                        </Image>
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="15"
+                            HorizontalOptions="Center"
+                            Text="No Exam Terms Configured"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark=White}" />
+                        <Label
+                            FontSize="12"
+                            HorizontalOptions="Center"
+                            Text="Tap + button to create a new exam term"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:ExamTermItem">
+                        <Border
+                            Margin="14,0,14,8"
+                            Padding="12,10"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                              Dark={StaticResource CardBgDark}}"
+                            Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                                     Dark={StaticResource BorderColorDark}}"
+                            StrokeShape="RoundRectangle 10"
+                            StrokeThickness="1">
+                            <VerticalStackLayout Spacing="5">
+
+                                <!--  Row 1: Term Name on Left + Date Range Pill on Right  -->
+                                <Grid
+                                    ColumnDefinitions="*,Auto"
+                                    ColumnSpacing="8"
+                                    VerticalOptions="Center">
+                                    <Label
+                                        Grid.Column="0"
+                                        FontAttributes="Bold"
+                                        FontSize="15"
+                                        LineBreakMode="TailTruncation"
+                                        Text="{Binding TermName}"
+                                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                                    Dark=White}"
+                                        VerticalOptions="Center" />
+
+                                    <!--  Date Pill with tight 8,3 padding and vertical centering  -->
+                                    <Border
+                                        Grid.Column="1"
+                                        Padding="8,3"
+                                        BackgroundColor="{AppThemeBinding Light=#EBF3FF,
+                                                                          Dark=#102A45}"
+                                        HorizontalOptions="End"
+                                        StrokeShape="RoundRectangle 8"
+                                        StrokeThickness="0"
+                                        VerticalOptions="Center">
+                                        <Label
+                                            FontAttributes="Bold"
+                                            FontSize="11"
+                                            HorizontalOptions="Center"
+                                            Text="{Binding DateRangeDisplay}"
+                                            TextColor="{StaticResource Primary}"
+                                            VerticalOptions="Center" />
+                                    </Border>
+                                </Grid>
+
+                                <!--  Description (Only rendered if non-empty, zero height when empty)  -->
+                                <Label
+                                    FontSize="12"
+                                    IsVisible="{Binding Description, Converter={StaticResource StringToBool}}"
+                                    LineBreakMode="WordWrap"
+                                    Text="{Binding Description}"
+                                    TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                                Dark={StaticResource TextSecondaryDark}}" />
+
+                                <!--  Row 2: Subtitle Info (Academic Year • Schedules Count) on Left + Edit/Delete Icons on Right  -->
+                                <Grid
+                                    ColumnDefinitions="*,Auto"
+                                    ColumnSpacing="8"
+                                    VerticalOptions="Center">
+                                    <HorizontalStackLayout
+                                        Grid.Column="0"
+                                        Spacing="6"
+                                        VerticalOptions="Center">
+                                        <Label
+                                            FontSize="12"
+                                            Text="{Binding AcademicYearName}"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                                        Dark={StaticResource TextSecondaryDark}}"
+                                            VerticalOptions="Center" />
+                                        <Label
+                                            FontSize="12"
+                                            Text="•"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextMuted},
+                                                                        Dark={StaticResource TextMutedDark}}"
+                                            VerticalOptions="Center" />
+                                        <Label
+                                            FontSize="12"
+                                            Text="{Binding ScheduleCount, StringFormat='Schedules: {0}'}"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                                        Dark={StaticResource TextSecondaryDark}}"
+                                            VerticalOptions="Center" />
+                                    </HorizontalStackLayout>
+
+                                    <HorizontalStackLayout
+                                        Grid.Column="1"
+                                        Spacing="8"
+                                        VerticalOptions="Center">
+                                        <!--  Edit Icon Button  -->
+                                        <Border
+                                            Padding="6"
+                                            BackgroundColor="{AppThemeBinding Light=#EFF6FF,
+                                                                              Dark=#1E3A8A}"
+                                            Stroke="Transparent"
+                                            StrokeShape="RoundRectangle 6"
+                                            VerticalOptions="Center">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordExamTermsViewModel}}, Path=EditTermCommand}" CommandParameter="{Binding .}" />
+                                            </Border.GestureRecognizers>
+                                            <Image
+                                                HeightRequest="15"
+                                                Source="edit.png"
+                                                WidthRequest="15">
+                                                <Image.Behaviors>
+                                                    <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
+                                                </Image.Behaviors>
+                                            </Image>
+                                        </Border>
+
+                                        <!--  Delete Icon Button  -->
+                                        <Border
+                                            Padding="6"
+                                            BackgroundColor="{AppThemeBinding Light=#FEF2F2,
+                                                                              Dark=#7F1D1D}"
+                                            Stroke="Transparent"
+                                            StrokeShape="RoundRectangle 6"
+                                            VerticalOptions="Center">
+                                            <Border.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type vm:CoordExamTermsViewModel}}, Path=DeleteTermCommand}" CommandParameter="{Binding .}" />
+                                            </Border.GestureRecognizers>
+                                            <Image
+                                                HeightRequest="15"
+                                                Source="delete.png"
+                                                WidthRequest="15">
+                                                <Image.Behaviors>
+                                                    <mct:IconTintColorBehavior TintColor="{StaticResource Danger}" />
+                                                </Image.Behaviors>
+                                            </Image>
+                                        </Border>
+                                    </HorizontalStackLayout>
+                                </Grid>
+
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+    </Grid>
+</views:ViewBase>

@@ -41,9 +41,9 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         {
             try
             {
-                AcademicYears = await _academicYearService.GetAcademicYearsAsync(isCoordinator: false);
+                AcademicYears = await _academicYearService.GetAcademicYearsAsync(isCoordinator: false, isAdmin: true);
                 var active = AcademicYears.FirstOrDefault(a => a.IsCurrent)
-                             ?? await _academicYearService.GetActiveAcademicYearAsync(isCoordinator: false);
+                             ?? await _academicYearService.GetActiveAcademicYearAsync(isCoordinator: false, isAdmin: true);
 
                 SelectedSessionName = active != null ? $"Session: {active.YearName}" : "Select Session";
             }
@@ -58,7 +58,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
         {
             try
             {
-                var years = await _academicYearService.GetAcademicYearsAsync(isCoordinator: false);
+                var years = await _academicYearService.GetAcademicYearsAsync(isCoordinator: false, isAdmin: true);
                 if (years == null || years.Count == 0)
                 {
                     await ShowAlertAsync("Session Selection", "No academic years found.");
@@ -78,7 +78,7 @@ namespace BusTracking.Mobile.Viewmodels.SuperAdmin
 
                     if (item != null && !item.IsCurrent)
                     {
-                        var res = await _academicYearService.SetActiveAcademicYearAsync(item.AcademicYearId, isCoordinator: false);
+                        var res = await _academicYearService.SetActiveAcademicYearAsync(item.AcademicYearId, isCoordinator: false, isAdmin: true);
                         if (res.Success)
                         {
                             SelectedSessionName = $"Session: {item.YearName}";
