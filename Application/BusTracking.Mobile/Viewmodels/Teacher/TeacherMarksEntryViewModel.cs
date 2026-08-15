@@ -39,11 +39,16 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
             await RunAsync(async () =>
             {
                 ExamTerms = await _examService.GetExamTermsAsync();
+                SelectedExamTerm = ExamTerms.FirstOrDefault(t => t.IsActive) ?? ExamTerms.FirstOrDefault();
+
                 var stdRes = await _standardService.GetAllAsync();
                 Standards = stdRes?.Items ?? [];
-
-                SelectedExamTerm = ExamTerms.FirstOrDefault(t => t.IsActive) ?? ExamTerms.FirstOrDefault();
                 SelectedStandard = Standards.FirstOrDefault();
+
+                if (SelectedStandard != null)
+                {
+                    await LoadSectionsAndSchedulesAsync(SelectedStandard.StandardId);
+                }
             });
         }
 
@@ -73,24 +78,21 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
 
         private async Task LoadSectionsAndSchedulesAsync(int standardId)
         {
-            await RunAsync(async () =>
+            var list = await _sectionService.GetByStandardAsync(standardId);
+            if (list == null || list.Count == 0)
             {
-                var list = await _sectionService.GetByStandardAsync(standardId);
-                if (list == null || list.Count == 0)
+                list = new List<SectionItem>
                 {
-                    list = new List<SectionItem>
-                    {
-                        new SectionItem { SectionId = 0, SectionName = "All Sections" }
-                    };
-                }
-                Sections = list;
-                SelectedSection = Sections.FirstOrDefault();
+                    new SectionItem { SectionId = 0, SectionName = "All Sections" }
+                };
+            }
+            Sections = list;
+            SelectedSection = Sections.FirstOrDefault();
 
-                if (SelectedExamTerm != null)
-                {
-                    await LoadSchedulesAsync(SelectedExamTerm.ExamTermId, standardId);
-                }
-            });
+            if (SelectedExamTerm != null)
+            {
+                await LoadSchedulesAsync(SelectedExamTerm.ExamTermId, standardId);
+            }
         }
 
         private async Task LoadSchedulesAsync(int examTermId, int standardId)
@@ -113,6 +115,16 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
             await RunAsync(async () =>
             {
                 StudentGrid = await _examService.GetStudentMarksGridAsync(SelectedSchedule.ExamScheduleId, secId);
+                if (StudentGrid != null)
+                {
+                    var max = SelectedSchedule.MaxMarks > 0 ? SelectedSchedule.MaxMarks : 100;
+                    foreach (var item in StudentGrid)
+                    {
+                        item.MaxMarks = max;
+                        item.RecalculateGrade();
+                    }
+                }
+
                 IsGridLoaded = true;
                 HasGridData = StudentGrid.Count > 0;
                 IsEmpty = StudentGrid.Count == 0;

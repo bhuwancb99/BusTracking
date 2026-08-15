@@ -39,7 +39,7 @@
             <ScrollView Grid.Row="0">
                 <VerticalStackLayout Spacing="5">
 
-                    <!--  Top Filter Card: Padding 8,5 | Row Spacing 5  -->
+                    <!--  Top Filter Card  -->
                     <Border
                         Padding="8,5"
                         BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
@@ -48,7 +48,7 @@
                                                  Dark={StaticResource BorderColorDark}}"
                         StrokeShape="RoundRectangle 10"
                         StrokeThickness="1">
-                        <VerticalStackLayout Spacing="5">
+                        <VerticalStackLayout Spacing="0">
                             <!--  Row 1: Session & Class (ColumnSpacing 5)  -->
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="5">
                                 <syncfusion:SfTextInputLayout
@@ -85,7 +85,10 @@
                             </Grid>
 
                             <!--  Row 2: Section & Attendance Date (ColumnSpacing 5)  -->
-                            <Grid ColumnDefinitions="*,*" ColumnSpacing="5">
+                            <Grid
+                                Margin="0,-10"
+                                ColumnDefinitions="*,*"
+                                ColumnSpacing="5">
                                 <syncfusion:SfTextInputLayout
                                     Grid.Column="0"
                                     Hint="Section"
@@ -106,12 +109,12 @@
                                     Grid.Column="1"
                                     Hint="Attendance Date"
                                     Style="{StaticResource AppOutlinedInputStyle}">
-                                    <Entry
+                                    <Label
                                         FontSize="13"
-                                        IsReadOnly="True"
                                         Text="{Binding SelectedDate, StringFormat='{0:yyyy-MM-dd}'}"
                                         TextColor="{AppThemeBinding Light=#0f172a,
-                                                                    Dark=White}" />
+                                                                    Dark=White}"
+                                        VerticalOptions="Center" />
                                     <syncfusion:SfTextInputLayout.GestureRecognizers>
                                         <TapGestureRecognizer Command="{Binding OpenDateCalendarCommand}" />
                                     </syncfusion:SfTextInputLayout.GestureRecognizers>

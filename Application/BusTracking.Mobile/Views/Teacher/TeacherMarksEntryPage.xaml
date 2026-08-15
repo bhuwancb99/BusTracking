@@ -67,7 +67,10 @@
                     </syncfusion:SfTextInputLayout>
                 </Grid>
 
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="5">
+                <Grid
+                    Margin="0,-10,0,-10"
+                    ColumnDefinitions="*,*"
+                    ColumnSpacing="5">
                     <!--  Section  -->
                     <syncfusion:SfTextInputLayout
                         Grid.Column="0"
@@ -362,7 +365,7 @@
                                                                             Dark={StaticResource TextSecondaryDark}}" />
                                             <Border
                                                 Padding="12,6"
-                                                BackgroundColor="#0284c7"
+                                                BackgroundColor="{Binding GradeColor}"
                                                 IsVisible="{Binding Grade, Converter={StaticResource IsNotNullOrEmptyConverter}}"
                                                 Stroke="Transparent"
                                                 StrokeShape="RoundRectangle 12">
