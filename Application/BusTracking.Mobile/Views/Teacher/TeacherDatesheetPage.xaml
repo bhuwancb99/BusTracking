@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <views:ViewBase
-    x:Class="BusTracking.Mobile.Views.Student.StudentExamsReportCardsPage"
+    x:Class="BusTracking.Mobile.Views.Teacher.TeacherDatesheetPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:exam="clr-namespace:BusTracking.Mobile.Models.Exam"
     xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     xmlns:syncfusion="clr-namespace:Syncfusion.Maui.Toolkit.TextInputLayout;assembly=Syncfusion.Maui.Toolkit"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
-    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Student"
-    Title="Exams &amp; Report Cards"
-    x:DataType="vm:StudentExamsReportCardsViewModel"
-    x:TypeArguments="vm:StudentExamsReportCardsViewModel"
+    xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Teacher"
+    Title="Exam Datesheets"
+    x:DataType="vm:TeacherDatesheetViewModel"
+    x:TypeArguments="vm:TeacherDatesheetViewModel"
     BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
                                       Dark={StaticResource PageBgDark}}">
 
@@ -40,7 +40,7 @@
                         VerticalOptions="Center">
                         <Image
                             HeightRequest="20"
-                            Source="exam_terms.png"
+                            Source="exam_datesheet.png"
                             WidthRequest="20">
                             <Image.Behaviors>
                                 <mct:IconTintColorBehavior TintColor="#2563eb" />
@@ -52,19 +52,19 @@
                         <Label
                             FontAttributes="Bold"
                             FontSize="15"
-                            Text="Examinations &amp; Report Cards"
+                            Text="Class Exam Datesheets"
                             TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                         Dark=White}" />
                         <Label
                             FontSize="12"
-                            Text="View exam timetables and official term report cards."
+                            Text="Filter by Exam Term and Class to view timetables."
                             TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                         Dark={StaticResource TextSecondaryDark}}" />
                     </VerticalStackLayout>
                 </HorizontalStackLayout>
             </Border>
 
-            <!--  Filter Card with AppOutlinedInputStyle  -->
+            <!--  Filter Card with Proportional Inputs (Exam Term larger)  -->
             <Border
                 Padding="6,2"
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
@@ -72,121 +72,42 @@
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                          Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 12">
-                <syncfusion:SfTextInputLayout Hint="Select Exam Term" Style="{StaticResource AppOutlinedInputStyle}">
-                    <Picker
-                        Title="Select Exam Term"
-                        FontSize="13"
-                        ItemDisplayBinding="{Binding TermName}"
-                        ItemsSource="{Binding ExamTerms}"
-                        SelectedItem="{Binding SelectedExamTerm, Mode=TwoWay}"
-                        TextColor="{AppThemeBinding Light=#0f172a,
-                                                    Dark=White}"
-                        TitleColor="{AppThemeBinding Light=#94a3b8,
-                                                     Dark=#64748b}" />
-                </syncfusion:SfTextInputLayout>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="6">
+                    <syncfusion:SfTextInputLayout
+                        Grid.Column="0"
+                        Hint="Exam Term"
+                        Style="{StaticResource AppOutlinedInputStyle}">
+                        <Picker
+                            Title="Select Term"
+                            FontSize="13"
+                            ItemDisplayBinding="{Binding TermName}"
+                            ItemsSource="{Binding ExamTerms}"
+                            SelectedItem="{Binding SelectedExamTerm, Mode=TwoWay}"
+                            TextColor="{AppThemeBinding Light=#0f172a,
+                                                        Dark=White}"
+                            TitleColor="{AppThemeBinding Light=#94a3b8,
+                                                         Dark=#64748b}" />
+                    </syncfusion:SfTextInputLayout>
+
+                    <syncfusion:SfTextInputLayout
+                        Grid.Column="1"
+                        Hint="Class / Standard"
+                        Style="{StaticResource AppOutlinedInputStyle}">
+                        <Picker
+                            Title="Select Class"
+                            FontSize="13"
+                            ItemDisplayBinding="{Binding StandardName}"
+                            ItemsSource="{Binding Standards}"
+                            SelectedItem="{Binding SelectedStandard, Mode=TwoWay}"
+                            TextColor="{AppThemeBinding Light=#0f172a,
+                                                        Dark=White}"
+                            TitleColor="{AppThemeBinding Light=#94a3b8,
+                                                         Dark=#64748b}" />
+                    </syncfusion:SfTextInputLayout>
+                </Grid>
             </Border>
 
-            <!--  Result Status Banner (Vibrant Blue Card)  -->
-            <Border
-                Padding="14,12"
-                BackgroundColor="#1d4ed8"
-                IsVisible="{Binding HasReportCard}"
-                Stroke="Transparent"
-                StrokeShape="RoundRectangle 14">
-                <VerticalStackLayout Spacing="8">
-
-                    <!--  Top Pill Tag  -->
-                    <Border
-                        Padding="10,3"
-                        BackgroundColor="White"
-                        HorizontalOptions="Start"
-                        Stroke="Transparent"
-                        StrokeShape="RoundRectangle 12">
-                        <Label
-                            FontAttributes="Bold"
-                            FontSize="11"
-                            Text="{Binding ReportCard.TermName, StringFormat='{0} Report Card'}"
-                            TextColor="#1d4ed8" />
-                    </Border>
-
-                    <!--  Status Title & Result Pill  -->
-                    <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
-                        <HorizontalStackLayout
-                            Grid.Column="0"
-                            Spacing="8"
-                            VerticalOptions="Center">
-                            <Label
-                                FontAttributes="Bold"
-                                FontSize="17"
-                                Text="Result Status:"
-                                TextColor="White"
-                                VerticalOptions="Center" />
-                            <Border
-                                Padding="12,4"
-                                BackgroundColor="#22c55e"
-                                Stroke="Transparent"
-                                StrokeShape="RoundRectangle 12"
-                                VerticalOptions="Center">
-                                <Label
-                                    FontAttributes="Bold"
-                                    FontSize="13"
-                                    Text="{Binding ReportCard.ResultStatus}"
-                                    TextColor="White" />
-                            </Border>
-                        </HorizontalStackLayout>
-                    </Grid>
-
-                    <!--  Marks & Grade Stats Line  -->
-                    <Label FontSize="12" TextColor="#e0e7ff">
-                        <Label.FormattedText>
-                            <FormattedString>
-                                <Span Text="Total Marks: " />
-                                <Span FontAttributes="Bold" Text="{Binding ReportCard.TotalMarksObtained, StringFormat='{0:0.00}'}" />
-                                <Span Text=" / " />
-                                <Span FontAttributes="Bold" Text="{Binding ReportCard.TotalMaxMarks, StringFormat='{0:0.00}'}" />
-                                <Span Text=" | Percentage: " />
-                                <Span FontAttributes="Bold" Text="{Binding ReportCard.Percentage, StringFormat='{0:0.00}%'}" />
-                                <Span Text=" | Grade: " />
-                                <Span FontAttributes="Bold" Text="{Binding ReportCard.OverallGrade}" />
-                            </FormattedString>
-                        </Label.FormattedText>
-                    </Label>
-
-                    <!--  Open Full Report Card Page Button  -->
-                    <Button
-                        Margin="0,2,0,0"
-                        BackgroundColor="White"
-                        Command="{Binding ViewFullReportCardCommand}"
-                        CornerRadius="8"
-                        FontAttributes="Bold"
-                        FontSize="13"
-                        HeightRequest="40"
-                        Text="👁 View Full Report Card Breakdown"
-                        TextColor="#1d4ed8" />
-                </VerticalStackLayout>
-            </Border>
-
-            <!--  Class Exam Timetable (Datesheet) Section Header  -->
-            <VerticalStackLayout Spacing="4">
-                <HorizontalStackLayout Spacing="6" VerticalOptions="Center">
-                    <Image
-                        HeightRequest="18"
-                        Source="calendar_check.png"
-                        WidthRequest="18">
-                        <Image.Behaviors>
-                            <mct:IconTintColorBehavior TintColor="{StaticResource Primary}" />
-                        </Image.Behaviors>
-                    </Image>
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="15"
-                        Text="Class Exam Timetable (Datesheet)"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark=White}" />
-                </HorizontalStackLayout>
-            </VerticalStackLayout>
-
-            <!--  Empty Timetable Notice  -->
+            <!--  Empty State Notice  -->
             <Border
                 Padding="20"
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
@@ -196,7 +117,7 @@
                 <Label
                     FontSize="13"
                     HorizontalOptions="Center"
-                    Text="No exam schedules available for the selected term."
+                    Text="No exam schedules available for the selected filters."
                     TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                 Dark={StaticResource TextSecondaryDark}}" />
             </Border>
@@ -204,7 +125,7 @@
             <!--  Exam Timetable Schedule List  -->
             <VerticalStackLayout IsVisible="{Binding HasSchedules}" Spacing="8">
                 <BindableLayout.ItemsSource>
-                    <Binding Path="ExamSchedules" />
+                    <Binding Path="Schedules" />
                 </BindableLayout.ItemsSource>
 
                 <BindableLayout.ItemTemplate>

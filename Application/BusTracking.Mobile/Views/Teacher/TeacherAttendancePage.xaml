@@ -84,7 +84,7 @@
                                 </syncfusion:SfTextInputLayout>
                             </Grid>
 
-                            <!--  Row 2: Section & Attendance Date (Row Spacing 5, ColumnSpacing 5)  -->
+                            <!--  Row 2: Section & Attendance Date (ColumnSpacing 5)  -->
                             <Grid ColumnDefinitions="*,*" ColumnSpacing="5">
                                 <syncfusion:SfTextInputLayout
                                     Grid.Column="0"
@@ -106,12 +106,28 @@
                                     Grid.Column="1"
                                     Hint="Attendance Date"
                                     Style="{StaticResource AppOutlinedInputStyle}">
-                                    <DatePicker
-                                        Date="{Binding SelectedDate}"
+                                    <Entry
                                         FontSize="13"
-                                        Format="yyyy-MM-dd"
+                                        IsReadOnly="True"
+                                        Text="{Binding SelectedDate, StringFormat='{0:yyyy-MM-dd}'}"
                                         TextColor="{AppThemeBinding Light=#0f172a,
                                                                     Dark=White}" />
+                                    <syncfusion:SfTextInputLayout.GestureRecognizers>
+                                        <TapGestureRecognizer Command="{Binding OpenDateCalendarCommand}" />
+                                    </syncfusion:SfTextInputLayout.GestureRecognizers>
+                                    <syncfusion:SfTextInputLayout.TrailingView>
+                                        <Image
+                                            HeightRequest="18"
+                                            Source="calendar_check.png"
+                                            WidthRequest="18">
+                                            <Image.Behaviors>
+                                                <mct:IconTintColorBehavior TintColor="{AppThemeBinding Light=#64748b, Dark=#94a3b8}" />
+                                            </Image.Behaviors>
+                                            <Image.GestureRecognizers>
+                                                <TapGestureRecognizer Command="{Binding OpenDateCalendarCommand}" />
+                                            </Image.GestureRecognizers>
+                                        </Image>
+                                    </syncfusion:SfTextInputLayout.TrailingView>
                                 </syncfusion:SfTextInputLayout>
                             </Grid>
                         </VerticalStackLayout>
@@ -263,12 +279,13 @@
 
         </Grid>
 
-        <!--  Calendar Popup Overlay  -->
+        <!--  Shared Calendar Popup Overlay  -->
         <common:CalendarPickerPopup
             Title="Select Attendance Date"
-            IsOpen="{Binding IsCalendarOpen}"
-            SelectedDate="{Binding SelectedDate}"
-            ZIndex="999" />
+            Grid.Row="0"
+            Grid.RowSpan="2"
+            IsOpen="{Binding IsCalendarOpen, Mode=TwoWay}"
+            SelectedDate="{Binding SelectedDate, Mode=TwoWay}" />
     </Grid>
 
 </views:ViewBase>

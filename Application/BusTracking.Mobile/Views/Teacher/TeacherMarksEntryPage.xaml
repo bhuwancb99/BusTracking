@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:exam="clr-namespace:BusTracking.Mobile.Models.Exam"
     xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
+    xmlns:syncfusion="clr-namespace:Syncfusion.Maui.Toolkit.TextInputLayout;assembly=Syncfusion.Maui.Toolkit"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.Teacher"
     Title="{Binding Title}"
@@ -18,135 +19,88 @@
     </views:ViewBase.Behaviors>
 
     <Grid RowDefinitions="Auto,Auto,*">
-        <!--  Filter Section  -->
+
+        <!--  Top Filter Card  -->
         <Border
             Grid.Row="0"
-            Margin="5,12"
-            Padding="5"
+            Margin="5,8,5,8"
+            Padding="10,8"
             BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                               Dark={StaticResource CardBgDark}}"
             Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                      Dark={StaticResource BorderColorDark}}"
             StrokeShape="RoundRectangle 12">
-            <VerticalStackLayout Spacing="8">
+            <VerticalStackLayout Spacing="5">
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="5">
-                    <!--  Term  -->
-                    <Border
+                    <!--  Exam Term  -->
+                    <syncfusion:SfTextInputLayout
                         Grid.Column="0"
-                        Padding="6,4"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
-                                                          Dark={StaticResource CardBgDark}}"
-                        Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                                 Dark={StaticResource BorderColorDark}}"
-                        StrokeShape="RoundRectangle 8">
-                        <VerticalStackLayout Spacing="2">
-                            <Label
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                Text="EXAM TERM"
-                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                            Dark={StaticResource TextSecondaryDark}}" />
-                            <Picker
-                                Title="Select Term"
-                                FontSize="13"
-                                ItemDisplayBinding="{Binding TermName}"
-                                ItemsSource="{Binding ExamTerms}"
-                                SelectedItem="{Binding SelectedExamTerm, Mode=TwoWay}"
-                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                            Dark=White}"
-                                TitleColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                             Dark={StaticResource TextMutedDark}}" />
-                        </VerticalStackLayout>
-                    </Border>
+                        Hint="Exam Term"
+                        Style="{StaticResource AppOutlinedInputStyle}">
+                        <Picker
+                            Title="Select Term"
+                            FontSize="13"
+                            ItemDisplayBinding="{Binding TermName}"
+                            ItemsSource="{Binding ExamTerms}"
+                            SelectedItem="{Binding SelectedExamTerm, Mode=TwoWay}"
+                            TextColor="{AppThemeBinding Light=#0f172a,
+                                                        Dark=White}"
+                            TitleColor="{AppThemeBinding Light=#94a3b8,
+                                                         Dark=#64748b}" />
+                    </syncfusion:SfTextInputLayout>
 
                     <!--  Standard / Class  -->
-                    <Border
+                    <syncfusion:SfTextInputLayout
                         Grid.Column="1"
-                        Padding="6,4"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
-                                                          Dark={StaticResource CardBgDark}}"
-                        Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                                 Dark={StaticResource BorderColorDark}}"
-                        StrokeShape="RoundRectangle 8">
-                        <VerticalStackLayout Spacing="2">
-                            <Label
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                Text="CLASS / STANDARD"
-                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                            Dark={StaticResource TextSecondaryDark}}" />
-                            <Picker
-                                Title="Select Class"
-                                FontSize="13"
-                                ItemDisplayBinding="{Binding StandardName}"
-                                ItemsSource="{Binding Standards}"
-                                SelectedItem="{Binding SelectedStandard, Mode=TwoWay}"
-                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                            Dark=White}"
-                                TitleColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                             Dark={StaticResource TextMutedDark}}" />
-                        </VerticalStackLayout>
-                    </Border>
+                        Hint="Class / Standard"
+                        Style="{StaticResource AppOutlinedInputStyle}">
+                        <Picker
+                            Title="Select Class"
+                            FontSize="13"
+                            ItemDisplayBinding="{Binding StandardName}"
+                            ItemsSource="{Binding Standards}"
+                            SelectedItem="{Binding SelectedStandard, Mode=TwoWay}"
+                            TextColor="{AppThemeBinding Light=#0f172a,
+                                                        Dark=White}"
+                            TitleColor="{AppThemeBinding Light=#94a3b8,
+                                                         Dark=#64748b}" />
+                    </syncfusion:SfTextInputLayout>
                 </Grid>
 
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="5">
                     <!--  Section  -->
-                    <Border
+                    <syncfusion:SfTextInputLayout
                         Grid.Column="0"
-                        Padding="6,4"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
-                                                          Dark={StaticResource CardBgDark}}"
-                        Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                                 Dark={StaticResource BorderColorDark}}"
-                        StrokeShape="RoundRectangle 8">
-                        <VerticalStackLayout Spacing="2">
-                            <Label
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                Text="SECTION"
-                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                            Dark={StaticResource TextSecondaryDark}}" />
-                            <Picker
-                                Title="Select Section"
-                                FontSize="13"
-                                ItemDisplayBinding="{Binding SectionName}"
-                                ItemsSource="{Binding Sections}"
-                                SelectedItem="{Binding SelectedSection, Mode=TwoWay}"
-                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                            Dark=White}"
-                                TitleColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                             Dark={StaticResource TextMutedDark}}" />
-                        </VerticalStackLayout>
-                    </Border>
+                        Hint="Section"
+                        Style="{StaticResource AppOutlinedInputStyle}">
+                        <Picker
+                            Title="Select Section"
+                            FontSize="13"
+                            ItemDisplayBinding="{Binding SectionName}"
+                            ItemsSource="{Binding Sections}"
+                            SelectedItem="{Binding SelectedSection, Mode=TwoWay}"
+                            TextColor="{AppThemeBinding Light=#0f172a,
+                                                        Dark=White}"
+                            TitleColor="{AppThemeBinding Light=#94a3b8,
+                                                         Dark=#64748b}" />
+                    </syncfusion:SfTextInputLayout>
 
                     <!--  Subject / Schedule  -->
-                    <Border
+                    <syncfusion:SfTextInputLayout
                         Grid.Column="1"
-                        Padding="6,4"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
-                                                          Dark={StaticResource CardBgDark}}"
-                        Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                                 Dark={StaticResource BorderColorDark}}"
-                        StrokeShape="RoundRectangle 8">
-                        <VerticalStackLayout Spacing="2">
-                            <Label
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                Text="SUBJECT / SCHEDULE"
-                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                            Dark={StaticResource TextSecondaryDark}}" />
-                            <Picker
-                                Title="Select Subject"
-                                FontSize="13"
-                                ItemDisplayBinding="{Binding SubjectName}"
-                                ItemsSource="{Binding ExamSchedules}"
-                                SelectedItem="{Binding SelectedSchedule, Mode=TwoWay}"
-                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                            Dark=White}"
-                                TitleColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                             Dark={StaticResource TextMutedDark}}" />
-                        </VerticalStackLayout>
-                    </Border>
+                        Hint="Subject / Schedule"
+                        Style="{StaticResource AppOutlinedInputStyle}">
+                        <Picker
+                            Title="Select Subject"
+                            FontSize="13"
+                            ItemDisplayBinding="{Binding SubjectName}"
+                            ItemsSource="{Binding ExamSchedules}"
+                            SelectedItem="{Binding SelectedSchedule, Mode=TwoWay}"
+                            TextColor="{AppThemeBinding Light=#0f172a,
+                                                        Dark=White}"
+                            TitleColor="{AppThemeBinding Light=#94a3b8,
+                                                         Dark=#64748b}" />
+                    </syncfusion:SfTextInputLayout>
                 </Grid>
 
                 <Button
@@ -320,9 +274,10 @@
                                         VerticalOptions="Center">
                                         <Border
                                             Grid.Column="0"
-                                            Padding="6,2"
+                                            Padding="6,0"
                                             BackgroundColor="{AppThemeBinding Light=#f1f5f9,
                                                                               Dark=#1e293b}"
+                                            HeightRequest="24"
                                             Stroke="Transparent"
                                             StrokeShape="RoundRectangle 4"
                                             VerticalOptions="Center">

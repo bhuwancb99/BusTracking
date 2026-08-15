@@ -163,6 +163,7 @@ namespace BusTracking.Mobile
             Routing.RegisterRoute("StudentExamsReportCards", typeof(StudentExamsReportCardsPage));
             Routing.RegisterRoute("StudentFullReportCard", typeof(StudentFullReportCardPage));
             Routing.RegisterRoute("TeacherMarksEntry", typeof(TeacherMarksEntryPage));
+            Routing.RegisterRoute("TeacherDatesheet", typeof(TeacherDatesheetPage));
 
             Routing.RegisterRoute("AdminExamTerms", typeof(AdminExamTermsPage));
             Routing.RegisterRoute("AdminExamTermForm", typeof(AdminExamTermFormPage));
@@ -509,6 +510,8 @@ namespace BusTracking.Mobile
             s.AddTransient<TeacherHomeworkSubmissionsPage>();
             s.AddTransient<TeacherMarksEntryPage>();
             s.AddTransient<TeacherMarksEntryViewModel>();
+            s.AddTransient<TeacherDatesheetPage>();
+            s.AddTransient<TeacherDatesheetViewModel>();
 
             s.AddTransient<StudentHomeworkListPage>();
             s.AddTransient<LiveTrackingPage>();

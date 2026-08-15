@@ -18,9 +18,10 @@ namespace BusTracking.Mobile.Models.Exam
         public decimal PassMarks { get; set; }
         public string? RoomNumber { get; set; }
 
-        public string ExamDateDisplay => ExamDate.ToString("dd MMM yyyy");
+        public string ExamDateDisplay => ExamDate.ToString("ddd, dd MMM yyyy");
         public string TimeDisplay => $"{DateTime.Today.Add(StartTime):hh:mm tt} - {DateTime.Today.Add(EndTime):hh:mm tt}";
         public string MarksDisplay => $"Max: {MaxMarks:0.#} | Pass: {PassMarks:0.#}";
-        public string RoomDisplay => string.IsNullOrWhiteSpace(RoomNumber) ? "Room: TBD" : $"Room: {RoomNumber}";
+        public string RoomDisplay => string.IsNullOrWhiteSpace(RoomNumber) ? "Room: TBA" : $"Room: {RoomNumber}";
+        public string ClassDisplay => string.IsNullOrWhiteSpace(SectionName) ? StandardName : $"{StandardName} ({SectionName})";
     }
 }

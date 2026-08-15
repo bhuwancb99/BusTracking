@@ -8,15 +8,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Asp.Versioning.Mvc" Version="10.0.1" />
-		<PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="10.0.1" />
+		<PackageReference Include="Asp.Versioning.Mvc" Version="10.2.1" />
+		<PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="10.2.1" />
 		<ProjectReference Include="..\BusTracking.Common\BusTracking.Common.csproj" />
 		<PackageReference Include="AutoMapper" Version="16.2.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.10" />
-		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.11" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.11" />
 		<!-- Promote transitive dependency to direct reference to address known vulnerability -->
 		<PackageReference Include="Microsoft.OpenApi" Version="2.7.5" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.11" />
 	</ItemGroup>
 
 	<ItemGroup>

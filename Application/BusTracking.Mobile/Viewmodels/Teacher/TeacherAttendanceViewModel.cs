@@ -85,6 +85,12 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
             _ = LoadStudentsAsync();
         }
 
+        [RelayCommand]
+        private void OpenDateCalendar()
+        {
+            IsCalendarOpen = true;
+        }
+
         private async Task LoadSectionsAsync(int standardId)
         {
             var secs = await _sectionService.GetByStandardAsync(standardId, isAdmin: false);

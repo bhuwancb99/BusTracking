@@ -79,7 +79,7 @@ namespace BusTracking.Mobile.Viewmodels.Student
                 try
                 {
                     ReportCard = await _examService.GetStudentReportCardAsync(SelectedExamTerm.ExamTermId);
-                    HasReportCard = ReportCard != null && (ReportCard.TotalMaxMarks > 0 || ReportCard.Subjects.Any());
+                    HasReportCard = ReportCard != null && (ReportCard.TotalMaxMarks > 0 || ReportCard.SubjectMarks.Any());
                 }
                 catch
                 {

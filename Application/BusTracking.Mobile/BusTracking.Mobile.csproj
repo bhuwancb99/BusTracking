@@ -164,7 +164,7 @@
 		<GoogleServicesJson Include="Platforms\Android\google-services.json" />
 		<TrimmerRootAssembly Include="Plugin.Firebase" />
 		<TrimmerRootAssembly Include="Plugin.Firebase.CloudMessaging" />
-		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3.android" Version="2.1.12" />
+		<PackageReference Include="SQLitePCLRaw.lib.e_sqlite3.android" Version="2.1.13" />
 	</ItemGroup>
 
 	<ItemGroup Condition="$(TargetFramework.Contains('ios'))">
@@ -174,10 +174,10 @@
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="15.0.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.11" />
 		<PackageReference Include="Microsoft.Maui.Controls" Version="10.0.90" />
 		<PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.90" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.10" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.11" />
 		<PackageReference Include="Microsoft.Maui.Controls.Maps" Version="10.0.90" />
 		<PackageReference Include="sqlite-net-pcl" Version="1.11.285" />
 		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.11" />

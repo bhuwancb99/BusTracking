@@ -17,10 +17,10 @@
         <mct:StatusBarBehavior StatusBarColor="{AppThemeBinding Light={StaticResource LoginPageBgLight}, Dark={StaticResource LoginPageBgDark}}" StatusBarStyle="{AppThemeBinding Light=DarkContent, Dark=LightContent}" />
     </views:ViewBase.Behaviors>
 
-    <ScrollView Padding="14,12">
+    <ScrollView Padding="10,12">
         <VerticalStackLayout Spacing="14">
 
-            <!--  Student & Term Profile Header Card  -->
+            <!--  Official Report Card Header Card  -->
             <Border
                 Padding="16,14"
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
@@ -45,15 +45,22 @@
 
                         <Border
                             Grid.Column="1"
-                            Padding="10,4"
-                            BackgroundColor="#f1f5f9"
+                            Padding="8,2"
+                            BackgroundColor="{AppThemeBinding Light=#f1f5f9,
+                                                              Dark=#1e293b}"
+                            HeightRequest="24"
+                            HorizontalOptions="End"
                             Stroke="Transparent"
-                            StrokeShape="RoundRectangle 6">
+                            StrokeShape="RoundRectangle 6"
+                            VerticalOptions="Center">
                             <Label
                                 FontAttributes="Bold"
-                                FontSize="12"
+                                FontSize="11"
+                                HorizontalOptions="Center"
                                 Text="{Binding ReportCard.StudentCode}"
-                                TextColor="#475569" />
+                                TextColor="{AppThemeBinding Light=#475569,
+                                                            Dark=#94a3b8}"
+                                VerticalOptions="Center" />
                         </Border>
                     </Grid>
 
@@ -74,28 +81,28 @@
                             Grid.Row="0"
                             Grid.Column="1"
                             FontSize="12"
-                            Text="{Binding ReportCard.AcademicYearName, StringFormat='Session: {0}'}"
+                            Text="{Binding ReportCard.SectionName, StringFormat='Section: {0}'}"
                             TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                         Dark={StaticResource TextSecondaryDark}}" />
                         <Label
                             Grid.Row="1"
                             Grid.Column="0"
                             FontSize="12"
-                            Text="{Binding ReportCard.RollNumber, StringFormat='Roll No: {0}'}"
+                            Text="{Binding ReportCard.AcademicYearName, StringFormat='Session: {0}'}"
                             TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                         Dark={StaticResource TextSecondaryDark}}" />
                         <Label
                             Grid.Row="1"
                             Grid.Column="1"
                             FontSize="12"
-                            Text="{Binding ReportCard.RankDisplay}"
+                            Text="{Binding ReportCard.StudentCode, StringFormat='Roll No: {0}'}"
                             TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
                                                         Dark={StaticResource TextSecondaryDark}}" />
                     </Grid>
                 </VerticalStackLayout>
             </Border>
 
-            <!--  Result Status Summary Banner  -->
+            <!--  Result Status Summary Banner (Royal Blue Card)  -->
             <Border
                 Padding="16,14"
                 BackgroundColor="#1d4ed8"
@@ -181,7 +188,7 @@
                                                     Dark=White}" />
 
                     <BindableLayout.ItemsSource>
-                        <Binding Path="ReportCard.Subjects" />
+                        <Binding Path="ReportCard.SubjectMarks" />
                     </BindableLayout.ItemsSource>
 
                     <BindableLayout.ItemTemplate>
@@ -191,12 +198,15 @@
                                 Padding="12,10"
                                 BackgroundColor="{AppThemeBinding Light=#f8fafc,
                                                                   Dark=#1e293b}"
-                                Stroke="Transparent"
-                                StrokeShape="RoundRectangle 10">
+                                Stroke="{AppThemeBinding Light=#e2e8f0,
+                                                         Dark=#334155}"
+                                StrokeShape="RoundRectangle 10"
+                                StrokeThickness="1">
                                 <VerticalStackLayout Spacing="6">
+                                    <!--  Top Row: Subject Name & Badges  -->
                                     <Grid
                                         ColumnDefinitions="*,Auto,Auto"
-                                        ColumnSpacing="10"
+                                        ColumnSpacing="8"
                                         VerticalOptions="Center">
                                         <Label
                                             Grid.Column="0"
@@ -206,27 +216,60 @@
                                             TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
                                                                         Dark=White}" />
 
-                                        <Label
-                                            Grid.Column="1"
-                                            FontAttributes="Bold"
-                                            FontSize="14"
-                                            Text="{Binding MarksObtained, StringFormat='{0:0.##}'}"
-                                            TextColor="#2563eb" />
-
+                                        <!--  Grade Badge  -->
                                         <Border
-                                            Grid.Column="2"
-                                            Padding="10,3"
+                                            Grid.Column="1"
+                                            Padding="8,2"
                                             BackgroundColor="#0284c7"
+                                            IsVisible="{Binding Grade, Converter={StaticResource IsNotNullOrEmptyConverter}}"
                                             Stroke="Transparent"
-                                            StrokeShape="RoundRectangle 10">
+                                            StrokeShape="RoundRectangle 8">
                                             <Label
                                                 FontAttributes="Bold"
-                                                FontSize="12"
+                                                FontSize="11"
                                                 Text="{Binding Grade}"
+                                                TextColor="White" />
+                                        </Border>
+
+                                        <!--  Pass/Fail Status Badge  -->
+                                        <Border
+                                            Grid.Column="2"
+                                            Padding="8,2"
+                                            BackgroundColor="{Binding StatusColor}"
+                                            Stroke="Transparent"
+                                            StrokeShape="RoundRectangle 8">
+                                            <Label
+                                                FontAttributes="Bold"
+                                                FontSize="11"
+                                                Text="{Binding StatusDisplay}"
                                                 TextColor="White" />
                                         </Border>
                                     </Grid>
 
+                                    <!--  Middle Row: Marks Detail  -->
+                                    <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center">
+                                        <HorizontalStackLayout Grid.Column="0" Spacing="6">
+                                            <Label
+                                                FontSize="12"
+                                                Text="Marks Obtained:"
+                                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                                            Dark={StaticResource TextSecondaryDark}}" />
+                                            <Label
+                                                FontAttributes="Bold"
+                                                FontSize="12"
+                                                Text="{Binding DisplayMarks}"
+                                                TextColor="#2563eb" />
+                                        </HorizontalStackLayout>
+
+                                        <Label
+                                            Grid.Column="1"
+                                            FontSize="11"
+                                            Text="{Binding PassMarks, StringFormat='Pass: {0:0.##}'}"
+                                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                                        Dark={StaticResource TextSecondaryDark}}" />
+                                    </Grid>
+
+                                    <!--  Remarks Row  -->
                                     <Label
                                         FontSize="11"
                                         IsVisible="{Binding Remarks, Converter={StaticResource IsNotNullOrEmptyConverter}}"
@@ -240,29 +283,78 @@
                 </VerticalStackLayout>
             </Border>
 
-            <!--  Teacher Remarks / Feedback Card  -->
-            <Border
-                Padding="14"
-                BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
-                                                  Dark={StaticResource CardBgDark}}"
-                IsVisible="{Binding ReportCard.TeacherRemarks, Converter={StaticResource IsNotNullOrEmptyConverter}}"
-                Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                         Dark={StaticResource BorderColorDark}}"
-                StrokeShape="RoundRectangle 14">
-                <VerticalStackLayout Spacing="6">
-                    <Label
-                        FontAttributes="Bold"
-                        FontSize="14"
-                        Text="Teacher Remarks &amp; Feedback"
-                        TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                    Dark=White}" />
-                    <Label
-                        FontSize="13"
-                        Text="{Binding ReportCard.TeacherRemarks}"
-                        TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                    Dark={StaticResource TextSecondaryDark}}" />
-                </VerticalStackLayout>
-            </Border>
+            <!--  Summary Cards (3 Metrics)  -->
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                <Border
+                    Grid.Column="0"
+                    Padding="10"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 10">
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="10"
+                            Text="PERCENTAGE"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            Text="{Binding ReportCard.Percentage, StringFormat='{0:0.0}%'}"
+                            TextColor="#2563eb" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border
+                    Grid.Column="1"
+                    Padding="10"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 10">
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="10"
+                            Text="GRADE"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="14"
+                            Text="{Binding ReportCard.OverallGrade}"
+                            TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                                        Dark=White}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Border
+                    Grid.Column="2"
+                    Padding="10"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
+                                                      Dark={StaticResource CardBgDark}}"
+                    Stroke="{AppThemeBinding Light={StaticResource BorderColor},
+                                             Dark={StaticResource BorderColorDark}}"
+                    StrokeShape="RoundRectangle 10">
+                    <VerticalStackLayout HorizontalOptions="Center" Spacing="2">
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="10"
+                            Text="MARKS"
+                            TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
+                                                        Dark={StaticResource TextSecondaryDark}}" />
+                        <Label
+                            FontAttributes="Bold"
+                            FontSize="13"
+                            Text="{Binding ReportCard.TotalMarksObtained, StringFormat='{0:0.##}'}"
+                            TextColor="#16a34a" />
+                    </VerticalStackLayout>
+                </Border>
+            </Grid>
 
         </VerticalStackLayout>
     </ScrollView>

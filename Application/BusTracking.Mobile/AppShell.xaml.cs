@@ -319,22 +319,24 @@ public partial class AppShell : Shell
 
     private static List<FlyoutMenuItem> TeacherMenu() =>
     [
-        new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "Dashboard",        Route = "TeacherDashboard"     },
-        new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",       Route = "Profile"              },
+        new() { IconSvg = "dashboard.png",     IconColor = _svgImageColor, Title = "Dashboard",        Route = "TeacherDashboard"     },
+        new() { IconSvg = "profile.png",       IconColor = _svgImageColor, Title = "My Profile",       Route = "Profile"              },
         new() { IconSvg = "calendar_check.png",IconColor = _svgImageColor, Title = "Daily Attendance", Route = "TeacherAttendance"    },
-        new() { IconSvg = "marks_entry.png",  IconColor = _svgImageColor, Title = "Marks Entry",      Route = "TeacherMarksEntry"    },
-        new() { IconSvg = "homework.png",      IconColor = _svgImageColor, Title = "Homework",         Route = "TeacherHomeworkList"  },
-        new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications",    Route = "TeacherNotification"  },
+        new() { IconSvg = "marks_entry.png",   IconColor = _svgImageColor, Title = "Marks Entry",      Route = "TeacherMarksEntry"    },
+        new() { IconSvg = "exam_datesheet.png",IconColor = _svgImageColor, Title = "Exam Datesheets",  Route = "TeacherDatesheet"     },
+        new() { IconSvg = "homework.png",       IconColor = _svgImageColor, Title = "Homework",         Route = "TeacherHomeworkList"  },
+        new() { IconSvg = "notification.png",  IconColor = _svgImageColor, Title = "Notifications",    Route = "TeacherNotification"  },
     ];
 
     private static List<FlyoutMenuItem> ParentMenu() =>
     [
-        new() { IconSvg = "dashboard.png",    IconColor = _svgImageColor, Title = "My Dashboard",   Route = "ParentDashboard"    },
-        new() { IconSvg = "profile.png",      IconColor = _svgImageColor, Title = "My Profile",     Route = "Profile"            },
-        new() { IconSvg = "tracking.png",     IconColor = _svgImageColor, Title = "Track Bus",      Route = "ParentTracking"     },
-        new() { IconSvg = "availability.png", IconColor = _svgImageColor, Title = "Availability",   Route = "ParentAvailability" },
-        new() { IconSvg = "notification.png", IconColor = _svgImageColor, Title = "Notifications",  Route = "ParentNotification" },
-        new() { IconSvg = "feedback.png",     IconColor = _svgImageColor, Title = "Help & Support", Route = "ParentFeedback"     },
+        new() { IconSvg = "dashboard.png",     IconColor = _svgImageColor, Title = "My Dashboard",   Route = "ParentDashboard"    },
+        new() { IconSvg = "profile.png",       IconColor = _svgImageColor, Title = "My Profile",     Route = "Profile"            },
+        new() { IconSvg = "exam_terms.png",    IconColor = _svgImageColor, Title = "Exams & Report Cards", Route = "StudentExamsReportCards" },
+        new() { IconSvg = "tracking.png",      IconColor = _svgImageColor, Title = "Track Bus",      Route = "ParentTracking"     },
+        new() { IconSvg = "availability.png",  IconColor = _svgImageColor, Title = "Availability",   Route = "ParentAvailability" },
+        new() { IconSvg = "notification.png",  IconColor = _svgImageColor, Title = "Notifications",  Route = "ParentNotification" },
+        new() { IconSvg = "feedback.png",      IconColor = _svgImageColor, Title = "Help & Support", Route = "ParentFeedback"     },
     ];
 
     private static List<FlyoutMenuItem> StudentMenu() =>
