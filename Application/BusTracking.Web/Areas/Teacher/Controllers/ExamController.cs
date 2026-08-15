@@ -87,7 +87,7 @@ namespace BusTracking.Web.Areas.Teacher.Controllers
             return Json(new { success = res.Success, message = res.Message });
         }
 
-        public async Task<IActionResult> Datesheet(int? examTermId, int? standardId)
+        public async Task<IActionResult> Datesheet(int? examTermId, int? standardId, bool isSubmitted = false)
         {
             var years = await _academicYearService.GetAcademicYearsAsync(1);
             var activeYear = years.Find(y => y.IsCurrent) ?? years.Find(y => y.IsActive);
@@ -101,8 +101,18 @@ namespace BusTracking.Web.Areas.Teacher.Controllers
             ViewBag.Standards = stds.Data ?? new();
             ViewBag.SelectedStandardId = standardId;
 
-            var schedulesRes = await _examService.GetExamSchedulesAsync(examTermId, standardId);
-            return View(schedulesRes.Data ?? new());
+            var list = new List<ExamScheduleDto>();
+            if (examTermId.HasValue && examTermId.Value > 0 && standardId.HasValue && standardId.Value > 0)
+            {
+                var schedulesRes = await _examService.GetExamSchedulesAsync(examTermId, standardId);
+                list = schedulesRes.Data ?? new();
+            }
+            else if (isSubmitted || examTermId.HasValue || standardId.HasValue)
+            {
+                ViewBag.ValidationMessage = "Please select both Exam Term and Class / Standard to view the exam datesheet schedule.";
+            }
+
+            return View(list);
         }
     }
 }

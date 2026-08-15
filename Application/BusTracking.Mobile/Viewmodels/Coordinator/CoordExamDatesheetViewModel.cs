@@ -4,6 +4,7 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
     {
         private readonly IExamService _examService;
         private readonly ICoordStandardService _standardService;
+        private readonly ISectionService _sectionService;
 
         [ObservableProperty]
         private ObservableCollection<ExamScheduleItem> _schedules = [];
@@ -20,15 +21,22 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
         [ObservableProperty]
         private StandardItem? _selectedStandard;
 
+        [ObservableProperty]
+        private ObservableCollection<SectionItem> _sections = [];
+
+        [ObservableProperty]
+        private SectionItem? _selectedSection;
+
         [ObservableProperty] private bool _canAdd;
         [ObservableProperty] private bool _canEdit;
         [ObservableProperty] private bool _canDelete;
 
-        public CoordExamDatesheetViewModel(IAuthService auth, INavigationService nav, IExamService examService, ICoordStandardService standardService)
+        public CoordExamDatesheetViewModel(IAuthService auth, INavigationService nav, IExamService examService, ICoordStandardService standardService, ISectionService sectionService)
             : base(auth, nav)
         {
             _examService = examService;
             _standardService = standardService;
+            _sectionService = sectionService;
             Title = "Exam Datesheets";
         }
 
@@ -37,49 +45,77 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             CanAdd = Can("examschedule.add");
             CanEdit = Can("examschedule.edit");
             CanDelete = Can("examschedule.delete");
-            await LoadExamTermsAsync();
-            await LoadStandardsAsync();
-            await LoadSchedulesAsync();
+
+            await RunAsync(async () =>
+            {
+                var terms = await _examService.GetExamTermsAsync();
+                ExamTerms = new ObservableCollection<ExamTermItem>(terms);
+                SelectedExamTerm = ExamTerms.FirstOrDefault(t => t.IsActive) ?? ExamTerms.FirstOrDefault();
+
+                var paged = await _standardService.GetAllAsync(null, 1);
+                Standards = new ObservableCollection<StandardItem>(paged.Items);
+                SelectedStandard = Standards.FirstOrDefault();
+
+                if (SelectedStandard != null)
+                {
+                    await LoadSectionsAsync(SelectedStandard.StandardId);
+                }
+            });
         }
 
         public override async Task RefreshOnReturnAsync()
         {
-            await LoadSchedulesAsync();
+            if (SelectedExamTerm != null && SelectedStandard != null && SelectedSection != null)
+            {
+                await LoadSchedulesAsync();
+            }
         }
 
-        private async Task LoadExamTermsAsync()
+        partial void OnSelectedStandardChanged(StandardItem? value)
         {
-            try
+            Schedules = [];
+            IsEmpty = false;
+
+            if (value != null)
             {
-                var terms = await _examService.GetExamTermsAsync();
-                ExamTerms = new ObservableCollection<ExamTermItem>(terms);
-                SelectedExamTerm ??= terms.FirstOrDefault();
+                _ = LoadSectionsAsync(value.StandardId);
             }
-            catch { }
+            else
+            {
+                Sections = [];
+                SelectedSection = null;
+            }
         }
 
-        private async Task LoadStandardsAsync()
+        private async Task LoadSectionsAsync(int standardId)
         {
-            try
-            {
-                var paged = await _standardService.GetAllAsync(null, 1);
-                Standards = new ObservableCollection<StandardItem>(paged.Items);
-                SelectedStandard ??= Standards.FirstOrDefault();
-            }
-            catch { }
+            var list = await _sectionService.GetByStandardAsync(standardId, isAdmin: false);
+            Sections = new ObservableCollection<SectionItem>(list ?? []);
+            SelectedSection = Sections.FirstOrDefault();
         }
 
         [RelayCommand]
         private async Task LoadSchedulesAsync()
         {
-            IsRefreshing = true;
             HasError = false;
+
+            if (SelectedExamTerm == null || SelectedStandard == null || SelectedSection == null)
+            {
+                HasError = true;
+                ErrorMessage = "Please select Exam Term, Class / Standard, and Section to view the datesheet schedule.";
+                Schedules = [];
+                IsEmpty = false;
+                return;
+            }
+
+            IsRefreshing = true;
             try
             {
-                int? termId = SelectedExamTerm?.ExamTermId;
-                int? stdId = SelectedStandard?.StandardId;
+                int termId = SelectedExamTerm.ExamTermId;
+                int stdId = SelectedStandard.StandardId;
+                int secId = SelectedSection.SectionId;
 
-                var list = await _examService.GetExamSchedulesAsync(termId, stdId);
+                var list = await _examService.GetExamSchedulesAsync(termId, stdId, secId);
                 Schedules = new ObservableCollection<ExamScheduleItem>(list);
                 IsEmpty = !Schedules.Any();
             }
@@ -92,20 +128,6 @@ namespace BusTracking.Mobile.Viewmodels.Coordinator
             {
                 IsRefreshing = false;
             }
-        }
-
-        partial void OnSelectedExamTermChanged(ExamTermItem? value)
-        {
-            if (value != null && SelectedStandard == null)
-            {
-                SelectedStandard = Standards.FirstOrDefault();
-            }
-            _ = LoadSchedulesAsync();
-        }
-
-        partial void OnSelectedStandardChanged(StandardItem? value)
-        {
-            _ = LoadSchedulesAsync();
         }
 
         [RelayCommand]

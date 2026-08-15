@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:mct="clr-namespace:CommunityToolkit.Maui.Behaviors;assembly=CommunityToolkit.Maui"
     xmlns:models="clr-namespace:BusTracking.Mobile.Models.Exam"
+    xmlns:syncfusion="clr-namespace:Syncfusion.Maui.Toolkit.TextInputLayout;assembly=Syncfusion.Maui.Toolkit"
     xmlns:views="clr-namespace:BusTracking.Mobile.Views"
     xmlns:vm="clr-namespace:BusTracking.Mobile.Viewmodels.SuperAdmin"
     Title="Exam Datesheet Scheduling"
@@ -54,8 +55,8 @@
         <!--  Filter Section  -->
         <VerticalStackLayout
             Grid.Row="0"
-            Padding="14,12,14,6"
-            Spacing="8">
+            Padding="10,8,10,2"
+            Spacing="6">
             <!--  Header Section matching Web UI  -->
             <Border
                 Padding="12,10"
@@ -89,78 +90,97 @@
                                                 Dark={StaticResource ErrorTextDark}}" />
             </Border>
 
-            <!--  Styled Filter Controls Card (Exam Term & Class / Standard Pickers)  -->
+            <!--  Styled Filter Controls Card (SfTextInputLayout AppOutlinedInputStyle)  -->
             <Border
-                Padding="12"
+                Padding="10,4,10,0"
                 BackgroundColor="{AppThemeBinding Light={StaticResource CardBg},
                                                   Dark={StaticResource CardBgDark}}"
                 Stroke="{AppThemeBinding Light={StaticResource BorderColor},
                                          Dark={StaticResource BorderColorDark}}"
                 StrokeShape="RoundRectangle 12"
                 StrokeThickness="1">
-                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                <VerticalStackLayout Margin="0,0,0,-10" Spacing="0">
+                    <!--  Row 1: Exam Term (Full Width)  -->
+                    <syncfusion:SfTextInputLayout Hint="Exam Term *" Style="{StaticResource AppOutlinedInputStyle}">
+                        <Picker
+                            Title="Select Exam Term"
+                            FontSize="13"
+                            ItemDisplayBinding="{Binding TermName}"
+                            ItemsSource="{Binding ExamTerms}"
+                            SelectedItem="{Binding SelectedExamTerm, Mode=TwoWay}"
+                            TextColor="{AppThemeBinding Light=#0f172a,
+                                                        Dark=White}"
+                            TitleColor="{AppThemeBinding Light=#94a3b8,
+                                                         Dark=#64748b}" />
+                    </syncfusion:SfTextInputLayout>
 
-                    <!--  Exam Term Input Control Box  -->
-                    <Border
-                        Grid.Column="0"
-                        Padding="10,6"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
-                                                          Dark={StaticResource PageBgDark}}"
-                        Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                                 Dark={StaticResource BorderColorDark}}"
-                        StrokeShape="RoundRectangle 8"
-                        StrokeThickness="1">
-                        <VerticalStackLayout Spacing="2">
-                            <Label
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                Text="Exam Term"
-                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                            Dark={StaticResource TextSecondaryDark}}" />
+                    <!--  Row 2: Class / Standard, Section, and Search Image Button  -->
+                    <Grid
+                        Margin="0,-4,0,0"
+                        ColumnDefinitions="*,*,Auto"
+                        ColumnSpacing="8">
+                        <!--  Class / Standard Input Control Box  -->
+                        <syncfusion:SfTextInputLayout
+                            Grid.Column="0"
+                            Hint="Class / Standard *"
+                            Style="{StaticResource AppOutlinedInputStyle}">
                             <Picker
-                                Title="Select Exam Term"
-                                FontSize="13"
-                                ItemDisplayBinding="{Binding TermName}"
-                                ItemsSource="{Binding ExamTerms}"
-                                SelectedItem="{Binding SelectedExamTerm, Mode=TwoWay}"
-                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
-                                                            Dark=White}"
-                                TitleColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                             Dark={StaticResource TextMutedDark}}" />
-                        </VerticalStackLayout>
-                    </Border>
-
-                    <!--  Class / Standard Input Control Box  -->
-                    <Border
-                        Grid.Column="1"
-                        Padding="10,6"
-                        BackgroundColor="{AppThemeBinding Light={StaticResource PageBg},
-                                                          Dark={StaticResource PageBgDark}}"
-                        Stroke="{AppThemeBinding Light={StaticResource BorderColor},
-                                                 Dark={StaticResource BorderColorDark}}"
-                        StrokeShape="RoundRectangle 8"
-                        StrokeThickness="1">
-                        <VerticalStackLayout Spacing="2">
-                            <Label
-                                FontAttributes="Bold"
-                                FontSize="11"
-                                Text="Class / Standard"
-                                TextColor="{AppThemeBinding Light={StaticResource TextSecondary},
-                                                            Dark={StaticResource TextSecondaryDark}}" />
-                            <Picker
-                                Title="Select Class / Standard"
+                                Title="Select Class"
                                 FontSize="13"
                                 ItemDisplayBinding="{Binding StandardName}"
                                 ItemsSource="{Binding Standards}"
                                 SelectedItem="{Binding SelectedStandard, Mode=TwoWay}"
-                                TextColor="{AppThemeBinding Light={StaticResource TextPrimary},
+                                TextColor="{AppThemeBinding Light=#0f172a,
                                                             Dark=White}"
-                                TitleColor="{AppThemeBinding Light={StaticResource TextMuted},
-                                                             Dark={StaticResource TextMutedDark}}" />
-                        </VerticalStackLayout>
-                    </Border>
+                                TitleColor="{AppThemeBinding Light=#94a3b8,
+                                                             Dark=#64748b}" />
+                        </syncfusion:SfTextInputLayout>
 
-                </Grid>
+                        <!--  Section Input Control Box  -->
+                        <syncfusion:SfTextInputLayout
+                            Grid.Column="1"
+                            Hint="Section *"
+                            Style="{StaticResource AppOutlinedInputStyle}">
+                            <Picker
+                                Title="Select Section"
+                                FontSize="13"
+                                ItemDisplayBinding="{Binding SectionName}"
+                                ItemsSource="{Binding Sections}"
+                                SelectedItem="{Binding SelectedSection, Mode=TwoWay}"
+                                TextColor="{AppThemeBinding Light=#0f172a,
+                                                            Dark=White}"
+                                TitleColor="{AppThemeBinding Light=#94a3b8,
+                                                             Dark=#64748b}" />
+                        </syncfusion:SfTextInputLayout>
+
+                        <!--  Search Image Button (Centered with Input Box)  -->
+                        <Border
+                            Grid.Column="2"
+                            Margin="0,15,0,0"
+                            Padding="0"
+                            BackgroundColor="{StaticResource Primary}"
+                            HeightRequest="42"
+                            HorizontalOptions="Center"
+                            StrokeShape="RoundRectangle 8"
+                            StrokeThickness="0"
+                            VerticalOptions="Start"
+                            WidthRequest="42">
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding LoadSchedulesCommand}" />
+                            </Border.GestureRecognizers>
+                            <Image
+                                HeightRequest="20"
+                                HorizontalOptions="Center"
+                                Source="search.png"
+                                VerticalOptions="Center"
+                                WidthRequest="20">
+                                <Image.Behaviors>
+                                    <mct:IconTintColorBehavior TintColor="White" />
+                                </Image.Behaviors>
+                            </Image>
+                        </Border>
+                    </Grid>
+                </VerticalStackLayout>
             </Border>
         </VerticalStackLayout>
 

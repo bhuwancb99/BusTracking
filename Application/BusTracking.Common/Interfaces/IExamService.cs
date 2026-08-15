@@ -10,7 +10,7 @@ namespace BusTracking.Common.Interfaces
 
 
         // ── EXAM SCHEDULES (DATESHEET) ──────────────────────────────────────
-        Task<ApiResponse<List<ExamScheduleDto>>> GetExamSchedulesAsync(int? examTermId, int? standardId);
+        Task<ApiResponse<List<ExamScheduleDto>>> GetExamSchedulesAsync(int? examTermId, int? standardId, int? sectionId = null);
         Task<ApiResponse<ExamScheduleDto>> CreateExamScheduleAsync(CreateExamScheduleDto dto);
         Task<ApiResponse<bool>> UpdateExamScheduleAsync(int examScheduleId, UpdateExamScheduleDto dto);
         Task<ApiResponse<bool>> DeleteExamScheduleAsync(int examScheduleId);

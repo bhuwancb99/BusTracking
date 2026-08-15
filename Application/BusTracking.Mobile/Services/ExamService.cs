@@ -132,12 +132,13 @@ namespace BusTracking.Mobile.Services
             return await _api.DeleteAsync<object>(url);
         }
 
-        public async Task<List<ExamScheduleItem>> GetExamSchedulesAsync(int? examTermId = null, int? standardId = null)
+        public async Task<List<ExamScheduleItem>> GetExamSchedulesAsync(int? examTermId = null, int? standardId = null, int? sectionId = null)
         {
             var baseUrl = GetSchedulesEndpoint();
             var query = new List<string>();
             if (examTermId.HasValue) query.Add($"examTermId={examTermId.Value}");
             if (standardId.HasValue) query.Add($"standardId={standardId.Value}");
+            if (sectionId.HasValue && sectionId.Value > 0) query.Add($"sectionId={sectionId.Value}");
 
             var url = query.Count > 0 ? $"{baseUrl}?{string.Join("&", query)}" : baseUrl;
             var r = await _api.GetAsync<List<ExamScheduleItem>>(url);

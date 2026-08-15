@@ -79,14 +79,7 @@ namespace BusTracking.Mobile.Viewmodels.Teacher
         private async Task LoadSectionsAndSchedulesAsync(int standardId)
         {
             var list = await _sectionService.GetByStandardAsync(standardId);
-            if (list == null || list.Count == 0)
-            {
-                list = new List<SectionItem>
-                {
-                    new SectionItem { SectionId = 0, SectionName = "All Sections" }
-                };
-            }
-            Sections = list;
+            Sections = list ?? new();
             SelectedSection = Sections.FirstOrDefault();
 
             if (SelectedExamTerm != null)

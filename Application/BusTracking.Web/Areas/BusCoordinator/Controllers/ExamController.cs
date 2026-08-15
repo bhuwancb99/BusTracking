@@ -88,7 +88,7 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
             return RedirectToAction(nameof(Terms));
         }
 
-        public async Task<IActionResult> Schedules(int? examTermId, int? standardId)
+        public async Task<IActionResult> Schedules(int? examTermId, int? standardId, int? sectionId, bool isSubmitted = false)
         {
             if (!CheckPermission("examschedule.view")) return RedirectToAction("Index", "AccessDenied");
 
@@ -103,22 +103,32 @@ namespace BusTracking.Web.Areas.BusCoordinator.Controllers
 
             var subsRes = await _subjectService.GetActiveSubjectsAsync();
 
-            int? effectiveTermId = examTermId ?? terms.FirstOrDefault()?.ExamTermId;
-            int? effectiveStandardId = standardId ?? stds.FirstOrDefault()?.StandardId;
-
-            int? queryTermId = effectiveTermId == 0 ? null : effectiveTermId;
-            int? queryStandardId = effectiveStandardId == 0 ? null : effectiveStandardId;
-
             ViewBag.AcademicYears = years;
             ViewBag.ActiveYearId = activeYear?.AcademicYearId;
             ViewBag.ExamTerms = terms;
-            ViewBag.SelectedTermId = effectiveTermId;
+            ViewBag.SelectedTermId = examTermId;
             ViewBag.Standards = stds;
-            ViewBag.SelectedStandardId = effectiveStandardId;
+            ViewBag.SelectedStandardId = standardId;
             ViewBag.Subjects = subsRes.Data ?? new();
 
-            var schedulesRes = await _examService.GetExamSchedulesAsync(queryTermId, queryStandardId);
-            return View(schedulesRes.Data ?? new());
+            var sectionsRes = standardId.HasValue && standardId.Value > 0
+                ? await _sectionService.GetSectionsByStandardAsync(standardId.Value)
+                : null;
+            ViewBag.Sections = sectionsRes?.Data ?? new List<SectionDto>();
+            ViewBag.SelectedSectionId = sectionId;
+
+            var list = new List<ExamScheduleDto>();
+            if (examTermId.HasValue && examTermId.Value > 0 && standardId.HasValue && standardId.Value > 0 && sectionId.HasValue)
+            {
+                var schedulesRes = await _examService.GetExamSchedulesAsync(examTermId, standardId, sectionId);
+                list = schedulesRes.Data ?? new();
+            }
+            else if (isSubmitted || examTermId.HasValue || standardId.HasValue || sectionId.HasValue)
+            {
+                ViewBag.ValidationMessage = "Please select Exam Term, Class / Standard, and Section to view the datesheet schedule.";
+            }
+
+            return View(list);
         }
 
 

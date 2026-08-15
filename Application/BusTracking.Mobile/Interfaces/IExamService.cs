@@ -7,7 +7,7 @@ namespace BusTracking.Mobile.Interfaces
         Task<ApiResponse<object>> UpdateExamTermAsync(int examTermId, UpdateExamTermRequest req);
         Task<ApiResponse<object>> DeleteExamTermAsync(int examTermId);
 
-        Task<List<ExamScheduleItem>> GetExamSchedulesAsync(int? examTermId = null, int? standardId = null);
+        Task<List<ExamScheduleItem>> GetExamSchedulesAsync(int? examTermId = null, int? standardId = null, int? sectionId = null);
         Task<ApiResponse<object>> CreateExamScheduleAsync(CreateExamScheduleRequest req);
         Task<ApiResponse<object>> UpdateExamScheduleAsync(int examScheduleId, UpdateExamScheduleRequest req);
         Task<ApiResponse<object>> DeleteExamScheduleAsync(int examScheduleId);

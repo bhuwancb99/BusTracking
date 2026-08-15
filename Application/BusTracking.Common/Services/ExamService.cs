@@ -113,7 +113,7 @@ namespace BusTracking.Common.Services
 
         // ── EXAM SCHEDULES (DATESHEET) ──────────────────────────────────────
 
-        public async Task<ApiResponse<List<ExamScheduleDto>>> GetExamSchedulesAsync(int? examTermId, int? standardId)
+        public async Task<ApiResponse<List<ExamScheduleDto>>> GetExamSchedulesAsync(int? examTermId, int? standardId, int? sectionId = null)
         {
             var query = _db.ExamSchedules
                 .Include(s => s.ExamTerm)
@@ -127,6 +127,9 @@ namespace BusTracking.Common.Services
 
             if (standardId.HasValue && standardId.Value > 0)
                 query = query.Where(s => s.StandardId == standardId.Value);
+
+            if (sectionId.HasValue && sectionId.Value > 0)
+                query = query.Where(s => s.SectionId == null || s.SectionId == sectionId.Value);
 
             var list = await query.OrderBy(s => s.ExamDate).ThenBy(s => s.StartTime).ToListAsync();
 
